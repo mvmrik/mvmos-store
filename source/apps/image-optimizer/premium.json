@@ -21,5 +21,207 @@
       "short": "Choose public tools and remember each profile's setup",
       "description": "The administrator decides which Premium tools appear on the Apps Hub public page. Users can choose whether to remember settings locally per profile and can reset them at any time. With remembering disabled, clearing results also restores defaults."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "summary": "ZIP-Stapelverarbeitung und präzise Kontrolle über Bildabmessungen, Transparenz und Dateinamen.",
+      "features": [
+        {
+          "title": "ZIP-Ordnerverarbeitung",
+          "short": "Eine vollständige Ordnerstruktur in einem Archiv optimieren",
+          "description": "Laden Sie eine ZIP-Datei über den zentralen Upload-Bereich hoch, löschen Sie den vorherigen Stapel, optimieren Sie jedes unterstützte Bild und laden Sie eine neue ZIP-Datei mit denselben Ordnern, Unterordnern und unveränderten Dateien herunter, die keine Bilder sind."
+        },
+        {
+          "title": "Auflösung und Transparenz",
+          "short": "Bildgrößen ändern und transparente Pixel steuern",
+          "description": "Legen Sie Breite und Höhe fest, wahlweise unter Beibehaltung des Seitenverhältnisses, und wählen Sie, ob transparente Pixel transparent bleiben oder auf einem weißen Hintergrund dargestellt werden."
+        },
+        {
+          "title": "Stapelumbenennung",
+          "short": "Umfassende Benennungsregeln auf jedes Bild anwenden",
+          "description": "Fügen Sie ein Präfix oder Suffix hinzu, erzwingen Sie Klein- oder Großschreibung, ersetzen Sie Leerzeichen durch Binde- oder Unterstriche und ersetzen oder entfernen Sie übereinstimmenden Text. Im Modus zum ausschließlichen Umbenennen bleibt jedes Byte der Bilddaten unverändert."
+        },
+        {
+          "title": "Öffentlicher Zugriff und gespeicherte Einstellungen",
+          "short": "Öffentliche Werkzeuge auswählen und Einstellungen jedes Profils speichern",
+          "description": "Der Administrator entscheidet, welche Premium-Werkzeuge auf der öffentlichen Seite von Apps Hub angezeigt werden. Nutzer können wählen, ob Einstellungen lokal pro Profil gespeichert werden sollen, und sie jederzeit zurücksetzen. Ist das Speichern deaktiviert, werden beim Löschen der Ergebnisse auch die Standardeinstellungen wiederhergestellt."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Flujos de trabajo por lotes con ZIP y control preciso de las dimensiones, la transparencia y los nombres de archivo de las imágenes.",
+      "features": [
+        {
+          "title": "Procesamiento de carpetas ZIP",
+          "short": "Optimiza un árbol completo de carpetas en un único archivo",
+          "description": "Carga un ZIP a través de la zona principal de carga, borra el lote anterior, optimiza todas las imágenes compatibles y descarga un nuevo ZIP con las mismas carpetas y subcarpetas, y con los archivos que no son imágenes sin modificar."
+        },
+        {
+          "title": "Resolución y transparencia",
+          "short": "Cambia el tamaño de las imágenes y controla los píxeles transparentes",
+          "description": "Define la anchura y la altura, con la opción de conservar la relación de aspecto, y elige si los píxeles transparentes permanecen transparentes o se colocan sobre un fondo blanco."
+        },
+        {
+          "title": "Cambio de nombres por lotes",
+          "short": "Aplica reglas completas de nomenclatura a cada imagen",
+          "description": "Añade un prefijo o un sufijo, convierte todo a minúsculas o mayúsculas, sustituye los espacios por guiones o guiones bajos y sustituye o elimina el texto coincidente. El modo de solo cambio de nombre mantiene intactos todos los bytes de cada imagen."
+        },
+        {
+          "title": "Acceso público y preferencias guardadas",
+          "short": "Elige las herramientas públicas y recuerda los ajustes de cada perfil",
+          "description": "El administrador decide qué herramientas Premium aparecen en la página pública de Apps Hub. Los usuarios pueden elegir si quieren guardar los ajustes localmente para cada perfil y restablecerlos en cualquier momento. Si el guardado está desactivado, borrar los resultados también restablece los valores predeterminados."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Групова обработка на ZIP архиви и прецизни настройки на размерите, прозрачността и имената на файловете на изображенията.",
+      "features": [
+        {
+          "title": "Обработка на папки в ZIP архив",
+          "short": "Оптимизирайте цяла структура от папки в един архив",
+          "description": "Качете ZIP архив чрез основната зона за качване, изчистете предишната група, оптимизирайте всяко поддържано изображение и изтеглете нов ZIP архив със същите папки, подпапки и непроменени файлове, които не са изображения."
+        },
+        {
+          "title": "Разделителна способност и прозрачност",
+          "short": "Променяйте размерите на изображенията и задавайте как да се обработват прозрачните пиксели",
+          "description": "Задайте ширина и височина с възможност за запазване на пропорциите и изберете дали прозрачните пиксели да останат прозрачни, или да се поставят върху бял фон."
+        },
+        {
+          "title": "Групово преименуване",
+          "short": "Прилагайте пълен набор от правила за именуване към всяко изображение",
+          "description": "Добавете префикс или суфикс, преобразувайте всички букви в малки или главни, заменете интервалите с тирета или долни черти и заменете или премахнете съвпадащ текст. Режимът само за преименуване запазва всеки байт от изображението непроменен."
+        },
+        {
+          "title": "Публичен достъп и запазени предпочитания",
+          "short": "Избирайте публично достъпните инструменти и запомняйте настройките на всеки профил",
+          "description": "Администраторът решава кои инструменти на Premium да се показват на публичната страница в Apps Hub. Потребителите могат да избират дали настройките да се запомнят локално за всеки профил и могат да ги нулират по всяко време. Когато запомнянето е изключено, изчистването на резултатите възстановява и настройките по подразбиране."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Traitement par lots d’archives ZIP et réglage précis des dimensions, de la transparence et des noms de fichiers des images.",
+      "features": [
+        {
+          "title": "Traitement des dossiers ZIP",
+          "short": "Optimisez une arborescence complète dans une seule archive",
+          "description": "Importez une archive ZIP depuis la zone d’importation principale, effacez le lot précédent, optimisez toutes les images prises en charge et téléchargez une nouvelle archive ZIP contenant les mêmes dossiers, sous-dossiers et fichiers autres que des images, laissés intacts."
+        },
+        {
+          "title": "Résolution et transparence",
+          "short": "Redimensionnez les images et gérez les pixels transparents",
+          "description": "Définissez la largeur et la hauteur en conservant les proportions si vous le souhaitez, puis choisissez si les pixels transparents restent transparents ou sont placés sur un fond blanc."
+        },
+        {
+          "title": "Renommage par lots",
+          "short": "Appliquez des règles de nommage complètes à chaque image",
+          "description": "Ajoutez un préfixe ou un suffixe, imposez les minuscules ou les majuscules, remplacez les espaces par des traits d’union ou des tirets bas, et remplacez ou supprimez le texte correspondant. Le mode de renommage seul conserve chaque octet des images à l’identique."
+        },
+        {
+          "title": "Accès public et préférences enregistrées",
+          "short": "Choisissez les outils publics et mémorisez les réglages de chaque profil",
+          "description": "L’administrateur décide des outils Premium qui apparaissent sur la page publique d’Apps Hub. Les utilisateurs peuvent choisir de mémoriser les paramètres localement pour chaque profil et les réinitialiser à tout moment. Lorsque la mémorisation est désactivée, l’effacement des résultats rétablit également les valeurs par défaut."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Пакетная обработка ZIP-архивов и точная настройка размеров изображений, прозрачности и имён файлов.",
+      "features": [
+        {
+          "title": "Обработка папок в ZIP",
+          "short": "Оптимизируйте всё дерево папок в одном архиве",
+          "description": "Загрузите ZIP через основную область загрузки, очистите предыдущую группу файлов, оптимизируйте все изображения поддерживаемых форматов и скачайте новый ZIP с теми же папками, вложенными папками и файлами других типов без изменений."
+        },
+        {
+          "title": "Разрешение и прозрачность",
+          "short": "Меняйте размеры изображений и управляйте прозрачными пикселями",
+          "description": "Задавайте ширину и высоту с возможностью сохранения пропорций и выбирайте, останутся ли прозрачные пиксели прозрачными или будут размещены на белом фоне."
+        },
+        {
+          "title": "Массовое переименование",
+          "short": "Применяйте полный набор правил именования к каждому изображению",
+          "description": "Добавляйте префикс или суффикс, переводите имена в нижний или верхний регистр, заменяйте пробелы дефисами или знаками подчёркивания, а также заменяйте или удаляйте совпадающий текст. В режиме «Только переименование» каждый байт изображения остаётся неизменным."
+        },
+        {
+          "title": "Общий доступ и сохранённые настройки",
+          "short": "Выбирайте общедоступные инструменты и сохраняйте настройки каждого профиля",
+          "description": "Администратор решает, какие инструменты Premium доступны на общедоступной странице Apps Hub. Пользователи могут выбрать локальное сохранение настроек для каждого профиля и сбросить их в любое время. Если сохранение отключено, очистка результатов также восстанавливает настройки по умолчанию."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "支持 ZIP 批量处理流程，并可精确控制图像尺寸、透明度和文件名。",
+      "features": [
+        {
+          "title": "ZIP 文件夹处理",
+          "short": "在一个压缩包中优化完整的文件夹目录树",
+          "description": "通过主上传区域上传 ZIP 文件，清除上一批次，优化所有受支持的图像，然后下载新的 ZIP 文件，其中保留相同的文件夹、子文件夹和未经改动的非图像文件。"
+        },
+        {
+          "title": "分辨率和透明度",
+          "short": "调整图像尺寸并控制透明像素",
+          "description": "设置宽度和高度，可选择保持宽高比，并选择让透明像素保持透明或置于白色背景上。"
+        },
+        {
+          "title": "批量重命名",
+          "short": "将完整的命名规则应用于每张图像",
+          "description": "添加前缀或后缀，强制转换为小写或大写，将空格替换为连字符或下划线，以及替换或删除匹配的文本。仅重命名模式不会改动图像的任何字节。"
+        },
+        {
+          "title": "公开访问和已保存的偏好设置",
+          "short": "选择公开工具，并记住每个个人资料的设置",
+          "description": "管理员决定在 Apps Hub 公开页面上显示哪些 Premium 工具。用户可选择是否按个人资料在本地记住设置，并可随时重置。关闭设置记忆后，清除结果也会恢复默认设置。"
+        }
+      ]
+    },
+    "ja": {
+      "summary": "ZIPを使った一括処理と、画像の寸法、透明部分、ファイル名のきめ細かな設定。",
+      "features": [
+        {
+          "title": "ZIPフォルダー処理",
+          "short": "アーカイブ内のフォルダー階層全体をまとめて最適化",
+          "description": "メインのアップロード領域からZIPをアップロードし、前回の一括処理をクリアして、対応するすべての画像を最適化します。元と同じフォルダー、サブフォルダー、変更されていない画像以外のファイルを含む新しいZIPをダウンロードできます。"
+        },
+        {
+          "title": "解像度と透明部分",
+          "short": "画像サイズを変更し、透明なピクセルの扱いを設定",
+          "description": "必要に応じて縦横比を維持しながら幅と高さを設定し、透明なピクセルを透明のまま保持するか、白い背景に重ねるかを選択できます。"
+        },
+        {
+          "title": "一括名前変更",
+          "short": "すべての画像に詳細な命名ルールを適用",
+          "description": "接頭辞や接尾辞の追加、小文字または大文字への統一、スペースのハイフンやアンダースコアへの置換、一致する文字列の置換や削除ができます。名前変更のみのモードでは、すべての画像データが1バイトも変更されずに保持されます。"
+        },
+        {
+          "title": "公開ページでの利用と設定の保存",
+          "short": "公開するツールを選び、プロフィールごとの設定を保存",
+          "description": "Apps Hubの公開ページに表示するPremiumツールは、管理者が決定します。ユーザーは、プロフィールごとに設定を端末内に保存するかどうかを選択でき、いつでもリセットできます。設定の保存が無効な場合は、処理結果をクリアすると設定も初期値に戻ります。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Fluxos de trabalho em lote com ZIP e controle preciso das dimensões, da transparência e dos nomes dos arquivos de imagem.",
+      "features": [
+        {
+          "title": "Processamento de pastas ZIP",
+          "short": "Otimize uma estrutura completa de pastas em um único arquivo compactado",
+          "description": "Envie um ZIP pela área principal de envio, limpe o lote anterior, otimize todas as imagens compatíveis e baixe um novo ZIP com as mesmas pastas, subpastas e arquivos que não são imagens, preservados sem alterações."
+        },
+        {
+          "title": "Resolução e transparência",
+          "short": "Redimensione imagens e controle os pixels transparentes",
+          "description": "Defina a largura e a altura com a opção de manter a proporção e escolha se os pixels transparentes permanecem transparentes ou recebem um fundo branco."
+        },
+        {
+          "title": "Renomeação em lote",
+          "short": "Aplique regras completas de nomenclatura a todas as imagens",
+          "description": "Adicione um prefixo ou sufixo, converta tudo para minúsculas ou maiúsculas, substitua espaços por hífens ou sublinhados e substitua ou remova o texto correspondente. O modo de apenas renomeação mantém inalterado cada byte das imagens."
+        },
+        {
+          "title": "Acesso público e preferências salvas",
+          "short": "Escolha as ferramentas públicas e salve a configuração de cada perfil",
+          "description": "O administrador decide quais ferramentas Premium aparecem na página pública do Apps Hub. Os usuários podem escolher se desejam salvar as configurações localmente por perfil e podem redefini-las a qualquer momento. Quando a opção de salvar preferências está desativada, limpar os resultados também restaura os padrões."
+        }
+      ]
+    }
+  }
 }

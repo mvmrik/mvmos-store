@@ -55,7 +55,8 @@
           "summary": "Budget bietet eine API für die Kommunikation zwischen Apps: Andere Apps können deine Kategorienliste und die verwendete Währung auslesen und in deinem Auftrag einen Betrag zu einer Kategorie hinzufügen oder davon abziehen. Jeder so erstellte Eintrag hält fest, welche App ihn angelegt hat. Du kannst die Einträge jeder App in der Liste ausblenden.",
           "requires": "Die Budget App API muss unter Apps Hub → Einstellungen → App APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
         }
-      ]
+      ],
+      "name": "Budget"
     },
     "bg": {
       "short_description": "Проследяване на бюджета по категории със споделени категории, цели, групово добавяне и избор дали да се виждат записите от всяко друго приложение, плюс публична уеб страница.",
@@ -83,7 +84,8 @@
           "summary": "Budget предоставя API за връзка между приложения: други приложения могат да четат списъка ви с категории и използваната валута, както и да добавят или изваждат сума в категория от ваше име. За всеки създаден по този начин запис се отбелязва кое приложение го е добавило, а вие можете да скриете от списъка записите на което и да е приложение.",
           "requires": "API на приложението Budget трябва да бъде включен от Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
         }
-      ]
+      ],
+      "name": "Бюджет"
     },
     "es": {
       "short_description": "Control del presupuesto por categorías, con categorías compartidas, objetivos, registro de varios importes a la vez e identificación y visibilidad por aplicación de los movimientos añadidos por otras apps, además de una página web pública.",
@@ -111,7 +113,8 @@
           "summary": "Budget ofrece una API de comunicación entre apps: otras apps pueden leer tu lista de categorías y la moneda que usas, y sumar o restar un importe en una categoría en tu nombre. Cada movimiento creado de esta forma registra qué app lo ha generado, y puedes ocultar los movimientos de cualquier app de la lista.",
           "requires": "La API de la app Budget debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
         }
-      ]
+      ],
+      "name": "Presupuesto"
     },
     "fr": {
       "short_description": "Suivi du budget par catégorie avec catégories partagées, objectifs, saisie groupée et affichage des opérations par application d’origine, ainsi qu’une page web publique.",
@@ -139,7 +142,8 @@
           "summary": "Budget propose une API de communication entre applications : d’autres applications peuvent consulter votre liste de catégories et la devise utilisée, ainsi qu’ajouter ou soustraire un montant dans une catégorie en votre nom. Chaque opération créée de cette façon conserve le nom de l’application qui l’a effectuée, et vous pouvez masquer dans la liste les opérations de n’importe quelle application.",
           "requires": "L’API de l’application Budget doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
         }
-      ]
+      ],
+      "name": "Budget"
     },
     "ru": {
       "short_description": "Учёт бюджета по категориям: общие категории, цели, массовое добавление, настройка видимости записей из других приложений и общедоступная веб-страница.",
@@ -167,7 +171,8 @@
           "summary": "Budget предоставляет API для взаимодействия между приложениями: другие приложения могут читать список ваших категорий и выбранную валюту, а также добавлять или списывать суммы в категориях от вашего имени. В каждой созданной таким образом записи сохраняется название приложения, которое её добавило. Записи любого приложения можно скрыть из списка.",
           "requires": "API приложения Budget нужно включить в Apps Hub → Настройки → API приложений. По умолчанию он выключен."
         }
-      ]
+      ],
+      "name": "Бюджет"
     },
     "zh-CN": {
       "short_description": "按类别管理预算，支持共享类别、设定目标、批量记账，还可按应用控制其他应用所添加记录的显示，并提供公开网页。",
@@ -195,7 +200,8 @@
           "summary": "Budget 提供应用间 API：其他应用可以读取你的类别列表和所用货币，并代你在某个类别中增加或扣除金额。通过这种方式创建的每笔记录都会标明来源应用，你可以在列表中隐藏任意应用添加的记录。",
           "requires": "需要在 Apps Hub → 设置 → 应用 API 中开启 Budget 应用 API。此功能默认关闭。"
         }
-      ]
+      ],
+      "name": "预算"
     },
     "ja": {
       "short_description": "カテゴリー別に予算を管理。カテゴリーの共有、目標設定、金額の一括入力に対応し、ほかのアプリから追加された記録はアプリごとに表示を切り替えられます。公開ウェブページからも利用できます。",
@@ -223,7 +229,8 @@
           "summary": "Budgetはアプリ間連携用のAPIを提供しています。ほかのアプリは、カテゴリーの一覧や使用中の通貨を読み取ったり、ユーザーに代わってカテゴリーの金額を増減させたりできます。この方法で作成された記録には、作成元のアプリが記録されます。特定のアプリによる記録を一覧から非表示にすることもできます。",
           "requires": "Apps Hub → 設定 → アプリAPIで、Budget App APIを有効にする必要があります。初期設定では無効です。"
         }
-      ]
+      ],
+      "name": "家計簿"
     },
     "pt-BR": {
       "short_description": "Controle do orçamento por categorias, com categorias compartilhadas, metas, adição em lote e controle de exibição por app dos lançamentos adicionados por outros apps, além de uma página pública na web.",
@@ -251,7 +258,8 @@
           "summary": "O Budget disponibiliza uma API de comunicação entre apps: outros apps podem consultar sua lista de categorias e a moeda que você usa, além de adicionar ou subtrair um valor em uma categoria em seu nome. Cada lançamento criado dessa forma registra qual app o fez, e você pode ocultar da lista os lançamentos de qualquer app.",
           "requires": "A API do app Budget precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela vem desativada por padrão."
         }
-      ]
+      ],
+      "name": "Orçamento"
     }
   }
 }

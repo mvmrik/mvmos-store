@@ -25,5 +25,223 @@
       "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
       "requires": "Game Hub installed."
     }
-  ]
+  ],
+  "i18n": {
+    "fr": {
+      "short_description": "Retournez deux cartes et retrouvez les paires identiques, seul ou à tour de rôle avec des amis, sur un plateau plat ou sur un cylindre 3D pivotant. Neuf thèmes d’images, un plateau de 6 à 48 paires et un temps limité par tour.",
+      "tagline": "Retournez deux cartes, retrouvez les paires, videz le plateau.",
+      "description": "Remember the Pairs est le jeu de mémoire classique de Game Hub : retournez deux cartes ; si elles sont identiques, elles quittent le plateau et vous rejouez ; sinon, le tour passe au joueur suivant.\n\nChoisissez un plateau de 6 à 48 paires, une limite de temps par tour et l’un des neuf thèmes d’images : animaux, nourriture, nature, transports, jeux et musique, visages, nombres, couleurs et formes. La taille du plateau détermine sa présentation : les petits plateaux sont disposés à plat, avec des cartes assez grandes pour être touchées sur un téléphone, et à partir de 24 paires, les cartes sont réparties autour d’un cylindre 3D monté sur un socle tournant que vous faites pivoter avec le doigt ou la souris. Le cylindre tient toujours entièrement dans la hauteur de l’écran : il n’y a donc rien à faire défiler ; seule sa face avant est visible à un instant donné, et les cartes situées de l’autre côté attendent la prochaine rotation.\n\nJouez seul ou à plusieurs, jusqu’à six personnes, sur ordinateur, téléphone et tablette, dans un navigateur web. Tout le monde voit chaque carte au moment où elle est retournée, et le cylindre de chaque autre joueur pivote pour l’afficher, mais personne ne peut voir ce que fait un joueur avant qu’il fasse son choix. Le serveur conserve la disposition des cartes sur le plateau, de sorte qu’aucun navigateur ne peut la consulter à l’avance.",
+      "capabilities": [
+        "Jeu de mémoire classique : deux cartes par tour, les paires identiques quittent le plateau et vous rejouez.",
+        "Mode solo et multijoueur jusqu’à six joueurs à tour de rôle, avec un chronomètre pour chaque tour.",
+        "Petits plateaux disposés à plat avec des cartes assez grandes pour être touchées, et à partir de 24 paires, un cylindre 3D pivotant qui tient toujours entièrement à l’écran, sur téléphone comme sur ordinateur.",
+        "Plateaux de 6 à 48 paires : les grands plateaux contiennent donc plus de cartes que la face avant du cylindre ne peut en afficher à la fois.",
+        "Neuf thèmes d’images : animaux, nourriture, nature, transports, jeux et musique, visages, nombres, couleurs et formes.",
+        "Les autres joueurs voient chaque carte retournée et le cylindre 3D pivote pour l’afficher, sans révéler la manière dont le joueur explore le plateau.",
+        "Le serveur détient le jeu de cartes : un navigateur ne connaît donc jamais une carte avant qu’elle soit retournée.",
+        "Un calcul équitable des points : le nombre de paires trouvées par tentative est pondéré selon la taille du plateau, de sorte que jouer à plusieurs ne réduit pas le score d’un joueur.",
+        "Enregistrez une partie solo et quittez-la, puis reprenez-la plus tard.",
+        "Statistiques Game Hub sur les paires trouvées, la précision, la meilleure série, les tours où le temps est écoulé et les cartes sur le plateau, avec une évaluation en multijoueur."
+      ],
+      "requirements": [
+        "WebGL pour le cylindre 3D. Sans WebGL, le plateau plat est utilisé."
+      ],
+      "integrations": [
+        {
+          "summary": "Les salons, les tours et les joueurs reposent sur les comptes Game Hub : votre profil et votre avatar, les invitations à d’autres joueurs, ainsi que vos sessions, vos statistiques et votre évaluation enregistrées dans Game Hub.",
+          "requires": "Game Hub installé."
+        }
+      ],
+      "name": "Retrouve les paires"
+    },
+    "ru": {
+      "short_description": "Переворачивайте по две карточки и находите пары с одинаковыми картинками — в одиночку или по очереди с друзьями, на плоском столе или вращающемся 3D-цилиндре. Девять тем картинок, стол от 6 до 48 пар и ограничение времени на каждый ход.",
+      "tagline": "Переворачивайте по две карточки, находите пары, очищайте стол.",
+      "description": "«Запомни пары» — классическая игра на память для Game Hub: переверните две карточки, и, если они совпадут, они исчезнут со стола, а вы получите ещё один ход; если нет — ход перейдёт к следующему игроку.\n\nВыберите стол от 6 до 48 пар, ограничение времени на каждый ход и одну из девяти тем картинок: животные, еда, природа, транспорт, игры и музыка, лица, числа, цвета и фигуры. Размер стола определяет его вид: на небольших столах карточки разложены на плоскости и достаточно крупные, чтобы по ним было удобно нажимать на телефоне, а начиная с 24 пар карточки располагаются вокруг 3D-цилиндра на поворотной платформе, которую можно вращать пальцем или мышью. Цилиндр всегда целиком помещается на экране по высоте, поэтому прокрутка не нужна; в каждый момент видна только его передняя сторона, а карточки с обратной стороны ждут следующего поворота.\n\nИграйте в одиночку или компанией до шести человек в браузере на компьютерах, телефонах и планшетах. Все видят каждую карточку в момент её переворота, и цилиндры остальных игроков поворачиваются к ней, но никто не видит действий другого игрока до того, как тот сделает выбор. Состояние стола хранится на сервере, поэтому ни один браузер не может подсмотреть карточки.",
+      "capabilities": [
+        "Классическая игра на память: по две карточки за ход, совпавшие пары исчезают со стола, и вы получаете ещё один ход.",
+        "Одиночная игра и многопользовательский режим, в котором до шести игроков ходят по очереди, с таймером на каждый ход.",
+        "Небольшие столы с карточками на плоскости, достаточно крупными для удобного нажатия, а начиная с 24 пар — вращающийся 3D-цилиндр, который всегда помещается на экране телефона или компьютера.",
+        "Столы от 6 до 48 пар: на больших столах карточек больше, чем можно одновременно увидеть на передней стороне цилиндра.",
+        "Девять тем картинок: животные, еда, природа, транспорт, игры и музыка, лица, числа, цвета и фигуры.",
+        "Другие игроки видят каждую перевёрнутую карточку, и 3D-цилиндр поворачивается к ней, но то, как игрок осматривает стол, им не видно.",
+        "Колода хранится на сервере, поэтому браузер не знает, что изображено на карточке, пока её не перевернут.",
+        "Справедливый подсчёт очков: количество найденных пар на попытку с поправкой на размер стола, поэтому большее число участников не снижает результат игрока.",
+        "Возможность сохранить одиночную игру и выйти, а затем продолжить позже.",
+        "Статистика в Game Hub: найденные пары, точность, лучшая серия, ходы с истёкшим временем и карточки на столе, а также рейтинг для многопользовательского режима."
+      ],
+      "requirements": [
+        "Для 3D-цилиндра требуется WebGL. Без него используется плоский стол."
+      ],
+      "integrations": [
+        {
+          "summary": "Комнаты, ходы и игроки связаны с учётными записями Game Hub: ваш профиль и аватар, приглашения другим игрокам, а также ваши сеансы, статистика и рейтинг, сохранённые в Game Hub.",
+          "requires": "Установленный Game Hub."
+        }
+      ],
+      "name": "Запомни пары"
+    },
+    "es": {
+      "short_description": "Dale la vuelta a dos cartas y encuentra las parejas, a solas o por turnos con amigos, en un tablero plano o en un cilindro 3D giratorio. Nueve temas de imágenes, un tablero de entre 6 y 48 parejas y un límite de tiempo por turno.",
+      "tagline": "Dale la vuelta a dos cartas, encuentra las parejas y despeja el tablero.",
+      "description": "Remember the Pairs es el clásico juego de memoria para Game Hub: dale la vuelta a dos cartas y, si forman pareja, se retiran del tablero y vuelves a jugar; si no, el turno pasa al siguiente jugador.\n\nElige un tablero de entre 6 y 48 parejas, un límite de tiempo para cada turno y uno de los nueve temas de imágenes: animales, comida, naturaleza, transporte, juegos y música, caras, números, colores y formas. El tamaño del tablero determina su aspecto: los tableros pequeños tienen una disposición plana, con cartas lo bastante grandes como para tocarlas en un teléfono, y a partir de 24 parejas las cartas se distribuyen alrededor de un cilindro 3D sobre una base giratoria que puedes girar con un dedo o con el ratón. El cilindro entero siempre cabe en la pantalla de arriba abajo, así que no hace falta desplazarse; solo se ve la parte frontal en cada momento, y las cartas del lado opuesto esperan al siguiente giro.\n\nJuega a solas o con hasta seis personas en ordenadores, teléfonos y tabletas desde un navegador web. Todos ven cada carta al darle la vuelta, y los cilindros de los demás jugadores giran hasta mostrarla, pero nadie puede ver lo que hace otra persona antes de que elija. El servidor guarda el tablero, de modo que ningún navegador puede ver las cartas de antemano.",
+      "capabilities": [
+        "Juego de memoria clásico: dos cartas por turno; las parejas encontradas se retiran del tablero y vuelves a jugar.",
+        "Modo individual y multijugador por turnos para hasta seis jugadores, con un reloj para cada turno.",
+        "Los tableros pequeños tienen una disposición plana con cartas lo bastante grandes como para tocarlas, y a partir de 24 parejas se usa un cilindro 3D giratorio que siempre cabe en la pantalla, tanto en un teléfono como en un ordenador.",
+        "Tableros de entre 6 y 48 parejas, de modo que los tableros grandes contienen más cartas de las que se ven a la vez en la parte frontal del cilindro.",
+        "Nueve temas de imágenes: animales, comida, naturaleza, transporte, juegos y música, caras, números, colores y formas.",
+        "Los demás jugadores ven cada carta a la que se da la vuelta y el cilindro 3D gira hasta mostrarla, sin revelar cómo explora el tablero el jugador.",
+        "El servidor controla la baraja, por lo que el navegador nunca conoce una carta antes de que se le dé la vuelta.",
+        "Puntuación justa: parejas encontradas por intento, ajustadas según el tamaño del tablero, de modo que jugar con más personas no reduce la puntuación de un jugador.",
+        "Guarda una partida individual y sal de ella para retomarla más tarde.",
+        "Estadísticas de Game Hub sobre parejas encontradas, precisión, mejor racha, turnos en los que se ha agotado el tiempo y cartas en el tablero, con una valoración para el modo multijugador."
+      ],
+      "requirements": [
+        "WebGL para el cilindro 3D. Si no está disponible, se usa el tablero plano."
+      ],
+      "integrations": [
+        {
+          "summary": "Las salas, los turnos y los jugadores funcionan con las cuentas de Game Hub: tu perfil y avatar, las invitaciones a otros jugadores y tus sesiones, estadísticas y valoración quedan registrados en Game Hub.",
+          "requires": "Game Hub instalado."
+        }
+      ],
+      "name": "Recuerda las parejas"
+    },
+    "zh-CN": {
+      "short_description": "每次翻开两张牌，找出相同的配对，可独自游玩，也可与朋友轮流进行。牌桌可以是平面，也可以是可旋转的 3D 圆柱。提供九种图片主题，牌桌可设为 6 至 48 对，并可设置每回合的时间限制。",
+      "tagline": "翻开两张牌，找出配对，清空牌桌。",
+      "description": "Remember the Pairs 是 Game Hub 中的经典记忆游戏：每次翻开两张牌，若两张牌相同，它们就会从牌桌上移除，你可以继续翻牌；若不同，则轮到下一位玩家。\n\n你可以选择 6 至 48 对的牌桌、每回合的时间限制，以及九种图片主题之一：动物、食物、自然、交通、游戏与音乐、面孔、数字、颜色和形状。牌桌的大小决定其呈现方式：较小的牌桌采用平面布局，卡牌足够大，方便在手机上点按；从 24 对起，卡牌会围绕转盘上的 3D 圆柱排列，你可以用手指或鼠标转动它。整个圆柱的高度始终适合屏幕，无需滚动；每次只能看到圆柱的正面，背面的卡牌需要等到下一次转动才能看到。\n\n你可以独自游玩，也可以与最多六位玩家在电脑、手机和平板电脑的网页浏览器中一起玩。每张牌翻开时，所有人都能看到，其他玩家的圆柱也会转向这张牌，但在玩家选定卡牌之前，其他人无法看到其操作。牌桌由服务器保存，因此任何浏览器都无法窥看。",
+      "capabilities": [
+        "经典记忆游戏：每回合翻开两张牌，配对成功的卡牌会从牌桌上移除，你可以继续翻牌。",
+        "支持单人游玩，也支持最多六位玩家轮流进行，每个回合均有计时。",
+        "较小的牌桌采用平面布局，卡牌足够大，方便点按；从 24 对起采用可旋转的 3D 圆柱，无论在手机还是电脑上，都能完整适应屏幕。",
+        "牌桌可设为 6 至 48 对，因此较大牌桌上的卡牌数量会超过圆柱正面一次能显示的数量。",
+        "九种图片主题：动物、食物、自然、交通、游戏与音乐、面孔、数字、颜色和形状。",
+        "其他玩家能看到每一张翻开的牌，3D 圆柱也会转向该牌，但不会显示当前玩家浏览牌桌的过程。",
+        "牌组由服务器掌管，因此浏览器在卡牌翻开之前始终无法得知其内容。",
+        "公平计分：按每次尝试找到的配对数计算，并根据牌桌大小调整，因此参与人数增加不会降低玩家的得分。",
+        "保存并退出单人游戏，稍后可继续游玩。",
+        "Game Hub 会统计找到的配对数、准确率、最佳连续配对次数、超时回合数及牌桌上的卡牌数，并为多人游戏提供评级。"
+      ],
+      "requirements": [
+        "3D 圆柱需要 WebGL 支持。不支持时将使用平面牌桌。"
+      ],
+      "integrations": [
+        {
+          "summary": "房间、回合和玩家均基于 Game Hub 账户运行：使用你的个人资料和头像、邀请其他玩家，并在 Game Hub 中记录你的游戏会话、统计数据和评级。",
+          "requires": "需安装 Game Hub。"
+        }
+      ],
+      "name": "记住配对"
+    },
+    "de": {
+      "short_description": "Decke zwei Karten auf und finde die passenden Paare – allein oder abwechselnd mit Freunden, auf einem flachen Spielfeld oder auf einem drehbaren 3D-Zylinder. Neun Bildthemen, ein Spielfeld mit 6 bis 48 Paaren und ein Zeitlimit pro Zug.",
+      "tagline": "Decke zwei Karten auf, finde die Paare und räume das Spielfeld ab.",
+      "description": "Remember the Pairs ist das klassische Gedächtnisspiel für Game Hub: Decke zwei Karten auf. Passen sie zusammen, werden sie vom Spielfeld entfernt und du bist noch einmal dran. Passen sie nicht zusammen, ist der nächste Spieler an der Reihe.\n\nWähle ein Spielfeld mit 6 bis 48 Paaren, ein Zeitlimit pro Zug und eines von neun Bildthemen: Tiere, Essen, Natur, Verkehr, Spiele und Musik, Gesichter, Zahlen, Farben und Formen. Die Größe des Spielfelds bestimmt die Darstellung: Kleine Spielfelder sind flach angeordnet, mit Karten, die groß genug sind, um sie auf einem Smartphone anzutippen. Ab 24 Paaren sind die Karten rund um einen 3D-Zylinder auf einem Drehteller angeordnet, den du mit dem Finger oder der Maus drehst. Der gesamte Zylinder passt immer von oben bis unten auf den Bildschirm, sodass du nicht scrollen musst. Es ist jeweils nur seine Vorderseite zu sehen; die Karten auf der Rückseite warten auf die nächste Drehung.\n\nSpiele allein oder mit bis zu sechs Personen auf Computern, Smartphones und Tablets im Webbrowser. Alle sehen jede Karte, sobald sie aufgedeckt wird, und die Zylinder aller anderen Spieler drehen sich zu ihr hin. Bevor sich jemand entscheidet, kann jedoch niemand sehen, was diese Person gerade tut. Der Server verwaltet das Spielfeld, sodass kein Browser heimlich einen Blick darauf werfen kann.",
+      "capabilities": [
+        "Klassisches Gedächtnisspiel: zwei Karten pro Zug. Passende Paare werden vom Spielfeld entfernt und du bist noch einmal dran.",
+        "Einzelspieler- und Mehrspielermodus für bis zu sechs Spieler, die abwechselnd an der Reihe sind, mit einer Uhr für jeden Zug.",
+        "Kleine, flach angeordnete Spielfelder mit Karten, die groß genug zum Antippen sind, und ab 24 Paaren ein drehbarer 3D-Zylinder, der immer auf den Bildschirm passt – auf dem Smartphone oder Computer.",
+        "Spielfelder mit 6 bis 48 Paaren, sodass große Spielfelder mehr Karten enthalten, als die Vorderseite des Zylinders auf einmal zeigt.",
+        "Neun Bildthemen: Tiere, Essen, Natur, Verkehr, Spiele und Musik, Gesichter, Zahlen, Farben und Formen.",
+        "Andere Spieler sehen jede aufgedeckte Karte und der 3D-Zylinder dreht sich zu ihr hin, ohne zu zeigen, wie der Spieler das Spielfeld erkundet.",
+        "Der Server verwaltet den Kartenstapel, sodass ein Browser eine Karte erst kennt, wenn sie aufgedeckt wird.",
+        "Faire Punktewertung: gefundene Paare pro Versuch, angepasst an die Größe des Spielfelds, sodass das Spielen mit mehr Personen die Punktzahl eines Spielers nicht verringert.",
+        "Speichere und beende ein Einzelspiel und setze es später fort.",
+        "Game Hub-Statistiken zu gefundenen Paaren, Trefferquote, bester Serie, Zügen mit abgelaufener Zeit und Karten auf dem Spielfeld sowie eine Wertung für den Mehrspielermodus."
+      ],
+      "requirements": [
+        "WebGL für den 3D-Zylinder. Ohne WebGL wird das flache Spielfeld verwendet."
+      ],
+      "integrations": [
+        {
+          "summary": "Räume, Spielzüge und Spieler werden über Game Hub-Konten verwaltet: dein Profil und Avatar, Einladungen an andere Spieler sowie deine in Game Hub gespeicherten Spielsitzungen, Statistiken und deine Wertung.",
+          "requires": "Game Hub muss installiert sein."
+        }
+      ],
+      "name": "Merk dir die Paare"
+    },
+    "bg": {
+      "short_description": "Обръщайте по две карти и намирайте еднаквите двойки — сами или като се редувате с приятели, върху плоско игрално поле или въртящ се 3D цилиндър. Девет теми с картинки, игрално поле с от 6 до 48 двойки и ограничено време за всеки ход.",
+      "tagline": "Обърнете две карти, намерете двойките, изчистете полето.",
+      "description": "„Запомни двойките“ е класическата игра за памет в „Център за игри“: обръщате две карти и ако са еднакви, те се премахват от полето и играете отново; ако не са, ходът преминава към следващия играч.\n\nИзберете игрално поле с от 6 до 48 двойки, ограничение на времето за всеки ход и една от девет теми с картинки: животни, храна, природа, транспорт, игри и музика, лица, числа, цветове и форми. Размерът на полето определя изгледа му: малките полета са плоски, с достатъчно големи карти за докосване на телефон, а при 24 или повече двойки картите се подреждат около 3D цилиндър върху въртяща се платформа, която завъртате с пръст или с мишката. Целият цилиндър винаги се побира на екрана от горе до долу, така че не се налага превъртане; във всеки момент се вижда само предната му част, а картите от обратната страна чакат следващото завъртане.\n\nИграйте сами или в група от до шестима души на компютри, телефони и таблети през уеб браузър. Всеки вижда всяка карта при обръщането ѝ, а цилиндърът на всички останали играчи се завърта към нея, но никой не вижда какво прави даден играч, преди да избере. Сървърът съхранява игралното поле, така че никой браузър не може да надникне в него.",
+      "capabilities": [
+        "Класическа игра за памет: по две карти на ход; еднаквите двойки се премахват от полето и играете отново.",
+        "Самостоятелна игра и игра с до шестима участници, които се редуват, с таймер за всеки ход.",
+        "Малки плоски игрални полета с достатъчно големи карти за докосване, а при 24 или повече двойки — въртящ се 3D цилиндър, който винаги се побира на екрана на телефон или компютър.",
+        "Игрални полета с от 6 до 48 двойки, така че големите полета съдържат повече карти, отколкото се виждат наведнъж от предната страна на цилиндъра.",
+        "Девет теми с картинки: животни, храна, природа, транспорт, игри и музика, лица, числа, цветове и форми.",
+        "Останалите играчи виждат всяка обърната карта и 3D цилиндърът се завърта към нея, без да се показва как играчът разглежда полето.",
+        "Сървърът съхранява тестето, така че браузърът никога не знае коя е картата, преди тя да бъде обърната.",
+        "Справедливо точкуване: намерени двойки спрямо броя опити, съобразено с размера на полето, така че играта с повече участници не намалява резултата на играча.",
+        "Запазете и напуснете самостоятелна игра, а по-късно я продължете.",
+        "Статистика в „Център за игри“ за намерени двойки, точност, най-добра поредица, ходове с изтекло време и карти на полето, с рейтинг за играта с други участници."
+      ],
+      "requirements": [
+        "WebGL за 3D цилиндъра. Без него се използва плоското игрално поле."
+      ],
+      "integrations": [
+        {
+          "summary": "Стаите, ходовете и играчите използват акаунтите в „Център за игри“: вашия профил и аватар, покани до други играчи и записване на сесиите, статистиката и рейтинга ви в „Център за игри“.",
+          "requires": "Инсталиран „Център за игри“."
+        }
+      ],
+      "name": "Запомни двойките"
+    },
+    "ja": {
+      "short_description": "2枚のカードをめくって同じ絵柄のペアを探しましょう。1人でも、友達と交代でも、平面のテーブルや回転する3D円柱で遊べます。絵柄は9種類、ペア数は6〜48組から選べ、各ターンに制限時間を設定できます。",
+      "tagline": "2枚めくってペアを見つけ、テーブルのカードをすべて取りましょう。",
+      "description": "神経衰弱は、ゲームハブで遊べる定番の記憶ゲームです。カードを2枚めくり、絵柄が一致すればそのペアがテーブルから取り除かれ、続けてプレイできます。一致しなければ、次のプレイヤーに順番が移ります。\n\nペア数は6〜48組から、各ターンの制限時間と絵柄は9種類から選べます。絵柄のテーマは、動物、食べ物、自然、乗り物、ゲームと音楽、顔、数字、色、図形です。テーブルの表示方法はペア数によって変わります。少ない場合は平面に並び、スマートフォンでもタップしやすい大きさで表示されます。24組以上になると、指やマウスで回せる回転台の3D円柱の周囲にカードが並びます。円柱は常に上下が画面内に収まるため、スクロールは不要です。一度に見えるのは手前側だけで、裏側のカードは次に回されるのを待ちます。\n\nウェブブラウザーを使い、パソコン、スマートフォン、タブレットで、1人でも最大6人でも遊べます。めくられたカードは全員に表示され、ほかのプレイヤーの円柱もそのカードの位置まで回転しますが、カードを選ぶ前の操作は誰にも見えません。テーブルの状態はサーバーが管理するため、ブラウザーからカードをのぞき見ることはできません。",
+      "capabilities": [
+        "定番の神経衰弱：1ターンに2枚めくり、一致したペアがテーブルから取り除かれると、続けてプレイできます。",
+        "1人プレイと、最大6人が交代で遊ぶマルチプレイに対応。各ターンに制限時間があります。",
+        "ペア数が少ないテーブルはタップしやすい大きさのカードを平面に配置し、24組以上では回転する3D円柱に配置します。スマートフォンでもパソコンでも、円柱は常に画面内に収まります。",
+        "ペア数は6〜48組。ペア数の多いテーブルでは、円柱の手前側に一度に表示される枚数より多くのカードが配置されます。",
+        "絵柄のテーマは9種類：動物、食べ物、自然、乗り物、ゲームと音楽、顔、数字、色、図形。",
+        "めくられたカードはほかのプレイヤーにも表示され、3D円柱がその位置まで回転します。プレイヤーがカードを探している間の操作は表示されません。",
+        "カードはサーバーが管理するため、めくられる前のカードの内容がブラウザーに渡ることはありません。",
+        "公平な得点方式：試行回数あたりに見つけたペア数をテーブルのペア数に応じて調整するため、参加人数が増えてもプレイヤーの得点は下がりません。",
+        "1人プレイを保存して終了し、後で再開できます。",
+        "見つけたペア数、正解率、最多連続正解数、時間切れになったターン数、テーブル上のカード数をゲームハブの統計に記録。マルチプレイではレーティングも記録されます。"
+      ],
+      "requirements": [
+        "3D円柱の表示にはWebGLが必要です。利用できない場合は平面のテーブルを使用します。"
+      ],
+      "integrations": [
+        {
+          "summary": "ルーム、ターン、プレイヤーの管理にはゲームハブのアカウントを使用します。プロフィールとアバター、ほかのプレイヤーへの招待に対応し、セッション、統計、レーティングはゲームハブに記録されます。",
+          "requires": "ゲームハブがインストールされていること。"
+        }
+      ],
+      "name": "ペアを覚えよう"
+    },
+    "pt-BR": {
+      "short_description": "Vire duas cartas e encontre os pares correspondentes, sozinho ou alternando turnos com amigos, em uma mesa plana ou em um cilindro 3D giratório. Nove temas de imagens, uma mesa com 6 a 48 pares e um limite de tempo por turno.",
+      "tagline": "Vire duas cartas, encontre os pares e limpe a mesa.",
+      "description": "Lembre os Pares é o clássico jogo da memória da Central de Jogos: vire duas cartas e, se elas formarem um par, elas saem da mesa e você joga novamente; caso contrário, a vez passa para o próximo jogador.\n\nEscolha uma mesa com 6 a 48 pares, um limite de tempo para cada turno e um dos nove temas de imagens: animais, comida, natureza, transportes, jogos e música, rostos, números, cores e formas. O tamanho da mesa determina sua aparência: mesas pequenas têm disposição plana, com cartas grandes o suficiente para tocar no celular, e, a partir de 24 pares, as cartas ficam ao redor de um cilindro 3D sobre uma base giratória que você gira com o dedo ou o mouse. O cilindro inteiro sempre cabe na tela de cima a baixo, então não é preciso rolar a página; apenas a parte da frente fica visível por vez, e as cartas do outro lado aguardam o próximo giro.\n\nJogue sozinho ou com até seis pessoas em computadores, celulares e tablets, pelo navegador. Todos veem cada carta quando ela é virada, e o cilindro de todos os outros jogadores gira até ela, mas ninguém consegue ver o que alguém está fazendo antes de escolher. O servidor mantém a mesa, então nenhum navegador consegue espiar as cartas.",
+      "capabilities": [
+        "Jogo da memória clássico: duas cartas por turno; os pares correspondentes saem da mesa e você joga novamente.",
+        "Modo individual e multijogador para até seis jogadores em turnos, com um cronômetro para cada turno.",
+        "Mesas pequenas com disposição plana e cartas grandes o suficiente para tocar e, a partir de 24 pares, um cilindro 3D giratório que sempre cabe na tela, no celular ou no computador.",
+        "Mesas com 6 a 48 pares, de modo que mesas grandes contêm mais cartas do que a frente do cilindro exibe de uma só vez.",
+        "Nove temas de imagens: animais, comida, natureza, transportes, jogos e música, rostos, números, cores e formas.",
+        "Os outros jogadores veem cada carta virada, e o cilindro 3D gira até ela, sem mostrar como o jogador explora a mesa.",
+        "O servidor controla o baralho, então o navegador nunca sabe qual é uma carta antes de ela ser virada.",
+        "Pontuação justa: pares encontrados por tentativa, ajustados ao tamanho da mesa, para que jogar com mais pessoas não reduza a pontuação de um jogador.",
+        "Salve e saia de uma partida individual e retome-a mais tarde.",
+        "Estatísticas da Central de Jogos sobre pares encontrados, precisão, melhor sequência, turnos com tempo esgotado e cartas na mesa, com classificação para o modo multijogador."
+      ],
+      "requirements": [
+        "WebGL para o cilindro 3D. Sem ele, é usada a mesa plana."
+      ],
+      "integrations": [
+        {
+          "summary": "Salas, turnos e jogadores usam as contas da Central de Jogos: seu perfil e avatar, convites para outros jogadores e suas sessões, estatísticas e classificação registradas na Central de Jogos.",
+          "requires": "Central de Jogos instalada."
+        }
+      ],
+      "name": "Lembre-se dos pares"
+    }
+  }
 }

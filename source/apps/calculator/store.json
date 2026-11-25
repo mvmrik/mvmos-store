@@ -15,7 +15,8 @@
         "Събиране, изваждане, умножение, деление и изчисляване на проценти.",
         "Пълна поддръжка на въвеждане от клавиатурата, включително Enter за изчисляване на резултата, Backspace за корекция и Escape за изчистване.",
         "Компактен прозорец, който се побира до всичко останало, което сте отворили."
-      ]
+      ],
+      "name": "Калкулатор"
     },
     "de": {
       "short_description": "Einfacher Rechner für die Grundrechenarten. Unterstützt Tastatureingaben.",
@@ -25,7 +26,8 @@
         "Addition, Subtraktion, Multiplikation, Division und Prozentrechnung.",
         "Vollständig per Tastatur bedienbar: Eingabetaste zum Berechnen, Rücktaste zum Korrigieren und Escape zum Zurücksetzen.",
         "Kompaktes Fenster, das neben deinen anderen geöffneten Fenstern Platz findet."
-      ]
+      ],
+      "name": "Rechner"
     },
     "fr": {
       "short_description": "Calculatrice simple pour les opérations arithmétiques de base. Prend en charge la saisie au clavier.",
@@ -35,7 +37,8 @@
         "Addition, soustraction, multiplication, division et calculs de pourcentage.",
         "Saisie entièrement au clavier : Entrée pour calculer, Retour arrière pour corriger et Échap pour effacer.",
         "Une fenêtre compacte qui trouve sa place à côté de vos autres fenêtres ouvertes."
-      ]
+      ],
+      "name": "Calculatrice"
     },
     "es": {
       "short_description": "Calculadora sencilla con operaciones aritméticas básicas. Admite la entrada de datos con el teclado.",
@@ -45,7 +48,8 @@
         "Suma, resta, multiplicación, división y porcentajes.",
         "Control completo con el teclado: Intro para calcular, Retroceso para corregir y Escape para borrar.",
         "Ventana compacta que cabe junto a cualquier otra ventana que tengas abierta."
-      ]
+      ],
+      "name": "Calculadora"
     },
     "pt-BR": {
       "short_description": "Calculadora simples com operações aritméticas básicas. Aceita entrada pelo teclado.",
@@ -55,7 +59,8 @@
         "Adição, subtração, multiplicação, divisão e porcentagens.",
         "Controle completo pelo teclado, com Enter para calcular, Backspace para corrigir e Escape para limpar.",
         "Janela compacta que cabe ao lado de qualquer outra coisa que você tenha aberta."
-      ]
+      ],
+      "name": "Calculadora"
     },
     "ja": {
       "short_description": "基本的な四則演算ができるシンプルな電卓。キーボード入力にも対応。",
@@ -65,7 +70,8 @@
         "足し算、引き算、掛け算、割り算、パーセント計算に対応。",
         "すべての操作をキーボードで。Enterで計算、Backspaceで修正、Escapeでクリアできます。",
         "ほかのウィンドウの横にも収まるコンパクトなサイズ。"
-      ]
+      ],
+      "name": "電卓"
     },
     "ru": {
       "short_description": "Простой калькулятор с основными арифметическими операциями. Поддерживает ввод с клавиатуры.",
@@ -75,7 +81,8 @@
         "Сложение, вычитание, умножение, деление и вычисление процентов.",
         "Полное управление с клавиатуры: Enter для вычисления результата, Backspace для исправления и Escape для очистки.",
         "Компактное окно, которое легко разместить рядом с другими открытыми окнами."
-      ]
+      ],
+      "name": "Калькулятор"
     },
     "zh-CN": {
       "short_description": "简洁易用的计算器，支持基本四则运算和键盘输入。",
@@ -85,7 +92,8 @@
         "支持加、减、乘、除和百分比计算。",
         "支持全键盘操作，包括按 Enter 计算结果、按 Backspace 修改输入、按 Escape 清空。",
         "窗口小巧紧凑，可轻松放在其他已打开的窗口旁边。"
-      ]
+      ],
+      "name": "计算器"
     }
   }
 }

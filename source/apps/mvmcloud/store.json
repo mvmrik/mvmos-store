@@ -18,5 +18,199 @@
   "requirements": [
     "mvmOS Core 1.23.0 or later for shared folder operations and the shared picker. Direct ticket uploads require Core 1.26.0 on both servers.",
     "The app's system backend requires administrator confirmation when installing."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Частна папка за всеки профил в Apps Hub, с управление на файловете през браузъра и контролиран от администратора външен достъп до папки чрез API.",
+      "tagline": "Лични облачни папки за всеки профил в Apps Hub.",
+      "description": "mvmCloud предоставя на всеки профил в Apps Hub частна папка на сървъра, достъпна от работния плот, публичната уебстраница или незадължително разширение за браузъра. Качвайте, разглеждайте, изтегляйте и организирайте файлове с галерия за снимки и видеоклипове, която генерира миниатюри, докато разглеждате.\n\nСподеляне с хора\nСподеляйте файл или папка с избрани профили и задавайте отделни разрешения за преглед, изтегляне, качване и изтриване. Променяйте тези разрешения или прекратявайте споделянето. Споделените местоположения се показват редом със собствените файлове на профила; споделянето на отделен файл осигурява достъп само до него.\n\nПублични връзки\nСъздавайте връзка към файл или папка за човек без акаунт, по желание защитена с парола. Собственикът може да променя или премахва паролата и да оттегля връзката. Публичните връзки са достъпни само докато публичната страница на приложението е включена. Криптирани папки и папки, които ги съдържат, не могат да бъдат публикувани по този начин.\n\nМестоположения, споделени от администратора\nАдминистраторът може да предостави папка от своята домашна директория в Linux или папка, свързана от друг mvmOS сървър, на всички или на избрани профили. Разрешенията не могат да надхвърлят позволеното от споделящия сървър. Качванията на файлове към отдалечени местоположения се извършват директно от браузъра, когато и двата сървъра поддържат билети за качване на един файл; в противен случай преминават през този сървър. Тези билети не разкриват ключа за достъп до папката. Отдалечените местоположения не поддържат преместване на файлове или рекурсивно изтриване на непразна папка.\n\nСъхранение, криптиране и достъп чрез API\nИндикаторът за използваното място показва наличното пространство на сървъра и евентуалната квота на профила. Администраторите могат да създават API ключове с ограничен обхват за избрани папки в текущата си домашна директория в Linux, а профилите с необходимите права могат да използват кредити от Apps Hub, за да създадат ключ за една от собствените си папки. Тези ключове предоставят файлови операции, но никога достъп до командна обвивка. Premium управлява квотите и разрешението за създаване на криптирани папки, отключвани в браузъра, или лични API ключове. Обичайното съхранение и споделяне на файлове остават достъпни без Premium.",
+      "capabilities": [
+        "Отделна частна папка за всеки профил в Apps Hub.",
+        "Качване, изтегляне, създаване на папки, преместване и изтриване на файлове в браузъра.",
+        "Изглед на галерия с генерирани миниатюри и преглед на снимки и видеоклипове.",
+        "API с Bearer токени с ограничен обхват за избрани от администратора папки в Linux.",
+        "Потребителите могат да създават собствен API ключ с ограничен обхват за една от папките си, като използват кредити от Apps Hub.",
+        "Незадължителни криптирани подпапки, отключвани в браузъра.",
+        "Управление чрез абонамент на потребителските квоти, разрешенията за криптирани папки и API ключовете, издавани от потребители.",
+        "Споделяне на файлове или папки с избрани профили и отделно управление на прегледа, изтеглянето, качването и изтриването.",
+        "Създаване на публични връзки, които могат да бъдат оттегляни, с парола по избор.",
+        "Местоположения, споделени от администратора, чрез папки в локалната домашна директория в Linux или свързани папки от mvmOS.",
+        "Директно качване от браузъра към отдалечени местоположения чрез билети за качване с ограничен обхват и резервен вариант за по-стари споделящи сървъри.",
+        "Показване на свободното място и квотата в интерфейса за разглеждане на файлове."
+      ],
+      "requirements": [
+        "mvmOS Core 1.23.0 или по-нова версия за операции със споделени папки и общия инструмент за избор. Директното качване чрез билети изисква Core 1.26.0 и на двата сървъра.",
+        "Системният сървърен компонент на приложението изисква потвърждение от администратора при инсталиране."
+      ],
+      "name": "mvmCloud"
+    },
+    "de": {
+      "short_description": "Ein privater Ordner für jedes Apps Hub-Profil, mit Dateiverwaltung im Browser und vom Administrator gesteuertem externem API-Zugriff auf Ordner.",
+      "tagline": "Persönliche Cloud-Ordner für jedes Apps Hub-Profil.",
+      "description": "mvmCloud stellt jedem Apps Hub-Profil einen privaten Ordner auf dem Server bereit, der über den Desktop, die öffentliche Webseite oder eine optionale Browsererweiterung zugänglich ist. Laden Sie Dateien hoch und herunter, durchsuchen und organisieren Sie sie. Eine Foto- und Videogalerie erzeugt beim Durchsehen Vorschaubilder.\n\nMit anderen Personen teilen\nTeilen Sie eine Datei oder einen Ordner mit ausgewählten Profilen und legen Sie die Berechtigungen für Vorschau, Download, Upload und Löschen unabhängig voneinander fest. Sie können diese Berechtigungen ändern oder eine Freigabe widerrufen. Freigegebene Speicherorte erscheinen neben den eigenen Dateien des Profils; bei einer einzeln freigegebenen Datei bleibt der Zugriff auf diese Datei beschränkt.\n\nÖffentliche Links\nErstellen Sie einen Link zu einer Datei oder einem Ordner für Personen ohne Konto, auf Wunsch mit Passwortschutz. Der Eigentümer kann das Passwort ändern oder entfernen und den Link widerrufen. Öffentliche Links sind nur verfügbar, solange die öffentliche Seite der App aktiviert ist. Verschlüsselte Ordner und Ordner, die solche enthalten, können auf diese Weise nicht veröffentlicht werden.\n\nVom Administrator freigegebene Speicherorte\nEin Administrator kann einen Ordner innerhalb seines Linux-Home-Verzeichnisses oder einen von einem anderen mvmOS-Server verbundenen Ordner für alle oder ausgewählte Profile bereitstellen. Die Berechtigungen können nicht über das hinausgehen, was der freigebende Server erlaubt. Datei-Uploads an entfernte Speicherorte erfolgen direkt aus dem Browser, wenn beide Server Upload-Tickets für einzelne Dateien unterstützen; andernfalls werden sie über diesen Server geleitet. Diese Tickets legen den Zugriffsschlüssel des Ordners nicht offen. Entfernte Speicherorte unterstützen weder das Verschieben von Dateien noch das rekursive Löschen nicht leerer Ordner.\n\nSpeicher, Verschlüsselung und API-Zugriff\nDie Nutzungsanzeige zeigt den verfügbaren Serverspeicher und ein gegebenenfalls geltendes Profilkontingent an. Administratoren können API-Schlüssel mit begrenztem Geltungsbereich für ausgewählte Ordner in ihrem aktuellen Linux-Home-Verzeichnis erstellen. Berechtigte Profile können Apps Hub-Guthaben einsetzen, um einen Schlüssel für einen ihrer eigenen Ordner zu erstellen. Diese Schlüssel ermöglichen Dateivorgänge, jedoch niemals Shell-Zugriff. Premium steuert Kontingente und die Berechtigung zum Erstellen verschlüsselter, im Browser entsperrbarer Ordner oder persönlicher API-Schlüssel. Die normale Dateispeicherung und Freigabe bleiben ohne Premium verfügbar.",
+      "capabilities": [
+        "Ein separater privater Ordner für jedes Apps Hub-Profil.",
+        "Dateien im Browser hochladen, herunterladen, verschieben und löschen sowie Ordner erstellen.",
+        "Galerieansicht mit erzeugten Vorschaubildern und Vorschauen für Fotos und Videos.",
+        "API mit Bearer-Token und begrenztem Geltungsbereich für vom Administrator ausgewählte Linux-Ordner.",
+        "Benutzer können mit Apps Hub-Guthaben einen eigenen API-Schlüssel mit begrenztem Geltungsbereich für einen ihrer Ordner erstellen.",
+        "Optionale verschlüsselte Unterordner, die im Browser entsperrt werden.",
+        "Abonnementfunktionen zur Steuerung von Benutzerkontingenten, Berechtigungen für verschlüsselte Ordner und von Benutzern ausgestellten API-Schlüsseln.",
+        "Dateien oder Ordner mit ausgewählten Profilen teilen und Vorschau, Download, Upload und Löschen unabhängig voneinander steuern.",
+        "Widerrufbare öffentliche Links mit optionalem Passwort erstellen.",
+        "Vom Administrator freigegebene Speicherorte in lokalen Linux-Home-Verzeichnissen oder verbundenen mvmOS-Ordnern.",
+        "Direkte Browser-Uploads an entfernte Speicherorte mit Upload-Tickets mit begrenztem Geltungsbereich und einer Ausweichlösung für ältere freigebende Server.",
+        "Anzeigen für freien Speicher und Kontingente im Dateibrowser."
+      ],
+      "requirements": [
+        "mvmOS Core 1.23.0 oder neuer für Vorgänge mit freigegebenen Ordnern und den gemeinsamen Auswahldialog. Direkte Ticket-Uploads erfordern Core 1.26.0 auf beiden Servern.",
+        "Das System-Backend der App erfordert bei der Installation eine Bestätigung durch den Administrator."
+      ],
+      "name": "mvmCloud"
+    },
+    "es": {
+      "short_description": "Una carpeta privada para cada perfil de Apps Hub, con gestión de archivos en el navegador y acceso mediante API a carpetas externas controlado por el administrador.",
+      "tagline": "Carpetas personales en la nube para cada perfil de Apps Hub.",
+      "description": "mvmCloud proporciona a cada perfil de Apps Hub una carpeta privada alojada en el servidor, accesible desde el escritorio, la página web pública o una extensión opcional del navegador. Sube, explora, descarga y organiza archivos, con una galería de fotos y vídeos que genera miniaturas mientras navegas.\n\nCompartir con otras personas\nComparte un archivo o una carpeta con perfiles seleccionados y elige permisos independientes de previsualización, descarga, subida y eliminación. Modifica esos permisos o revoca el acceso compartido. Las ubicaciones compartidas aparecen junto a los archivos propios del perfil; cuando se comparte un único archivo, el acceso se limita a ese archivo.\n\nEnlaces públicos\nCrea un enlace a un archivo o una carpeta para alguien que no tenga cuenta, con la opción de protegerlo mediante una contraseña. El propietario puede cambiar o eliminar la contraseña y revocar el enlace. Los enlaces públicos solo están disponibles mientras la página pública de la aplicación esté habilitada. Las carpetas cifradas y las carpetas que las contengan no pueden publicarse de esta forma.\n\nUbicaciones compartidas por el administrador\nUn administrador puede ofrecer una carpeta de su directorio personal de Linux o una carpeta conectada desde otro servidor mvmOS a todos los perfiles o solo a los seleccionados. Los permisos no pueden superar los que permite el servidor que comparte la carpeta. Las subidas de archivos remotos se realizan directamente desde el navegador cuando ambos servidores admiten autorizaciones de subida para un solo archivo; de lo contrario, pasan por este servidor. Estas autorizaciones no exponen la clave de acceso a la carpeta. Las ubicaciones remotas no permiten mover archivos ni eliminar de forma recursiva una carpeta que no esté vacía.\n\nAlmacenamiento, cifrado y acceso mediante API\nEl indicador de uso muestra el espacio disponible en el servidor y cualquier cuota del perfil. Los administradores pueden crear claves de API con un ámbito limitado para carpetas seleccionadas de su directorio personal de Linux actual, y los perfiles que cumplan los requisitos pueden gastar créditos de Apps Hub para crear una clave para una de sus propias carpetas. Estas claves permiten realizar operaciones con archivos, pero nunca acceder a una shell. Premium controla las cuotas y los permisos para crear carpetas cifradas que se desbloquean en el navegador o claves de API personales. El almacenamiento y el uso compartido habituales de archivos siguen disponibles sin Premium.",
+      "capabilities": [
+        "Una carpeta privada independiente para cada perfil de Apps Hub.",
+        "Sube, descarga, crea carpetas, mueve y elimina archivos en el navegador.",
+        "Vista de galería con miniaturas generadas y previsualizaciones de fotos y vídeos.",
+        "API con tokens Bearer de ámbito limitado para carpetas de Linux seleccionadas por el administrador.",
+        "Los usuarios pueden crear su propia clave de API con un ámbito limitado para una de sus carpetas gastando créditos de Apps Hub.",
+        "Subcarpetas cifradas opcionales que se desbloquean en el navegador.",
+        "Controles de suscripción para las cuotas de usuario, los permisos de carpetas cifradas y las claves de API emitidas por los usuarios.",
+        "Comparte archivos o carpetas con perfiles seleccionados y controla de forma independiente la previsualización, la descarga, la subida y la eliminación.",
+        "Crea enlaces públicos revocables con contraseña opcional.",
+        "Ubicaciones compartidas por el administrador basadas en carpetas del directorio personal local de Linux o en carpetas conectadas de mvmOS.",
+        "Subidas directas desde el navegador a ubicaciones remotas con autorizaciones de subida de ámbito limitado y una alternativa para servidores de uso compartido más antiguos.",
+        "Indicadores de espacio libre y cuota en el explorador de archivos."
+      ],
+      "requirements": [
+        "mvmOS Core 1.23.0 o posterior para las operaciones con carpetas compartidas y el selector compartido. Las subidas directas mediante autorizaciones requieren Core 1.26.0 en ambos servidores.",
+        "El componente de sistema de la aplicación requiere la confirmación del administrador durante la instalación."
+      ],
+      "name": "mvmCloud"
+    },
+    "fr": {
+      "short_description": "Un dossier privé pour chaque profil Apps Hub, avec gestion des fichiers dans le navigateur et accès aux dossiers externes par API contrôlé par l’administrateur.",
+      "tagline": "Des dossiers cloud personnels pour chaque profil Apps Hub.",
+      "description": "mvmCloud fournit à chaque profil Apps Hub un dossier privé hébergé sur le serveur, accessible depuis le bureau, la page web publique ou une extension de navigateur facultative. Téléversez, parcourez, téléchargez et organisez vos fichiers, avec une galerie de photos et de vidéos qui génère des vignettes au fil de la navigation.\n\nPartage avec d’autres personnes\nPartagez un fichier ou un dossier avec des profils sélectionnés et définissez séparément les autorisations d’aperçu, de téléchargement, de téléversement et de suppression. Modifiez ces autorisations ou révoquez le partage. Les emplacements partagés apparaissent aux côtés des fichiers du profil ; le partage d’un fichier unique reste limité à ce fichier.\n\nLiens publics\nCréez un lien vers un fichier ou un dossier pour une personne sans compte, avec une protection facultative par mot de passe. Le propriétaire peut modifier ou supprimer le mot de passe et révoquer le lien. Les liens publics ne sont disponibles que lorsque la page publique de l’application est activée. Les dossiers chiffrés et les dossiers qui en contiennent ne peuvent pas être publiés de cette manière.\n\nEmplacements partagés par l’administrateur\nUn administrateur peut mettre à disposition un dossier de son répertoire personnel Linux ou un dossier connecté depuis un autre serveur mvmOS, pour tous les profils ou pour certains profils sélectionnés. Les autorisations ne peuvent pas dépasser celles accordées par le serveur de partage. Les téléversements de fichiers distants s’effectuent directement depuis le navigateur lorsque les deux serveurs prennent en charge les tickets de téléversement pour un fichier unique ; sinon, ils transitent par ce serveur. Ces tickets ne révèlent pas la clé d’accès au dossier. Les emplacements distants ne permettent pas de déplacer des fichiers ni de supprimer récursivement un dossier non vide.\n\nStockage, chiffrement et accès API\nL’affichage de l’utilisation indique l’espace disponible sur le serveur et l’éventuel quota du profil. Les administrateurs peuvent créer des clés API à portée limitée pour des dossiers sélectionnés dans leur répertoire personnel Linux actuel, et les profils autorisés peuvent dépenser des crédits Apps Hub pour créer une clé pour l’un de leurs propres dossiers. Ces clés permettent des opérations sur les fichiers, jamais l’accès à un shell. Premium permet de gérer les quotas et l’autorisation de créer des dossiers chiffrés déverrouillables dans le navigateur ou des clés API personnelles. Le stockage et le partage de fichiers ordinaires restent disponibles sans Premium.",
+      "capabilities": [
+        "Un dossier privé distinct pour chaque profil Apps Hub.",
+        "Téléversement, téléchargement, création de dossiers, déplacement et suppression de fichiers dans le navigateur.",
+        "Vue galerie avec génération de vignettes et aperçus pour les photos et les vidéos.",
+        "API à portée limitée utilisant des jetons Bearer pour les dossiers Linux sélectionnés par l’administrateur.",
+        "Les utilisateurs peuvent créer leur propre clé API à portée limitée pour l’un de leurs dossiers en dépensant des crédits Apps Hub.",
+        "Sous-dossiers chiffrés facultatifs déverrouillables dans le navigateur.",
+        "Gestion, avec abonnement, des quotas utilisateurs, des autorisations relatives aux dossiers chiffrés et des clés API créées par les utilisateurs.",
+        "Partage de fichiers ou de dossiers avec des profils sélectionnés et contrôle indépendant des autorisations d’aperçu, de téléchargement, de téléversement et de suppression.",
+        "Création de liens publics révocables avec un mot de passe facultatif.",
+        "Emplacements partagés par l’administrateur reposant sur des dossiers du répertoire personnel Linux local ou des dossiers mvmOS connectés.",
+        "Téléversements directs depuis le navigateur vers des emplacements distants avec des tickets de téléversement à portée limitée et une solution de repli pour les anciens serveurs de partage.",
+        "Affichage de l’espace libre et des quotas dans le navigateur de fichiers."
+      ],
+      "requirements": [
+        "mvmOS Core 1.23.0 ou version ultérieure pour les opérations sur les dossiers partagés et le sélecteur commun. Les téléversements directs par ticket nécessitent Core 1.26.0 sur les deux serveurs.",
+        "Le service système de l’application nécessite une confirmation de l’administrateur lors de l’installation."
+      ],
+      "name": "mvmCloud"
+    },
+    "ja": {
+      "short_description": "Apps Hubの各プロフィールに専用の非公開フォルダーを提供。ブラウザーでのファイル管理と、管理者が制御する外部フォルダーへのAPIアクセスに対応。",
+      "tagline": "Apps Hubのすべてのプロフィールに、個人用クラウドフォルダーを。",
+      "description": "mvmCloudは、Apps Hubの各プロフィールにサーバー上の専用の非公開フォルダーを提供します。デスクトップ、公開ウェブページ、または任意で導入できるブラウザー拡張機能からアクセスできます。ファイルのアップロード、閲覧、ダウンロード、整理ができ、写真と動画のギャラリーでは閲覧に合わせてサムネイルが生成されます。\n\nユーザーとの共有\n選択したプロフィールとファイルやフォルダーを共有し、プレビュー、ダウンロード、アップロード、削除の権限を個別に設定できます。権限の変更や共有の解除も可能です。共有された場所は、プロフィール自身のファイルと並んで表示されます。単一ファイルの共有では、アクセス対象はそのファイルだけに限定されます。\n\n公開リンク\nアカウントを持たない相手に向けて、ファイルやフォルダーへのリンクを作成できます。必要に応じてパスワードで保護することもできます。所有者はパスワードの変更や削除、リンクの無効化を行えます。公開リンクは、アプリの公開ページが有効な間のみ利用できます。暗号化フォルダーおよび暗号化フォルダーを含むフォルダーは、この方法では公開できません。\n\n管理者による共有場所\n管理者は、自身のLinuxホーム内のフォルダーや、別のmvmOSサーバーから接続したフォルダーを、全員または選択したプロフィールに提供できます。共有元サーバーで許可されている範囲を超える権限は設定できません。両方のサーバーが単一ファイルのアップロードチケットに対応している場合、リモートへのファイルアップロードはブラウザーから直接行われます。それ以外の場合は、このサーバーを経由します。これらのチケットによってフォルダーのアクセスキーが公開されることはありません。リモートの場所では、ファイルの移動や、空でないフォルダーの再帰的な削除はできません。\n\nストレージ、暗号化、APIアクセス\n使用状況の表示では、サーバーの空き容量と、設定されているプロフィールの容量上限を確認できます。管理者は、現在のLinuxホーム内で選択したフォルダーに対して、アクセス範囲を限定したAPIキーを作成できます。また、利用資格のあるプロフィールは、Apps Hubクレジットを使って自身のフォルダーのいずれか1つに対するキーを作成できます。これらのキーで利用できるのはファイル操作のみで、シェルにはアクセスできません。Premiumでは、容量上限と、ブラウザーでロックを解除する暗号化フォルダーや個人用APIキーの作成権限を管理できます。通常のファイル保存と共有は、Premiumがなくても引き続き利用できます。",
+      "capabilities": [
+        "Apps Hubの各プロフィールに独立した非公開フォルダーを提供。",
+        "ブラウザーでファイルのアップロード、ダウンロード、フォルダー作成、ファイルの移動と削除が可能。",
+        "写真と動画のサムネイル生成およびプレビューに対応したギャラリー表示。",
+        "管理者が選択したLinuxフォルダーを対象とする、アクセス範囲を限定したBearerトークンAPI。",
+        "ユーザーがApps Hubクレジットを使い、自身のフォルダーのいずれか1つに対する、アクセス範囲を限定したAPIキーを作成可能。",
+        "ブラウザーでロックを解除する暗号化サブフォルダーを任意で利用可能。",
+        "サブスクリプションで、ユーザーの容量上限、暗号化フォルダーの権限、ユーザーによるAPIキー発行を管理。",
+        "選択したプロフィールとファイルやフォルダーを共有し、プレビュー、ダウンロード、アップロード、削除を個別に制御。",
+        "任意のパスワードを設定できる、無効化可能な公開リンクを作成。",
+        "ローカルのLinuxホームフォルダーや接続済みのmvmOSフォルダーを使って、管理者が共有場所を提供。",
+        "アクセス範囲を限定したアップロードチケットを使い、ブラウザーからリモートの場所へ直接アップロード。旧バージョンの共有元サーバー向けの代替方式にも対応。",
+        "ファイルブラウザーに空き容量と容量上限を表示。"
+      ],
+      "requirements": [
+        "共有フォルダーの操作と共通選択画面には、mvmOS Core 1.23.0以降が必要です。チケットによる直接アップロードには、両方のサーバーでCore 1.26.0が必要です。",
+        "アプリのシステムバックエンドのインストールには、管理者による確認が必要です。"
+      ],
+      "name": "mvmCloud"
+    },
+    "pt-BR": {
+      "short_description": "Uma pasta privada para cada perfil do Apps Hub, com gerenciamento de arquivos pelo navegador e acesso a pastas externas via API controlado pelo administrador.",
+      "tagline": "Pastas pessoais na nuvem para cada perfil do Apps Hub.",
+      "description": "O mvmCloud oferece a cada perfil do Apps Hub uma pasta privada armazenada no servidor, acessível pelo ambiente de trabalho, pela página web pública ou pela extensão opcional do navegador. Faça upload, navegue, baixe e organize arquivos, com uma galeria de fotos e vídeos que gera miniaturas durante a navegação.\n\nCompartilhamento com pessoas\nCompartilhe um arquivo ou uma pasta com perfis selecionados e defina permissões independentes de visualização, download, upload e exclusão. Altere essas permissões ou revogue um compartilhamento. Os locais compartilhados aparecem ao lado dos arquivos do próprio perfil; o compartilhamento de um único arquivo permanece restrito a esse arquivo.\n\nLinks públicos\nCrie um link para um arquivo ou uma pasta para alguém sem conta, com proteção opcional por senha. O proprietário pode alterar ou remover a senha e revogar o link. Os links públicos ficam disponíveis apenas enquanto a página pública do aplicativo está ativada. Pastas criptografadas e pastas que as contenham não podem ser publicadas dessa forma.\n\nLocais compartilhados pelo administrador\nUm administrador pode disponibilizar uma pasta dentro de seu diretório pessoal do Linux ou uma pasta conectada de outro servidor mvmOS para todos ou para perfis selecionados. As permissões não podem exceder as permitidas pelo servidor que compartilha a pasta. Os uploads de arquivos remotos são enviados diretamente pelo navegador quando ambos os servidores oferecem suporte a autorizações de upload de arquivo único; caso contrário, passam por este servidor. Essas autorizações não expõem a chave de acesso à pasta. Os locais remotos não permitem mover arquivos nem excluir recursivamente uma pasta que não esteja vazia.\n\nArmazenamento, criptografia e acesso à API\nO indicador de uso mostra o espaço disponível no servidor e qualquer cota do perfil. Os administradores podem criar chaves de API com escopo restrito para pastas selecionadas em seu diretório pessoal atual do Linux, e os perfis elegíveis podem gastar créditos do Apps Hub para criar uma chave para uma de suas próprias pastas. Essas chaves disponibilizam operações com arquivos, nunca acesso ao shell. O Premium controla as cotas e a permissão para criar pastas criptografadas desbloqueadas pelo navegador ou chaves de API pessoais. O armazenamento e o compartilhamento comuns de arquivos continuam disponíveis sem o Premium.",
+      "capabilities": [
+        "Uma pasta privada separada para cada perfil do Apps Hub.",
+        "Faça upload, baixe arquivos, crie pastas, mova e exclua arquivos pelo navegador.",
+        "Visualização em galeria com miniaturas geradas e prévias de fotos e vídeos.",
+        "API com token Bearer e escopo restrito para pastas do Linux selecionadas pelo administrador.",
+        "Os usuários podem criar sua própria chave de API com escopo restrito para uma de suas pastas, usando créditos do Apps Hub.",
+        "Subpastas criptografadas opcionais, desbloqueadas pelo navegador.",
+        "Controles por assinatura para cotas de usuários, permissões de pastas criptografadas e chaves de API emitidas por usuários.",
+        "Compartilhe arquivos ou pastas com perfis selecionados e controle de forma independente a visualização, o download, o upload e a exclusão.",
+        "Crie links públicos revogáveis com senha opcional.",
+        "Locais compartilhados pelo administrador em pastas locais do diretório pessoal do Linux ou em pastas conectadas do mvmOS.",
+        "Uploads diretos do navegador para locais remotos com autorizações de upload de escopo restrito e uma alternativa para servidores de compartilhamento mais antigos.",
+        "Indicadores de espaço livre e cota no navegador de arquivos."
+      ],
+      "requirements": [
+        "mvmOS Core 1.23.0 ou posterior para operações com pastas compartilhadas e o seletor compartilhado. Uploads diretos com autorização exigem Core 1.26.0 em ambos os servidores.",
+        "O backend de sistema do aplicativo exige confirmação do administrador durante a instalação."
+      ],
+      "name": "mvmCloud"
+    },
+    "ru": {
+      "short_description": "Личная папка для каждого профиля Apps Hub с управлением файлами в браузере и доступом к внешним папкам через API под контролем администратора.",
+      "tagline": "Личные облачные папки для каждого профиля Apps Hub.",
+      "description": "mvmCloud предоставляет каждому профилю Apps Hub личную папку на сервере, доступную с рабочего стола, публичной веб-страницы или через дополнительное расширение браузера. Загружайте, просматривайте, скачивайте и упорядочивайте файлы, используя галерею фото и видео, которая создаёт миниатюры по мере просмотра.\n\nДоступ для других пользователей\nДелитесь файлом или папкой с выбранными профилями и отдельно задавайте разрешения на предварительный просмотр, скачивание, загрузку и удаление. Меняйте эти разрешения или отзывайте доступ. Общие ресурсы отображаются рядом с собственными файлами профиля; доступ к отдельному файлу ограничивается только этим файлом.\n\nПубличные ссылки\nСоздайте ссылку на файл или папку для человека без учётной записи и при необходимости защитите её паролем. Владелец может изменить или удалить пароль и отозвать ссылку. Публичные ссылки доступны, только пока включена публичная страница приложения. Зашифрованные папки и папки, содержащие их, нельзя публиковать таким способом.\n\nОбщие ресурсы администратора\nАдминистратор может предоставить всем или выбранным профилям доступ к папке в своём домашнем каталоге Linux или к папке, подключённой с другого сервера mvmOS. Разрешения не могут превышать права, предоставленные сервером, открывшим доступ. Файлы загружаются в удалённые папки прямо из браузера, если оба сервера поддерживают талоны на загрузку одного файла; в противном случае загрузка проходит через этот сервер. Такие талоны не раскрывают ключ доступа к папке. В удалённых ресурсах не поддерживаются перемещение файлов и рекурсивное удаление непустых папок.\n\nХранилище, шифрование и доступ через API\nИндикатор использования показывает свободное место на сервере и квоту профиля, если она задана. Администраторы могут создавать API-ключи с ограниченной областью доступа для выбранных папок в своём текущем домашнем каталоге Linux, а профили с соответствующим разрешением могут тратить кредиты Apps Hub на создание ключа для одной из собственных папок. Эти ключи предоставляют операции с файлами, но никогда не дают доступа к командной оболочке. Premium позволяет управлять квотами и разрешениями на создание зашифрованных папок, разблокируемых в браузере, или личных API-ключей. Обычное хранение файлов и общий доступ остаются доступны без Premium.",
+      "capabilities": [
+        "Отдельная личная папка для каждого профиля Apps Hub.",
+        "Загрузка, скачивание, создание папок, перемещение и удаление файлов в браузере.",
+        "Режим галереи с автоматически создаваемыми миниатюрами и предварительным просмотром фото и видео.",
+        "API с Bearer-токенами и ограниченной областью доступа для папок Linux, выбранных администратором.",
+        "Пользователи могут создавать собственный API-ключ с ограниченной областью доступа для одной из своих папок, расходуя кредиты Apps Hub.",
+        "Необязательные зашифрованные вложенные папки, разблокируемые в браузере.",
+        "Управление квотами пользователей, разрешениями на зашифрованные папки и API-ключами, выпускаемыми пользователями, в рамках подписки.",
+        "Доступ к файлам или папкам для выбранных профилей с независимыми разрешениями на предварительный просмотр, скачивание, загрузку и удаление.",
+        "Создание отзываемых публичных ссылок с необязательной защитой паролем.",
+        "Общие ресурсы администратора на основе локальных папок домашнего каталога Linux или подключённых папок mvmOS.",
+        "Прямая загрузка из браузера в удалённые ресурсы с помощью талонов на загрузку с ограниченной областью действия и резервным способом для старых серверов общего доступа.",
+        "Отображение свободного места и квоты в файловом браузере."
+      ],
+      "requirements": [
+        "mvmOS Core 1.23.0 или новее для операций с общими папками и общего диалога выбора. Для прямой загрузки по талонам требуется Core 1.26.0 на обоих серверах.",
+        "Для установки системной серверной части приложения требуется подтверждение администратора."
+      ],
+      "name": "mvmCloud"
+    },
+    "zh-CN": {
+      "short_description": "为每个 Apps Hub 用户档案提供私有文件夹，支持浏览器文件管理，以及由管理员控制的外部文件夹 API 访问。",
+      "tagline": "为每个 Apps Hub 用户档案提供个人云文件夹。",
+      "description": "mvmCloud 为每个 Apps Hub 用户档案提供一个存储在服务器上的私有文件夹，可从桌面、公开网页或可选的浏览器扩展访问。您可以上传、浏览、下载和整理文件，还可使用照片和视频图库，缩略图会在浏览时生成。\n\n与他人共享\n将文件或文件夹与选定的用户档案共享，并分别设置预览、下载、上传和删除权限。您可以更改这些权限或撤销共享。共享位置会与用户档案自己的文件一同显示；共享单个文件时，访问范围始终仅限于该文件。\n\n公开链接\n为没有账户的人创建文件或文件夹链接，并可选择设置密码保护。所有者可以更改或移除密码，也可以撤销链接。公开链接仅在应用的公开页面启用时可用。加密文件夹及包含加密文件夹的文件夹无法通过这种方式公开。\n\n管理员共享位置\n管理员可将其 Linux 主目录内的文件夹，或从另一台 mvmOS 服务器连接的文件夹，提供给所有或选定的用户档案。权限不能超出共享服务器允许的范围。当两台服务器都支持单文件上传凭证时，远程文件会直接从浏览器上传；否则会经过此服务器中转。这些凭证不会暴露文件夹访问密钥。远程位置不支持移动文件，也不支持递归删除非空文件夹。\n\n存储、加密和 API 访问\n用量显示会列出服务器可用空间及用户档案的配额。管理员可为其当前 Linux 主目录中的选定文件夹创建限定范围的 API 密钥，符合条件的用户档案则可消耗 Apps Hub 积分，为自己的某个文件夹创建密钥。这些密钥仅提供文件操作，绝不提供 shell 访问。Premium 用于控制配额，以及创建由浏览器解锁的加密文件夹或个人 API 密钥的权限。无需 Premium，仍可使用普通文件存储和共享功能。",
+      "capabilities": [
+        "为每个 Apps Hub 用户档案提供独立的私有文件夹。",
+        "在浏览器中上传、下载、创建文件夹、移动和删除文件。",
+        "图库视图可为照片和视频生成缩略图并提供预览。",
+        "为管理员选定的 Linux 文件夹提供限定范围的 Bearer 令牌 API。",
+        "用户可消耗 Apps Hub 积分，为自己的某个文件夹创建限定范围的 API 密钥。",
+        "可选的加密子文件夹，在浏览器中解锁。",
+        "通过订阅控制用户配额、加密文件夹权限和用户自行签发的 API 密钥。",
+        "与选定的用户档案共享文件或文件夹，并分别控制预览、下载、上传和删除权限。",
+        "创建可撤销的公开链接，并可选择设置密码。",
+        "管理员共享位置可来自本地 Linux 主目录中的文件夹或已连接的 mvmOS 文件夹。",
+        "通过限定范围的上传凭证，直接从浏览器上传到远程位置，并为旧版共享服务器提供备用方式。",
+        "在文件浏览器中显示可用空间和配额。"
+      ],
+      "requirements": [
+        "共享文件夹操作和共享选择器需要 mvmOS Core 1.23.0 或更高版本。使用凭证直接上传需要两台服务器均运行 Core 1.26.0。",
+        "安装应用的系统后端时需要管理员确认。"
+      ],
+      "name": "mvmCloud"
+    }
+  }
 }

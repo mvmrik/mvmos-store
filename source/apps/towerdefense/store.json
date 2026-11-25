@@ -28,5 +28,247 @@
       "summary": "The game itself runs on its public Game Hub page. Game Hub provides the account you play under, the room the run happens in, and the leaderboard your score lands in.",
       "requires": "Game Hub is required. The launcher window offers to install it if it's missing."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Verteidige den Turm in der Mitte gegen endlose Wellen. Gib zwischen den Wellen deine Münzen für Waffen, Ringe, Energie und Verbesserungen aus und werde mit jedem Spiel durch den dauerhaften Shop stärker.",
+      "tagline": "Ein Turm gegen endlose Wellen – und dazwischen ein Shop, der entscheidet, wie lange er standhält.",
+      "description": "Tower Defense stellt einen einzelnen Turm in die Mitte des Spielfelds und schickt Wellen aus allen Richtungen auf ihn zu. Während einer Welle kämpft der Turm selbstständig. Zwischen den Wellen pausiert das Spiel in einem Shop, in dem du deine verdienten Münzen für alles ausgibst, was du für die nächste Welle brauchst. Bevor du sie startest, zeigt dir der Shop genau, welche Gegner kommen.\n\nDu baust den Turm nach deinen Vorstellungen aus. Seine Energie bestimmt, wie viel davon gleichzeitig laufen kann. Jedes eingeschaltete Modul verbraucht Energie. Deshalb kaufst du zwischen den Wellen Energie, wählst aus, welche Waffen und Extras du versorgen möchtest, und siehst an einem Balken, wie viel Energie belegt und wie viel noch frei ist. Schaltest du ein Modul durch Antippen seines Schalters aus, ändert sich der Balken sofort. Verlangst du mehr Energie, als du hast, wird der Balken rot und die nächste Welle lässt sich nicht starten. Die Anzahl der Waffen ist nur durch die Energie begrenzt: die schnelle Kanone, der Flammenwerfer, der Gegner weiterbrennen lässt, Frost, der sie einfriert, ein Minenleger, der unbegrenzt Minen im gesamten Wirkungsbereich verteilt, ein Laser, der den stärksten Gegner überall auf dem Spielfeld erreicht, und ein umlaufender Strahl, der sich um den Turm dreht und alles trifft, was er passiert. Ein Feuer- und ein Eisring sichern den Rand deiner Reichweite. Außerdem lässt sich der Turm reparieren, verstärken und mit mehr Reichweite, einem Schild, Regeneration, einer Schockwelle, Soldaten, Drohnen und Tesla-Pylonen ausstatten. Die Gegner halten mit Läufern, Schützen, die aus der Entfernung feuern, Fliegern, die Minen und Eis überfliegen, gepanzerten Rittern, Teilern und Heilern dagegen. Alle paar Wellen erscheint außerdem ein Boss: vom Kriegsherrn und Koloss bis zum Schemen, der Schwarmkönigin und dem Juggernaut.\n\nIn jedem Spiel verdienst du außerdem Punkte, die dir dauerhaft erhalten bleiben. Du gibst sie in einem dauerhaften Shop aus, und alles, was du dort kaufst, steht dir zu Beginn jedes neuen Spiels zur Verfügung. So kommt ein Turm, der heute früh gefallen ist, morgen weiter. Die höchste erreichte Welle wird gespeichert und neben der aktuellen angezeigt.\n\nDu spielst auf der öffentlichen Game Hub-Seite des Spiels, im Vollbildmodus in einem eigenen Tab – auf dem Smartphone ebenso wie am Desktop. Dein Punktestand landet in der Game Hub-Rangliste. Das Fenster in mvmOS dient als Startprogramm und installiert Game Hub für dich, falls es noch fehlt. Beim Beenden wird die Runde mit ihrem aktuellen Stand gespeichert, und du kannst sie bei deiner Rückkehr fortsetzen.",
+      "capabilities": [
+        "Ein Turm in der Mitte, der jede Welle selbstständig bekämpft, während Gegner von allen Seiten näher kommen.",
+        "Ein Shop zwischen den Wellen zeigt dir, was die nächste Welle bringt, damit du jede Münze mit Blick auf die kommenden Gegner ausgibst.",
+        "Sechs Waffen ohne Begrenzung der Einbauplätze: Kanone, Flammenwerfer, Frost, Laser, ein umlaufender Strahl und ein Minenleger mit unbegrenzt vielen Minen – jeweils mit eigenen Verbesserungen.",
+        "Energie versorgt jede Waffe und jedes Extra: Kaufe sie zwischen den Wellen, schalte Module ein und aus und beobachte einen Balken, der sich sofort aktualisiert und rot wird, wenn der Turm mehr Energie benötigt, als er hat.",
+        "Feuer- und Eisringe sowie Reparatur, Verstärkung, Reichweite, Schild, Regeneration, Schockwelle, Soldaten, Drohnen und Tesla-Pylonen.",
+        "Acht Gegnertypen und fünf Bosse: Kriegsherr, Koloss, Schemen, Schwarmkönigin und Juggernaut.",
+        "Ein dauerhafter Shop, in dem du mit Punkten aus jedem Spiel bezahlst, damit du jedes neue Spiel stärker beginnst. Deine höchste erreichte Welle wird ebenfalls gespeichert.",
+        "Jederzeit speichern und beenden und die Runde später fortsetzen.",
+        "Runden werden in deinem Game Hub-Profil und in der Rangliste erfasst. Du spielst im Vollbildmodus in deiner eigenen Sprache und mit deinem gewählten Design.",
+        "Game Hub-Statistiken zu Wellen, besiegten Gegnern und Überlebenszeit.",
+        "Ein kompakter Shop, in dem gekaufte Gegenstände nur ihre aktuellen Werte anzeigen und ihre Schaltflächen beim Antippen einblenden. Zweizeilige Schaltflächen zeigen den Preis und den zusätzlichen Energiebedarf; eine Gegnerliste mit Bildern und Beschreibungen ist über eine einzelne Schaltfläche erreichbar.",
+        "Eine Arena im Hochformat, die den verfügbaren Anzeigebereich auf dem Smartphone ausfüllt und den Turm dabei in der Mitte hält.",
+        "Das Schnellspiel mit Premium bietet bis zu zehnfache Geschwindigkeit, eine Liste zum automatischen Anhalten der Wellen und Einstellungen, die in diesem Browser für neue Spiele gespeichert werden.",
+        "Energie wird in Paketen zu einer, fünf oder zehn Einheiten verkauft. Bei einem größeren Paket ist jede Einheit immer günstiger als bei einem kleineren.",
+        "Eine geschlossene Shop-Karte zeigt eine grüne Markierung, wenn du darin gerade etwas kaufen kannst. So musst du sie nicht erst öffnen, um das herauszufinden.",
+        "Die Bosse sind auf einen Turm abgestimmt, der auch für Energie bezahlen muss: weniger Lebenspunkte, langsamere und schwächere Schüsse und ein erster Boss, den auch ein frisch aufgebauter Turm besiegen kann."
+      ],
+      "integrations": [
+        {
+          "summary": "Das Spiel selbst läuft auf seiner öffentlichen Game Hub-Seite. Game Hub stellt das Konto bereit, unter dem du spielst, den Raum, in dem die Runde stattfindet, und die Rangliste, in der dein Punktestand landet.",
+          "requires": "Game Hub ist erforderlich. Das Startfenster bietet die Installation an, falls es fehlt."
+        }
+      ],
+      "name": "Turmverteidigung"
+    },
+    "bg": {
+      "short_description": "Защитавайте кулата в центъра от безкрайни вълни. Между вълните харчете монетите си за оръжия, пръстени, енергия и подобрения и ставайте по-силни с всяка игра чрез постоянния магазин.",
+      "tagline": "Една кула срещу безкрайни вълни и магазин между тях, който решава колко дълго ще издържи.",
+      "description": "В „Защита на кулата“ една-единствена кула стои в центъра на полето, а вълни от врагове я нападат от всички посоки. По време на вълна кулата се бие сама; между вълните играта спира в магазин, където харчите спечелените монети за онова, което според вас ще е нужно за следващата вълна. Магазинът ви показва точно кои врагове идват, преди да я започнете.\n\nИзграждате кулата по свой начин, а енергията ѝ определя каква част от оборудването може да работи едновременно. Всеки включен модул изразходва енергия, затова купувате енергия между вълните, избирате кои оръжия и допълнения да захраните и следите на лента колко енергия се използва и колко е свободна. Изключете модул с докосване на превключвателя му и лентата се променя веднага; ако поискате повече енергия, отколкото имате, лентата става червена и следващата вълна няма да започне. Броят на оръжията не е ограничен — ограничението е само в енергията: бързо оръдие, огнехвъргачка, която поддържа враговете в пламъци, замразяващо оръжие, минополагач, който разпръсква неограничен брой мини в обсега, лазер, който достига най-издръжливия враг навсякъде по полето, и въртящ се лъч, който обикаля кулата и прорязва всичко по пътя си. Огнен и леден пръстен пазят границата на обсега ви, а кулата може да бъде ремонтирана и укрепвана, да получи по-голям обсег, щит, регенерация, ударна вълна, войници, дронове и теслови стълбове. Враговете отвръщат с бегачи, стрелци, които стрелят от разстояние, летящи врагове, които преминават над мините и леда, бронирани рицари, разделящи се врагове, лечители и бос на всеки няколко вълни — от Военачалника и Колоса до Призрака, Кралицата на кошера и Джагърнаута.\n\nВсяка игра носи и точки, които запазвате. Харчите ги в постоянен магазин и всяка нова игра започва с всичко, което сте купили там, така че кула, паднала рано днес, утре стига по-далеч. Най-далечната вълна, до която сте достигнали, се запомня и се показва до текущата.\n\nИграта се играе на публичната ѝ страница в Game Hub, на цял екран в собствен раздел, както на телефон, така и на настолен компютър, а резултатът ви влиза в класацията на Game Hub. Прозорецът в mvmOS служи за стартиране и инсталира Game Hub вместо вас, ако все още го няма. Излизането запазва текущия напредък и продължавате оттам, когато се върнете.",
+      "capabilities": [
+        "Кула в центъра, която сама се сражава с всяка вълна, докато враговете настъпват от всички страни.",
+        "Магазин между вълните, който показва какво носи следващата вълна, за да харчите всяка монета с оглед на предстоящите врагове.",
+        "Шест оръжия без ограничение в броя на монтираните: оръдие, огнехвъргачка, замразяващо оръжие, лазер, въртящ се лъч и минополагач с неограничени мини, всяко със собствени подобрения.",
+        "Енергия, която захранва всяко оръжие и допълнение: купувайте я между вълните, включвайте и изключвайте модули и следете лента в реално време, която става червена, когато кулата изисква повече енергия, отколкото има.",
+        "Огнени и ледени пръстени, както и ремонт, укрепване, обсег, щит, регенерация, ударна вълна, войници, дронове и теслови стълбове.",
+        "Осем вида врагове и пет боса: Военачалник, Колос, Призрак, Кралица на кошера и Джагърнаут.",
+        "Постоянен магазин, в който плащате с точки от всяка игра, така че всяка нова игра започва с по-силна кула, а най-добрата ви вълна се запомня.",
+        "Запазвайте и излизайте по всяко време и продължавайте играта по-късно.",
+        "Игрите се записват в профила ви в Game Hub и в класацията и се играят на цял екран с вашия език и тема.",
+        "Статистика в Game Hub за вълните, убитите врагове и времето на оцеляване.",
+        "Компактен магазин, в който купените предмети показват само текущите си стойности и разкриват бутоните си при докосване, с бутони на два реда, показващи цената и допълнителната енергия, и списък с врагове със снимки и описания, достъпен чрез един бутон.",
+        "Арена в портретен формат, която запълва наличното пространство на екрана на телефона и запазва кулата в центъра.",
+        "Бързата игра с Premium предлага скорост до десет пъти над нормалната, един списък за автоматично спиране на вълните и настройки, запазвани за нови игри в този браузър.",
+        "Енергията се продава в пакети от една, пет или десет единици, като по-големият пакет винаги е по-евтин на единица от по-малкия.",
+        "Сгънатата карта в магазина показва зелена отметка, когато нещо в нея може да бъде купено в момента, така че не е нужно да я отваряте, за да разберете.",
+        "Босовете са балансирани за кула, която плаща и за енергия: по-малко здраве, по-бавни и по-слаби изстрели и първи бос, който може да бъде победен с начално оборудване."
+      ],
+      "integrations": [
+        {
+          "summary": "Самата игра работи на публичната си страница в Game Hub. Game Hub осигурява акаунта, с който играете, стаята, в която протича играта, и класацията, в която влиза резултатът ви.",
+          "requires": "Изисква се Game Hub. Прозорецът за стартиране предлага да го инсталира, ако липсва."
+        }
+      ],
+      "name": "Защита на кулата"
+    },
+    "es": {
+      "short_description": "Defiende la torre central contra oleadas interminables. Entre oleadas, gasta tus monedas en armas, anillos, energía y mejoras, y hazte más fuerte con cada partida en la tienda permanente.",
+      "tagline": "Una torre contra oleadas interminables y, entre ellas, una tienda que decide cuánto tiempo resiste.",
+      "description": "Tower Defense sitúa una única torre en el centro del campo y envía oleadas contra ella desde todas las direcciones. Durante cada oleada, la torre combate por sí sola; entre oleadas, el juego se detiene en una tienda donde gastas las monedas que has ganado en lo que creas necesario para la siguiente oleada. Antes de iniciarla, la tienda te muestra exactamente qué enemigos van a llegar.\n\nConstruyes la torre a tu manera, y su energía determina cuántos de sus componentes pueden funcionar a la vez. Cada módulo consume energía mientras está encendido, así que compras energía entre oleadas, eliges qué armas y elementos adicionales alimentar y ves en una barra cuánta energía se usa y cuánta queda libre. Apaga un módulo tocando su interruptor y la barra cambiará al instante; si demandas más energía de la que tienes, la barra se volverá roja y la siguiente oleada no podrá comenzar. No hay límite en el número de armas, solo en la energía: el cañón rápido, el lanzallamas que mantiene ardiendo a los enemigos, el arma de escarcha que los congela, un minador que esparce minas sin límite por toda la zona de alcance, un láser que alcanza al enemigo más resistente en cualquier punto del campo y un rayo de barrido que gira alrededor de la torre y corta todo lo que encuentra a su paso. Un anillo de fuego y otro de hielo protegen el límite de tu alcance, y la torre se puede reparar, reforzar y dotar de más alcance, un escudo, regeneración, una onda de choque, soldados, drones y torres Tesla. Los enemigos responden con corredores, tiradores que disparan a distancia, voladores que pasan por encima de las minas y el hielo, caballeros acorazados, divisores, sanadores y un jefe cada pocas oleadas, desde el Señor de la Guerra y el Coloso hasta el Espectro, la Reina de la Colmena y el Imparable.\n\nCada partida también te da puntos que conservas. Se gastan en una tienda permanente, y todas las partidas nuevas comienzan con lo que hayas comprado allí, de modo que una torre que hoy cayó pronto llegará más lejos mañana. La oleada más lejana que has alcanzado se guarda y se muestra junto a la actual.\n\nEl juego se juega en su página pública de Game Hub, a pantalla completa en su propia pestaña, tanto en un teléfono como en un ordenador, y tu puntuación aparece en la clasificación de Game Hub. La ventana dentro de mvmOS sirve para iniciar el juego e instala Game Hub si aún no está instalado. Al salir se guarda el estado de la partida, y puedes continuarla cuando vuelvas.",
+      "capabilities": [
+        "Una torre central que combate cada oleada por sí sola mientras los enemigos se acercan desde todos los lados.",
+        "Una tienda entre oleadas que muestra lo que traerá la siguiente, para que gastes cada moneda teniendo en cuenta a los enemigos que se acercan.",
+        "Seis armas sin límite de montaje: cañón, lanzallamas, escarcha, láser, un rayo de barrido y un minador con minas ilimitadas, cada una con sus propias mejoras.",
+        "Energía que alimenta todas las armas y elementos adicionales: cómprala entre oleadas, enciende y apaga módulos y observa una barra en tiempo real que se vuelve roja cuando la torre demanda más de la que tiene.",
+        "Anillos de fuego y hielo, además de reparación, refuerzo, alcance, escudo, regeneración, onda de choque, soldados, drones y torres Tesla.",
+        "Ocho tipos de enemigos y cinco jefes: Señor de la Guerra, Coloso, Espectro, Reina de la Colmena e Imparable.",
+        "Una tienda permanente donde pagas con los puntos de cada partida, para que cada nueva partida empiece con más fuerza, y un registro de tu mejor oleada.",
+        "Guarda y sal en cualquier momento para retomar la partida más tarde.",
+        "Partidas registradas en tu perfil y en la clasificación de Game Hub, jugadas a pantalla completa en tu propio idioma y tema.",
+        "Estadísticas de Game Hub sobre oleadas, bajas y tiempo de supervivencia.",
+        "Una tienda compacta donde los artículos comprados solo muestran sus valores actuales y despliegan sus botones al tocarlos, con botones de dos filas que muestran el precio y la energía adicional, y una lista de enemigos con imágenes y descripciones accesible desde un único botón.",
+        "Un campo de batalla vertical que ocupa el espacio disponible en la pantalla del teléfono y mantiene la torre centrada.",
+        "El juego rápido de Premium ofrece velocidades de hasta diez veces la normal, una lista para detener las oleadas automáticamente y ajustes que se guardan para las nuevas partidas en este navegador.",
+        "La energía se vende en paquetes de una, cinco o diez unidades, y un paquete mayor siempre tiene un precio por unidad más bajo que uno menor.",
+        "Una tarjeta cerrada de la tienda muestra una marca verde cuando se puede comprar algo de su interior en ese momento, para que no tengas que abrirla para averiguarlo.",
+        "Los jefes están ajustados para una torre que también tiene que pagar la energía: menos salud, disparos más lentos y débiles, y un primer jefe que una configuración inicial puede derrotar."
+      ],
+      "integrations": [
+        {
+          "summary": "El juego se ejecuta en su página pública de Game Hub. Game Hub proporciona la cuenta con la que juegas, la sala donde se desarrolla la partida y la clasificación en la que aparece tu puntuación.",
+          "requires": "Se requiere Game Hub. La ventana de inicio ofrece instalarlo si falta."
+        }
+      ],
+      "name": "Defensa de la torre"
+    },
+    "fr": {
+      "short_description": "Défendez la tour au centre contre des vagues sans fin. Entre les vagues, dépensez vos pièces en armes, anneaux, énergie et améliorations, et devenez plus fort à chaque partie grâce à la boutique permanente.",
+      "tagline": "Une tour face à des vagues sans fin, et entre elles, une boutique qui décide combien de temps elle tiendra.",
+      "description": "Tower Defense place une seule tour au centre du terrain et lui envoie des vagues d’ennemis de toutes les directions. Pendant une vague, la tour combat seule ; entre les vagues, le jeu s’arrête dans une boutique où vous dépensez les pièces gagnées pour préparer au mieux la vague suivante. La boutique vous montre précisément quels ennemis arrivent avant de la lancer.\n\nVous construisez la tour à votre façon, et son énergie détermine combien de ses équipements peuvent fonctionner simultanément. Chaque module consomme de l’énergie lorsqu’il est activé : vous achetez donc de l’énergie entre les vagues, choisissez les armes et équipements à alimenter, et consultez une barre indiquant l’énergie utilisée et disponible. Désactivez un module en touchant son interrupteur et la barre change aussitôt ; si vous demandez plus d’énergie que vous n’en avez, elle devient rouge et la vague suivante ne peut pas démarrer. Le nombre d’armes est limité uniquement par l’énergie : un canon rapide, un lance-flammes qui maintient les ennemis en feu, une arme de givre qui les gèle, un poseur de mines qui en disperse sans limite dans la zone de portée, un laser qui atteint l’ennemi le plus résistant où qu’il soit sur le terrain et un faisceau rotatif qui tourne autour de la tour et découpe tout sur son passage. Un anneau de feu et un anneau de glace protègent la limite de votre portée, et la tour peut être réparée, renforcée et dotée d’une portée accrue, d’un bouclier, de régénération, d’une onde de choc, de soldats, de drones et de pylônes Tesla. Les ennemis ripostent avec des coureurs, des tireurs à distance, des unités volantes qui survolent les mines et la glace, des chevaliers en armure, des unités qui se divisent, des soigneurs et un boss toutes les quelques vagues, du Seigneur de guerre au Colosse, en passant par le Spectre, la Reine de la ruche et le Mastodonte.\n\nChaque partie rapporte aussi des points que vous conservez. Ils se dépensent dans une boutique permanente, et chaque nouvelle partie commence avec tout ce que vous y avez acheté : une tour tombée tôt aujourd’hui ira donc plus loin demain. La vague la plus avancée que vous avez atteinte est mémorisée et affichée à côté de la vague actuelle.\n\nLe jeu se joue sur sa page publique Game Hub, en plein écran dans son propre onglet, aussi bien sur téléphone que sur ordinateur, et votre score apparaît dans le classement Game Hub. La fenêtre dans mvmOS sert de lanceur et installe Game Hub pour vous s’il n’est pas encore présent. Quitter enregistre la partie en l’état, et vous la reprenez à votre retour.",
+      "capabilities": [
+        "Une tour centrale qui combat chaque vague toute seule pendant que les ennemis approchent de tous les côtés.",
+        "Une boutique entre les vagues qui présente les ennemis de la vague suivante, pour dépenser chaque pièce en connaissance de cause.",
+        "Six armes sans limite d’emplacements : canon, lance-flammes, givre, laser, faisceau rotatif et poseur de mines avec mines illimitées, chacune avec ses propres améliorations.",
+        "De l’énergie pour alimenter chaque arme et équipement : achetez-en entre les vagues, activez et désactivez les modules, et suivez une barre actualisée en direct qui devient rouge lorsque la tour demande plus d’énergie qu’elle n’en possède.",
+        "Des anneaux de feu et de glace, ainsi que réparation, renforcement, portée, bouclier, régénération, onde de choc, soldats, drones et pylônes Tesla.",
+        "Huit types d’ennemis et cinq boss : Seigneur de guerre, Colosse, Spectre, Reine de la ruche et Mastodonte.",
+        "Une boutique permanente où dépenser les points de chaque partie pour commencer chaque nouvelle partie plus fort, et votre meilleure vague mémorisée.",
+        "Enregistrez et quittez à tout moment, puis reprenez la partie plus tard.",
+        "Des parties enregistrées dans votre profil et votre classement Game Hub, jouées en plein écran dans votre langue et avec votre thème.",
+        "Des statistiques Game Hub sur les vagues, les ennemis éliminés et le temps de survie.",
+        "Une boutique compacte où les articles achetés n’affichent que leurs valeurs actuelles et révèlent leurs boutons au toucher, avec des boutons sur deux lignes indiquant le prix et l’énergie supplémentaire, et une liste d’ennemis avec images et descriptions accessible par un seul bouton.",
+        "Une arène en mode portrait qui remplit l’espace disponible sur le téléphone tout en gardant la tour centrée.",
+        "Le mode Jeu rapide de Premium propose des vitesses allant jusqu’à dix fois la normale, une liste pour arrêter automatiquement les vagues et des réglages enregistrés pour les nouvelles parties dans ce navigateur.",
+        "L’énergie est vendue par lots de un, cinq ou dix, et le prix unitaire d’un grand lot est toujours inférieur à celui d’un petit lot.",
+        "Une fiche de boutique fermée affiche un repère vert lorsqu’un de ses articles peut être acheté immédiatement, sans avoir à l’ouvrir pour le savoir.",
+        "Les boss sont équilibrés pour une tour qui doit aussi acheter son énergie : moins de points de vie, des tirs plus lents et moins puissants, et un premier boss qu’une configuration de départ peut vaincre."
+      ],
+      "integrations": [
+        {
+          "summary": "Le jeu lui-même fonctionne sur sa page publique Game Hub. Game Hub fournit le compte avec lequel vous jouez, le salon où se déroule la partie et le classement où apparaît votre score.",
+          "requires": "Game Hub est requis. La fenêtre du lanceur propose de l’installer s’il est absent."
+        }
+      ],
+      "name": "Défense de la tour"
+    },
+    "ja": {
+      "short_description": "中央のタワーを無限に押し寄せるウェーブから守りましょう。ウェーブの合間にコインを使って武器、リング、エネルギー、アップグレードを購入し、永続ショップでゲームを重ねるたびに強くなれます。",
+      "tagline": "無限のウェーブに立ち向かう1基のタワー。その命運を分けるのは、ウェーブの合間のショップです。",
+      "description": "タワーディフェンスでは、フィールドの中央に置かれた1基のタワーに、あらゆる方向から敵のウェーブが押し寄せます。ウェーブ中はタワーが自動で戦い、ウェーブの合間にはゲームが止まってショップが開きます。獲得したコインを使い、次のウェーブに必要だと思うものを購入しましょう。ショップでは、開始前に次に現れる敵を正確に確認できます。\n\nタワーは自由に構築できますが、同時に稼働できる装備の量はエネルギーによって決まります。各モジュールは有効になっている間、エネルギーを消費するため、ウェーブの合間にエネルギーを購入し、どの武器や補助装備に供給するかを選びます。使用量と空き容量はバーで確認できます。スイッチをタップしてモジュールを無効にすると、バーはすぐに変化します。必要量が保有量を超えるとバーが赤くなり、次のウェーブを開始できません。武器の数に制限はなく、制約となるのはエネルギーだけです。連射の速い大砲、敵を燃やし続ける火炎放射器、敵を凍らせる冷凍装置、射程内に無制限に地雷をまく地雷敷設機、フィールドのどこにいても最も頑丈な敵を狙うレーザー、タワーの周囲を回転して触れたものをすべて切り裂く回転ビームを装備できます。炎のリングと氷のリングが射程の外縁を守り、タワーの修理、補強、射程拡張のほか、シールド、自動回復、衝撃波、兵士、ドローン、テスラパイロンも追加できます。対する敵には、高速で走る敵、遠距離から射撃する銃撃兵、地雷や氷の上を通り抜ける飛行型、重装騎士、分裂型、回復役が登場します。さらに数ウェーブごとに、ウォーロード、コロッサス、レイス、ハイブクイーン、ジャガーノートといったボスが現れます。\n\nゲームをプレイするたびに、次回以降も使えるポイントを獲得できます。ポイントは永続ショップで使用でき、そこで購入したものは毎回のゲーム開始時から利用できます。今日早々に倒れたタワーも、明日はさらに先へ進めます。到達した最長ウェーブは記録され、現在のウェーブの隣に表示されます。\n\nゲームは公開のGame Hubページで、専用タブの全画面表示でプレイします。デスクトップだけでなく、スマートフォンでも遊べ、スコアはGame Hubのランキングに掲載されます。mvmOS内のウィンドウはランチャーで、Game Hubがまだない場合はインストールします。終了するとその時点の進行状況が保存され、戻ってきたときにいつでも続きから再開できます。",
+      "capabilities": [
+        "中央のタワーが、四方から迫る敵の各ウェーブに自動で応戦します。",
+        "ウェーブの合間のショップで次に現れる敵を確認できるため、敵に備えてコインの使い道を決められます。",
+        "搭載数に制限のない6種類の武器：大砲、火炎放射器、冷凍装置、レーザー、回転ビーム、地雷を無制限に敷設できる地雷敷設機。それぞれ個別にアップグレードできます。",
+        "すべての武器と補助装備を動かすエネルギー。ウェーブの合間に購入し、モジュールの有効・無効を切り替えられます。使用状況を示すバーは、タワーの必要量が保有量を超えると赤くなります。",
+        "炎と氷のリングに加え、修理、補強、射程拡張、シールド、自動回復、衝撃波、兵士、ドローン、テスラパイロンを利用できます。",
+        "8種類の敵と5体のボス：ウォーロード、コロッサス、レイス、ハイブクイーン、ジャガーノート。",
+        "各ゲームで得たポイントを使う永続ショップで、次のゲームをより強い状態から始められます。最高到達ウェーブも記録されます。",
+        "いつでも保存して終了し、後から続きのプレイを再開できます。",
+        "プレイ記録はGame Hubのプロフィールとランキングに保存されます。自分の言語とテーマで、全画面でプレイできます。",
+        "ウェーブ数、撃破数、生存時間をGame Hubの統計で確認できます。",
+        "コンパクトなショップでは、購入済みアイテムは現在の値だけが表示され、タップすると操作ボタンが開きます。2行表示のボタンで価格と追加の必要エネルギーを確認でき、画像と説明付きの敵一覧も1つのボタンから開けます。",
+        "スマートフォンの利用可能な表示領域いっぱいに広がる縦長のアリーナで、タワーは中央に保たれます。",
+        "Premiumの高速プレイでは通常の最大10倍速でプレイでき、1つのリストでウェーブの自動停止位置を選べます。設定はこのブラウザーでの新しいゲーム用に保存できます。",
+        "エネルギーは1、5、10単位のセットで販売され、大きいセットほど1単位あたりの価格が必ず安くなります。",
+        "閉じたショップカード内に今すぐ購入できるものがあると緑のマークが表示されるため、開かずに確認できます。",
+        "エネルギーの購入にもコインを使うタワーに合わせてボスを調整しています。体力を減らし、弾を遅く弱くし、最初のボスは初期の構成でも倒せるようにしています。"
+      ],
+      "integrations": [
+        {
+          "summary": "ゲーム本体は公開のGame Hubページで動作します。Game Hubは、プレイに使うアカウント、プレイが行われるルーム、スコアが掲載されるランキングを提供します。",
+          "requires": "Game Hubが必要です。未インストールの場合は、ランチャーウィンドウからインストールを案内します。"
+        }
+      ],
+      "name": "タワーディフェンス"
+    },
+    "pt-BR": {
+      "short_description": "Defenda a torre no centro contra ondas intermináveis. Entre as ondas, gaste suas moedas em armas, anéis, energia e melhorias, e fique mais forte a cada partida com a loja permanente.",
+      "tagline": "Uma torre contra ondas intermináveis, com uma loja entre elas que decide por quanto tempo ela resiste.",
+      "description": "Tower Defense coloca uma única torre no centro do campo e envia ondas de inimigos de todas as direções. Durante uma onda, a torre luta sozinha; entre as ondas, o jogo pausa em uma loja onde você gasta as moedas que ganhou no que achar necessário para a próxima onda. A loja mostra exatamente quais inimigos estão chegando antes de você iniciá-la.\n\nVocê monta a torre do seu jeito, e a energia dela determina quanto pode funcionar ao mesmo tempo. Cada módulo consome energia enquanto está ligado, então você compra energia entre as ondas, escolhe quais armas e acessórios alimentar e acompanha em uma barra quanto está em uso e quanto está livre. Desligue um módulo com um toque no interruptor, e a barra muda imediatamente; se o consumo ultrapassar o disponível, a barra fica vermelha e a próxima onda não começa. Não há limite de quantidade de armas, apenas de energia: o canhão rápido, o lança-chamas que mantém os inimigos em chamas, a arma de gelo que os congela, um lançador de minas que espalha minas por toda a área de alcance sem limite, um laser que atinge o inimigo mais resistente em qualquer ponto do campo e um feixe giratório que dá a volta na torre e corta tudo por onde passa. Um anel de fogo e um de gelo protegem o limite do seu alcance, e a torre pode ser reparada, reforçada e receber mais alcance, um escudo, regeneração, uma onda de choque, soldados, drones e torres Tesla. Os inimigos respondem com corredores, atiradores que disparam à distância, voadores que passam sobre minas e gelo, cavaleiros blindados, divisores, curandeiros e um chefe a cada poucas ondas, do Warlord e do Colossus ao Wraith, à Hive Queen e ao Juggernaut.\n\nCada partida também rende pontos que você mantém. Eles são gastos em uma loja permanente, e tudo o que você compra lá já está disponível no início de cada nova partida, para que uma torre que caiu cedo hoje chegue mais longe amanhã. A onda mais avançada que você alcançou fica registrada e aparece ao lado da atual.\n\nO jogo é jogado na página pública dele no Game Hub, em tela cheia em uma aba própria, tanto no celular quanto no computador, e sua pontuação entra no ranking do Game Hub. A janela dentro do mvmOS é o inicializador, que instala o Game Hub para você caso ele ainda não esteja instalado. Sair salva a partida no estado atual, e você pode continuar quando voltar.",
+      "capabilities": [
+        "Uma torre no centro que enfrenta cada onda sozinha enquanto os inimigos se aproximam de todos os lados.",
+        "Uma loja entre as ondas que mostra o que vem na próxima, para que cada moeda seja gasta levando em conta os inimigos que estão chegando.",
+        "Seis armas sem limite de instalação: canhão, lança-chamas, arma de gelo, laser, feixe giratório e lançador de minas com minas ilimitadas, cada uma com suas próprias melhorias.",
+        "Energia que alimenta cada arma e acessório: compre entre as ondas, ligue e desligue módulos e acompanhe uma barra em tempo real que fica vermelha quando a torre exige mais do que tem.",
+        "Anéis de fogo e gelo, além de reparo, reforço, alcance, escudo, regeneração, onda de choque, soldados, drones e torres Tesla.",
+        "Oito tipos de inimigos e cinco chefes: Warlord, Colossus, Wraith, Hive Queen e Juggernaut.",
+        "Uma loja permanente em que você gasta os pontos de cada partida, para que cada nova partida comece mais forte, e um registro da sua melhor onda.",
+        "Salve e saia a qualquer momento e retome a partida depois.",
+        "Partidas registradas no seu perfil e no ranking do Game Hub, jogadas em tela cheia no seu idioma e tema.",
+        "Estatísticas do Game Hub para ondas, inimigos eliminados e tempo de sobrevivência.",
+        "Uma loja compacta em que os itens comprados mostram apenas seus valores atuais e revelam seus botões ao serem tocados, com botões de duas linhas que mostram o preço e a energia adicional, e uma lista de inimigos com imagens e descrições acessível por um único botão.",
+        "Uma arena em orientação retrato que preenche a área disponível na tela do celular e mantém a torre centralizada.",
+        "O Jogo rápido do Premium oferece velocidades de até dez vezes a normal, uma lista para interromper as ondas automaticamente e configurações salvas para novas partidas neste navegador.",
+        "A energia é vendida em pacotes de uma, cinco ou dez unidades, e um pacote maior sempre custa menos por unidade do que um menor.",
+        "Um cartão fechado da loja mostra uma marca verde quando algo dentro dele pode ser comprado naquele momento, para que você não precise abrir nada para descobrir.",
+        "Os chefes são ajustados para uma torre que também precisa pagar pela energia: menos vida, disparos mais lentos e fracos, e um primeiro chefe que uma configuração inicial consegue derrotar."
+      ],
+      "integrations": [
+        {
+          "summary": "O jogo em si é executado na página pública dele no Game Hub. O Game Hub fornece a conta com a qual você joga, a sala em que a partida acontece e o ranking em que sua pontuação entra.",
+          "requires": "O Game Hub é obrigatório. A janela do inicializador oferece a instalação caso ele não esteja instalado."
+        }
+      ],
+      "name": "Defesa da torre"
+    },
+    "ru": {
+      "short_description": "Защищайте башню в центре поля от бесконечных волн врагов. Между волнами тратьте монеты на оружие, кольца, энергию и улучшения, а благодаря постоянному магазину становитесь сильнее с каждой игрой.",
+      "tagline": "Одна башня против бесконечных волн и магазин между ними, от которого зависит, как долго она продержится.",
+      "description": "В «Защите башни» в центре поля стоит единственная башня, на которую со всех сторон наступают волны врагов. Во время волны башня сражается сама; между волнами игра останавливается и открывается магазин, где вы тратите заработанные монеты на то, что, по вашему мнению, понадобится в следующей волне. Перед её запуском магазин показывает, какие именно враги приближаются.\n\nВы развиваете башню по своему усмотрению, а запас энергии определяет, сколько её модулей могут работать одновременно. Каждый включённый модуль потребляет энергию, поэтому между волнами вы покупаете энергию, выбираете, какое оружие и дополнительные модули включить, и видите на шкале, сколько энергии занято и сколько осталось. Отключите модуль нажатием на его переключатель — и шкала сразу изменится; если потребление превысит запас, шкала станет красной и следующая волна не запустится. Количество оружия ограничено только энергией: скорострельная пушка, огнемёт, поджигающий врагов, замораживатель, минный заградитель, без ограничений разбрасывающий мины в пределах радиуса действия, лазер, достающий самого стойкого врага в любой точке поля, и вращающийся луч, который обходит башню по кругу и разрезает всё на своём пути. Огненное и ледяное кольца охраняют границу радиуса действия, а саму башню можно ремонтировать, укреплять, увеличивать её дальность, оснащать щитом, регенерацией, ударной волной, солдатами, дронами и башнями Теслы. В ответ враги выставляют бегунов, стрелков, атакующих издалека, летунов, пролетающих над минами и льдом, бронированных рыцарей, разделяющихся врагов, целителей и босса через каждые несколько волн: от Военачальника и Колосса до Призрака, Королевы улья и Джаггернаута.\n\nКаждая игра также приносит очки, которые сохраняются у вас. Их можно тратить в постоянном магазине, и всё купленное там доступно с начала каждой новой игры, так что башня, которая сегодня пала рано, завтра продержится дольше. Самая дальняя достигнутая волна сохраняется и отображается рядом с текущей.\n\nИгра запускается на своей общедоступной странице в Game Hub, на весь экран в отдельной вкладке, как на телефоне, так и на компьютере, а ваш результат попадает в таблицу лидеров Game Hub. Окно внутри mvmOS служит для запуска игры и устанавливает Game Hub, если его ещё нет. При выходе текущее прохождение сохраняется, и вы можете продолжить его, когда вернётесь.",
+      "capabilities": [
+        "Башня в центре поля самостоятельно сражается с каждой волной, пока враги наступают со всех сторон.",
+        "Магазин между волнами показывает состав следующей волны, чтобы вы тратили каждую монету с учётом приближающихся врагов.",
+        "Шесть видов оружия без ограничения на количество установок: пушка, огнемёт, замораживатель, лазер, вращающийся луч и минный заградитель с неограниченным запасом мин. У каждого есть свои улучшения.",
+        "Энергия питает всё оружие и дополнительные модули: покупайте её между волнами, включайте и отключайте модули и следите за шкалой, которая обновляется сразу и становится красной, когда башне требуется больше энергии, чем есть.",
+        "Огненное и ледяное кольца, а также ремонт, укрепление, дальность, щит, регенерация, ударная волна, солдаты, дроны и башни Теслы.",
+        "Восемь видов врагов и пять боссов: Военачальник, Колосс, Призрак, Королева улья и Джаггернаут.",
+        "Постоянный магазин, в котором покупки оплачиваются очками за каждую игру: вы начинаете каждую новую игру сильнее, а рекордная волна сохраняется.",
+        "Сохраняйте прохождение и выходите в любой момент, чтобы продолжить позже.",
+        "Прохождения записываются в ваш профиль и таблицу лидеров Game Hub; игра открывается на весь экран на вашем языке и с вашей темой оформления.",
+        "Статистика волн, убийств и времени выживания в Game Hub.",
+        "Компактный магазин: у купленных предметов видны только текущие характеристики, а кнопки раскрываются по нажатию. Двухстрочные кнопки показывают цену и дополнительное потребление энергии, а список врагов с изображениями и описаниями открывается одной кнопкой.",
+        "Вертикальная арена заполняет доступную область экрана телефона, сохраняя башню в центре.",
+        "Ускоренная игра в Premium позволяет увеличить скорость до десятикратной, выбрать автоматическую остановку волн в одном списке и сохранить настройки для новых игр в этом браузере.",
+        "Энергия продаётся наборами по одной, пять или десять единиц, причём в большем наборе каждая единица всегда дешевле, чем в меньшем.",
+        "На свёрнутой карточке магазина появляется зелёная отметка, если внутри есть что-то, что можно купить прямо сейчас, — открывать её для проверки не нужно.",
+        "Параметры боссов рассчитаны на башню, которой приходится платить ещё и за энергию: меньше здоровья, более медленные и слабые выстрелы, а первого босса можно победить с начальным набором модулей."
+      ],
+      "integrations": [
+        {
+          "summary": "Сама игра работает на своей общедоступной странице в Game Hub. Game Hub предоставляет учётную запись, под которой вы играете, комнату, в которой проходит игра, и таблицу лидеров, куда попадает ваш результат.",
+          "requires": "Требуется Game Hub. Если он отсутствует, окно запуска предложит его установить."
+        }
+      ],
+      "name": "Защита башни"
+    },
+    "zh-CN": {
+      "short_description": "守卫中央的防御塔，抵御无尽的敌人波次。在波次之间用金币购买武器、光环、能量和升级，并通过永久商店在每局游戏后变得更强。",
+      "tagline": "一座防御塔对抗无尽的敌潮，波次之间的商店决定它能坚持多久。",
+      "description": "《塔防》在场地中央放置一座防御塔，敌人从四面八方分波来袭。每波进攻期间，防御塔会自动战斗；波次之间，游戏会暂停并打开商店，你可以用赚取的金币购买自己认为下一波所需的装备。开始下一波前，商店会明确显示即将出现的敌人。\n\n你可以按自己的方式打造防御塔，而能量决定了有多少装备能够同时运作。每个模块开启时都会消耗能量，因此你需要在波次之间购买能量，选择为哪些武器和附加装备供能，并通过能量条查看已用和剩余能量。轻点模块的开关即可将其关闭，能量条会立即变化；如果所需能量超过现有能量，能量条会变红，下一波也无法开始。武器没有数量限制，只受能量限制：快速射击的加农炮、让敌人持续燃烧的火焰喷射器、冻结敌人的冰霜武器、可在射程内无限布雷的布雷器、能够攻击场上任意位置最强敌人的激光，以及绕塔旋转并切割沿途一切的扫射光束。火焰环和冰霜环守护射程边缘，防御塔还可以修复、加固、扩大射程，并配备护盾、再生、冲击波、士兵、无人机和特斯拉电塔。敌人则会派出疾行者、远距离射击的枪手、能飞越地雷和冰面的飞行者、重甲骑士、分裂者、治疗者，以及每隔几波出现的首领，包括战争领主、巨像、幽魂、虫巢女王和毁灭者。\n\n每局游戏还会获得可永久保留的点数。你可以在永久商店中花费这些点数，购买的所有内容都会在每局新游戏开始时生效，让今天早早倒下的防御塔明天能走得更远。你到达过的最高波次也会被记录，并显示在当前波次旁边。\n\n游戏在其公开的 Game Hub 页面上进行，在独立标签页中全屏运行，手机和桌面设备均可游玩，得分会进入 Game Hub 排行榜。mvmOS 内的窗口是启动器，如果尚未安装 Game Hub，它会为你安装。退出时会保存当前进度，下次回来即可继续。",
+      "capabilities": [
+        "位于中央的防御塔会自动迎战每一波从四面八方逼近的敌人。",
+        "波次之间的商店会显示下一波的敌人，让每一枚金币都能针对即将到来的敌人使用。",
+        "六种武器，没有安装数量限制：加农炮、火焰喷射器、冰霜武器、激光、扫射光束，以及可无限布雷的布雷器，每种都有各自的升级。",
+        "所有武器和附加装备都需要能量：在波次之间购买能量，开启或关闭模块，并通过实时能量条查看用量；防御塔所需能量超过现有能量时，能量条会变红。",
+        "火焰环和冰霜环，以及修复、加固、射程、护盾、再生、冲击波、士兵、无人机和特斯拉电塔。",
+        "八类敌人和五种首领：战争领主、巨像、幽魂、虫巢女王和毁灭者。",
+        "使用每局游戏获得的点数在永久商店购物，让每局新游戏都能以更强的实力开始，并记录你的最高波次。",
+        "随时保存并退出，稍后继续本局游戏。",
+        "游戏记录会保存到你的 Game Hub 个人资料和排行榜，并以你的语言和主题全屏游玩。",
+        "Game Hub 提供波次、击杀数和生存时间统计。",
+        "紧凑的商店中，已购买的物品只显示当前数值，轻点后展开操作按钮；双行按钮显示价格和额外能量需求，一个按钮即可打开带有图片和说明的敌人列表。",
+        "竖屏战场充分利用手机的可用显示区域，同时让防御塔始终位于中央。",
+        "Premium 快速游玩提供最高十倍速、用于设置自动停止波次的列表，并可将设置保存在此浏览器中，供新游戏使用。",
+        "能量以一份、五份或十份打包出售，较大套餐的单位价格始终低于较小套餐。",
+        "收起的商店卡片中如果有当前可以买到的物品，就会显示绿色标记，无需展开即可知晓。",
+        "首领已针对同样需要花费金币购买能量的防御塔进行平衡调整：生命值更低，射击更慢、威力更弱，第一个首领也能被初始配置击败。"
+      ],
+      "integrations": [
+        {
+          "summary": "游戏本身在其公开的 Game Hub 页面上运行。Game Hub 提供游玩所用的账号、本局游戏所在的房间，以及记录得分的排行榜。",
+          "requires": "需要 Game Hub。如果尚未安装，启动器窗口会提供安装选项。"
+        }
+      ],
+      "name": "塔防"
+    }
+  }
 }

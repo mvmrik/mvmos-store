@@ -77,7 +77,8 @@
           "summary": "Classifieds ofrece una API entre aplicaciones: otras aplicaciones pueden consultar las categorías y tus propios anuncios, así como añadir, editar, volver a colocar al principio de la lista, activar, desactivar o eliminar un anuncio en tu nombre, con las mismas reglas, prohibiciones y verificaciones que en la página pública.",
           "requires": "La API de la aplicación Classifieds debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
         }
-      ]
+      ],
+      "name": "Anuncios clasificados"
     },
     "bg": {
       "short_description": "Обяви за общността със снимки, категории, безплатни вещи, профили в Apps Hub и подновяване на обявите.",
@@ -116,7 +117,8 @@
           "summary": "Classifieds предоставя API за взаимодействие между приложения: други приложения могат да извличат списък с категориите и собствените ви обяви, както и да добавят, редактират, извеждат в началото на списъка, активират, деактивират или изтриват обява от ваше име при същите правила, забрани и проверки като в публичната страница.",
           "requires": "API на приложението Classifieds трябва да бъде включен от Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
         }
-      ]
+      ],
+      "name": "Обяви"
     },
     "de": {
       "short_description": "Kleinanzeigen für die Community mit Fotos, Kategorien, Gratisartikeln, Apps Hub-Profilen und Anzeigenerneuerung.",
@@ -155,7 +157,8 @@
           "summary": "Classifieds bietet eine API für die Kommunikation zwischen Apps: Andere Apps können die Kategorien und deine eigenen Anzeigen auflisten sowie in deinem Namen Anzeigen hinzufügen, bearbeiten, nach oben verschieben, aktivieren, deaktivieren oder löschen. Dabei gelten dieselben Regeln, Sperren und Verifizierungen wie auf der öffentlichen Seite.",
           "requires": "Die App-API von Classifieds muss unter Apps Hub → Einstellungen → App-APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
         }
-      ]
+      ],
+      "name": "Kleinanzeigen"
     },
     "pt-BR": {
       "short_description": "Classificados da comunidade com fotos, categorias, itens grátis, perfis do Apps Hub e renovação de anúncios.",
@@ -194,7 +197,8 @@
           "summary": "O Classifieds disponibiliza uma API de comunicação entre aplicativos: outros aplicativos podem listar as categorias e seus próprios anúncios, além de adicionar, editar, reposicionar no topo, ativar, desativar ou excluir um anúncio em seu nome, seguindo as mesmas regras, proibições de publicação e verificações da página pública.",
           "requires": "A API de aplicativo do Classifieds precisa ser ativada em Apps Hub → Configurações → APIs de aplicativos. Ela vem desativada por padrão."
         }
-      ]
+      ],
+      "name": "Classificados"
     },
     "fr": {
       "short_description": "Petites annonces communautaires avec photos, catégories, dons, profils Apps Hub et renouvellement des annonces.",
@@ -233,7 +237,8 @@
           "summary": "Classifieds propose une API entre applications : les autres applications peuvent consulter la liste des catégories et de vos annonces, ainsi qu’ajouter, modifier, remonter en tête de liste, activer, désactiver ou supprimer une annonce en votre nom, selon les mêmes règles, interdictions et vérifications que sur la page publique.",
           "requires": "L’API d’application de Classifieds doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
         }
-      ]
+      ],
+      "name": "Petites annonces"
     },
     "ja": {
       "short_description": "写真、カテゴリー、無料の品、Apps Hubプロフィール、掲載更新に対応した、コミュニティ向けの個人売買掲示板。",
@@ -272,7 +277,8 @@
           "summary": "Classifiedsはアプリ間APIを提供しています。他のアプリからカテゴリーや自分の掲載を一覧表示でき、ユーザーに代わって掲載の追加、編集、上位への再表示、公開、非公開、削除を実行できます。公開ページと同じルール、投稿禁止措置、認証要件が適用されます。",
           "requires": "ClassifiedsのアプリAPIは、Apps Hub → 設定 → アプリAPIで有効にする必要があります。初期設定では無効です。"
         }
-      ]
+      ],
+      "name": "クラシファイド広告"
     },
     "zh-CN": {
       "short_description": "社区分类信息平台，支持照片、分类、免费物品、Apps Hub 个人资料和信息续期。",
@@ -311,7 +317,8 @@
           "summary": "Classifieds 提供应用间 API：其他应用可以列出分类和您发布的信息，并代表您添加、编辑、顶帖、启用、停用或删除信息，且须遵守与公开页面相同的规则、发布禁令和验证要求。",
           "requires": "需要在 Apps Hub → 设置 → 应用 API 中开启 Classifieds 应用 API。此功能默认关闭。"
         }
-      ]
+      ],
+      "name": "分类信息"
     },
     "ru": {
       "short_description": "Доска объявлений сообщества: фотографии, категории, бесплатные вещи, профили Apps Hub и продление объявлений.",
@@ -350,7 +357,8 @@
           "summary": "Classifieds предоставляет API для взаимодействия между приложениями: другие приложения могут получать список категорий и ваших объявлений, а также добавлять, редактировать, поднимать, активировать, деактивировать и удалять объявления от вашего имени. При этом действуют те же правила, запреты и проверки, что и на общедоступной странице.",
           "requires": "API приложения Classifieds необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он отключён."
         }
-      ]
+      ],
+      "name": "Объявления"
     }
   }
 }

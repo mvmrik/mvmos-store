@@ -10,5 +10,135 @@
     "Watering for a temporary reduction in penalties, and a visible list of which metrics are currently helping or hurting.",
     "Ten plant varieties and six growth stages.",
     "Bit Garden as a desktop or taskbar widget."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Показатели на сървъра в реално време с история. Следи процесора, RAM, диска и мрежата всяка минута.",
+      "tagline": "Запис за състоянието на сървъра минута по минута — и растение, което живее от него.",
+      "description": "Мониторът на сървъра събира данни от машината всяка минута и пази историята: процесор, RAM, суап памет, използвано дисково пространство, четене и запис на диска, входящ и изходящ мрежов трафик, средно натоварване и температури. Можете да преглеждате последния час, днес, вчера, седмица или месец със средна, минимална и максимална стойност за всеки показател и да щракнете върху която и да е точка, за да видите подробностите зад нея.\n\nВключва и Bit Garden. Засадете семе и то ще расте според състоянието на сървъра ви — добрите показатели му помагат да расте, продължителното натоварване му вреди, а с поливане можете временно да намалите неблагоприятните ефекти. То преминава от семе през кълн до дърво, предлага се в десет разновидности и може да стои на работния ви плот като уиджет. Замислено е като шега, но се оказва наистина ясен индикатор за състоянието, който разбирате с един поглед.",
+      "capabilities": [
+        "Събиране на данни всяка минута за процесора, RAM, суап паметта, използваното дисково пространство, дисковия и мрежовия вход/изход, средното натоварване и температурите.",
+        "История за последния час, днес, вчера, седмица и месец.",
+        "Средна, минимална и максимална стойност за всеки показател с подробен преглед за всяка точка от данните.",
+        "Архив на по-старите данни.",
+        "Bit Garden: растение, чието здраве и растеж следват показателите на самия сървър.",
+        "Поливане за временно намаляване на неблагоприятните ефекти и видим списък с показателите, които в момента помагат или вредят.",
+        "Десет разновидности растения и шест етапа на растеж.",
+        "Bit Garden като уиджет на работния плот или в лентата на задачите."
+      ],
+      "name": "Сървър Монитор"
+    },
+    "de": {
+      "short_description": "Servermesswerte in Echtzeit mit Verlauf. Erfasst CPU, RAM, Datenträger und Netzwerk im Minutentakt.",
+      "tagline": "Ein Protokoll des Serverzustands im Minutentakt — und eine Pflanze, die davon lebt.",
+      "description": "Der Servermonitor erfasst jede Minute die Messwerte des Rechners und speichert den Verlauf: CPU, RAM, Swap, Datenträgerbelegung, Lese- und Schreibzugriffe auf Datenträger, eingehenden und ausgehenden Netzwerkverkehr, Lastmittelwerte und Temperaturen. Sie können die letzte Stunde, heute, gestern, eine Woche oder einen Monat betrachten, mit Durchschnitt, Minimum und Maximum für jeden Messwert, und jeden Datenpunkt anklicken, um die Details dazu zu sehen.\n\nAußerdem gibt es Bit Garden. Pflanzen Sie einen Samen, und er wächst abhängig vom Zustand Ihres Servers — gute Werte lassen ihn wachsen, anhaltende Last schadet ihm, und durch Gießen können Sie die negativen Auswirkungen vorübergehend verringern. Aus dem Samen wird ein Spross und schließlich ein Baum. Es gibt zehn Sorten, und die Pflanze kann als Widget auf Ihrem Desktop stehen. Eine Spielerei, die sich als gut ablesbare Zustandsanzeige auf einen Blick erweist.",
+      "capabilities": [
+        "Minütliche Erfassung von CPU, RAM, Swap, Datenträgerbelegung, Datenträger-E/A, Netzwerk-E/A, Lastmittelwerten und Temperaturen.",
+        "Verlauf für die letzte Stunde, heute, gestern, eine Woche und einen Monat.",
+        "Durchschnitt, Minimum und Maximum je Messwert, mit einer Detailansicht für jeden Datenpunkt.",
+        "Archiv älterer Daten.",
+        "Bit Garden: eine Pflanze, deren Zustand und Wachstum sich nach den Messwerten des Servers richten.",
+        "Gießen zur vorübergehenden Verringerung negativer Auswirkungen sowie eine sichtbare Liste der Messwerte, die sich gerade positiv oder negativ auswirken.",
+        "Zehn Pflanzensorten und sechs Wachstumsstufen.",
+        "Bit Garden als Desktop- oder Taskleisten-Widget."
+      ],
+      "name": "Server-Monitor"
+    },
+    "es": {
+      "short_description": "Métricas del servidor en tiempo real con historial. Registra CPU, RAM, disco y red cada minuto.",
+      "tagline": "Un registro minuto a minuto del estado del servidor y una planta que vive de él.",
+      "description": "El Monitor del servidor toma muestras del equipo cada minuto y conserva el historial: CPU, RAM, memoria de intercambio, uso del disco, lecturas y escrituras del disco, tráfico de red entrante y saliente, promedios de carga y temperaturas. Puedes consultar la última hora, hoy, ayer, una semana o un mes, con el promedio, el mínimo y el máximo de cada métrica, y hacer clic en cualquier punto para ver sus detalles.\n\nTambién incluye Bit Garden. Planta una semilla y crecerá según la salud de tu servidor: los buenos valores la hacen crecer, la carga sostenida la daña y puedes regarla para reducir temporalmente las penalizaciones. Pasa de semilla a brote y después a árbol, tiene diez variedades y puede aparecer en tu escritorio como widget. Es una broma que acaba siendo un indicador de salud realmente fácil de interpretar de un vistazo.",
+      "capabilities": [
+        "Muestreo por minuto de CPU, RAM, memoria de intercambio, uso del disco, E/S de disco, E/S de red, promedios de carga y temperaturas.",
+        "Historial de la última hora, hoy, ayer, la semana y el mes.",
+        "Promedio, mínimo y máximo de cada métrica, con una vista detallada de cada punto de datos.",
+        "Archivo de datos antiguos.",
+        "Bit Garden: una planta cuya salud y crecimiento dependen de las propias métricas del servidor.",
+        "Riego para reducir temporalmente las penalizaciones y una lista visible de las métricas que están ayudando o perjudicando en ese momento.",
+        "Diez variedades de plantas y seis etapas de crecimiento.",
+        "Bit Garden como widget del escritorio o de la barra de tareas."
+      ],
+      "name": "Monitor del servidor"
+    },
+    "fr": {
+      "short_description": "Indicateurs du serveur en temps réel avec historique. Suivi du processeur, de la RAM, du disque et du réseau toutes les minutes.",
+      "tagline": "Un suivi minute par minute de l’état du serveur — et une plante qui en dépend.",
+      "description": "Le Moniteur de serveur relève les indicateurs de la machine toutes les minutes et en conserve l’historique : processeur, RAM, mémoire d’échange, utilisation du disque, lectures et écritures disque, trafic réseau entrant et sortant, charges moyennes et températures. Vous pouvez consulter la dernière heure, aujourd’hui, hier, une semaine ou un mois, avec la moyenne, le minimum et le maximum pour chaque indicateur, et cliquer sur n’importe quel point pour en voir le détail.\n\nIl intègre également Bit Garden. Plantez une graine : sa croissance dépend de la santé de votre serveur. De bons indicateurs la font pousser, une charge soutenue l’abîme, et vous pouvez l’arroser pour réduire temporairement les pénalités. Elle passe de la graine à la pousse, puis à l’arbre, existe en dix variétés et peut s’afficher sur votre bureau sous forme de widget. Ce clin d’œil ludique s’avère être un indicateur de santé réellement lisible en un coup d’œil.",
+      "capabilities": [
+        "Relevé toutes les minutes du processeur, de la RAM, de la mémoire d’échange, de l’utilisation du disque, des entrées/sorties disque et réseau, des charges moyennes et des températures.",
+        "Historique pour la dernière heure, aujourd’hui, hier, une semaine et un mois.",
+        "Moyenne, minimum et maximum par indicateur, avec une vue détaillée pour chaque point de données.",
+        "Archivage des données anciennes.",
+        "Bit Garden : une plante dont la santé et la croissance suivent les indicateurs du serveur.",
+        "Arrosage pour réduire temporairement les pénalités, et liste visible des indicateurs qui favorisent ou freinent actuellement la croissance.",
+        "Dix variétés de plantes et six stades de croissance.",
+        "Bit Garden sous forme de widget sur le bureau ou dans la barre des tâches."
+      ],
+      "name": "Moniteur du serveur"
+    },
+    "ja": {
+      "short_description": "履歴を確認できるリアルタイムのサーバーメトリクス。CPU、RAM、ディスク、ネットワークを毎分記録します。",
+      "tagline": "サーバーの状態を1分ごとに記録。その状態で育つ植物も。",
+      "description": "サーバーモニターはマシンの状態を毎分測定し、CPU、RAM、スワップ、ディスク使用量、ディスクの読み書き、ネットワークの送受信、ロードアベレージ、温度の履歴を保存します。直近1時間、今日、昨日、1週間、1か月のデータを表示でき、各メトリクスの平均値、最小値、最大値を確認できます。任意のデータ点をクリックすると、その詳細が表示されます。\n\nBit Gardenも搭載しています。種を植えると、サーバーの健全性に応じて育ちます。数値が良好なら成長し、負荷が続くとダメージを受けます。水をやればペナルティを一時的に軽減できます。種から芽、そして木へと育ち、10種類の品種から選べます。デスクトップにウィジェットとして置くこともできます。遊び心のある機能ですが、サーバーの健全性をひと目で把握できる、実用的な指標にもなります。",
+      "capabilities": [
+        "CPU、RAM、スワップ、ディスク使用量、ディスクI/O、ネットワークI/O、ロードアベレージ、温度を毎分測定。",
+        "直近1時間、今日、昨日、1週間、1か月の履歴を表示。",
+        "メトリクスごとの平均値、最小値、最大値と、各データ点の詳細を表示。",
+        "過去のデータをアーカイブ。",
+        "Bit Garden：サーバーのメトリクスに応じて健康状態と成長が変わる植物。",
+        "水やりでペナルティを一時的に軽減でき、現在どのメトリクスが良い影響や悪い影響を与えているかを一覧で表示。",
+        "10種類の植物と6段階の成長ステージ。",
+        "Bit Gardenをデスクトップまたはタスクバーのウィジェットとして表示。"
+      ],
+      "name": "サーバーモニター"
+    },
+    "pt-BR": {
+      "short_description": "Métricas do servidor em tempo real, com histórico. Acompanha CPU, RAM, disco e rede a cada minuto.",
+      "tagline": "Um registro minuto a minuto de como o servidor está — e uma planta que vive disso.",
+      "description": "O Monitor de Servidores coleta dados da máquina a cada minuto e mantém o histórico: CPU, RAM, swap, uso de disco, leitura e gravação em disco, entrada e saída de rede, médias de carga e temperaturas. Você pode consultar a última hora, hoje, ontem, uma semana ou um mês, com média, mínimo e máximo de cada métrica, e clicar em qualquer ponto para ver os detalhes correspondentes.\n\nEle também inclui o Bit Garden. Plante uma semente e ela crescerá de acordo com a saúde do seu servidor — bons indicadores fazem a planta crescer, uma carga elevada por muito tempo a prejudica, e você pode regá-la para reduzir temporariamente as penalidades. Ela passa de semente a broto e depois a árvore, está disponível em dez variedades e pode ficar na sua área de trabalho como um widget. É uma brincadeira que acaba se tornando um indicador de saúde fácil de entender com uma rápida olhada.",
+      "capabilities": [
+        "Coleta a cada minuto de CPU, RAM, swap, uso de disco, E/S de disco, E/S de rede, médias de carga e temperaturas.",
+        "Histórico da última hora, de hoje, de ontem, da semana e do mês.",
+        "Média, mínimo e máximo por métrica, com uma visualização detalhada de cada ponto de dados.",
+        "Arquivo de dados antigos.",
+        "Bit Garden: uma planta cuja saúde e crescimento acompanham as métricas do próprio servidor.",
+        "Rega para reduzir temporariamente as penalidades e uma lista visível das métricas que estão ajudando ou prejudicando a planta no momento.",
+        "Dez variedades de plantas e seis estágios de crescimento.",
+        "Bit Garden como widget da área de trabalho ou da barra de tarefas."
+      ],
+      "name": "Monitor do servidor"
+    },
+    "ru": {
+      "short_description": "Показатели сервера в реальном времени с историей. Отслеживает процессор, оперативную память, диск и сеть каждую минуту.",
+      "tagline": "Поминутная история состояния сервера — и растение, которое от него зависит.",
+      "description": "Монитор сервера каждую минуту собирает показатели компьютера и сохраняет их историю: загрузку процессора, использование оперативной памяти, подкачки и диска, чтение и запись на диск, входящий и исходящий сетевой трафик, среднюю нагрузку и температуры. Можно просматривать данные за последний час, сегодня, вчера, неделю или месяц со средним, минимальным и максимальным значениями каждого показателя и нажимать на любую точку, чтобы увидеть подробности.\n\nА ещё в нём есть Bit Garden. Посадите семя, и оно будет расти в зависимости от состояния сервера: хорошие показатели способствуют росту, длительная нагрузка вредит растению, а полив временно уменьшает штрафы. Растение проходит путь от семени через росток до дерева, доступно в десяти разновидностях и может отображаться на рабочем столе в виде виджета. Эта шутливая функция оказывается вполне наглядным индикатором состояния сервера, которое можно оценить с первого взгляда.",
+      "capabilities": [
+        "Ежеминутный сбор данных о загрузке процессора, использовании оперативной памяти, подкачки и диска, дисковом и сетевом вводе-выводе, средней нагрузке и температурах.",
+        "История за последний час, сегодня, вчера, неделю и месяц.",
+        "Среднее, минимальное и максимальное значения каждого показателя с подробным просмотром каждой точки данных.",
+        "Архив старых данных.",
+        "Bit Garden: растение, здоровье и рост которого зависят от показателей сервера.",
+        "Полив для временного уменьшения штрафов и наглядный список показателей, которые сейчас помогают растению или вредят ему.",
+        "Десять разновидностей растений и шесть стадий роста.",
+        "Bit Garden в виде виджета на рабочем столе или панели задач."
+      ],
+      "name": "Монитор сервера"
+    },
+    "zh-CN": {
+      "short_description": "实时服务器指标及历史记录。每分钟跟踪 CPU、内存、磁盘和网络。",
+      "tagline": "逐分钟记录服务器运行状况，还有一株随之生长的植物。",
+      "description": "服务器监控器每分钟对计算机采样一次，并保留历史记录：CPU、内存、交换空间、磁盘使用量、磁盘读写、网络收发、平均负载和温度。你可以查看最近一小时、今天、昨天、一周或一个月的数据，以及各项指标的平均值、最小值和最大值，还可以点击任意数据点查看详细信息。\n\n它还内置了比特花园。种下一颗种子，它就会随着服务器的健康状况生长——指标良好时茁壮成长，持续高负载则会让它受损，而浇水可以暂时减轻负面影响。它会从种子长成幼苗，再长成树，共有十个品种，还能作为小组件放在桌面上。这个趣味设计也意外地成为了一个直观易读、一目了然的健康状态指示器。",
+      "capabilities": [
+        "每分钟采样 CPU、内存、交换空间、磁盘使用量、磁盘 I/O、网络 I/O、平均负载和温度。",
+        "按最近一小时、今天、昨天、一周和一个月查看历史记录。",
+        "提供各项指标的平均值、最小值和最大值，并可查看每个数据点的详情。",
+        "归档较早的数据。",
+        "比特花园：植物的健康与生长随服务器自身指标而变化。",
+        "浇水可暂时减轻负面影响，并可直观查看当前哪些指标在促进或阻碍生长。",
+        "十个植物品种和六个生长阶段。",
+        "可将比特花园作为桌面或任务栏小组件。"
+      ],
+      "name": "服务器监控"
+    }
+  }
 }

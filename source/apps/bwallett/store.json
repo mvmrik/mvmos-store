@@ -29,7 +29,8 @@
         "Änderung des Wallet-Passworts ohne Austausch der Wiederherstellungsphrase.",
         "Dieselben Daten in der Desktop-App und auf der öffentlichen Apps Hub-Seite.",
         "Wenn ein Betragsrahmen für öffentliche Zahlungen festgelegt ist, zeigt das Sendeformular ihn an und prüft den Betrag während der Eingabe."
-      ]
+      ],
+      "name": "BwalletT"
     },
     "bg": {
       "short_description": "Поверителен портфейл за тестовата мрежа на Bitcoin с криптирани ключове, плащания, история на трансакциите и вграден обозревател. Използва само тестови монети — не може да изпраща, получава или съхранява реални Bitcoin.",
@@ -46,7 +47,8 @@
         "Смяна на паролата на портфейла без подмяна на фразата за възстановяване.",
         "Едни и същи данни в настолното приложение и на публичната страница в Apps Hub.",
         "Когато е зададен диапазон за сумите на публичните плащания, формулярът за изпращане го показва и проверява сумата, докато я въвеждате."
-      ]
+      ],
+      "name": "BwalletT"
     },
     "fr": {
       "short_description": "Un portefeuille Bitcoin privé sur le réseau de test, avec clés chiffrées, paiements, historique des transactions et explorateur intégré. Il utilise uniquement des bitcoins de test et ne peut ni envoyer, ni recevoir, ni détenir de vrais bitcoins.",
@@ -63,7 +65,8 @@
         "Modifiez le mot de passe du portefeuille sans remplacer la phrase de récupération.",
         "Les mêmes données dans l'application de bureau et sur la page publique Apps Hub.",
         "Lorsque des limites de paiement sont définies pour les utilisateurs publics, le formulaire d'envoi les affiche et vérifie le montant au fil de la saisie."
-      ]
+      ],
+      "name": "BwalletT"
     },
     "es": {
       "short_description": "Una cartera privada de Bitcoin para la red de pruebas, con claves cifradas, pagos, historial de transacciones y un explorador integrado. Solo utiliza monedas de prueba: no permite enviar, recibir ni almacenar Bitcoin reales.",
@@ -80,7 +83,8 @@
         "Cambia la contraseña de la cartera sin sustituir la frase de recuperación.",
         "Los mismos datos en la aplicación de escritorio y en la página pública de Apps Hub.",
         "Cuando se establece un intervalo de importes para los pagos públicos, el formulario de envío lo muestra y comprueba el importe mientras lo escribes."
-      ]
+      ],
+      "name": "BwalletT"
     },
     "pt-BR": {
       "short_description": "Uma carteira privada para a rede de testes do Bitcoin, com chaves criptografadas, pagamentos, histórico de transações e explorador integrado. Usa apenas moedas de teste — não pode enviar, receber nem armazenar Bitcoin real.",
@@ -97,7 +101,8 @@
         "Alteração da senha da carteira sem substituir a frase de recuperação.",
         "Os mesmos dados no aplicativo para desktop e na página pública do Apps Hub.",
         "Quando os limites de pagamento para usuários públicos estão definidos, o formulário de envio os exibe e verifica o valor enquanto você digita."
-      ]
+      ],
+      "name": "BwalletT"
     },
     "ja": {
       "short_description": "暗号化された鍵、送金、取引履歴、内蔵エクスプローラーを備えた、プライバシーを守るBitcoinテストネット用ウォレット。テストネットのコイン専用で、実際のBitcoinの送受信や保管はできません。",
@@ -114,7 +119,8 @@
         "リカバリーフレーズを変更せずに、ウォレットのパスワードを変更できます。",
         "デスクトップアプリとApps Hubの公開ページで、同じデータを利用できます。",
         "公開プロフィール向けの送金額の範囲が設定されている場合、送金フォームにその範囲が表示され、入力中に金額がチェックされます。"
-      ]
+      ],
+      "name": "BwalletT"
     },
     "ru": {
       "short_description": "Приватный кошелёк для тестовой сети Bitcoin с зашифрованными ключами, платежами, историей транзакций и встроенным обозревателем. Работает только с тестовыми монетами — отправлять, получать или хранить настоящие Bitcoin в нём нельзя.",
@@ -131,7 +137,8 @@
         "Смена пароля кошелька без замены фразы восстановления.",
         "Одни и те же данные в настольном приложении и на публичной странице Apps Hub.",
         "Если для публичных платежей задан диапазон сумм, форма отправки показывает его и проверяет сумму по мере ввода."
-      ]
+      ],
+      "name": "BwalletT"
     },
     "zh-CN": {
       "short_description": "一款注重隐私的 Bitcoin 测试网钱包，提供密钥加密、付款、交易记录及内置浏览器。仅使用测试网代币，无法发送、接收或持有真正的 Bitcoin。",
@@ -148,7 +155,8 @@
         "更改钱包密码，无需更换助记词。",
         "桌面应用与 Apps Hub 公开页面中的数据保持一致。",
         "设置公开付款金额范围后，发送表单会显示该范围，并在你输入时检查金额。"
-      ]
+      ],
+      "name": "BwalletT"
     }
   }
 }

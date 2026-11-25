@@ -16,5 +16,167 @@
       "short": "Let users issue their own scoped folder keys",
       "description": "Allow profiles to create restricted Bearer tokens for their own folder, instead of every key having to be issued by the administrator. The keys give file operations inside that one folder and never shell access."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Контрол върху мястото за всеки профил, кой може да криптира папка и дали потребителите могат да издават собствени API ключове.",
+      "features": [
+        {
+          "title": "Квоти за съхранение",
+          "short": "Задайте отделен лимит за размера на всеки профил",
+          "description": "Задайте лимит за размера по подразбиране за всеки профил в Apps Hub и отделни стойности за конкретни хора. Без абонамент всяка папка е с неограничен размер и не се прилага квота; с абонамент лимитът се прилага при качване, така че един профил да не може да запълни диска, споделен от цялата инсталация."
+        },
+        {
+          "title": "Криптирани папки",
+          "short": "Определете кой може да създава папки, криптирани в браузъра",
+          "description": "Включете криптираните папки за инсталацията и изберете кои профили имат право да ги създават. Криптираната папка се отключва в браузъра, така че сървърът никога не разполага с ключа — когато функцията е изключена, никой профил не може да създава такава папка."
+        },
+        {
+          "title": "Потребителски API ключове",
+          "short": "Позволете на потребителите да издават собствени ключове за папки с ограничен обхват",
+          "description": "Позволете на профилите да създават ограничени Bearer токени за собствената си папка, вместо всеки ключ да трябва да се издава от администратора. Ключовете позволяват файлови операции само в тази папка и никога не предоставят достъп до командна обвивка."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Bestimmen Sie, wie viel Speicher jedes Profil erhält, wer einen Ordner verschlüsseln darf und ob Benutzer eigene API-Schlüssel ausstellen können.",
+      "features": [
+        {
+          "title": "Speicherkontingente",
+          "short": "Jedem Profil ein eigenes Speicherlimit zuweisen",
+          "description": "Legen Sie ein standardmäßiges Speicherlimit für alle Apps Hub-Profile fest und passen Sie es für einzelne Personen an. Ohne Abonnement ist jeder Ordner unbegrenzt und es gilt kein Kontingent; mit einem Abonnement wird das Limit beim Upload durchgesetzt, damit ein einzelnes Profil nicht den von der gesamten Installation gemeinsam genutzten Datenträger füllen kann."
+        },
+        {
+          "title": "Verschlüsselte Ordner",
+          "short": "Festlegen, wer im Browser verschlüsselte Ordner erstellen darf",
+          "description": "Aktivieren Sie verschlüsselte Ordner für die Installation und wählen Sie aus, welche Profile sie erstellen dürfen. Ein verschlüsselter Ordner wird im Browser entsperrt, sodass der Server den Schlüssel niemals besitzt — bei deaktivierter Funktion kann kein Profil einen solchen Ordner erstellen."
+        },
+        {
+          "title": "Benutzer-API-Schlüssel",
+          "short": "Benutzern das Ausstellen eigener Ordnerschlüssel mit begrenztem Geltungsbereich erlauben",
+          "description": "Erlauben Sie Profilen, eingeschränkte Bearer-Token für ihren eigenen Ordner zu erstellen, anstatt jeden Schlüssel vom Administrator ausstellen lassen zu müssen. Die Schlüssel ermöglichen Dateivorgänge innerhalb dieses einen Ordners und niemals Shell-Zugriff."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Controla cuánto espacio recibe cada perfil, quién puede cifrar una carpeta y si los usuarios pueden emitir sus propias claves de API.",
+      "features": [
+        {
+          "title": "Cuotas de almacenamiento",
+          "short": "Asigna a cada perfil su propio límite de tamaño",
+          "description": "Establece un límite de tamaño predeterminado para todos los perfiles de Apps Hub y personalízalo para personas concretas. Sin suscripción, todas las carpetas tienen tamaño ilimitado y no se aplica ninguna cuota; con ella, el límite se aplica al subir archivos, de modo que un solo perfil no pueda llenar el disco que comparte toda la instalación."
+        },
+        {
+          "title": "Carpetas cifradas",
+          "short": "Decide quién puede crear carpetas cifradas en el navegador",
+          "description": "Activa las carpetas cifradas para la instalación y elige qué perfiles pueden crearlas. Una carpeta cifrada se desbloquea en el navegador, por lo que el servidor nunca tiene la clave; con la función desactivada, ningún perfil puede crear una."
+        },
+        {
+          "title": "Claves de API de usuario",
+          "short": "Permite que los usuarios emitan sus propias claves de carpeta con un ámbito limitado",
+          "description": "Permite que los perfiles creen tokens Bearer restringidos para su propia carpeta, en lugar de que el administrador tenga que emitir todas las claves. Las claves permiten realizar operaciones con archivos dentro de esa única carpeta y nunca dan acceso a una shell."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Contrôlez l’espace attribué à chaque profil, les personnes autorisées à chiffrer un dossier et la possibilité pour les utilisateurs de créer leurs propres clés API.",
+      "features": [
+        {
+          "title": "Quotas de stockage",
+          "short": "Attribuez à chaque profil sa propre limite de stockage",
+          "description": "Définissez une limite de stockage par défaut pour chaque profil Apps Hub et personnalisez-la pour certaines personnes. Sans abonnement, chaque dossier est illimité et aucun quota n’est appliqué ; avec un abonnement, la limite est appliquée lors du téléversement, afin qu’un seul profil ne puisse pas remplir le disque partagé par toute l’installation."
+        },
+        {
+          "title": "Dossiers chiffrés",
+          "short": "Décidez qui peut créer des dossiers chiffrés dans le navigateur",
+          "description": "Activez les dossiers chiffrés pour l’installation et choisissez les profils autorisés à en créer. Un dossier chiffré est déverrouillé dans le navigateur : le serveur ne détient donc jamais la clé — lorsque la fonctionnalité est désactivée, aucun profil ne peut en créer."
+        },
+        {
+          "title": "Clés API des utilisateurs",
+          "short": "Permettez aux utilisateurs de créer leurs propres clés de dossier à portée limitée",
+          "description": "Autorisez les profils à créer des jetons Bearer restreints pour leur propre dossier, sans que chaque clé doive être créée par l’administrateur. Les clés permettent d’effectuer des opérations sur les fichiers à l’intérieur de ce seul dossier et ne donnent jamais accès à un shell."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "各プロフィールに割り当てる容量、フォルダーを暗号化できるユーザー、ユーザー自身によるAPIキー発行の可否を管理できます。",
+      "features": [
+        {
+          "title": "ストレージ容量上限",
+          "short": "プロフィールごとに容量上限を設定",
+          "description": "すべてのApps Hubプロフィールにデフォルトの容量上限を設定し、ユーザーごとに個別の上限を指定できます。サブスクリプションがない場合、すべてのフォルダーは容量無制限で、上限は適用されません。サブスクリプションがある場合は、アップロード時に上限が適用されるため、1つのプロフィールが環境全体で共有するディスクを使い切ることを防げます。"
+        },
+        {
+          "title": "暗号化フォルダー",
+          "short": "ブラウザーで暗号化するフォルダーの作成権限を設定",
+          "description": "お使いの環境で暗号化フォルダーを有効にし、作成を許可するプロフィールを選択できます。暗号化フォルダーのロックはブラウザーで解除されるため、サーバーがキーを保持することはありません。この機能が無効の場合、どのプロフィールも暗号化フォルダーを作成できません。"
+        },
+        {
+          "title": "ユーザーAPIキー",
+          "short": "ユーザー自身による、アクセス範囲を限定したフォルダーキーの発行を許可",
+          "description": "すべてのキーを管理者が発行する必要がなくなり、プロフィールが自身のフォルダーに対する権限を限定したBearerトークンを作成できるようになります。キーで利用できるのは、その1つのフォルダー内のファイル操作のみで、シェルにはアクセスできません。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Controle quanto espaço cada perfil recebe, quem pode criptografar uma pasta e se os usuários podem emitir suas próprias chaves de API.",
+      "features": [
+        {
+          "title": "Cotas de armazenamento",
+          "short": "Defina um limite de tamanho para cada perfil",
+          "description": "Defina um limite de tamanho padrão para cada perfil do Apps Hub e personalize-o para pessoas específicas. Sem assinatura, todas as pastas têm tamanho ilimitado e nenhuma cota é aplicada; com uma assinatura, o limite é aplicado no upload, impedindo que um único perfil ocupe todo o disco compartilhado pela instalação."
+        },
+        {
+          "title": "Pastas criptografadas",
+          "short": "Decida quem pode criar pastas criptografadas pelo navegador",
+          "description": "Ative as pastas criptografadas na instalação e escolha quais perfis podem criá-las. Uma pasta criptografada é desbloqueada no navegador, portanto o servidor nunca guarda a chave — com o recurso desativado, nenhum perfil pode criar uma."
+        },
+        {
+          "title": "Chaves de API de usuários",
+          "short": "Permita que os usuários emitam suas próprias chaves com escopo restrito a uma pasta",
+          "description": "Permita que os perfis criem tokens Bearer restritos à própria pasta, em vez de exigir que todas as chaves sejam emitidas pelo administrador. As chaves permitem operações com arquivos dentro dessa única pasta e nunca dão acesso ao shell."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Управляйте объёмом пространства для каждого профиля, разрешениями на шифрование папок и возможностью пользователей выпускать собственные API-ключи.",
+      "features": [
+        {
+          "title": "Квоты хранилища",
+          "short": "Задайте каждому профилю собственный лимит объёма",
+          "description": "Установите лимит объёма по умолчанию для всех профилей Apps Hub и изменяйте его для отдельных пользователей. Без подписки объём каждой папки не ограничен и квоты не применяются; с подпиской лимит проверяется при загрузке, поэтому один профиль не сможет заполнить диск, общий для всей установки."
+        },
+        {
+          "title": "Зашифрованные папки",
+          "short": "Определяйте, кто может создавать папки с шифрованием в браузере",
+          "description": "Включите зашифрованные папки для установки и выберите профили, которым разрешено их создавать. Зашифрованная папка разблокируется в браузере, поэтому сервер никогда не хранит ключ — когда функция отключена, ни один профиль не может создать такую папку."
+        },
+        {
+          "title": "Пользовательские API-ключи",
+          "short": "Разрешите пользователям выпускать собственные ключи с доступом к отдельным папкам",
+          "description": "Разрешите профилям создавать Bearer-токены с ограниченными правами для собственной папки, чтобы администратору не приходилось выпускать каждый ключ. Ключи позволяют выполнять операции с файлами только внутри этой папки и никогда не предоставляют доступ к командной оболочке."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "控制每个用户档案可用的空间、哪些人可以加密文件夹，以及用户能否签发自己的 API 密钥。",
+      "features": [
+        {
+          "title": "存储配额",
+          "short": "为每个用户档案设置独立的容量上限",
+          "description": "为所有 Apps Hub 用户档案设置默认容量上限，并可为个别用户单独调整。未订阅时，所有文件夹均无容量限制，也不应用配额；订阅后，上传时会强制执行容量上限，防止单个用户档案占满整个实例共用的磁盘。"
+        },
+        {
+          "title": "加密文件夹",
+          "short": "决定谁可以创建在浏览器中加密的文件夹",
+          "description": "为此实例启用加密文件夹，并选择允许创建它们的用户档案。加密文件夹在浏览器中解锁，因此服务器始终不会持有密钥——关闭此功能后，任何用户档案都无法创建加密文件夹。"
+        },
+        {
+          "title": "用户 API 密钥",
+          "short": "允许用户为自己的文件夹签发限定范围的密钥",
+          "description": "允许用户档案为自己的文件夹创建受限的 Bearer 令牌，无需每个密钥都由管理员签发。这些密钥仅允许在对应文件夹内执行文件操作，绝不提供 shell 访问。"
+        }
+      ]
+    }
+  }
 }

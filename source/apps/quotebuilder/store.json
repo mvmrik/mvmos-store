@@ -11,5 +11,143 @@
     "Global defaults for hourly rate, currency and deposit.",
     "Public share link per project, live as you edit.",
     "Choose whether the client sees hours per service and your hourly rate, and in which language."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Създаване на оферти за проекти. Добавяйте услуги с продължителност (часове + минути) или фиксирани цени, задавайте часова ставка, прилагайте отстъпки и авансово плащане и споделяйте с клиента публична връзка, която се обновява в реално време.",
+      "tagline": "Определете цената на работата и изпратете на клиента връзка, която се обновява в реално време.",
+      "description": "QuoteBuilder съставя оферта въз основа на включената в нея работа. Всяка услуга се ценообразува или според времето — часове и минути по вашата часова ставка — или с фиксирана цена, а обобщението изчислява общите часове, междинната сума, отстъпката, крайната сума и остатъка след авансовото плащане.\n\nУслугите, които често включвате в оферти, се превръщат в шаблони, организирани във ваши собствени категории, така че следващата оферта изисква няколко щраквания вместо повторно въвеждане. Ставката, валутата и авансовото плащане по подразбиране се задават в общите настройки и се прилагат към всеки нов проект.\n\nВсеки проект получава публична връзка, която можете да изпратите на клиента. Тя се обновява, докато редактирате, а вие избирате какво да показва — часовете за всяка услуга, часовата ви ставка или нито едното — и на какъв език.",
+      "capabilities": [
+        "Проекти, всеки със собствен списък с услуги.",
+        "Услуги с цена според времето (часове и минути по часова ставка) или с фиксирана цена.",
+        "Часова ставка, процент отстъпка и процент авансово плащане за всеки проект.",
+        "Обобщение с общите часове, междинната сума, отстъпката, крайната сума и остатъка след авансовото плащане.",
+        "Шаблони за услуги за многократна употреба с продължителност и описание по подразбиране.",
+        "Ваши собствени категории за шаблони.",
+        "Общи стойности по подразбиране за часова ставка, валута и авансово плащане.",
+        "Публична връзка за споделяне на всеки проект, която се обновява в реално време при редактиране.",
+        "Избирате дали клиентът да вижда часовете за всяка услуга и часовата ви ставка и на какъв език."
+      ],
+      "name": "QuoteBuilder"
+    },
+    "de": {
+      "short_description": "Angebotserstellung für Projekte. Fügen Sie Leistungen mit Zeitaufwand (Stunden + Minuten) oder Festpreisen hinzu, legen Sie einen Stundensatz fest, berücksichtigen Sie Rabatte und eine Anzahlung und teilen Sie einen stets aktuellen öffentlichen Link mit Ihrem Kunden.",
+      "tagline": "Kalkulieren Sie einen Auftrag und senden Sie dem Kunden einen stets aktuellen Link.",
+      "description": "QuoteBuilder erstellt ein Angebot aus den enthaltenen Leistungen. Jede Leistung wird entweder nach Zeitaufwand — Stunden und Minuten zu Ihrem Stundensatz — oder zu einem Festpreis berechnet. Die Zusammenfassung zeigt die Gesamtstunden, die Zwischensumme, den Rabatt, den Gesamtbetrag und den nach der Anzahlung verbleibenden Restbetrag.\n\nHäufig angebotene Leistungen werden zu Vorlagen, die Sie in eigenen Kategorien organisieren. So ist das nächste Angebot mit wenigen Klicks erstellt, statt alles neu zu schreiben. Stundensatz, Währung und Standardanzahlung werden in den globalen Einstellungen hinterlegt und gelten für jedes neue Projekt.\n\nJedes Projekt erhält einen öffentlichen Link, den Sie an den Kunden senden können. Er wird bei Ihren Änderungen aktualisiert. Sie entscheiden, was angezeigt wird — Stunden pro Leistung, Ihr Stundensatz oder keines von beidem — und in welcher Sprache.",
+      "capabilities": [
+        "Projekte mit jeweils eigener Leistungsliste.",
+        "Leistungen mit zeitbasierter Abrechnung (Stunden und Minuten zu einem Stundensatz) oder Festpreis.",
+        "Stundensatz, Rabattprozentsatz und Anzahlungsprozentsatz pro Projekt.",
+        "Zusammenfassung mit Gesamtstunden, Zwischensumme, Rabatt, Gesamtbetrag und Restbetrag nach Anzahlung.",
+        "Wiederverwendbare Leistungsvorlagen mit Standarddauer und Beschreibung.",
+        "Eigene Vorlagenkategorien.",
+        "Globale Standardwerte für Stundensatz, Währung und Anzahlung.",
+        "Öffentlicher Freigabelink pro Projekt, der bei Änderungen sofort aktualisiert wird.",
+        "Wählen Sie, ob der Kunde die Stunden pro Leistung und Ihren Stundensatz sieht und in welcher Sprache."
+      ],
+      "name": "QuoteBuilder"
+    },
+    "es": {
+      "short_description": "Creador de presupuestos para proyectos. Añade servicios con una duración (horas + minutos) o precios fijos, establece una tarifa por hora, aplica descuentos y un anticipo, y comparte un enlace público actualizado con tu cliente.",
+      "tagline": "Calcula el precio de un trabajo y envía al cliente un enlace actualizado.",
+      "description": "QuoteBuilder elabora un presupuesto a partir del trabajo que incluye. Cada servicio se calcula por tiempo —horas y minutos a tu tarifa por hora— o tiene un precio fijo, y el resumen suma las horas, el subtotal, el descuento, el total y el importe pendiente tras el anticipo.\n\nLos servicios que presupuestas a menudo se convierten en plantillas, organizadas en tus propias categorías, para que el siguiente presupuesto se prepare con unos pocos clics sin tener que redactarlo de nuevo. La tarifa, la moneda y el anticipo predeterminado se configuran en los ajustes globales y se aplican a cada proyecto nuevo.\n\nCada proyecto tiene un enlace público que puedes enviar al cliente. Se actualiza a medida que lo editas y tú eliges qué muestra —las horas por servicio, tu tarifa por hora o ninguna de las dos— y en qué idioma.",
+      "capabilities": [
+        "Proyectos, cada uno con su propia lista de servicios.",
+        "Servicios con precios calculados por tiempo (horas y minutos a una tarifa por hora) o con un precio fijo.",
+        "Tarifa por hora, porcentaje de descuento y porcentaje de anticipo por proyecto.",
+        "Resumen con horas totales, subtotal, descuento, total e importe pendiente tras el anticipo.",
+        "Plantillas de servicios reutilizables con una duración y una descripción predeterminadas.",
+        "Tus propias categorías de plantillas.",
+        "Valores globales predeterminados para la tarifa por hora, la moneda y el anticipo.",
+        "Enlace público para compartir cada proyecto, que se actualiza mientras lo editas.",
+        "Elige si el cliente ve las horas por servicio y tu tarifa por hora, y en qué idioma."
+      ],
+      "name": "QuoteBuilder"
+    },
+    "fr": {
+      "short_description": "Création de devis pour vos projets. Ajoutez des prestations facturées au temps passé (heures + minutes) ou au forfait, définissez un tarif horaire, appliquez des remises et un acompte, puis partagez avec votre client un lien public mis à jour en temps réel.",
+      "tagline": "Chiffrez une prestation, envoyez au client un lien mis à jour en temps réel.",
+      "description": "Créateur de devis établit un devis à partir des prestations qui le composent. Chaque prestation est facturée soit au temps passé — en heures et en minutes selon votre tarif horaire — soit au forfait. Le récapitulatif calcule le total des heures, le sous-total, la remise, le total et le solde après acompte.\n\nLes prestations que vous chiffrez souvent deviennent des modèles, organisés dans vos propres catégories : le devis suivant se prépare ainsi en quelques clics, sans tout ressaisir. Le tarif, la devise et l’acompte par défaut se définissent dans les paramètres généraux et s’appliquent à chaque nouveau projet.\n\nChaque projet dispose d’un lien public que vous pouvez envoyer au client. Il se met à jour au fil de vos modifications, et vous choisissez ce qu’il affiche — les heures par prestation, votre tarif horaire ou aucun des deux — ainsi que la langue.",
+      "capabilities": [
+        "Des projets disposant chacun de leur propre liste de prestations.",
+        "Des prestations facturées au temps passé (heures et minutes selon un tarif horaire) ou au forfait.",
+        "Un tarif horaire, un pourcentage de remise et un pourcentage d’acompte par projet.",
+        "Un récapitulatif indiquant le total des heures, le sous-total, la remise, le total et le solde après acompte.",
+        "Des modèles de prestations réutilisables avec une durée et une description par défaut.",
+        "Vos propres catégories de modèles.",
+        "Des valeurs par défaut générales pour le tarif horaire, la devise et l’acompte.",
+        "Un lien public de partage par projet, mis à jour au fil de vos modifications.",
+        "Choisissez si le client voit les heures par prestation et votre tarif horaire, ainsi que la langue d’affichage."
+      ],
+      "name": "QuoteBuilder"
+    },
+    "ja": {
+      "short_description": "プロジェクトの見積作成ツール。時間（時間＋分）または固定料金でサービスを追加し、時間単価、割引、前払金を設定して、更新が即時に反映される公開リンクをクライアントと共有できます。",
+      "tagline": "仕事を見積もり、最新の内容が反映されるリンクをクライアントに送信。",
+      "description": "QuoteBuilderは、作業内容をもとに見積書を作成します。各サービスには、時間単価で計算する作業時間（時間と分）、または固定料金を設定でき、集計欄には合計時間、小計、割引、合計金額、前払金差引後の残額が表示されます。\n\nよく見積もるサービスはテンプレートとして保存し、独自のカテゴリに整理できます。次の見積もりは、一から書き直すことなく数回のクリックで作成できます。時間単価、通貨、標準の前払金は全体設定で管理し、新しいすべてのプロジェクトに適用されます。\n\n各プロジェクトには、クライアントに送信できる公開リンクが用意されます。編集内容は即時に反映され、サービスごとの作業時間や時間単価を表示するか、どちらも表示しないか、また表示言語を選べます。",
+      "capabilities": [
+        "プロジェクトごとに独立したサービス一覧を管理。",
+        "時間（時間単価に基づく時間と分）または固定料金によるサービスの価格設定。",
+        "プロジェクトごとの時間単価、割引率、前払金率。",
+        "合計時間、小計、割引、合計金額、前払金差引後の残額を表示する集計。",
+        "標準の所要時間と説明を設定できる、再利用可能なサービステンプレート。",
+        "独自のテンプレートカテゴリ。",
+        "時間単価、通貨、前払金の全体共通の初期設定。",
+        "編集内容が即時に反映される、プロジェクトごとの公開共有リンク。",
+        "サービスごとの作業時間と時間単価をクライアントに表示するかどうか、および表示言語を選択。"
+      ],
+      "name": "QuoteBuilder"
+    },
+    "pt-BR": {
+      "short_description": "Criador de orçamentos de projetos. Adicione serviços por tempo (horas + minutos) ou com preços fixos, defina um valor por hora, aplique descontos e um adiantamento e compartilhe um link público atualizado em tempo real com seu cliente.",
+      "tagline": "Defina o preço de um trabalho e envie ao cliente um link atualizado em tempo real.",
+      "description": "O QuoteBuilder monta um orçamento a partir dos serviços incluídos nele. Cada serviço é cobrado por tempo — horas e minutos com base no seu valor por hora — ou por um preço fixo, e o resumo soma as horas, o subtotal, o desconto, o total e o saldo após o adiantamento.\n\nOs serviços que você costuma orçar se tornam modelos, organizados nas suas próprias categorias, para que o próximo orçamento fique pronto com poucos cliques, sem precisar reescrever tudo. O valor por hora, a moeda e o adiantamento padrão ficam nas configurações globais e se aplicam a cada novo projeto.\n\nCada projeto recebe um link público que você pode enviar ao cliente. Ele é atualizado conforme você edita, e você escolhe o que será exibido — horas por serviço, seu valor por hora ou nenhum dos dois — e em qual idioma.",
+      "capabilities": [
+        "Projetos, cada um com sua própria lista de serviços.",
+        "Serviços cobrados por tempo (horas e minutos com base em um valor por hora) ou por preço fixo.",
+        "Valor por hora, percentual de desconto e percentual de adiantamento por projeto.",
+        "Resumo com total de horas, subtotal, desconto, total e saldo após o adiantamento.",
+        "Modelos reutilizáveis de serviços com duração e descrição padrão.",
+        "Suas próprias categorias de modelos.",
+        "Valores padrão globais para valor por hora, moeda e adiantamento.",
+        "Link público de compartilhamento por projeto, atualizado em tempo real conforme você edita.",
+        "Escolha se o cliente vê as horas por serviço e seu valor por hora, e em qual idioma."
+      ],
+      "name": "QuoteBuilder"
+    },
+    "ru": {
+      "short_description": "Составление смет для проектов. Добавляйте услуги с оплатой по времени (часы + минуты) или по фиксированной цене, задавайте почасовую ставку, применяйте скидки и предоплату и отправляйте клиенту общедоступную ссылку с актуальными данными.",
+      "tagline": "Рассчитайте стоимость работы и отправьте клиенту ссылку с актуальными данными.",
+      "description": "QuoteBuilder составляет смету на основе входящих в неё работ. Для каждой услуги указывается либо время — часы и минуты по вашей почасовой ставке, — либо фиксированная цена. В сводке рассчитываются общее время, промежуточная сумма, скидка, итоговая сумма и остаток после предоплаты.\n\nУслуги, которые вы часто включаете в сметы, можно сохранять как шаблоны и распределять по собственным категориям. Тогда следующую смету можно составить за несколько нажатий, не вводя всё заново. Ставка, валюта и предоплата по умолчанию задаются в общих настройках и применяются к каждому новому проекту.\n\nУ каждого проекта есть общедоступная ссылка, которую можно отправить клиенту. Данные по ней обновляются по мере редактирования, а вы выбираете, что показывать — часы по каждой услуге, почасовую ставку или ни то ни другое — и на каком языке.",
+      "capabilities": [
+        "Проекты с отдельным списком услуг для каждого.",
+        "Стоимость услуг по времени (часы и минуты по почасовой ставке) или по фиксированной цене.",
+        "Почасовая ставка, процент скидки и процент предоплаты для каждого проекта.",
+        "Сводка с общим временем, промежуточной суммой, скидкой, итоговой суммой и остатком после предоплаты.",
+        "Многоразовые шаблоны услуг с продолжительностью и описанием по умолчанию.",
+        "Собственные категории шаблонов.",
+        "Общие значения по умолчанию для почасовой ставки, валюты и предоплаты.",
+        "Общедоступная ссылка для каждого проекта с обновлением данных по мере редактирования.",
+        "Выбор языка и отображения часов по каждой услуге и почасовой ставки для клиента."
+      ],
+      "name": "QuoteBuilder"
+    },
+    "zh-CN": {
+      "short_description": "项目报价工具。添加按时间（小时 + 分钟）或固定价格计费的服务，设置小时费率、折扣和预付款，并与客户分享实时更新的公开链接。",
+      "tagline": "为项目报价，向客户发送实时更新的链接。",
+      "description": "QuoteBuilder 根据项目所包含的工作生成报价。每项服务可按时间计费，即按小时费率计算小时和分钟数，也可采用固定价格。汇总中会列出总工时、小计、折扣、总额以及扣除预付款后的余款。\n\n经常报价的服务可保存为模板，并按您自建的类别整理，让下一次报价只需点击几下，无须重新编写。小时费率、货币和默认预付款比例在全局设置中配置，并应用于每个新项目。\n\n每个项目都有一个可发送给客户的公开链接。链接内容会随您的编辑实时更新，您可以选择显示每项服务的工时、小时费率，或两者都不显示，还可以选择显示语言。",
+      "capabilities": [
+        "每个项目都有独立的服务列表。",
+        "服务可按时间（以小时费率计算小时和分钟数）或固定价格计费。",
+        "为每个项目设置小时费率、折扣比例和预付款比例。",
+        "汇总显示总工时、小计、折扣、总额以及扣除预付款后的余款。",
+        "可重复使用的服务模板，包含默认时长和描述。",
+        "自定义模板类别。",
+        "小时费率、货币和预付款的全局默认设置。",
+        "每个项目都有公开分享链接，内容随编辑实时更新。",
+        "选择是否向客户显示每项服务的工时和小时费率，以及显示语言。"
+      ],
+      "name": "QuoteBuilder"
+    }
+  }
 }

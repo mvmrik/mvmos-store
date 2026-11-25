@@ -11,5 +11,127 @@
       "short": "Find reused and weak passwords across the vault",
       "description": "A menu entry checks every login for two common problems: the same password used on more than one entry, and a password weak enough to guess — too short, too simple, or one of the passwords people pick most often. The check runs entirely in the browser on the passwords already decrypted for that vault, so nothing about it is sent anywhere."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Допълнителни функции, които следят хранилището и го свързват с останалата част от mvmOS.",
+      "features": [
+        {
+          "title": "Кодове за двуфакторно удостоверяване в хранилището",
+          "short": "Свържете акаунт в mvm2factor със запис за вход и копирайте кода му",
+          "description": "След като администратор активира интеграцията, свържете акаунт в mvm2factor със запис за вход и копирайте текущия му код или го поставете в клипборда при автоматично попълване. Криптираните тайни се декриптират и кодовете се изчисляват локално от модула Premium за браузъра. Той използва сесията за отключване на mvm2factor или изисква отделната му парола. Когато двете пароли съвпадат, ключът на mvm2factor се съхранява криптиран с ключа на хранилището за пароли. Без Premium контролата на работния плот отваря подкана за Premium, а публичните страници не я предлагат."
+        },
+        {
+          "title": "Проверка на паролите",
+          "short": "Откривайте повторно използвани и слаби пароли в цялото хранилище",
+          "description": "Команда в менюто проверява всеки запис за вход за два често срещани проблема: една и съща парола, използвана в повече от един запис, и парола, която е лесна за отгатване — твърде кратка, твърде проста или сред най-често избираните пароли. Проверката се извършва изцяло в браузъра върху вече декриптираните пароли за това хранилище, така че никакви данни от нея не се изпращат никъде."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Zusatzfunktionen, die Ihren Tresor im Blick behalten und ihn mit dem übrigen mvmOS verbinden.",
+      "features": [
+        {
+          "title": "Zwei-Faktor-Codes im Tresor",
+          "short": "Ein mvm2factor-Konto mit Zugangsdaten verknüpfen und dessen Code kopieren",
+          "description": "Sobald die Administration die Integration aktiviert hat, können Sie ein mvm2factor-Konto mit Zugangsdaten verknüpfen und dessen aktuellen Code kopieren oder beim automatischen Ausfüllen in die Zwischenablage übernehmen. Verschlüsselte Geheimnisse werden vom Premium-Browsermodul lokal entschlüsselt und die Codes lokal berechnet. Es verwendet die mvm2factor-Entsperrsitzung erneut oder fragt nach dessen separatem Passwort. Stimmen beide Passwörter überein, wird der mvm2factor-Schlüssel mit dem Schlüssel des Passworttresors verschlüsselt gespeichert. Ohne Premium öffnet das Bedienelement auf dem Desktop den Premium-Dialog; auf öffentlichen Seiten wird es nicht angeboten."
+        },
+        {
+          "title": "Passwortprüfung",
+          "short": "Mehrfach verwendete und schwache Passwörter im gesamten Tresor finden",
+          "description": "Ein Menüeintrag prüft alle Zugangsdaten auf zwei häufige Probleme: dasselbe Passwort in mehreren Einträgen und ein leicht zu erratendes Passwort – zu kurz, zu einfach oder eines der am häufigsten gewählten Passwörter. Die Prüfung läuft vollständig im Browser mit den bereits für diesen Tresor entschlüsselten Passwörtern ab, sodass keinerlei Daten dazu irgendwohin gesendet werden."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Funciones adicionales que protegen la bóveda y la conectan con el resto de mvmOS.",
+      "features": [
+        {
+          "title": "Códigos de autenticación de dos factores en la bóveda",
+          "short": "Vincula una cuenta de mvm2factor a unas credenciales y copia su código",
+          "description": "Una vez que un administrador habilite la integración, vincula una cuenta de mvm2factor a unas credenciales y copia su código actual o colócalo en el portapapeles durante el autocompletado. El módulo de navegador de Premium descifra los secretos cifrados y calcula los códigos localmente. Reutiliza la sesión de desbloqueo de mvm2factor o solicita su contraseña independiente. Cuando ambas contraseñas coinciden, la clave de mvm2factor se conserva cifrada con la clave de la bóveda de contraseñas. Sin Premium, el control del escritorio abre el aviso de Premium y las páginas públicas no lo ofrecen."
+        },
+        {
+          "title": "Comprobación de contraseñas",
+          "short": "Detecta contraseñas reutilizadas y débiles en toda la bóveda",
+          "description": "Una opción del menú comprueba todas las credenciales en busca de dos problemas habituales: la misma contraseña utilizada en más de una entrada y una contraseña lo bastante débil como para adivinarla, ya sea por ser demasiado corta, demasiado sencilla o una de las que la gente elige con más frecuencia. La comprobación se ejecuta íntegramente en el navegador sobre las contraseñas ya descifradas de esa bóveda, por lo que no se envía ningún dato a ningún sitio."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Des fonctions supplémentaires pour veiller sur le coffre-fort et le relier au reste de mvmOS.",
+      "features": [
+        {
+          "title": "Codes d’authentification à deux facteurs dans le coffre-fort",
+          "short": "Associez un compte mvm2factor à un identifiant et copiez son code",
+          "description": "Une fois l’intégration activée par un administrateur, associez un compte mvm2factor à un identifiant pour copier son code actuel ou le placer dans le presse-papiers lors de la saisie automatique. Le module de navigateur Premium déchiffre les secrets chiffrés et calcule les codes localement. Il réutilise la session de déverrouillage mvm2factor ou demande son mot de passe distinct. Lorsque les deux mots de passe sont identiques, la clé mvm2factor est conservée sous forme chiffrée à l’aide de la clé du coffre-fort de mots de passe. Sans Premium, la commande du bureau ouvre l’invite Premium et les pages publiques ne la proposent pas."
+        },
+        {
+          "title": "Vérification des mots de passe",
+          "short": "Repérez les mots de passe réutilisés et faibles dans tout le coffre-fort",
+          "description": "Une entrée du menu vérifie chaque identifiant pour détecter deux problèmes courants : un même mot de passe utilisé pour plusieurs entrées et un mot de passe assez faible pour être deviné — trop court, trop simple ou parmi les mots de passe les plus couramment choisis. La vérification s’exécute entièrement dans le navigateur sur les mots de passe déjà déchiffrés pour ce coffre-fort ; aucune information à son sujet n’est donc envoyée où que ce soit."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "保管庫を見守り、mvmOSのほかの機能とつなぐ追加機能。",
+      "features": [
+        {
+          "title": "保管庫内の2要素認証コード",
+          "short": "ログイン情報にmvm2factorアカウントを関連付けてコードをコピー",
+          "description": "管理者が連携を有効にすると、ログイン情報にmvm2factorアカウントを関連付け、現在のコードをコピーしたり、自動入力時にクリップボードにコピーしたりできます。暗号化されたシークレットの復号とコードの生成は、Premiumブラウザーモジュールがローカルで行います。mvm2factorのロック解除セッションを再利用するか、mvm2factor専用のパスワードを求めます。両方のパスワードが一致する場合、mvm2factorの鍵はパスワード保管庫の鍵で暗号化して保持されます。Premiumを利用していない場合、デスクトップの操作ボタンを押すとPremiumの案内が表示され、公開ページにはこの機能は表示されません。"
+        },
+        {
+          "title": "パスワードチェック",
+          "short": "保管庫全体で使い回しや脆弱なパスワードを検出",
+          "description": "メニューの項目から、すべてのログイン情報について2つのよくある問題をチェックできます。複数の項目で同じパスワードが使われていることと、短すぎる、単純すぎる、よく使われるものに該当するなど、パスワードが推測されやすいことです。チェックは、その保管庫用にすでに復号されたパスワードを対象に、すべてブラウザー内で実行されるため、チェックに関する情報が外部に送信されることはありません。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Recursos extras que cuidam do cofre e o conectam ao restante do mvmOS.",
+      "features": [
+        {
+          "title": "Códigos de autenticação de dois fatores no cofre",
+          "short": "Vincule uma conta do mvm2factor a um login e copie o código dela",
+          "description": "Depois que um administrador habilitar a integração, vincule uma conta do mvm2factor a um login e copie seu código atual ou coloque-o na área de transferência durante o preenchimento automático. Os segredos criptografados são descriptografados e os códigos são calculados localmente pelo módulo Premium do navegador. Ele reutiliza a sessão de desbloqueio do mvm2factor ou solicita a senha separada dele. Quando as duas senhas são iguais, a chave do mvm2factor é mantida criptografada com a chave do cofre de senhas. Sem Premium, o controle da área de trabalho abre a mensagem de acesso ao Premium, e as páginas públicas não o oferecem."
+        },
+        {
+          "title": "Verificação de senhas",
+          "short": "Encontre senhas reutilizadas e fracas em todo o cofre",
+          "description": "Uma opção do menu verifica todos os logins em busca de dois problemas comuns: a mesma senha usada em mais de uma entrada e uma senha fácil de adivinhar — curta demais, simples demais ou uma das senhas que as pessoas escolhem com mais frequência. A verificação é executada inteiramente no navegador, sobre as senhas já descriptografadas daquele cofre, para que nenhuma informação sobre ela seja enviada a lugar algum."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Дополнительные возможности для проверки хранилища и его интеграции с остальной системой mvmOS.",
+      "features": [
+        {
+          "title": "Коды двухфакторной аутентификации в хранилище",
+          "short": "Привяжите учётную запись mvm2factor к записи для входа и копируйте её код",
+          "description": "После того как администратор включит интеграцию, привяжите учётную запись mvm2factor к записи для входа и копируйте её текущий код или помещайте его в буфер обмена при автозаполнении. Браузерный модуль Premium локально расшифровывает секретные данные и вычисляет коды. Он использует существующий сеанс разблокировки mvm2factor или запрашивает отдельный пароль. Если оба пароля совпадают, ключ mvm2factor хранится в зашифрованном виде с помощью ключа хранилища паролей. Без Premium элемент управления на рабочем столе открывает предложение подключить Premium, а на публичных страницах эта функция недоступна."
+        },
+        {
+          "title": "Проверка паролей",
+          "short": "Находите повторяющиеся и слабые пароли во всём хранилище",
+          "description": "Пункт меню проверяет каждую запись на две распространённые проблемы: один и тот же пароль используется в нескольких записях или пароль настолько слаб, что его можно угадать — он слишком короткий, слишком простой либо входит в число самых распространённых паролей. Проверка целиком выполняется в браузере с паролями, уже расшифрованными для этого хранилища, поэтому никакие её данные никуда не отправляются."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "守护密码库并将其与 mvmOS 其他功能连接起来的附加功能。",
+      "features": [
+        {
+          "title": "密码库中的双重验证验证码",
+          "short": "将 mvm2factor 账户关联到登录信息并复制其验证码",
+          "description": "管理员启用集成后，即可将 mvm2factor 账户关联到登录信息，复制其当前验证码，或在自动填充时将验证码放入剪贴板。Premium 浏览器模块会在本地解密加密的机密数据并计算验证码。它会复用 mvm2factor 解锁会话，或要求输入其独立密码。当两个密码相同时，mvm2factor 密钥会使用密码库密钥加密保存。没有 Premium 时，桌面上的相应控件会打开 Premium 提示，公开页面则不提供此功能。"
+        },
+        {
+          "title": "密码检查",
+          "short": "查找整个密码库中重复使用和薄弱的密码",
+          "description": "菜单中的检查项会检查每条登录信息的两个常见问题：多个条目使用同一密码，以及密码过于薄弱、容易被猜中——太短、太简单，或属于人们最常选用的密码。检查完全在浏览器中进行，仅使用该密码库中已经解密的密码，因此不会向任何地方发送检查相关信息。"
+        }
+      ]
+    }
+  }
 }

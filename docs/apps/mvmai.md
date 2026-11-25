@@ -164,3 +164,7 @@ AI review forms use the shared regional date and time picker. Workspace task car
 ## Sessions for other apps
 
 An app that asks mvmAI a question through the App API can pass its own id and standing instructions. mvmAI then keeps one session per user and per asking app, like a chat: requests that arrive within the chat's cache time, an hour by default, continue the provider's session and send only the new text, and after that a new session starts and the standing instructions are sent again with it. This works for providers that run as a command line tool; for an API provider the question is asked the ordinary way with the instructions in front of it. Without an app id every question stands alone, as before. mvmAI 0.24.0 adds this, and apps that use it fall back to the earlier behaviour on an older mvmAI.
+
+## Project questions in 0.25.0
+
+Questions from a project agent appear in a dedicated Questions tab with unread indicators and their own conversations. Discuss lets the owner ask for an explanation while the agent is restricted to reading and searching. Answer and continue resolves the question and lets the agent resume the work. Questions can also be marked as read or closed. When the agent asks the owner a question or finishes a discussion reply, it waits for the owner instead of repeatedly continuing on its own.

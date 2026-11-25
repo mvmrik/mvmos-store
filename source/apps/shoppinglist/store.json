@@ -28,5 +28,215 @@
       "summary": "Shopping List exposes an app-to-app API: other apps can read, add, rename and delete your lists and items, mark items bought or not bought with the same Budget deduction as in the app, and read your purchase history.",
       "requires": "The Shopping List App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Споделени списъци за пазаруване, които се актуализират в реално време на всяко устройство, с проследяване на гаранциите и възможност за приспадане от категория в Бюджет при отбелязване на артикули като купени, както и публична уеб страница.",
+      "tagline": "Споделени списъци за пазаруване, които знаят колко струват покупките и докога важи гаранцията.",
+      "description": "Списък за пазаруване поддържа толкова списъци, колкото са ви необходими, с количества и цени за всеки артикул и текуща обща сума за купеното и оставащото. Списъците могат да се споделят с други акаунти в Apps Hub, така че членовете на едно домакинство да добавят в един и същ списък от различни устройства.\n\nСподеленият списък се актуализира в реално време на всяко устройство, на което е отворен: когато някой отметне нещо в магазина, то се отбелязва и на другия телефон миг по-късно, без никой да презарежда нищо. Същото важи за добавените, редактираните или изтритите продукти и за общите суми отдолу.\n\nОтбелязването на артикул като купен може да приспадне цената му директно от категория в Бюджет, а премахването на отметката връща парите обратно — удобно за домашен бюджет, в който седмичното пазаруване трябва просто да се отчита само.\n\nКупените артикули не изчезват просто така. Те се преместват в историята, а за всичко с гаранция можете да зададете начална и крайна дата и да добавите снимки на касовата бележка или на артикула, така че ако нещо се повреди две години по-късно, да намерите доказателството за секунди.",
+      "capabilities": [
+        "Множество именувани списъци, всеки със собствени артикули.",
+        "Количество и цена за всеки продукт с показване в реално време на сумите за купеното / оставащото / общо.",
+        "Споделяне на списък с други акаунти в Apps Hub, добавяне на членове от любимите ви и последващо премахване.",
+        "Синхронизация в реално време между всички, които са отворили списъка — артикул, отметнат на единия телефон, се отмята автоматично и на другия.",
+        "История на всички покупки, която се запазва дори след изтриване на списъка.",
+        "Проследяване на гаранциите с начална и крайна дата и обратно броене до изтичането им.",
+        "Прикачени снимки към всяка гаранция — касови бележки, серийни номера, самият артикул.",
+        "Публична уеб страница за акаунта ви в Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Задайте категория от Бюджет на даден артикул и отбелязването му като купен ще приспадне цената му от тази категория. Премахването на отметката отменя приспадането. Ако Бюджет не е достъпен, артикулът все пак се отбелязва като купен и получавате съобщение, че приспадането не е извършено.",
+          "requires": "Инсталирано приложение Бюджет и активиран неговият API за приложения в Apps Hub → Настройки → API за приложения. По подразбиране превключвателят е изключен."
+        },
+        {
+          "summary": "Списък за пазаруване предоставя API за взаимодействие между приложения: други приложения могат да четат, добавят, преименуват и изтриват списъците и артикулите ви, да отбелязват артикули като купени или некупени със същото приспадане от Бюджет, както в приложението, и да четат историята на покупките ви.",
+          "requires": "API за приложения на Списък за пазаруване трябва да бъде включен в Apps Hub → Настройки → API за приложения. По подразбиране е изключен."
+        }
+      ],
+      "name": "Списък за пазаруване"
+    },
+    "de": {
+      "short_description": "Gemeinsame Einkaufslisten, die sich auf jedem Gerät live aktualisieren, mit Garantieverwaltung und optionalem Abzug von einer Budgetkategorie, wenn Artikel als gekauft markiert werden, sowie einer öffentlichen Webseite.",
+      "tagline": "Gemeinsame Einkaufslisten, die wissen, was der Einkauf kostet und wie lange die Garantie läuft.",
+      "description": "Die Einkaufsliste verwaltet beliebig viele Listen mit Mengen und Preisen je Artikel und einer laufenden Summe für bereits gekaufte und noch ausstehende Artikel. Listen lassen sich mit anderen Apps Hub-Konten teilen, sodass ein Haushalt dieselbe Liste von verschiedenen Geräten aus ergänzen kann.\n\nEine geteilte Liste wird auf jedem Gerät, auf dem sie geöffnet ist, live aktualisiert: Wenn eine Person im Laden etwas abhakt, ist es kurz darauf auch auf dem anderen Smartphone abgehakt, ohne dass jemand etwas neu laden muss. Dasselbe gilt für hinzugefügte, bearbeitete oder gelöschte Produkte und die darunter angezeigten Summen.\n\nWird ein Artikel als gekauft markiert, können seine Kosten direkt von einer Budgetkategorie abgezogen werden. Wird die Markierung entfernt, wird der Betrag wieder gutgeschrieben — praktisch für ein Haushaltsbudget, in dem sich der Wocheneinkauf von selbst verbuchen soll.\n\nGekaufte Artikel verschwinden nicht einfach. Sie werden in einen Verlauf verschoben. Bei Artikeln mit Garantie lassen sich ein Anfangs- und Enddatum sowie Fotos des Kaufbelegs oder des Artikels hinterlegen. Wenn zwei Jahre später etwas kaputtgeht, finden Sie den Nachweis in Sekunden.",
+      "capabilities": [
+        "Mehrere benannte Listen mit jeweils eigenen Artikeln.",
+        "Menge und Preis je Produkt, mit live aktualisierten Summen für gekauft / ausstehend / gesamt.",
+        "Eine Liste mit anderen Apps Hub-Konten teilen, Mitglieder aus Ihren Favoriten hinzufügen und wieder entfernen.",
+        "Live-Synchronisierung zwischen allen, die die Liste geöffnet haben — ein auf einem Smartphone abgehakter Artikel wird auch auf dem anderen abgehakt.",
+        "Verlauf aller gekauften Artikel, der auch nach dem Löschen der Liste erhalten bleibt.",
+        "Garantieverwaltung mit Anfangs- und Enddatum sowie einem Countdown bis zum Ablauf.",
+        "Fotoanhänge je Garantie — Kaufbelege, Seriennummern, der Artikel selbst.",
+        "Öffentliche Webseite für Ihr Apps Hub-Konto."
+      ],
+      "integrations": [
+        {
+          "summary": "Weisen Sie einem Artikel eine Budgetkategorie zu. Wenn Sie ihn als gekauft markieren, werden seine Kosten von dieser Kategorie abgezogen. Das Entfernen der Markierung macht den Abzug rückgängig. Wenn Budget nicht verfügbar ist, wird der Artikel trotzdem als gekauft markiert, und Sie erhalten einen Hinweis, dass der Abzug nicht durchgeführt wurde.",
+          "requires": "Budget muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig ausgeschaltet."
+        },
+        {
+          "summary": "Die Einkaufsliste stellt eine API für die Kommunikation zwischen Apps bereit: Andere Apps können Ihre Listen und Artikel lesen, hinzufügen, umbenennen und löschen, Artikel als gekauft oder nicht gekauft markieren, wobei derselbe Budgetabzug wie in der App erfolgt, und Ihren Einkaufsverlauf lesen.",
+          "requires": "Die App-API der Einkaufsliste muss unter Apps Hub → Einstellungen → App-APIs eingeschaltet werden. Sie ist standardmäßig ausgeschaltet."
+        }
+      ],
+      "name": "Einkaufsliste"
+    },
+    "es": {
+      "short_description": "Listas de la compra compartidas que se actualizan en tiempo real en todos los dispositivos, con seguimiento de garantías y deducción opcional de una categoría de Presupuesto al marcar artículos como comprados, además de una página web pública.",
+      "tagline": "Listas de la compra compartidas que saben cuánto cuestan y cuánto dura la garantía.",
+      "description": "Lista de la compra permite crear tantas listas como necesites, con cantidades y precios por artículo y un total actualizado de lo comprado y lo que queda por comprar. Las listas se pueden compartir con otras cuentas de Apps Hub para que los miembros de un hogar añadan artículos a la misma lista desde distintos dispositivos.\n\nUna lista compartida se actualiza en tiempo real en todos los dispositivos que la tienen abierta: cuando una persona marca algo en la tienda, aparece marcado en el otro teléfono un instante después, sin que nadie tenga que recargar nada. Lo mismo ocurre al añadir, editar o eliminar productos, y con los totales que aparecen debajo.\n\nAl marcar un artículo como comprado, su coste puede descontarse directamente de una categoría de Presupuesto, y al desmarcarlo se devuelve el dinero: resulta útil para un presupuesto doméstico en el que la compra semanal deba registrarse automáticamente.\n\nLos artículos que has comprado no desaparecen sin más. Pasan a un historial, y a cualquiera que tenga garantía se le pueden añadir fechas de inicio y fin y fotos del recibo o del artículo, para que, si algo se estropea dos años después, puedas encontrar el justificante en segundos.",
+      "capabilities": [
+        "Varias listas con nombre, cada una con sus propios artículos.",
+        "Cantidad y precio por producto, con los importes comprado / pendiente / total actualizados en tiempo real.",
+        "Comparte una lista con otras cuentas de Apps Hub, añade miembros desde tus favoritos y elimínalos cuando quieras.",
+        "Sincronización en tiempo real entre todas las personas que tienen la lista abierta: un artículo marcado en un teléfono se marca automáticamente en el otro.",
+        "Historial de todo lo comprado, que se conserva incluso después de eliminar la lista.",
+        "Seguimiento de garantías con fechas de inicio y fin y una cuenta atrás hasta su vencimiento.",
+        "Fotos adjuntas por garantía: recibos, números de serie y el propio artículo.",
+        "Página web pública para tu cuenta de Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Asigna una categoría de Presupuesto a un artículo y, al marcarlo como comprado, su coste se descontará de esa categoría. Al desmarcarlo, se revierte la deducción. Si Presupuesto no está disponible, el artículo se marca como comprado igualmente y se te informa de que la deducción no se ha realizado.",
+          "requires": "Presupuesto instalado y su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. El interruptor está desactivado de forma predeterminada."
+        },
+        {
+          "summary": "Lista de la compra ofrece una API entre aplicaciones: otras aplicaciones pueden consultar, añadir, renombrar y eliminar tus listas y artículos, marcar artículos como comprados o no comprados con la misma deducción de Presupuesto que en la aplicación, y consultar tu historial de compras.",
+          "requires": "La API de Lista de la compra debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
+        }
+      ],
+      "name": "Lista de compras"
+    },
+    "fr": {
+      "short_description": "Des listes de courses partagées qui se mettent à jour en direct sur chaque appareil, avec suivi des garanties, déduction facultative d’une catégorie Budget lorsque les articles sont marqués comme achetés, et page web publique.",
+      "tagline": "Des listes de courses partagées qui suivent les coûts et la durée des garanties.",
+      "description": "Liste de courses vous permet de créer autant de listes que nécessaire, avec des quantités et des prix par article, ainsi qu’un total actualisé des achats effectués et restants. Les listes peuvent être partagées avec d’autres comptes Apps Hub, afin que les membres d’un foyer puissent compléter la même liste depuis différents appareils.\n\nUne liste partagée se met à jour en direct sur tous les appareils où elle est ouverte : lorsqu’une personne coche un article en magasin, il apparaît coché sur l’autre téléphone quelques instants plus tard, sans que personne ait besoin de recharger la liste. Il en va de même pour les produits ajoutés, modifiés ou supprimés, ainsi que pour les totaux affichés en dessous.\n\nMarquer un article comme acheté peut déduire directement son coût d’une catégorie Budget ; le décocher y rétablit la somme — pratique pour un budget familial où les courses de la semaine doivent s’enregistrer automatiquement.\n\nLes articles achetés ne disparaissent pas simplement. Ils sont transférés dans un historique, et vous pouvez ajouter à tout article sous garantie des dates de début et de fin, ainsi que des photos du reçu ou de l’article. Ainsi, si un appareil tombe en panne deux ans plus tard, vous retrouvez le justificatif en quelques secondes.",
+      "capabilities": [
+        "Plusieurs listes nommées, chacune avec ses propres articles.",
+        "Quantité et prix par produit, avec affichage en direct des montants achetés / restants / totaux.",
+        "Partage d’une liste avec d’autres comptes Apps Hub, ajout de membres depuis vos favoris et possibilité de les retirer.",
+        "Synchronisation en direct entre toutes les personnes ayant la liste ouverte : un article coché sur un téléphone se coche automatiquement sur l’autre.",
+        "Historique de tous les achats, conservé même après la suppression de la liste.",
+        "Suivi des garanties avec dates de début et de fin et compte à rebours avant expiration.",
+        "Photos jointes à chaque garantie : reçus, numéros de série, article lui-même.",
+        "Page web publique pour votre compte Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Attribuez une catégorie Budget à un article : lorsque vous le marquez comme acheté, son coût est déduit de cette catégorie. Le décocher annule la déduction. Si Budget est indisponible, l’article reste marqué comme acheté et un message vous informe que la déduction n’a pas été effectuée.",
+          "requires": "Budget doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. L’option est désactivée par défaut."
+        },
+        {
+          "summary": "Liste de courses propose une API entre applications : les autres applications peuvent lire, ajouter, renommer et supprimer vos listes et vos articles, marquer les articles comme achetés ou non achetés avec la même déduction Budget que dans l’application, et consulter votre historique d’achats.",
+          "requires": "L’API d’application de Liste de courses doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
+        }
+      ],
+      "name": "Liste de courses"
+    },
+    "ja": {
+      "short_description": "すべてのデバイスでリアルタイムに更新される共有買い物リスト。保証管理に対応し、購入済みにした商品の代金を予算のカテゴリから差し引くこともできます。公開Webページも利用できます。",
+      "tagline": "費用と保証期間まで把握できる共有買い物リスト。",
+      "description": "買い物リストでは、必要な数だけリストを作成し、商品ごとの数量と価格、購入済み分と未購入分の合計金額を管理できます。リストは他のApps Hubアカウントと共有できるため、家族がそれぞれのデバイスから同じリストに商品を追加できます。\n\n共有リストは、それを開いているすべてのデバイスでリアルタイムに更新されます。誰かがお店で商品にチェックを入れると、少し後には別のスマートフォンでもチェックが入り、再読み込みは必要ありません。商品の追加、編集、削除や、その下に表示される合計金額も同様に反映されます。\n\n商品を購入済みにすると、その代金を予算のカテゴリから直接差し引くことができ、チェックを外すと金額が戻ります。毎週の買い物を自動で記帳したい家計管理に便利です。\n\n購入した商品は、そのまま消えるわけではありません。履歴に移動し、保証がある商品には保証の開始日と終了日、レシートや商品の写真を登録できます。2年後に故障した場合でも、保証を受けるための証拠をすぐに見つけられます。",
+      "capabilities": [
+        "名前付きのリストを複数作成し、それぞれの商品を管理。",
+        "商品ごとの数量と価格を記録し、購入済み／未購入／全体の合計金額をリアルタイムで表示。",
+        "他のApps Hubアカウントとリストを共有し、お気に入りからメンバーを追加したり、削除したりできます。",
+        "リストを開いている全員の間でリアルタイムに同期。一方のスマートフォンで商品にチェックを入れると、もう一方にも自動で反映。",
+        "購入したすべての商品の履歴を、リストの削除後も保存。",
+        "開始日と終了日、期限までのカウントダウンで保証を管理。",
+        "保証ごとにレシート、シリアル番号、商品自体などの写真を添付。",
+        "Apps Hubアカウントの公開Webページ。"
+      ],
+      "integrations": [
+        {
+          "summary": "商品に予算のカテゴリを割り当てると、購入済みにした際にその代金がカテゴリから差し引かれます。チェックを外すと、差し引きが取り消されます。予算が利用できない場合も商品は購入済みになり、差し引きが行われなかったことが通知されます。",
+          "requires": "予算がインストールされており、Apps Hub → 設定 → アプリAPIでそのアプリAPIが有効になっている必要があります。スイッチはデフォルトでオフです。"
+        },
+        {
+          "summary": "買い物リストはアプリ間APIを公開しています。他のアプリからリストや商品の読み取り、追加、名前の変更、削除、商品の購入済み・未購入の設定、購入履歴の読み取りを行えます。購入済みの設定では、アプリ内と同じように予算から代金が差し引かれます。",
+          "requires": "Apps Hub → 設定 → アプリAPIで買い物リストのアプリAPIをオンにする必要があります。デフォルトではオフです。"
+        }
+      ],
+      "name": "買い物リスト"
+    },
+    "pt-BR": {
+      "short_description": "Listas de compras compartilhadas que são atualizadas em tempo real em todos os dispositivos, com acompanhamento de garantias e dedução opcional de uma categoria do Orçamento quando os itens são marcados como comprados, além de uma página web pública.",
+      "tagline": "Listas de compras compartilhadas que sabem quanto custam e até quando a garantia vale.",
+      "description": "A Lista de Compras mantém quantas listas você precisar, com quantidades e preços por item e um total atualizado do que foi comprado e do que falta comprar. As listas podem ser compartilhadas com outras contas do Apps Hub, para que as pessoas da casa adicionem itens à mesma lista em dispositivos diferentes.\n\nUma lista compartilhada é atualizada em tempo real em todos os dispositivos em que estiver aberta: quando uma pessoa marca um item como comprado na loja, ele aparece marcado no outro celular instantes depois, sem que ninguém precise recarregar nada. O mesmo acontece com produtos adicionados, editados ou excluídos e com os totais abaixo deles.\n\nMarcar um item como comprado pode deduzir seu custo diretamente de uma categoria do Orçamento, e desmarcá-lo devolve o dinheiro — útil para um orçamento doméstico em que as compras da semana devem ser registradas automaticamente.\n\nOs itens comprados não desaparecem simplesmente. Eles vão para um histórico, e qualquer item com garantia pode receber datas de início e término e fotos do recibo ou do próprio item. Assim, se algo quebrar dois anos depois, você poderá encontrar o comprovante em segundos.",
+      "capabilities": [
+        "Várias listas com nome, cada uma com seus próprios itens.",
+        "Quantidade e preço por produto, com valores de comprados / restantes / total exibidos em tempo real.",
+        "Compartilhe uma lista com outras contas do Apps Hub, adicione membros a partir dos seus favoritos e remova-os quando quiser.",
+        "Sincronização em tempo real entre todos que estão com a lista aberta — um item marcado em um celular aparece marcado no outro.",
+        "Histórico de tudo o que foi comprado, mantido mesmo após a exclusão da lista.",
+        "Acompanhamento de garantias com datas de início e término e contagem regressiva até o vencimento.",
+        "Fotos anexadas a cada garantia — recibos, números de série e o próprio item.",
+        "Página web pública para sua conta do Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Atribua uma categoria do Orçamento a um item e, ao marcá-lo como comprado, seu custo será deduzido dessa categoria. Desmarcá-lo reverte a dedução. Se o Orçamento estiver indisponível, o item ainda será marcado como comprado e você será informado de que a dedução não foi realizada.",
+          "requires": "O Orçamento deve estar instalado e sua API de aplicativo deve estar ativada em Apps Hub → Configurações → APIs de aplicativos. A opção vem desativada por padrão."
+        },
+        {
+          "summary": "A Lista de Compras disponibiliza uma API de comunicação entre aplicativos: outros aplicativos podem ler, adicionar, renomear e excluir suas listas e itens, marcar itens como comprados ou não comprados com a mesma dedução do Orçamento feita no aplicativo e ler seu histórico de compras.",
+          "requires": "A API de aplicativo da Lista de Compras precisa ser ativada em Apps Hub → Configurações → APIs de aplicativos. Ela vem desativada por padrão."
+        }
+      ],
+      "name": "Lista de compras"
+    },
+    "ru": {
+      "short_description": "Общие списки покупок с мгновенным обновлением на всех устройствах, учётом гарантий, возможностью списывать стоимость из категории «Бюджета» при отметке товаров как купленных, а также публичной веб-страницей.",
+      "tagline": "Общие списки покупок с учётом стоимости и сроков гарантии.",
+      "description": "«Список покупок» позволяет вести любое количество списков, указывать количество и цену каждого товара и видеть текущую общую стоимость купленного и оставшегося. Списками можно делиться с другими учётными записями Apps Hub, чтобы члены семьи пополняли один список с разных устройств.\n\nОбщий список обновляется в реальном времени на каждом устройстве, где он открыт: когда один человек отмечает товар в магазине, через мгновение отметка появляется на другом телефоне без перезагрузки страницы. То же касается добавления, изменения и удаления товаров, а также итоговых сумм под списком.\n\nПри отметке товара как купленного его стоимость может сразу списываться из категории «Бюджета», а при снятии отметки деньги возвращаются — удобно для семейного бюджета, в котором еженедельные покупки должны учитываться автоматически.\n\nКупленные товары не исчезают бесследно. Они попадают в историю, а для товаров с гарантией можно указать даты её начала и окончания и добавить фотографии чека или самого товара. Если что-то сломается через два года, подтверждение покупки найдётся за секунды.",
+      "capabilities": [
+        "Несколько именованных списков, каждый со своими товарами.",
+        "Количество и цена каждого товара с обновляемыми в реальном времени суммами купленного, оставшегося и общей стоимости.",
+        "Общий доступ к списку для других учётных записей Apps Hub, добавление участников из избранного и их удаление.",
+        "Синхронизация в реальном времени между всеми, у кого открыт список: отметка товара на одном телефоне автоматически появляется на другом.",
+        "История всех покупок, которая сохраняется даже после удаления списка.",
+        "Учёт гарантий с датами начала и окончания и обратным отсчётом до истечения срока.",
+        "Фотографии для каждой гарантии: чеки, серийные номера, сам товар.",
+        "Публичная веб-страница вашей учётной записи Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Назначьте товару категорию «Бюджета», и при отметке его как купленного стоимость спишется из этой категории. Снятие отметки отменяет списание. Если «Бюджет» недоступен, товар всё равно отмечается как купленный, а вы получаете уведомление о том, что списание не выполнено.",
+          "requires": "Должно быть установлено приложение «Бюджет», а его API должен быть включён в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен."
+        },
+        {
+          "summary": "«Список покупок» предоставляет API для взаимодействия между приложениями: другие приложения могут читать, добавлять, переименовывать и удалять ваши списки и товары, отмечать товары как купленные или некупленные с тем же списанием из «Бюджета», что и в самом приложении, а также читать историю покупок.",
+          "requires": "API приложения «Список покупок» необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он выключен."
+        }
+      ],
+      "name": "Список покупок"
+    },
+    "zh-CN": {
+      "short_description": "可在所有设备上实时更新的共享购物清单，支持保修跟踪、将商品标记为已购买时可选的预算类别扣款，以及公开网页。",
+      "tagline": "共享购物清单，花费多少、保修多久，都一清二楚。",
+      "description": "购物清单可按需创建任意数量的清单，记录每件商品的数量和价格，并实时汇总已购买和待购买商品的金额。清单可以与其他 Apps Hub 账户共享，让家庭成员从不同设备向同一份清单添加商品。\n\n共享清单会在所有打开它的设备上实时更新：当一个人在商店里勾选某件商品后，另一部手机上片刻后也会显示为已勾选，无需任何人重新加载。添加、编辑或删除商品，以及下方汇总金额的变化，也都会同步更新。\n\n将商品标记为已购买时，可以直接从某个预算类别中扣除其费用；取消标记则会将金额退回——对于希望每周采购自动记账的家庭预算来说，这十分实用。\n\n已购买的商品不会直接消失，而是会移入历史记录。对于有保修的商品，可以设置保修起止日期，并添加收据或商品照片。这样，即使两年后商品损坏，也能在几秒内找到凭证。",
+      "capabilities": [
+        "创建多份命名清单，每份清单都有各自的商品。",
+        "记录每件商品的数量和价格，实时显示已购买 / 待购买 / 总金额。",
+        "与其他 Apps Hub 账户共享清单，从收藏联系人中添加成员，也可移除成员。",
+        "在所有打开清单的用户之间实时同步——在一部手机上勾选商品，另一部手机上也会自动勾选。",
+        "保留所有已购买商品的历史记录，即使删除清单也不会丢失。",
+        "跟踪保修起止日期，并显示到期倒计时。",
+        "为每份保修记录添加照片附件——收据、序列号或商品本身。",
+        "为你的 Apps Hub 账户提供公开网页。"
+      ],
+      "integrations": [
+        {
+          "summary": "为商品指定一个预算类别后，将其标记为已购买时，会从该类别中扣除相应费用。取消标记则会撤销扣款。如果预算不可用，商品仍会标记为已购买，同时会提示你扣款未成功。",
+          "requires": "需安装预算，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭。"
+        },
+        {
+          "summary": "购物清单提供应用间 API：其他应用可以读取、添加、重命名和删除你的清单及商品，将商品标记为已购买或未购买，并执行与应用内相同的预算扣款操作，还可以读取你的购买历史记录。",
+          "requires": "必须在 Apps Hub → 设置 → 应用 API 中启用购物清单的应用 API。默认关闭。"
+        }
+      ],
+      "name": "购物清单"
+    }
+  }
 }

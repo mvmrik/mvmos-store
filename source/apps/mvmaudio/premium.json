@@ -1,4 +1,92 @@
 {
   "summary": "Let Apps Hub profiles upload their own music and audiobooks under an administrator-controlled storage allowance.",
-  "features": [{"title":"Personal audio libraries","short":"Optional uploads with a per-profile storage limit","description":"The desktop administrator chooses a total allowance in MB for each profile. Zero disables personal uploads and is the default. Storage is checked on the server, including simultaneous uploads. Existing files, playlists and listening progress remain available when uploads are disabled."}]
+  "features": [
+    {
+      "title": "Personal audio libraries",
+      "short": "Optional uploads with a per-profile storage limit",
+      "description": "The desktop administrator chooses a total allowance in MB for each profile. Zero disables personal uploads and is the default. Storage is checked on the server, including simultaneous uploads. Existing files, playlists and listening progress remain available when uploads are disabled."
+    }
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Позволете на профилите в Apps Hub да качват собствена музика и аудиокниги в рамките на лимит за съхранение, контролиран от администратора.",
+      "features": [
+        {
+          "title": "Лични аудиобиблиотеки",
+          "short": "Качване по избор с лимит за съхранение за всеки профил",
+          "description": "Администраторът на работния плот задава общ лимит в MB за всеки профил. Нулева стойност изключва качването на лични файлове и е настройката по подразбиране. Използваното място се проверява на сървъра, включително при едновременни качвания. Съществуващите файлове, плейлисти и напредък в слушането остават достъпни, когато качването е изключено."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Ermöglichen Sie Apps Hub-Profilen, eigene Musik und Hörbücher innerhalb eines vom Administrator festgelegten Speicherkontingents hochzuladen.",
+      "features": [
+        {
+          "title": "Persönliche Audiobibliotheken",
+          "short": "Optionale Uploads mit einem Speicherlimit pro Profil",
+          "description": "Der Desktop-Administrator legt für jedes Profil ein Gesamtkontingent in MB fest. Der Standardwert Null deaktiviert persönliche Uploads. Die Speichernutzung wird auf dem Server geprüft, auch bei gleichzeitigen Uploads. Vorhandene Dateien, Wiedergabelisten und Hörfortschritte bleiben verfügbar, wenn Uploads deaktiviert werden."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Permite que los perfiles de Apps Hub suban su propia música y sus audiolibros con un límite de almacenamiento controlado por el administrador.",
+      "features": [
+        {
+          "title": "Bibliotecas de audio personales",
+          "short": "Subidas opcionales con un límite de almacenamiento por perfil",
+          "description": "El administrador del escritorio elige un límite total en MB para cada perfil. El valor cero desactiva las subidas personales y es el predeterminado. El almacenamiento se comprueba en el servidor, incluidas las subidas simultáneas. Los archivos, las listas de reproducción y el progreso de escucha existentes siguen disponibles cuando se desactivan las subidas."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Permettez aux profils Apps Hub de téléverser leur propre musique et leurs livres audio dans la limite d’un quota de stockage défini par l’administrateur.",
+      "features": [
+        {
+          "title": "Bibliothèques audio personnelles",
+          "short": "Téléversements facultatifs avec une limite de stockage par profil",
+          "description": "L’administrateur du bureau définit un quota total en Mo pour chaque profil. La valeur zéro désactive les téléversements personnels et s’applique par défaut. Le stockage est contrôlé sur le serveur, y compris lors de téléversements simultanés. Les fichiers existants, les listes de lecture et la progression d’écoute restent accessibles lorsque les téléversements sont désactivés."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "管理者が設定したストレージ容量の範囲内で、Apps Hubプロフィールが自分の音楽やオーディオブックをアップロードできるようにします。",
+      "features": [
+        {
+          "title": "個人用音声ライブラリ",
+          "short": "プロフィールごとの容量制限付きで、アップロードを任意に有効化",
+          "description": "デスクトップ管理者が、プロフィールごとに合計容量をMB単位で設定します。デフォルト値のゼロでは、個人アップロードが無効になります。容量はサーバー上で確認され、同時に行われるアップロードも考慮されます。アップロードを無効にしても、既存のファイル、プレイリスト、再生状況は引き続き利用できます。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Permita que os perfis do Apps Hub façam upload de suas próprias músicas e audiolivros dentro de um limite de armazenamento controlado pelo administrador.",
+      "features": [
+        {
+          "title": "Bibliotecas de áudio pessoais",
+          "short": "Uploads opcionais com limite de armazenamento por perfil",
+          "description": "O administrador do ambiente de trabalho define um limite total em MB para cada perfil. O valor zero desativa os uploads pessoais e é o padrão. O armazenamento é verificado no servidor, inclusive em uploads simultâneos. Os arquivos, as playlists e o progresso de reprodução existentes continuam disponíveis quando os uploads são desativados."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Разрешите профилям Apps Hub загружать собственную музыку и аудиокниги в пределах объёма хранилища, заданного администратором.",
+      "features": [
+        {
+          "title": "Личные аудиомедиатеки",
+          "short": "Необязательная загрузка файлов с лимитом хранилища для каждого профиля",
+          "description": "Администратор рабочего стола задаёт общий доступный объём в МБ для каждого профиля. Значение ноль отключает загрузку личных файлов и используется по умолчанию. Проверка занятого места выполняется на сервере, в том числе при одновременных загрузках. Существующие файлы, плейлисты и прогресс прослушивания остаются доступны после отключения загрузки."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "允许 Apps Hub 用户档案在管理员控制的存储配额内上传自己的音乐和有声书。",
+      "features": [
+        {
+          "title": "个人音频媒体库",
+          "short": "可选的上传功能，每个用户档案均有独立存储上限",
+          "description": "桌面管理员可为每个用户档案设置以 MB 为单位的总配额。设为零会禁用个人上传，这也是默认设置。服务器会检查存储用量，包括同时进行的上传。禁用上传后，现有文件、播放列表和收听进度仍可使用。"
+        }
+      ]
+    }
+  }
 }

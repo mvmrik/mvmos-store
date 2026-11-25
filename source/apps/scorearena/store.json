@@ -36,5 +36,311 @@
   ],
   "requirements": [
     "Game Hub 1.21.1 or later, installed and updated before using this version."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Общо приложение за отчитане на резултати в дартс и настолни игри с осем режима за дартс, готови системи за точкуване за популярни настолни игри, персонализирани игри, които създавате сами, подробна лична статистика и Призрак за самостоятелна тренировка, съобразен с историята ви.",
+      "tagline": "Всяко хвърляне. Всеки съперник. Всеки резултат.",
+      "description": "Score Arena превръща телефона в общо табло за резултати за игри около истинска мишена за дартс или маса за настолни игри. Създайте стая с профили от Game Hub, изберете реда, въвеждайте всяко хвърляне и запазвайте пълния резултат в историята на всеки играч.\n\nИзбирайте между Darts 301 или 501, Cricket, Bitcoin Darts, Breakdown, Around the Clock, Pro Golf с 18 дупки и Mini Golf с 9 дупки. Всеки режим има собствени правила, текущи цели, помощ и лична статистика за представянето. Когато приключи партия от мач, екран със статистика показва показателите на всеки играч за тази партия и за целия мач до момента, като средни стойности, среден резултат от първите девет стрели, най-добър ход, невалидни ходове, попадения, уцелени цели или удари спрямо пара, а следващата партия започва, когато някой продължи.\n\nНастолните игри получават същите възможности. Изберете готова игра като Scrabble, Yahtzee, Catan, Carcassonne или Azul и Score Arena ще отчита точките и победителя, докато играете на истинска маса. Нужно ви е нещо друго? Създайте собствена игра, като изберете началния резултат, дали точките се увеличават или намаляват и дали играта приключва при достигане на целеви резултат, след определен брой кръгове или когато вие решите. Всеки участник я вижда в собствената си история и статистика.\n\nСамостоятелната тренировка вече не означава да играете срещу празна маса. Добавете Призрака — симулиран съперник, който хвърля по истинска мишена за дартс: той се прицелва там, където би се прицелил играч — в T20, в двойното поле за приключване или в следващото число за Cricket — а стрелите му се разпръскват около тази точка, така че малките полета са трудни за уцелване, а пропуснатото тройно поле води до попадение в единичното поле или в съседния сектор. Виждате къде се е прицелил и къде е попаднала всяка стрела. Размерът на това разсейване се определя от последните ви петнадесет мача в избрания режим, така че средно Призракът играе на вашето ниво, а формата му се подобрява и влошава по време на мача. Призракът никога не се превръща в профил и не претрупва списъка с играчи; запазва се само вашият резултат.\n\nИмена и самоличности\nТренировъчният Призрак получава постоянна самоличност в Game Hub със знаме на държава и изписване, съобразено с езика на зрителя.",
+      "capabilities": [
+        "Darts 301 и 501 с правила за невалидни ходове, приключване с двойно поле и предложения за приключване.",
+        "Cricket за двама до осем играчи с отбелязване на попаденията и точкуване по отворени цели.",
+        "Bitcoin Darts с подчертани цели за добив, адаптивна трудност, награди за блокове и халвинги.",
+        "Breakdown и Around the Clock с текущи указания за целите.",
+        "Pro Golf с 18 дупки и Mini Golf с 9 дупки с карти за отчитане на ударите за всяка дупка.",
+        "Призрак съперник за самостоятелна тренировка, който се прицелва и хвърля по истинска мишена за дартс, съобразен е със скорошния ви среден резултат, показва мястото на попадение на всяка стрела и променя формата си по време на мача.",
+        "Cricket срещу Призрака показва попаденията и на двамата играчи върху таблото, като се редувате, когато и двамата имате попадения на дадено число.",
+        "Лична статистика за съответния режим преди всяка партия.",
+        "Статистика след всяка партия от мача и за целия мач, с класирането в тази партия и информация кой хвърля първи в следващата.",
+        "Ръчно зададен начален ред или случаен ред чрез зарове.",
+        "Дължина на мачовете във формат „най-добър от“ и пълна история на ходовете.",
+        "Адаптивна мишена за дартс, проектирана за телефони и по-големи екрани.",
+        "Запазване и продължаване на незавършена самостоятелна игра.",
+        "Четиринадесет готови настолни игри, включително Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne и Azul.",
+        "Персонализирани игри с избрани от вас начален резултат, посока на точкуване, цел, брой кръгове и правило за определяне на победителя.",
+        "Един телефон може да отчита резултатите на всички на масата, включително на любими играчи, които не са в стаята.",
+        "Статистика за всяка игра, поддържана от самото Score Arena и показвана преди началото.",
+        "Резултати в профила, победи, загуби и история на преките двубои чрез Game Hub.",
+        "Предлага се на всичките девет езика на mvmOS.",
+        "Изпраща ходовете към статистиката на Game Hub с класиране по процент победи вместо сравняване на резултати между различни видове игри.",
+        "Тренировъчният Призрак получава постоянна самоличност в Game Hub със знаме на държава и изписване, съобразено с езика на зрителя."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 или по-нова версия, инсталирана и актуализирана преди използването на тази версия."
+      ],
+      "integrations": [
+        {
+          "summary": "Играчите използват профилите си в Game Hub, а завършените мачове се записват в статистиката на профилите и историята на преките двубои.",
+          "requires": "Инсталиран Game Hub."
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "de": {
+      "short_description": "Eine gemeinsame Punkteverwaltung für Darts und Brettspiele mit acht Darts-Modi, vorgefertigter Wertung für beliebte Brettspiele, selbst gestalteten Spielen, detaillierten persönlichen Statistiken und einem an Ihren bisherigen Ergebnissen ausgerichteten Ghost für das Solotraining.",
+      "tagline": "Jeder Wurf. Jeder Gegner. Jedes Ergebnis.",
+      "description": "Score Arena verwandelt ein Smartphone in eine gemeinsame Punkteverwaltung für Spiele an einer echten Dartscheibe oder einem Brettspieltisch. Erstellen Sie einen Raum mit Game Hub-Profilen, wählen Sie die Reihenfolge, erfassen Sie jeden Wurf und speichern Sie das vollständige Ergebnis im Verlauf jedes Spielers.\n\nWählen Sie zwischen Darts 301 oder 501, Cricket, Bitcoin Darts, Breakdown, Around the Clock, 18-Loch-Profigolf und 9-Loch-Minigolf. Jeder Modus bietet eigene Regeln, aktuelle Zielanzeigen, Hilfe und persönliche Leistungsstatistiken. Sobald ein Spiel innerhalb eines Matches entschieden ist, zeigt ein Statistikbildschirm die Werte aller Spieler für dieses Spiel und das gesamte bisherige Match, etwa Durchschnitt, First-Nine-Average, beste Aufnahme, Überwerfungen, Trefferpunkte, getroffene Ziele oder Schläge im Verhältnis zum Par. Das nächste Spiel beginnt, sobald jemand fortfährt.\n\nBrettspiele werden genauso unterstützt. Wählen Sie ein vorgefertigtes Spiel wie Scrabble, Yahtzee, Catan, Carcassonne oder Azul. Score Arena verwaltet die Punkte und ermittelt den Sieger, während Sie an einem echten Tisch spielen. Sie brauchen etwas anderes? Gestalten Sie Ihr eigenes Spiel: Legen Sie den anfänglichen Punktestand fest, ob aufwärts oder abwärts gezählt wird und ob das Spiel bei einer Zielpunktzahl, nach einer festgelegten Rundenzahl oder auf Ihre Entscheidung hin endet. Alle Mitspieler sehen es in ihrem eigenen Verlauf und ihren Statistiken.\n\nAllein zu trainieren bedeutet nicht mehr, gegen einen leeren Tisch zu spielen. Fügen Sie den Ghost als simulierten Gegner hinzu, der auf eine echte Dartscheibe wirft: Er zielt dorthin, wo auch ein Spieler zielen würde — auf T20, das Doppel zum Auschecken oder die nächste Cricket-Zahl. Seine Darts streuen um diesen Punkt, sodass kleine Felder schwer zu treffen sind und ein verfehltes Triple im einfachen Feld oder im benachbarten Segment landet. Sie sehen, wohin er gezielt hat und wo jeder Dart stecken geblieben ist. Die Größe dieser Streuung ergibt sich aus Ihren letzten fünfzehn Matches im gewählten Modus. Dadurch spielt der Ghost im Durchschnitt auf Ihrem Niveau, und seine Form steigt und fällt im Verlauf des Matches. Der Ghost wird nie zu einem Profil und taucht nicht im Spielerverzeichnis auf; nur Ihr eigenes Ergebnis wird gespeichert.\n\nNamen und Identitäten\nDer Trainings-Ghost erhält eine dauerhafte Game Hub-Identität mit Länderflagge und einer zur Sprache des Betrachters passenden Schreibweise.",
+      "capabilities": [
+        "Darts 301 und 501 mit Regeln zum Überwerfen, Double-out und Checkout-Vorschlägen.",
+        "Cricket für zwei bis acht Spieler mit Trefferpunkten und Punktewertung auf offenen Zielen.",
+        "Bitcoin Darts mit hervorgehobenen Mining-Zielen, adaptivem Schwierigkeitsgrad, Blockbelohnungen und Halvings.",
+        "Breakdown und Around the Clock mit aktuellen Zielhinweisen.",
+        "18-Loch-Profigolf und 9-Loch-Minigolf mit Schlagkarten für jedes Loch.",
+        "Ein Ghost-Gegner für das Solotraining, der auf eine echte Dartscheibe zielt und wirft, sich an Ihrem jüngsten Durchschnitt orientiert, jeden Dart an seiner Trefferposition anzeigt und dessen Form sich im Verlauf des Matches verändert.",
+        "Cricket gegen den Ghost zeigt die Trefferpunkte beider Spieler auf der Scheibe. Bei Zahlen, auf denen beide Trefferpunkte haben, erfolgt die Anzeige abwechselnd.",
+        "Modusspezifische persönliche Statistiken vor jedem Spiel.",
+        "Statistiken nach jedem Spiel eines Matches und für das gesamte Match, mit der Platzierung in diesem Spiel und der Angabe, wer als Nächstes beginnt.",
+        "Manuell festgelegte oder per Würfel zufällig bestimmte Startreihenfolge.",
+        "Matchlängen im Best-of-Format und ein vollständiger Verlauf der Aufnahmen.",
+        "Responsive Dartscheibe für Smartphones und größere Bildschirme.",
+        "Nicht abgeschlossene Solospiele speichern und fortsetzen.",
+        "Vierzehn vorgefertigte Brettspiele, darunter Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne und Azul.",
+        "Eigene Spiele mit selbst festgelegtem Startpunktestand, Zählrichtung, Ziel, Rundenzahl und Siegerregel.",
+        "Ein Smartphone kann die Punkte für alle am Tisch erfassen, auch für als Favoriten gespeicherte Spieler, die nicht im Raum sind.",
+        "Statistiken für jedes Spiel, die Score Arena selbst führt und vor dem Start anzeigt.",
+        "Profilergebnisse, Siege, Niederlagen und Verlauf direkter Duelle über Game Hub.",
+        "In allen neun mvmOS-Sprachen verfügbar.",
+        "Meldet Aufnahmen an die Game Hub-Statistik und verwendet eine Rangliste nach Siegquote, statt Punktzahlen verschiedener Spielarten zu vergleichen.",
+        "Der Trainings-Ghost erhält eine dauerhafte Game Hub-Identität mit Länderflagge und einer zur Sprache des Betrachters passenden Schreibweise."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 oder neuer, vor der Verwendung dieser Version installiert und aktualisiert."
+      ],
+      "integrations": [
+        {
+          "summary": "Spieler verwenden ihre Game Hub-Profile. Abgeschlossene Matches werden in den Profilstatistiken und im Verlauf direkter Duelle erfasst.",
+          "requires": "Game Hub muss installiert sein."
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "es": {
+      "short_description": "Un marcador compartido para dardos y juegos de mesa, con ocho modalidades de dardos, sistemas de puntuación predefinidos para juegos de mesa populares, juegos personalizados que puedes diseñar, estadísticas personales detalladas y un Fantasma adaptado a tu historial para practicar en solitario.",
+      "tagline": "Cada lanzamiento. Cada rival. Cada resultado.",
+      "description": "Score Arena convierte un teléfono en un marcador compartido para partidas que se juegan alrededor de una diana real o de una mesa de juegos. Crea una sala con perfiles de Game Hub, elige el orden, introduce cada lanzamiento y conserva el resultado completo en el historial de cada jugador.\n\nElige entre Dardos 301 o 501, Cricket, Bitcoin Darts, Breakdown, Around the Clock, Pro Golf de 18 hoyos y Mini Golf de 9 hoyos. Cada modalidad tiene sus propias reglas, objetivos en directo, ayuda y estadísticas personales de rendimiento. Cuando termina una partida de un encuentro, una pantalla de estadísticas muestra las cifras de cada jugador para esa partida y para el conjunto del encuentro hasta ese momento, como las medias, la media de los primeros nueve dardos, el mejor turno, los turnos con puntuación excedida, las marcas, los objetivos acertados o los golpes respecto al par, y la siguiente partida comienza cuando alguien continúa.\n\nLos juegos de mesa reciben el mismo tratamiento. Elige un juego predefinido como Scrabble, Yahtzee, Catan, Carcassonne o Azul y Score Arena registra las puntuaciones y el ganador mientras jugáis en una mesa real. ¿Necesitas algo más? Diseña tu propio juego eligiendo la puntuación inicial, si los puntos se suman o se restan y si termina al alcanzar una puntuación objetivo, después de un número determinado de rondas o cuando tú decidas. Todos los que jueguen lo verán en su propio historial y sus estadísticas.\n\nPracticar en solitario ya no significa jugar contra una mesa vacía. Añade al Fantasma para tener un rival simulado que lanza a una diana real: apunta donde lo haría un jugador, al T20, al doble de cierre o al siguiente número de Cricket, y sus dardos se dispersan alrededor de ese punto, por lo que las zonas pequeñas son difíciles de acertar y un triple fallado acaba en la zona de puntuación simple o en el sector contiguo. Puedes ver adónde apuntó y dónde se clavó cada dardo. El grado de dispersión se calcula a partir de tus últimos quince encuentros en la modalidad seleccionada, por lo que, de media, el Fantasma juega a tu nivel, y su rendimiento sube y baja durante el encuentro. El Fantasma nunca se convierte en un perfil ni llena el directorio de jugadores; solo se guarda tu propio resultado.\n\nNombres e identidades\nEl Fantasma de práctica recibe una identidad persistente de Game Hub, con una bandera de país y una grafía adaptada al idioma de quien lo ve.",
+      "capabilities": [
+        "Dardos 301 y 501 con reglas de puntuación excedida, cierre con doble y sugerencias de cierre.",
+        "Cricket para entre dos y ocho jugadores con marcas y puntuación en objetivos abiertos.",
+        "Bitcoin Darts con objetivos de minería resaltados, dificultad adaptativa, recompensas de bloque y halvings.",
+        "Breakdown y Around the Clock con indicaciones de objetivos en directo.",
+        "Pro Golf de 18 hoyos y Mini Golf de 9 hoyos con tarjetas de golpes por hoyo.",
+        "Un rival Fantasma para practicar en solitario que apunta y lanza a una diana real, adaptado a tu media reciente, con cada dardo mostrado donde ha caído y un rendimiento que cambia durante el encuentro.",
+        "Cricket contra el Fantasma muestra las marcas de ambos jugadores en la diana, alternándolas cuando ambos tenéis marcas en un mismo número.",
+        "Estadísticas personales específicas de cada modalidad antes de cada partida.",
+        "Estadísticas después de cada partida de un encuentro y del encuentro completo, con la clasificación de esa partida y quién lanza primero en la siguiente.",
+        "Orden inicial manual o aleatorio mediante dados.",
+        "Encuentros al mejor de un número de partidas e historial completo de turnos.",
+        "Diana adaptable diseñada para teléfonos y pantallas más grandes.",
+        "Guardado y reanudación de una partida individual sin terminar.",
+        "Catorce juegos de mesa predefinidos, entre ellos Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne y Azul.",
+        "Juegos personalizados con tu propia puntuación inicial, sentido de la puntuación, objetivo, número de rondas y regla para determinar al ganador.",
+        "Un solo teléfono puede llevar la puntuación de todos los participantes de la mesa, incluidos los jugadores favoritos que no están en la sala.",
+        "Estadísticas de cada juego, que Score Arena conserva y muestra antes de empezar.",
+        "Resultados del perfil, victorias, derrotas e historial de enfrentamientos directos a través de Game Hub.",
+        "Disponible en los nueve idiomas de mvmOS.",
+        "Envía los turnos a las estadísticas de Game Hub, con una clasificación por porcentaje de victorias en lugar de comparar puntuaciones entre distintos tipos de juego.",
+        "El Fantasma de práctica recibe una identidad persistente de Game Hub, con una bandera de país y una grafía adaptada al idioma de quien lo ve."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 o posterior, instalado y actualizado antes de usar esta versión."
+      ],
+      "integrations": [
+        {
+          "summary": "Los jugadores utilizan sus perfiles de Game Hub y los encuentros terminados se registran en las estadísticas del perfil y en el historial de enfrentamientos directos.",
+          "requires": "Game Hub instalado."
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "fr": {
+      "short_description": "Un compteur de scores partagé pour les fléchettes et les jeux de société, avec huit modes de fléchettes, des systèmes de score prêts à l’emploi pour des jeux de société populaires, des jeux personnalisés que vous concevez vous-même, des statistiques personnelles détaillées et un Fantôme adapté à votre historique pour vous entraîner en solo.",
+      "tagline": "Chaque lancer. Chaque adversaire. Chaque résultat.",
+      "description": "Score Arena transforme un téléphone en compteur de scores partagé pour les parties jouées autour d’une véritable cible de fléchettes ou d’une table de jeu de société. Créez un salon avec des profils Game Hub, choisissez l’ordre de jeu, saisissez chaque lancer et conservez le résultat complet dans l’historique de chaque joueur.\n\nChoisissez parmi Fléchettes 301 ou 501, Cricket, Bitcoin Darts, Breakdown, Le Tour de l’horloge, Golf Pro 18 trous et Mini-golf 9 trous. Chaque mode possède ses propres règles, des cibles indiquées en direct, une aide et des statistiques de performance personnelles. Lorsqu’une manche se termine, un écran de statistiques présente les chiffres de chaque joueur pour cette manche et pour l’ensemble du match jusqu’à cet instant : moyennes, moyenne des neuf premières fléchettes, meilleure volée, dépassements, marques, cibles touchées ou écart au par. La manche suivante démarre dès qu’une personne choisit de continuer.\n\nLes jeux de société bénéficient du même suivi. Choisissez un jeu prêt à l’emploi comme Scrabble, Yahtzee, Catan, Carcassonne ou Azul : Score Arena suit les scores et détermine le vainqueur pendant que vous jouez autour d’une vraie table. Besoin d’autre chose ? Concevez votre propre jeu en choisissant le score de départ, s’il augmente ou diminue, et si la partie se termine à un score cible, après un nombre défini de manches ou lorsque vous le décidez. Chaque participant retrouve la partie dans son historique et ses statistiques.\n\nS’entraîner seul ne signifie plus jouer sans adversaire. Ajoutez le Fantôme pour affronter un adversaire simulé qui lance sur une véritable cible de fléchettes : il vise comme un joueur le ferait, le T20, le double de sortie ou le prochain numéro de Cricket, et ses fléchettes se dispersent autour du point visé. Les petites zones sont donc difficiles à atteindre, et un triple manqué atterrit dans le simple ou le secteur voisin. Vous voyez où il a visé et où chaque fléchette s’est plantée. L’ampleur de cette dispersion est calculée à partir de vos quinze derniers matchs dans le mode sélectionné : le Fantôme joue donc en moyenne à votre niveau, et sa forme varie au cours du match. Le Fantôme ne devient jamais un profil et n’encombre pas l’annuaire des joueurs ; seul votre propre résultat est enregistré.\n\nNoms et identités\nLe Fantôme d’entraînement reçoit une identité Game Hub persistante, avec un drapeau national et une graphie adaptée à la langue de la personne qui consulte le jeu.",
+      "capabilities": [
+        "Fléchettes 301 et 501 avec règles de dépassement, sortie sur un double et suggestions de sortie.",
+        "Cricket pour deux à huit joueurs avec marques et décompte des points sur les cibles ouvertes.",
+        "Bitcoin Darts avec cibles de minage mises en évidence, difficulté adaptative, récompenses de bloc et réductions de moitié.",
+        "Breakdown et Le Tour de l’horloge avec indication des cibles en direct.",
+        "Golf Pro 18 trous et Mini-golf 9 trous avec cartes de score par trou.",
+        "Un adversaire Fantôme pour l’entraînement en solo qui vise et lance sur une véritable cible de fléchettes, adapté à votre moyenne récente, avec l’affichage du point d’impact de chaque fléchette et une forme qui varie pendant le match.",
+        "Le Cricket contre le Fantôme affiche les marques des deux joueurs sur la cible, en alternant les tours lorsque vous avez tous deux des marques sur un numéro.",
+        "Statistiques personnelles propres au mode avant chaque partie.",
+        "Statistiques après chaque manche d’un match et pour l’ensemble du match, avec le classement de la manche et le joueur qui lancera en premier à la suivante.",
+        "Ordre de départ défini manuellement ou tiré au sort avec des dés.",
+        "Formats de match au meilleur d’un nombre défini de manches et historique complet des tours.",
+        "Cible de fléchettes adaptative conçue pour les téléphones et les grands écrans.",
+        "Enregistrement et reprise d’une partie solo inachevée.",
+        "Quatorze jeux de société prêts à l’emploi, dont Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne et Azul.",
+        "Jeux personnalisés avec votre propre score de départ, sens de décompte, objectif, nombre de manches et règle de victoire.",
+        "Un seul téléphone peut compter les points de toute la table, y compris pour les joueurs favoris qui ne sont pas dans le salon.",
+        "Statistiques pour chaque jeu, conservées par Score Arena lui-même et affichées avant de commencer.",
+        "Résultats des profils, victoires, défaites et historique des confrontations via Game Hub.",
+        "Disponible dans les neuf langues de mvmOS.",
+        "Transmet les tours aux statistiques de Game Hub, avec un classement fondé sur le taux de victoire plutôt que sur la comparaison des scores entre différents types de jeux.",
+        "Le Fantôme d’entraînement reçoit une identité Game Hub persistante, avec un drapeau national et une graphie adaptée à la langue de la personne qui consulte le jeu."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 ou version ultérieure, installé et mis à jour avant d’utiliser cette version."
+      ],
+      "integrations": [
+        {
+          "summary": "Les joueurs utilisent leurs profils Game Hub, et les matchs terminés sont enregistrés dans les statistiques des profils et l’historique des confrontations.",
+          "requires": "Game Hub installé."
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "ja": {
+      "short_description": "8種類のダーツモード、人気ボードゲーム用の既成の得点管理、自分で設計できるカスタムゲーム、詳しい個人統計、プレイ履歴に合わせたソロ練習用のゴーストを備えた、ダーツとボードゲーム向けの共有スコア管理アプリ。",
+      "tagline": "すべての投擲。すべての対戦相手。すべての結果。",
+      "description": "Score Arenaは、スマートフォンを、実際のダーツボードやボードゲームの卓を囲んで遊ぶための共有スコア管理ツールに変えます。Game Hubのプロフィールでルームを作成し、順番を決め、すべての投擲を入力して、結果全体を各プレイヤーの履歴に残せます。\n\nダーツ301または501、クリケット、ビットコインダーツ、ブレイクダウン、アラウンド・ザ・クロック、18ホールのプロゴルフ、9ホールのミニゴルフから選べます。各モードには専用のルール、現在のターゲット表示、ヘルプ、個人の成績統計があります。マッチ内の1ゲームが決着すると、統計画面に、そのゲームとマッチのそれまでの全体成績がプレイヤーごとに表示されます。平均、最初の9投の平均、ベストターン、バースト数、マーク数、ターゲット命中数、対パー打数などを確認でき、誰かが続行すると次のゲームが始まります。\n\nボードゲームでも同じように利用できます。Scrabble、Yahtzee、Catan、Carcassonne、Azulなどの既成ゲームを選ぶと、実際の卓で遊んでいる間、Score Arenaが得点と勝者を管理します。ほかのゲームが必要な場合は、開始得点、加点式か減点式か、目標得点への到達・指定ラウンド数の終了・任意のタイミングのどれで終えるかを選び、独自のゲームを設計できます。参加者全員の履歴と統計にそのゲームが表示されます。\n\n一人で練習するときも、相手のいない卓に向かう必要はありません。ゴーストを追加すると、実際のダーツボードに投げる動作をシミュレートする対戦相手と練習できます。プレイヤーと同じようにT20、フィニッシュのダブル、次のクリケットのナンバーなどを狙い、ダーツは狙った位置の周囲にばらつきます。そのため、小さなエリアには命中しにくく、トリプルを外すとシングルや隣のセグメントに刺さります。狙った場所と、各ダーツが刺さった場所を確認できます。ばらつきの大きさは、選択したモードでの自分の直近15マッチに基づいて決まるため、ゴーストは平均すると自分と同程度の実力でプレイし、試合中には調子の波も生じます。ゴーストがプロフィールになったり、プレイヤー一覧に混入したりすることはなく、保存されるのは自分の結果だけです。\n\n名前と人物情報\n練習用ゴーストには、国旗と閲覧者の言語に適した名前表記を持つ、継続して保持されるGame Hubの人物情報が割り当てられます。",
+      "capabilities": [
+        "バーストルール、ダブルアウト、フィニッシュ手順の提案に対応したダーツ301と501。",
+        "2～8人用のクリケット。マークとオープンしたターゲットの得点計算に対応。",
+        "採掘ターゲットの強調表示、難易度の自動調整、ブロック報酬、半減期を備えたビットコインダーツ。",
+        "現在のターゲットを案内するブレイクダウンとアラウンド・ザ・クロック。",
+        "ホールごとのスコアカードを備えた、18ホールのプロゴルフと9ホールのミニゴルフ。",
+        "自分の直近の平均成績に合わせて、実際のダーツボードを狙って投げるソロ練習用のゴースト。すべてのダーツの着弾位置を表示し、試合中に調子が変化。",
+        "ゴーストとのクリケットでは、両者のマークをボードに表示し、同じナンバーに両者のマークがある場合は交互に表示。",
+        "各ゲーム開始前に、モード別の個人統計を表示。",
+        "マッチ内の各ゲーム終了後に、そのゲームとマッチ全体の統計、そのゲームの順位、次の先攻プレイヤーを表示。",
+        "開始順を手動またはサイコロでランダムに決定。",
+        "先取制のマッチ形式と、すべてのターンの履歴。",
+        "スマートフォンから大画面まで対応するレスポンシブなダーツボード。",
+        "未完了のソロゲームを保存して再開。",
+        "Scrabble、Yahtzee、Catan、Ticket to Ride、Carcassonne、Azulなど、14種類の既成ボードゲーム。",
+        "開始得点、得点の増減方向、目標、ラウンド数、勝者の決定ルールを設定できるカスタムゲーム。",
+        "ルームにいないお気に入りのプレイヤーも含め、卓を囲む全員の得点を1台のスマートフォンで管理。",
+        "Score Arena自体がゲームごとの統計を保持し、開始前に表示。",
+        "Game Hubを通じたプロフィールの成績、勝敗、直接対戦の履歴。",
+        "mvmOSの全9言語に対応。",
+        "ターンをGame Hubの統計に報告。異なる種類のゲーム間で得点を比較する代わりに、勝率によるランキングを使用。",
+        "練習用ゴーストには、国旗と閲覧者の言語に適した名前表記を持つ、継続して保持されるGame Hubの人物情報が割り当てられます。"
+      ],
+      "requirements": [
+        "このバージョンを使用する前に、Game Hub 1.21.1以降をインストールし、更新してください。"
+      ],
+      "integrations": [
+        {
+          "summary": "プレイヤーはGame Hubのプロフィールを使用し、終了したマッチはプロフィールの統計と直接対戦の履歴に記録されます。",
+          "requires": "Game Hubのインストールが必要です。"
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "pt-BR": {
+      "short_description": "Um placar compartilhado para dardos e jogos de tabuleiro, com oito modalidades de dardos, pontuação predefinida para jogos de tabuleiro populares, jogos personalizados criados por você, estatísticas pessoais detalhadas e um Fantasma ajustado ao seu histórico para treinar sozinho.",
+      "tagline": "Cada arremesso. Cada adversário. Cada resultado.",
+      "description": "O Score Arena transforma um celular em um placar compartilhado para partidas disputadas em um alvo de dardos real ou em uma mesa de jogos de tabuleiro. Crie uma sala com perfis do Game Hub, escolha a ordem, registre cada arremesso e mantenha o resultado completo no histórico de cada jogador.\n\nEscolha entre Dardos 301 ou 501, Cricket, Dardos Bitcoin, Breakdown, Volta ao Relógio, Golfe Profissional de 18 buracos e Minigolfe de 9 buracos. Cada modalidade tem suas próprias regras, alvos em tempo real, ajuda e estatísticas pessoais de desempenho. Quando um jogo de uma partida é decidido, uma tela de estatísticas mostra os números de cada jogador naquele jogo e na partida inteira até aquele momento, como médias, média dos primeiros nove dardos, melhor rodada, estouros, marcas, alvos atingidos ou tacadas em relação ao par, e o próximo jogo começa quando alguém continua.\n\nOs jogos de tabuleiro recebem o mesmo tratamento. Escolha um jogo predefinido, como Scrabble, Yahtzee, Catan, Carcassonne ou Azul, e o Score Arena registra os pontos e o vencedor enquanto vocês jogam em uma mesa real. Precisa de algo diferente? Crie seu próprio jogo escolhendo a pontuação inicial, se os pontos aumentam ou diminuem e se ele termina ao atingir uma pontuação, após um número definido de rodadas ou quando você decidir. Todos que jogarem terão o jogo no próprio histórico e nas próprias estatísticas.\n\nTreinar sozinho não significa mais jogar contra uma mesa vazia. Adicione o Fantasma para enfrentar um adversário simulado que arremessa em um alvo de dardos real: ele mira onde um jogador miraria, no T20, no duplo necessário para fechar ou no próximo número do Cricket, e seus dardos se espalham ao redor desse ponto, de modo que as áreas pequenas são difíceis de acertar e um triplo errado cai na área simples ou no setor vizinho. Você vê onde ele mirou e onde cada dardo ficou. O tamanho dessa dispersão é calculado com base nas suas últimas quinze partidas na modalidade selecionada, para que, em média, o Fantasma jogue no seu nível, e seu desempenho oscile durante a partida. O Fantasma nunca se torna um perfil nem aparece no diretório de jogadores; apenas o seu próprio resultado é salvo.\n\nNomes e identidades\nO Fantasma de treino recebe uma identidade persistente do Game Hub, com uma bandeira de país e uma grafia adequada ao idioma de quem está visualizando.",
+      "capabilities": [
+        "Dardos 301 e 501 com regras de estouro, fechamento em duplo e sugestões de fechamento.",
+        "Cricket para dois a oito jogadores, com marcas e pontuação em alvos abertos.",
+        "Dardos Bitcoin com alvos de mineração destacados, dificuldade adaptativa, recompensas por bloco e halvings.",
+        "Breakdown e Volta ao Relógio com orientação de alvos em tempo real.",
+        "Golfe Profissional de 18 buracos e Minigolfe de 9 buracos com cartões de tacadas por buraco.",
+        "Um adversário Fantasma para treinar sozinho, que mira e arremessa em um alvo de dardos real, ajustado à sua média recente, com cada dardo exibido onde caiu e um desempenho que varia durante a partida.",
+        "O Cricket contra o Fantasma mostra as marcas dos dois jogadores no alvo, alternando as jogadas nos números em que ambos têm marcas.",
+        "Estatísticas pessoais específicas de cada modalidade antes de cada jogo.",
+        "Estatísticas após cada jogo de uma partida e para a partida inteira, com a classificação daquele jogo e quem arremessa primeiro no próximo.",
+        "Ordem inicial definida manualmente ou sorteada com dados.",
+        "Duração das partidas em formato melhor de e histórico completo das jogadas.",
+        "Alvo de dardos responsivo, projetado para celulares e telas maiores.",
+        "Salve e retome um jogo solo não concluído.",
+        "Quatorze jogos de tabuleiro predefinidos, incluindo Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne e Azul.",
+        "Jogos personalizados com pontuação inicial, direção da contagem, meta, número de rodadas e regra de vitória definidos por você.",
+        "Um único celular pode registrar os pontos de todos à mesa, incluindo jogadores favoritos que não estão na sala.",
+        "Estatísticas de cada jogo, mantidas pelo próprio Score Arena e exibidas antes de começar.",
+        "Resultados dos perfis, vitórias, derrotas e histórico de confrontos diretos pelo Game Hub.",
+        "Disponível nos nove idiomas do mvmOS.",
+        "Envia as jogadas para as estatísticas do Game Hub, com um ranking por taxa de vitórias em vez de comparar pontuações entre tipos diferentes de jogos.",
+        "O Fantasma de treino recebe uma identidade persistente do Game Hub, com uma bandeira de país e uma grafia adequada ao idioma de quem está visualizando."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 ou posterior, instalado e atualizado antes de usar esta versão."
+      ],
+      "integrations": [
+        {
+          "summary": "Os jogadores usam seus perfis do Game Hub, e as partidas concluídas são registradas nas estatísticas dos perfis e no histórico de confrontos diretos.",
+          "requires": "Game Hub instalado."
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "ru": {
+      "short_description": "Общий счётчик очков для дартса и настольных игр: восемь режимов дартса, готовые правила подсчёта для популярных настольных игр, создание собственных игр, подробная личная статистика и Призрак для одиночных тренировок, подстраивающийся под историю ваших результатов.",
+      "tagline": "Каждый бросок. Каждый соперник. Каждый результат.",
+      "description": "Score Arena превращает телефон в общий счётчик очков для игр у настоящей мишени для дартса или за столом с настольной игрой. Создайте комнату с профилями Game Hub, выберите очерёдность, вводите каждый бросок и сохраняйте полный результат в истории каждого игрока.\n\nВыбирайте дартс 301 или 501, «Крикет», Bitcoin Darts, «На выбывание», «По кругу», «Профессиональный гольф» на 18 лунок и «Мини-гольф» на 9 лунок. У каждого режима свои правила, текущие цели, справка и личная статистика результатов. После завершения партии в матче экран статистики показывает показатели каждого игрока за эту партию и за весь матч на текущий момент: средние значения, среднее за первые девять дротиков, лучший подход, переборы, отметки, поражённые цели или число ударов относительно пара. Следующая партия начинается, когда кто-нибудь нажимает кнопку продолжения.\n\nДля настольных игр доступны те же возможности. Выберите готовую игру, например Scrabble, Yahtzee, Catan, Carcassonne или Azul, и Score Arena будет учитывать очки и определять победителя, пока вы играете за настоящим столом. Нужно что-то другое? Создайте собственную игру: выберите начальное число очков, будут ли они прибавляться или вычитаться и когда закончится игра — при достижении нужного счёта, после заданного числа раундов или по вашему решению. Каждый участник увидит её в своей истории и статистике.\n\nТренироваться в одиночку теперь можно с соперником. Добавьте Призрака — виртуального соперника, который бросает дротики в настоящую мишень: он целится туда же, куда целился бы игрок, — в утроение 20, в удвоение для завершения партии или в очередное число «Крикета». Его дротики разлетаются вокруг точки прицеливания, поэтому в небольшие зоны трудно попасть, а промах по утроению приходится на одинарную зону или соседний сектор. Вы видите, куда он целился и куда попал каждый дротик. Величина разброса определяется вашими последними пятнадцатью матчами в выбранном режиме, поэтому в среднем Призрак играет на вашем уровне, а его форма меняется по ходу матча. Призрак не создаёт профиль и не засоряет каталог игроков; сохраняется только ваш результат.\n\nИмена и личности\nТренировочный Призрак получает постоянную личность в Game Hub с флагом страны и написанием имени, соответствующим языку пользователя.",
+      "capabilities": [
+        "Дартс 301 и 501 с правилами перебора, завершением удвоением и подсказками для завершения партии.",
+        "«Крикет» для двух–восьми игроков с отметками и начислением очков по открытым целям.",
+        "Bitcoin Darts с подсвеченными целями для майнинга, адаптивной сложностью, наградами за блоки и халвингами.",
+        "«На выбывание» и «По кругу» с подсказками текущих целей.",
+        "«Профессиональный гольф» на 18 лунок и «Мини-гольф» на 9 лунок с карточками ударов для каждой лунки.",
+        "Соперник-Призрак для одиночных тренировок, который целится и бросает в настоящую мишень, подстраивается под ваш недавний средний результат, показывает место попадания каждого дротика и меняет форму по ходу матча.",
+        "В «Крикете» против Призрака на мишени отображаются отметки обоих игроков, с чередованием ходов, когда у обоих есть отметки на одном числе.",
+        "Личная статистика по выбранному режиму перед каждой игрой.",
+        "Статистика после каждой партии матча и за весь матч, с результатами этой партии и указанием того, кто бросает первым в следующей.",
+        "Начальная очерёдность вручную или случайным броском кубика.",
+        "Матчи до заданного числа побед и полная история ходов.",
+        "Адаптивная мишень для телефонов и больших экранов.",
+        "Сохранение и продолжение незавершённой одиночной игры.",
+        "Четырнадцать готовых настольных игр, включая Scrabble, Yahtzee, Catan, Ticket to Ride, Carcassonne и Azul.",
+        "Собственные игры с заданными вами начальным счётом, направлением подсчёта, целью, числом раундов и правилом определения победителя.",
+        "Один телефон может вести счёт для всех за столом, включая избранных игроков, которых нет в комнате.",
+        "Статистика каждой игры, которую ведёт сам Score Arena и показывает перед началом.",
+        "Результаты профиля, победы, поражения и история личных встреч через Game Hub.",
+        "Доступно на всех девяти языках mvmOS.",
+        "Передача ходов в статистику Game Hub с рейтингом по доле побед вместо сравнения очков в разных типах игр.",
+        "Тренировочный Призрак получает постоянную личность в Game Hub с флагом страны и написанием имени, соответствующим языку пользователя."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 или новее; установите и обновите его перед использованием этой версии."
+      ],
+      "integrations": [
+        {
+          "summary": "Игроки используют свои профили Game Hub, а завершённые матчи записываются в статистику профиля и историю личных встреч.",
+          "requires": "Установленный Game Hub."
+        }
+      ],
+      "name": "Score Arena"
+    },
+    "zh-CN": {
+      "short_description": "适用于飞镖和桌游的共享记分工具，提供八种飞镖模式、热门桌游的预设计分方案、自行设计的自定义游戏、详细的个人统计数据，以及根据历史表现匹配水平的单人练习幽灵对手。",
+      "tagline": "每次投掷。每位对手。每场结果。",
+      "description": "Score Arena 可将手机变为共享记分工具，用于在真实飞镖靶或桌游桌旁进行的游戏。使用 Game Hub 个人资料创建房间，选择出手顺序，记录每次投掷，并将完整结果保存在每位玩家的历史记录中。\n\n可选择 301 或 501 飞镖、米老鼠、比特币飞镖、递减挑战、环游时钟、18 洞专业高尔夫和 9 洞迷你高尔夫。每种模式都有自己的规则、实时目标、帮助和个人表现统计。一场比赛中的某一局结束后，统计页面会显示每位玩家本局及整场比赛截至目前的数据，例如平均分、前九镖平均分、最佳回合、爆分次数、标记数、命中目标数，或相对标准杆的杆数。有人点击继续后，下一局才会开始。\n\n桌游也能享受同样的记分体验。选择 Scrabble、Yahtzee、Catan、Carcassonne 或 Azul 等预设游戏，在真实桌面上游玩时，Score Arena 会记录分数和胜者。还需要其他玩法？您可以自行设计游戏，选择初始分数、分数递增还是递减，以及在达到目标分数、完成指定回合数后结束，或由您决定何时结束。每位参与者都能在自己的历史记录和统计数据中看到该游戏。\n\n独自练习也能拥有对手。添加幽灵对手，即可与一个在真实飞镖靶上模拟投掷的对手较量：它会像玩家一样瞄准 T20、结镖所需的双倍区，或米老鼠模式的下一个数字；飞镖会散布在瞄准点周围，因此较小的得分区更难命中，未命中三倍区的飞镖则可能落入单倍区或相邻扇区。您可以看到它的瞄准位置和每支飞镖的落点。散布范围根据您在所选模式中最近十五场比赛的表现确定，因此幽灵对手的平均水平与您相当，状态也会在比赛中起伏。幽灵对手不会成为玩家个人资料，也不会混入玩家目录；仅保存您自己的结果。\n\n姓名与身份\n练习用幽灵对手会获得一个持久保留的 Game Hub 身份，附带国旗，以及适合查看者语言的姓名拼写。",
+      "capabilities": [
+        "301 和 501 飞镖模式，包含爆分规则、双倍结镖和结镖建议。",
+        "供二至八人游玩的米老鼠模式，支持标记和未关闭目标计分。",
+        "比特币飞镖模式，提供高亮挖矿目标、自适应难度、区块奖励和减半机制。",
+        "递减挑战和环游时钟模式，提供实时目标指引。",
+        "18 洞专业高尔夫和 9 洞迷你高尔夫，提供逐洞杆数记分卡。",
+        "供单人练习的幽灵对手会在真实飞镖靶上瞄准并投掷，其水平与您近期的平均表现匹配，显示每支飞镖的落点，且状态会在比赛中变化。",
+        "与幽灵对手进行米老鼠比赛时，靶盘会显示双方的标记；当双方都在某个数字上有标记时，会轮流投掷。",
+        "每局开始前显示对应模式的个人统计数据。",
+        "每局结束后显示本局及整场比赛的统计数据，包括本局排名和下一局首先投掷的玩家。",
+        "手动设置出手顺序，或通过掷骰子随机决定。",
+        "支持多局几胜制，并保留完整的回合历史记录。",
+        "适配手机和大屏幕的响应式飞镖靶。",
+        "保存未完成的单人游戏并继续游玩。",
+        "十四款预设桌游，包括 Scrabble、Yahtzee、Catan、Ticket to Ride、Carcassonne 和 Azul。",
+        "自定义游戏，可自行设置初始分数、计分方向、目标分数、回合数和获胜规则。",
+        "一部手机即可为桌旁所有人记分，包括不在房间中的已收藏玩家。",
+        "每种游戏均有统计数据，由 Score Arena 自行保存，并在开始前显示。",
+        "通过 Game Hub 记录个人资料中的比赛结果、胜负和交手历史。",
+        "支持 mvmOS 的全部九种语言。",
+        "向 Game Hub 统计系统报告回合数据，使用胜率排名，避免跨游戏类型比较分数。",
+        "练习用幽灵对手会获得一个持久保留的 Game Hub 身份，附带国旗，以及适合查看者语言的姓名拼写。"
+      ],
+      "requirements": [
+        "使用此版本前，须先安装 Game Hub 并更新至 1.21.1 或更高版本。"
+      ],
+      "integrations": [
+        {
+          "summary": "玩家使用各自的 Game Hub 个人资料，已完成的比赛会记录在个人资料统计数据和交手历史中。",
+          "requires": "已安装 Game Hub。"
+        }
+      ],
+      "name": "Score Arena"
+    }
+  }
 }

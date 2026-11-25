@@ -32,5 +32,247 @@
       "summary": "Tasks exposes an app-to-app API: other apps can list, add, edit and delete your projects, tasks and checklist items, complete tasks and run their timers, with the same Budget rewards as in the Tasks window.",
       "requires": "The Tasks App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Dauerhafte, einmalige und wiederkehrende Aufgaben mit mehreren Kategorien pro Aufgabe und optionalen Belohnungen oder Abzügen in Budget beim Abschluss sowie einer öffentlichen Webseite.",
+      "tagline": "Aufgaben, die dich beim Abschluss bezahlen – oder dir etwas abziehen können.",
+      "description": "Aufgaben verwaltet vier Arten von Arbeit: dauerhafte Aufgaben, die immer vorhanden sind, einmalige Aufgaben mit Fälligkeitsdatum, wiederkehrende Aufgaben, die täglich, wöchentlich oder monatlich erneut anstehen, und Checklistenaufgaben, die abgeschlossen sind, sobald alle Einträge abgehakt wurden. Ordne beliebige Aufgaben deinen eigenen Projekten zu und halte das wichtigste Projekt oben und geöffnet, während die übrigen in einklappbaren Abschnitten übersichtlich bleiben.\n\nDas Besondere ist, was beim Abschluss passiert. Eine Aufgabe kann einen Betrag haben – positiv als Belohnung, negativ als Abzug –, der direkt in eine Kategorie in Budget gebucht wird. Aufgaben können auch mit Zeiterfassung bearbeitet werden: Starte die Uhr, pausiere sie, und die Belohnung wird aus einem Stundensatz und der tatsächlich erfassten Zeit berechnet.\n\nAlles wird in einem Verlauf der Abschlüsse gespeichert. Dieselbe Liste ist auch über eine öffentliche Webseite für dein Apps Hub-Profil erreichbar.",
+      "capabilities": [
+        "Dauerhafte, einmalige und wiederkehrende Aufgaben mit täglicher, wöchentlicher oder monatlicher Wiederholung sowie Checklistenaufgaben, deren Einträge du in beliebiger Reihenfolge abhaken kannst.",
+        "Projekte gruppieren Aufgaben in einklappbaren Abschnitten und können Unterprojekte enthalten. Du kannst sie umbenennen und neu anordnen. Ein geschützter Abschnitt „Sonstiges“ nimmt Aufgaben ohne Projekt auf. Beim Löschen eines Projekts bleibt sein gesamter Inhalt erhalten und wird eine Ebene nach oben verschoben.",
+        "Kopiere eine Checkliste als reinen Text mit durchgestrichenen erledigten Einträgen, bereit zum Einfügen in einen Chat, eine Notiz oder eine E-Mail.",
+        "Mehrere Kategorien pro Aufgabe.",
+        "Fälligkeitsdatum und -uhrzeit mit Kennzeichnung überfälliger Aufgaben.",
+        "Direkter Abschluss oder eine Zeiterfassung mit Starten, Pausieren, Fortsetzen und Stoppen.",
+        "Belohnung oder Abzug pro Abschluss – als fester Betrag oder anhand eines Stundensatzes für die erfasste Zeit.",
+        "Verwirf erfasste Zeit, wenn sie nicht zählen soll.",
+        "Verlauf aller Abschlüsse.",
+        "Öffentliche Webseite für dein Apps Hub-Profil.",
+        "Eine laufende oder pausierte Zeiterfassung erscheint in der Live-Leiste der öffentlichen Apps Hub-Seite mit Schaltflächen zum Pausieren, Fortsetzen oder Stoppen.",
+        "Wenn mehrere Zeiterfassungen laufen, erscheint die zuletzt gestartete oder fortgesetzte zuerst in der Live-Leiste. Laufende Zeiterfassungen stehen immer vor pausierten."
+      ],
+      "integrations": [
+        {
+          "summary": "Wähle für eine Aufgabe eine Budget-Kategorie und lege einen Betrag fest. Beim Abschluss der Aufgabe wird dieser Betrag der Kategorie gutgeschrieben – oder abgezogen, wenn er negativ ist. Aufgaben mit Zeiterfassung vergüten die tatsächlich erfasste Zeit zum festgelegten Stundensatz. Ohne Budget funktioniert die Aufgabe weiterhin; es gibt dann lediglich keine Belohnung.",
+          "requires": "Budget muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig ausgeschaltet."
+        },
+        {
+          "summary": "Aufgaben stellt eine API für die Kommunikation zwischen Apps bereit: Andere Apps können deine Projekte, Aufgaben und Checklisteneinträge auflisten, hinzufügen, bearbeiten und löschen, Aufgaben abschließen und deren Zeiterfassung steuern – mit denselben Budget-Belohnungen wie im Aufgaben-Fenster.",
+          "requires": "Die App-API von Aufgaben muss unter Apps Hub → Einstellungen → App-APIs eingeschaltet werden. Sie ist standardmäßig ausgeschaltet."
+        }
+      ],
+      "name": "Aufgaben"
+    },
+    "bg": {
+      "short_description": "Постоянни, еднократни и периодични задачи с множество категории за всяка задача и незадължителни награди/санкции в „Бюджет“ при изпълнение, както и публична уеб страница.",
+      "tagline": "Задачи, които могат да ви възнаградят — или да ви глобят — когато ги изпълните.",
+      "description": "„Задачи“ поддържа четири вида задачи: постоянни, които винаги са на разположение; еднократни с краен срок; периодични, които се повтарят ежедневно, ежеседмично или ежемесечно; и задачи със списък за отметки, които са изпълнени, когато всички елементи са отметнати. Групирайте всяка задача в собствени проекти, след което оставете най-важния проект най-отгоре и разгънат, а останалите подредете в свиваеми секции.\n\nОтличителното е какво се случва при изпълнение. Задачата може да има стойност — положителна като награда или отрицателна като санкция — и тази сума се записва директно в категория в „Бюджет“. За задачите може да се отчита и време: пуснете таймера, поставяйте го на пауза, а наградата се изчислява според почасова ставка и действително отчетеното време.\n\nВсичко се съхранява в история на изпълненията, а същият списък е достъпен и от публична уеб страница за акаунта ви в Apps Hub.",
+      "capabilities": [
+        "Постоянни, еднократни и периодични задачи с ежедневно, ежеседмично или ежемесечно повторение, както и задачи със списък, чиито елементи можете да отмятате в произволен ред.",
+        "Проекти, които групират задачите в свиваеми секции, с вложени подпроекти, преименуване, пренареждане и секция „Други“, в която се съхраняват задачите без проект. При изтриване на проект цялото му съдържание се запазва, като се премества едно ниво нагоре.",
+        "Копирайте списък като обикновен текст със зачертани отметнати елементи, готов за поставяне в чат, бележка или имейл.",
+        "Няколко категории за всяка задача.",
+        "Крайна дата и час с обозначаване на просрочените задачи.",
+        "Отбелязване на изпълнението с едно действие или таймер със стартиране, пауза, продължаване и спиране.",
+        "Награда или санкция при всяко изпълнение — фиксирана сума или почасова ставка, приложена към отчетеното време.",
+        "Отхвърляне на отчетеното време, когато то не трябва да се зачита.",
+        "История на всяко изпълнение.",
+        "Публична уеб страница за акаунта ви в Apps Hub.",
+        "Работещ или поставен на пауза таймер се показва в лентата с текуща активност на публичната страница в Apps Hub, с бутони за пауза, продължаване или спиране.",
+        "Когато работят няколко таймера, последният стартиран или възобновен се показва пръв в лентата с текуща активност, а работещите таймери винаги са преди поставените на пауза."
+      ],
+      "integrations": [
+        {
+          "summary": "Изберете категория от „Бюджет“ за дадена задача и задайте сума. При изпълнение на задачата сумата се добавя към категорията — или се изважда, ако е отрицателна. Задачите с отчитане на време носят възнаграждение по почасовата ставка за действително отчетеното време. Без „Бюджет“ задачата продължава да работи; просто няма награда.",
+          "requires": "Инсталиран „Бюджет“ с включен API за приложението в Apps Hub → Настройки → API на приложенията. По подразбиране той е изключен."
+        },
+        {
+          "summary": "„Задачи“ предоставя API за взаимодействие между приложения: други приложения могат да извеждат, добавят, редактират и изтриват проектите, задачите и елементите в списъците ви, да отбелязват задачи като изпълнени и да управляват таймерите им със същите награди в „Бюджет“, както в прозореца на „Задачи“.",
+          "requires": "API на „Задачи“ трябва да бъде включен в Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
+        }
+      ],
+      "name": "Задачи"
+    },
+    "es": {
+      "short_description": "Tareas permanentes, puntuales y periódicas con varias categorías por tarea y recompensas o penalizaciones opcionales en Presupuesto al completarlas, además de una página web pública.",
+      "tagline": "Tareas que pueden pagarte —o cobrarte una penalización— cuando las terminas.",
+      "description": "Tareas gestiona cuatro tipos de trabajo: tareas permanentes que siempre están disponibles, tareas puntuales con fecha de vencimiento, tareas periódicas que se repiten a diario, semanalmente o mensualmente y tareas con listas de verificación que se completan cuando se han marcado todos sus elementos. Agrupa cualquier tarea en tus propios proyectos y mantén el proyecto más importante arriba y desplegado, mientras los demás permanecen organizados en secciones plegables.\n\nLo que la distingue es lo que ocurre al completar una tarea. Una tarea puede tener un importe, positivo como recompensa o negativo como penalización, que se registra directamente en una categoría de Presupuesto. También puedes cronometrar las tareas: inicia el cronómetro, páusalo y la recompensa se calcula a partir de una tarifa por hora y del tiempo que hayas registrado realmente.\n\nTodo se guarda en un historial de tareas completadas, y la misma lista está disponible en una página web pública de tu cuenta de Apps Hub.",
+      "capabilities": [
+        "Tareas permanentes, puntuales y periódicas, con repetición diaria, semanal o mensual, además de tareas con listas de verificación cuyos elementos puedes marcar en cualquier orden.",
+        "Proyectos que agrupan tareas en secciones plegables, con subproyectos anidados y opciones para cambiar el nombre y el orden, además de una sección Otros para las tareas sin proyecto. Al eliminar un proyecto, se conserva todo su contenido trasladándolo un nivel hacia arriba.",
+        "Copia una lista de verificación como texto sin formato, con los elementos marcados tachados, lista para pegarla en un chat, una nota o un correo electrónico.",
+        "Varias categorías por tarea.",
+        "Fecha y hora de vencimiento, con las tareas vencidas señaladas.",
+        "Finalización con una sola acción o un cronómetro con opciones para iniciar, pausar, continuar y detener.",
+        "Recompensa o penalización por cada finalización: un importe fijo o una tarifa por hora aplicada al tiempo registrado.",
+        "Descarta el tiempo registrado cuando no deba contar.",
+        "Historial de cada finalización.",
+        "Página web pública de tu cuenta de Apps Hub.",
+        "Los cronómetros en marcha o en pausa aparecen en la franja de actividad en directo de la página pública de Apps Hub, con botones para pausarlos, continuarlos o detenerlos.",
+        "Cuando hay varios cronómetros en marcha, el último que se haya iniciado o reanudado aparece primero en la franja de actividad en directo, y los cronómetros en marcha siempre aparecen antes que los que están en pausa."
+      ],
+      "integrations": [
+        {
+          "summary": "Elige una categoría de Presupuesto para una tarea y asígnale un importe. Al completar la tarea, ese importe se abona en la categoría o se descuenta si es negativo. Las tareas cronometradas pagan la tarifa por hora correspondiente al tiempo registrado realmente. Sin Presupuesto, la tarea sigue funcionando; simplemente no hay recompensa.",
+          "requires": "Presupuesto instalado y su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. La opción está desactivada de forma predeterminada."
+        },
+        {
+          "summary": "Tareas ofrece una API entre aplicaciones: otras aplicaciones pueden consultar, añadir, editar y eliminar tus proyectos, tareas y elementos de listas de verificación, completar tareas y utilizar sus cronómetros, con las mismas recompensas de Presupuesto que en la ventana de Tareas.",
+          "requires": "La API de aplicación de Tareas debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
+        }
+      ],
+      "name": "Tareas"
+    },
+    "fr": {
+      "short_description": "Tâches permanentes, ponctuelles et périodiques avec plusieurs catégories par tâche et des récompenses ou pénalités facultatives dans Budget à chaque réalisation, ainsi qu'une page web publique.",
+      "tagline": "Des tâches qui peuvent vous rapporter de l'argent, ou vous en coûter, lorsque vous les terminez.",
+      "description": "Tâches gère quatre types de travail : les tâches permanentes qui restent toujours présentes, les tâches ponctuelles avec une échéance, les tâches périodiques qui reviennent chaque jour, chaque semaine ou chaque mois, et les tâches avec liste de contrôle qui sont terminées lorsque tous leurs éléments sont cochés. Regroupez vos tâches dans vos propres projets, puis gardez le projet le plus important en haut et déplié, tandis que les autres restent bien rangés dans des sections repliables.\n\nSa particularité réside dans ce qui se passe lorsqu'une tâche est terminée. Une tâche peut être associée à un montant, positif pour une récompense ou négatif pour une pénalité, qui est directement inscrit dans une catégorie de Budget. Les tâches peuvent aussi être chronométrées : démarrez le chronomètre, mettez-le en pause, et la récompense est calculée à partir d'un taux horaire et du temps réellement suivi.\n\nTout est conservé dans un historique des réalisations, et la même liste est accessible depuis une page web publique associée à votre compte Apps Hub.",
+      "capabilities": [
+        "Tâches permanentes, ponctuelles et périodiques, avec récurrence quotidienne, hebdomadaire ou mensuelle, ainsi que des tâches avec liste de contrôle dont vous pouvez cocher les éléments dans n'importe quel ordre.",
+        "Projets regroupant les tâches dans des sections repliables, avec des sous-projets imbriqués, des fonctions de renommage et de réorganisation, et une section Autres qui accueille les tâches sans projet. La suppression d'un projet conserve tout son contenu en le déplaçant au niveau supérieur.",
+        "Copiez une liste de contrôle en texte brut, avec les éléments cochés barrés, prête à être collée dans une discussion, une note ou un e-mail.",
+        "Plusieurs catégories par tâche.",
+        "Date et heure d'échéance, avec signalement des tâches en retard.",
+        "Validation en une seule action, ou chronomètre avec démarrage, pause, reprise et arrêt.",
+        "Récompense ou pénalité à chaque réalisation : un montant fixe, ou un taux horaire appliqué au temps suivi.",
+        "Supprimez le temps suivi lorsqu'il ne doit pas être pris en compte.",
+        "Historique de toutes les réalisations.",
+        "Page web publique pour votre compte Apps Hub.",
+        "Un chronomètre en cours ou en pause apparaît dans le bandeau en direct de la page publique Apps Hub, avec des boutons pour le mettre en pause, le reprendre ou l'arrêter.",
+        "Lorsque plusieurs chronomètres sont en cours, celui qui a été démarré ou repris en dernier apparaît en premier dans le bandeau en direct, et les chronomètres en cours précèdent toujours ceux en pause."
+      ],
+      "integrations": [
+        {
+          "summary": "Choisissez une catégorie de Budget pour une tâche et attribuez-lui un montant. Terminer la tâche ajoute ce montant à la catégorie, ou le retire s'il est négatif. Les tâches chronométrées rapportent le taux horaire pour le temps réellement suivi. Sans Budget, la tâche fonctionne toujours ; il n'y a simplement aucune récompense.",
+          "requires": "Budget installé et son API d'application activée dans Apps Hub → Paramètres → API des applications. L'option est désactivée par défaut."
+        },
+        {
+          "summary": "Tâches expose une API de communication entre applications : d'autres applications peuvent lister, ajouter, modifier et supprimer vos projets, tâches et éléments de liste de contrôle, terminer des tâches et gérer leurs chronomètres, avec les mêmes récompenses Budget que dans la fenêtre de Tâches.",
+          "requires": "L'API de l'application Tâches doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
+        }
+      ],
+      "name": "Tâches"
+    },
+    "ja": {
+      "short_description": "常設、単発、定期のタスクを管理し、各タスクに複数のカテゴリを設定できます。完了時に予算アプリで報酬やペナルティを適用することもでき、公開ウェブページも利用できます。",
+      "tagline": "完了すると報酬を受け取ったり、ペナルティを支払ったりできるタスク。",
+      "description": "タスクは、4種類の作業を管理します。常に残る常設タスク、期限のある単発タスク、毎日・毎週・毎月繰り返す定期タスク、そしてすべての項目にチェックを入れると完了するチェックリストタスクです。どのタスクも独自のプロジェクトにまとめられます。最も重要なプロジェクトを一番上に開いた状態で置き、残りは折りたためるセクションに整理できます。\n\n特徴は、完了時の処理です。タスクには金額を設定でき、正の金額は報酬、負の金額はペナルティとして、予算アプリのカテゴリに直接記録されます。タスクの時間計測も可能です。タイマーを開始、一時停止すると、時間単価と実際に計測した時間から報酬が計算されます。\n\nすべての完了記録は履歴に保存され、Apps Hubアカウントの公開ウェブページからも同じ一覧にアクセスできます。",
+      "capabilities": [
+        "常設タスク、単発タスク、毎日・毎週・毎月繰り返す定期タスクに加え、好きな順序で項目にチェックを入れられるチェックリストタスクに対応しています。",
+        "プロジェクトでタスクを折りたたみ可能なセクションにまとめ、その中にサブプロジェクトを入れられます。名前の変更や並べ替えができ、プロジェクトに属さないタスクは「その他」セクションに保管されます。プロジェクトを削除しても、中身はすべて1つ上の階層に移動して保持されます。",
+        "チェックリストをプレーンテキストとしてコピーできます。チェック済み項目には取り消し線が付き、そのままチャット、メモ、メールに貼り付けられます。",
+        "1つのタスクに複数のカテゴリを設定できます。",
+        "期限の日時を設定でき、期限を過ぎたタスクには印が付きます。",
+        "1回の操作で完了にすることも、開始、一時停止、再開、停止ができるタイマーを使うこともできます。",
+        "完了ごとの報酬やペナルティを、固定額、または計測時間に適用する時間単価で設定できます。",
+        "計上すべきでない計測時間は破棄できます。",
+        "すべての完了記録を履歴に保存します。",
+        "Apps Hubアカウントの公開ウェブページを利用できます。",
+        "実行中または一時停止中のタイマーは、Apps Hub公開ページのライブ表示欄に表示され、一時停止、再開、停止のボタンで操作できます。",
+        "複数のタイマーが動いている場合は、最後に開始または再開したものがライブ表示欄の先頭に表示されます。実行中のタイマーは、常に一時停止中のものより前に表示されます。"
+      ],
+      "integrations": [
+        {
+          "summary": "タスクで予算アプリのカテゴリを選び、金額を設定します。タスクを完了すると、その金額がカテゴリに加算され、負の金額なら差し引かれます。時間を計測するタスクでは、実際の計測時間に時間単価を掛けた金額が支払われます。予算アプリがなくてもタスクは利用できますが、報酬は発生しません。",
+          "requires": "予算アプリがインストールされ、Apps Hub → 設定 → アプリAPIで、そのアプリAPIが有効になっていること。初期状態ではオフです。"
+        },
+        {
+          "summary": "タスクはアプリ間APIを公開しています。ほかのアプリからプロジェクト、タスク、チェックリスト項目の一覧取得、追加、編集、削除ができ、タスクの完了やタイマーの操作も可能です。タスクのウィンドウ内と同じ予算アプリの報酬が適用されます。",
+          "requires": "Apps Hub → 設定 → アプリAPIで、タスクのアプリAPIをオンにする必要があります。初期状態ではオフです。"
+        }
+      ],
+      "name": "タスク"
+    },
+    "pt-BR": {
+      "short_description": "Tarefas permanentes, únicas e periódicas com várias categorias por tarefa e recompensas/penalidades opcionais no Orçamento ao concluí-las, além de uma página pública na web.",
+      "tagline": "Tarefas que podem pagar você — ou cobrar uma multa — quando você as conclui.",
+      "description": "Tarefas gerencia quatro tipos de trabalho: tarefas permanentes, que estão sempre disponíveis; tarefas únicas, com prazo; tarefas periódicas, que se repetem diária, semanal ou mensalmente; e tarefas com lista de verificação, concluídas quando todos os itens estão marcados. Agrupe qualquer tarefa nos seus próprios projetos e mantenha o projeto mais importante no topo e aberto, enquanto os demais ficam organizados em seções recolhíveis.\n\nO diferencial é o que acontece na conclusão. Uma tarefa pode valer um valor — positivo como recompensa, negativo como penalidade — que é lançado diretamente em uma categoria do Orçamento. As tarefas também podem ser cronometradas: inicie o cronômetro, pause e a recompensa será calculada com base em um valor por hora e no tempo efetivamente registrado.\n\nTudo fica salvo em um histórico de conclusões, e a mesma lista pode ser acessada por uma página pública na web da sua conta do Apps Hub.",
+      "capabilities": [
+        "Tarefas permanentes, únicas e periódicas, com recorrência diária, semanal ou mensal, além de tarefas com lista de verificação cujos itens podem ser marcados em qualquer ordem.",
+        "Projetos que agrupam tarefas em seções recolhíveis, com subprojetos aninhados, opções para renomear e reordenar e uma seção Outros que mantém em segurança as tarefas sem projeto. Excluir um projeto preserva todo o conteúdo, movendo-o um nível acima.",
+        "Copie uma lista de verificação como texto simples, com os itens marcados tachados, pronta para colar em uma conversa, nota ou e-mail.",
+        "Várias categorias por tarefa.",
+        "Data e hora de vencimento, com indicação das tarefas atrasadas.",
+        "Conclusão direta ou um cronômetro com opções para iniciar, pausar, continuar e parar.",
+        "Recompensa ou penalidade por conclusão — um valor fixo ou um valor por hora aplicado ao tempo registrado.",
+        "Descarte o tempo registrado quando ele não deve ser contabilizado.",
+        "Histórico de todas as conclusões.",
+        "Página pública na web da sua conta do Apps Hub.",
+        "Um cronômetro em execução ou pausado aparece na faixa de atividades ao vivo da página pública do Apps Hub, com botões para pausar, continuar ou parar.",
+        "Quando há vários cronômetros em execução, o que foi iniciado ou retomado por último aparece primeiro na faixa de atividades ao vivo, e os cronômetros em execução sempre aparecem antes dos pausados."
+      ],
+      "integrations": [
+        {
+          "summary": "Escolha uma categoria do Orçamento em uma tarefa e atribua um valor a ela. Concluir a tarefa credita esse valor na categoria — ou o debita, se for negativo. Tarefas cronometradas pagam o valor por hora pelo tempo efetivamente registrado. Sem o Orçamento, a tarefa continua funcionando; apenas não há recompensa.",
+          "requires": "Orçamento instalado e sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos. A opção vem desativada por padrão."
+        },
+        {
+          "summary": "Tarefas disponibiliza uma API entre aplicativos: outros aplicativos podem listar, adicionar, editar e excluir seus projetos, tarefas e itens de listas de verificação, concluir tarefas e controlar seus cronômetros, com as mesmas recompensas do Orçamento disponíveis na janela de Tarefas.",
+          "requires": "A API de aplicativo de Tarefas precisa ser ativada em Apps Hub → Configurações → APIs de aplicativos. Ela vem desativada por padrão."
+        }
+      ],
+      "name": "Tarefas"
+    },
+    "ru": {
+      "short_description": "Постоянные, разовые и периодические задачи с несколькими категориями для каждой задачи, необязательными наградами и штрафами в Бюджете за выполнение и общедоступной веб-страницей.",
+      "tagline": "Задачи, за выполнение которых можно получить награду — или штраф.",
+      "description": "Задачи поддерживают четыре вида работы: постоянные задачи, которые всегда остаются в списке, разовые задачи со сроком выполнения, периодические задачи, повторяющиеся ежедневно, еженедельно или ежемесячно, и задачи со списком пунктов, которые считаются выполненными, когда отмечены все пункты. Объединяйте любые задачи в собственные проекты, держите самый важный проект наверху в раскрытом виде, а остальные аккуратно сворачивайте в разделы.\n\nГлавное отличие — в том, что происходит после выполнения. Задаче можно назначить сумму: положительную для награды или отрицательную для штрафа. Эта сумма сразу записывается в категорию Бюджета. Для задач также можно учитывать время: запустите таймер, при необходимости приостановите его, и награда будет рассчитана по почасовой ставке и фактически учтённому времени.\n\nВсе выполнения сохраняются в истории, а тот же список доступен на общедоступной веб-странице вашей учётной записи Apps Hub.",
+      "capabilities": [
+        "Постоянные, разовые и периодические задачи с ежедневным, еженедельным или ежемесячным повторением, а также задачи со списком пунктов, которые можно отмечать в любом порядке.",
+        "Проекты, объединяющие задачи в сворачиваемые разделы, с вложенными подпроектами, переименованием, изменением порядка и разделом «Прочее» для задач без проекта. При удалении проекта всё его содержимое сохраняется и перемещается на уровень выше.",
+        "Копирование списка пунктов в виде обычного текста с зачёркнутыми выполненными пунктами для вставки в чат, заметку или электронное письмо.",
+        "Несколько категорий для каждой задачи.",
+        "Дата и время выполнения с выделением просроченных задач.",
+        "Выполнение одним действием или таймер с запуском, паузой, продолжением и остановкой.",
+        "Награда или штраф за каждое выполнение: фиксированная сумма или почасовая ставка за учтённое время.",
+        "Сброс учтённого времени, если его не следует засчитывать.",
+        "История всех выполнений.",
+        "Общедоступная веб-страница вашей учётной записи Apps Hub.",
+        "Работающий или приостановленный таймер отображается на панели текущей активности общедоступной страницы Apps Hub с кнопками для паузы, продолжения и остановки.",
+        "Если запущено несколько таймеров, первым на панели текущей активности отображается тот, который запустили или возобновили последним, а работающие таймеры всегда располагаются перед приостановленными."
+      ],
+      "integrations": [
+        {
+          "summary": "Выберите для задачи категорию Бюджета и укажите сумму. При выполнении задачи эта сумма зачисляется в категорию или списывается из неё, если она отрицательная. Для задач с учётом времени оплата рассчитывается по почасовой ставке за фактически учтённое время. Без Бюджета задача по-прежнему работает, просто без награды.",
+          "requires": "Установленный Бюджет с включённым API приложения в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен."
+        },
+        {
+          "summary": "Задачи предоставляют API для взаимодействия между приложениями: другие приложения могут просматривать, добавлять, редактировать и удалять ваши проекты, задачи и пункты списков, выполнять задачи и управлять их таймерами с теми же наградами в Бюджете, что и в окне Задач.",
+          "requires": "API приложения Задачи необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он выключен."
+        }
+      ],
+      "name": "Задачи"
+    },
+    "zh-CN": {
+      "short_description": "支持常驻、一次性和周期性任务，每个任务可设置多个类别，并可在完成时通过预算应用给予奖励或扣款，另提供公开网页。",
+      "tagline": "完成任务时，可以获得奖励——也可能被扣款。",
+      "description": "任务应用支持四类工作：始终保留的常驻任务、设有截止日期的一次性任务、每天、每周或每月重复的周期性任务，以及勾选全部条目后即完成的清单任务。你可以将任何任务归入自己的项目，将最重要的项目置顶并展开，其余项目则整齐地收纳在可折叠分区中。\n\n它的特色在于任务完成后的处理方式。你可以为任务设置金额——正数表示奖励，负数表示扣款——完成后，该金额会直接记入预算应用中的某个类别。任务也可以计时：启动计时器、暂停计时，奖励将按每小时费率和实际记录的时长计算。\n\n每次完成情况都会保存在历史记录中，你也可以通过 Apps Hub 账户的公开网页访问同一份任务列表。",
+      "capabilities": [
+        "支持常驻、一次性和每天、每周或每月重复的周期性任务，以及可按任意顺序勾选条目的清单任务。",
+        "通过项目将任务归入可折叠分区，支持嵌套子项目、重命名和调整顺序，并提供“其他”分区妥善存放未归属项目的任务。删除项目时，其中的所有内容都会上移一级并保留。",
+        "将清单复制为纯文本，已勾选的条目带有删除线，可直接粘贴到聊天、笔记或电子邮件中。",
+        "每个任务可设置多个类别。",
+        "支持截止日期和时间，并标记逾期任务。",
+        "支持一键完成，或使用可启动、暂停、继续和停止的计时器。",
+        "每次完成均可给予奖励或扣款——可设为固定金额，也可按记录时长和每小时费率计算。",
+        "不应计入的已记录时长可以丢弃。",
+        "记录每次完成的历史。",
+        "提供 Apps Hub 账户的公开网页。",
+        "运行中或已暂停的计时器会显示在 Apps Hub 公开页面的实时状态栏中，并提供暂停、继续或停止按钮。",
+        "有多个计时器运行时，最近启动或恢复的计时器会排在实时状态栏首位，且运行中的计时器始终排在已暂停的计时器之前。"
+      ],
+      "integrations": [
+        {
+          "summary": "为任务选择预算类别并设置金额。完成任务时，该金额会计入该类别；若金额为负数，则从中扣除。计时任务按实际记录的时长和每小时费率结算。未安装预算应用时，任务仍可正常使用，只是没有奖励。",
+          "requires": "需安装预算应用，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭。"
+        },
+        {
+          "summary": "任务应用提供应用间 API：其他应用可以列出、添加、编辑和删除你的项目、任务及清单条目，完成任务并运行其计时器，享有与任务应用窗口中相同的预算奖励机制。",
+          "requires": "必须在 Apps Hub → 设置 → 应用 API 中启用任务应用的应用 API。默认关闭。"
+        }
+      ],
+      "name": "任务"
+    }
+  }
 }

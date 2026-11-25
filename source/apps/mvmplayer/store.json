@@ -28,5 +28,247 @@
       "summary": "Translates subtitle text into a selected language while preserving its timings. This optional feature requires Premium and administrator activation.",
       "requires": "mvmAI installed and configured, with its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Видеотека в браузъра за филми, сериали и лични записи, със субтитри и индивидуално запазване на напредъка при гледане.",
+      "tagline": "Вашите видеа на едно познато място.",
+      "description": "mvmPlayer пренася филми, сериали, уроци и лични записи на работния плот на mvmOS и в страница на Apps Hub в браузъра. Всеки профил пази отделен напредък при гледане, любими, история и колекции.\n\nПапки във видеотеката\nИзберете папка на този сървър или споделена от друга система mvmOS. Видеата остават там, където са; ръчните или планираните сканирания намират файлове, разпознават годините на филмите и номерата на епизодите и прочитат субтитрите във формат SRT или WebVTT до видеата. Споделените видеа се възпроизвеждат директно от сървъра, който ги споделя. Отваряйте отделен файл от Файловия мениджър, без да го импортирате.\n\nИнформация и обложки\nОтворете сериал, за да потърсите информация за него онлайн, като избирате измежду сезоните и епизодите, с които действително разполагате. Информацията и обложката на сериала се съхраняват еднократно и се показват за всеки епизод без собствено изображение, а данните за новите епизоди на вече разпознати сериали се попълват автоматично. Филмите имат собствен бутон за търсене и данните им никога не се попълват автоматично, така че да не се промъкне грешно съвпадение.\n\nСубтитри\nПлейърът показва списък със субтитрите, вградени във видеа във формат MKV и WebM, веднага щом филмът се отвори, включително за филми в папка, споделена от друга система mvmOS. Изберете субтитри и браузърът ви ги прочита директно от мястото, където се съхранява филмът, с индикатор за напредъка, така че нищо не минава през сървъра на mvmOS. Плейърът също избира субтитри на вашия език и поддържа зареждане на файл със субтитри от устройството ви. Възпроизвеждането използва кодеците на браузъра без транскодиране.\n\nSimkl\nС клиентски идентификатор за Simkl, споделен от администратора чрез Ключове за услуги в Apps Hub, всеки профил може да свърже собствения си акаунт в Simkl. Разглеждайте популярни заглавия, история на гледане и сериали, планирани за гледане, преглеждайте сезони, отбелязвайте епизоди или сезони като изгледани и изпращайте информация за изгледаните докрай видеа към този акаунт.\n\nНезадължителен превод на субтитри\nPremium добавя превод на субтитри чрез конфигурирания от вас mvmAI. Изберете налични субтитри, външни или вградени във видеото, и целевия език; за вградени субтитри браузърът първо прочита текста им и изпраща за превод само него. Администраторът активира функцията, зрителите преглеждат предварително изчислената цена в кредити, а готовите преводи се появяват сред субтитрите за избор. Обичайната видеотека и съществуващите субтитри работят и без тази опция.",
+      "capabilities": [
+        "Интерфейс за работния плот и адаптивен интерфейс в Apps Hub с обща видеотека.",
+        "Папки от сървъра и свързани споделени папки във видеотеката, ръчно или планирано сканиране и възпроизвеждане без копиране на видеата.",
+        "Качване в избрана папка от видеотеката чрез общия инструмент за качване.",
+        "Разпознаване на години на филми, сериали, сезони и епизоди по имената на файловете и папките.",
+        "Отделен напредък при гледане, отбелязване като изгледано, любими и лични колекции.",
+        "Възпроизвеждане в браузъра с превъртане, настройка на скоростта, цял екран, картина в картината и автоматично пускане на следващия епизод.",
+        "Откриване на съпътстващи файлове SRT и WebVTT, субтитри, вградени във видеа MKV и WebM, избор на предпочитан език и локални файлове със субтитри.",
+        "Онлайн търсене на информация за сериали и филми с избор на сезон и епизод, обща обложка на сериала за епизодите и автоматично попълване на данните за вече разпознати сериали.",
+        "Незадължително свързване на акаунт в Simkl, популярни заглавия, лична история, сериали, планирани за гледане, и контроли за отбелязване на епизоди или сезони като изгледани.",
+        "Отваряне на видеа директно от Файловия мениджър в съществуващия плейър.",
+        "Не се изискват транскодиране, инсталиране на FFmpeg или отделен медиен сървър."
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 или по-нова версия.",
+        "Браузър, който поддържа видео контейнера и аудио/видео кодеците.",
+        "Функциите на Simkl изискват клиентски идентификатор за Simkl, споделен от администратор; личната история и контролите за отбелязване като изгледано изискват и свързване на вашия акаунт в Simkl."
+      ],
+      "integrations": [
+        {
+          "summary": "Превежда текста на субтитрите на избран език, като запазва времевите им маркери. Тази незадължителна функция изисква Premium и активиране от администратор.",
+          "requires": "Инсталиран и конфигуриран mvmAI с включен API на приложението в Apps Hub → Настройки → API на приложенията. Превключвателят е изключен по подразбиране."
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "de": {
+      "short_description": "Eine Videobibliothek im Browser für Filme, Serien und persönliche Aufnahmen, mit Untertiteln und individuellem Wiedergabefortschritt.",
+      "tagline": "Deine Videos an einem vertrauten Ort.",
+      "description": "mvmPlayer bringt Filme, Serien, Unterrichtsvideos und persönliche Aufnahmen auf den mvmOS-Desktop und eine Browserseite in Apps Hub. Jedes Profil verwaltet seinen eigenen Wiedergabefortschritt, seine Favoriten, seinen Verlauf und seine Sammlungen.\n\nBibliotheksordner\nWähle einen Ordner auf diesem Server oder einen, der von einem anderen mvmOS freigegeben wurde. Die Videos bleiben an ihrem Speicherort; manuelle oder geplante Suchläufe finden Dateien, erkennen Erscheinungsjahre von Filmen und Episodennummern und lesen SRT- oder WebVTT-Untertitel neben den Videos ein. Freigegebene Videos werden direkt vom freigebenden Server abgespielt. Öffne eine einzelne Datei aus dem Dateimanager, ohne sie zu importieren.\n\nDetails und Cover\nÖffne eine Serie, um ihre Details online nachzuschlagen, und wähle dabei aus den Staffeln und Episoden, die du tatsächlich hast. Serieninformationen und Seriencover werden einmal gespeichert und bei jeder Episode angezeigt, die kein eigenes Bild hat. Bei bereits zugeordneten Serien werden die Angaben für neue Episoden automatisch ergänzt. Filme haben eine eigene Schaltfläche zum Nachschlagen und werden nie automatisch ergänzt, damit sich keine falsche Zuordnung einschleicht.\n\nUntertitel\nDer Player listet die in MKV- und WebM-Videos gespeicherten Untertitel auf, sobald der Film geöffnet wird – auch bei Filmen in einem Ordner, der von einem anderen mvmOS freigegeben wurde. Wähle einen Untertitel aus, und dein Browser liest ihn mit einer Fortschrittsanzeige direkt vom Speicherort des Films ein. Dabei läuft nichts über den mvmOS-Server. Der Player wählt außerdem einen Untertitel in deiner Sprache aus und unterstützt das Laden einer Untertiteldatei von deinem Gerät. Die Wiedergabe nutzt die Codecs des Browsers ohne Transkodierung.\n\nSimkl\nMit einer Simkl-Client-ID, die der Administrator über die Dienstschlüssel in Apps Hub bereitstellt, kann jedes Profil sein eigenes Simkl-Konto verbinden. Entdecke angesagte Titel, deinen Wiedergabeverlauf und vorgemerkte Sendungen, sieh dir Staffeln an, markiere Episoden oder Staffeln als gesehen und melde vollständig angesehene Videos an dieses Konto.\n\nOptionale Untertitelübersetzung\nPremium ergänzt die Übersetzung von Untertiteln über dein konfiguriertes mvmAI. Wähle einen beliebigen verfügbaren Untertitel, ob extern oder im Video gespeichert, und die Zielsprache. Bei einem Untertitel im Video liest der Browser zuerst dessen Text und sendet nur diesen zur Übersetzung. Der Administrator aktiviert die Funktion, Zuschauer prüfen die voraussichtlichen Credit-Kosten, und fertige Übersetzungen stehen als auswählbare Untertitel bereit. Die normale Videobibliothek und vorhandene Untertitel funktionieren auch ohne diese Option.",
+      "capabilities": [
+        "Desktop-Oberfläche und responsive Apps Hub-Oberfläche mit einer gemeinsamen Videobibliothek.",
+        "Bibliotheksordner auf dem Server und eingebundene freigegebene Bibliotheksordner, manuelle oder geplante Suchläufe und Wiedergabe ohne Kopieren der Videos.",
+        "Uploads in einen ausgewählten Bibliotheksordner über die gemeinsame Upload-Funktion.",
+        "Erkennung von Erscheinungsjahren, Serien, Staffeln und Episoden anhand von Datei- und Ordnernamen.",
+        "Individueller Wiedergabefortschritt, Abschlussstatus, Favoriten und persönliche Sammlungen.",
+        "Wiedergabe im Browser mit Springen zu einer anderen Stelle, Geschwindigkeitsregelung, Vollbild, Bild-in-Bild und automatischer Wiedergabe der nächsten Episode.",
+        "Erkennung begleitender SRT- und WebVTT-Dateien, in MKV- und WebM-Videos gespeicherte Untertitel, Auswahl der bevorzugten Sprache und lokale Untertiteldateien.",
+        "Online-Suche nach Serien und Filmen mit Staffel- und Episodenauswahl, einem gemeinsamen Seriencover für Episoden und automatischer Ergänzung bereits zugeordneter Serien.",
+        "Optionale Verbindung mit einem Simkl-Konto, angesagte Titel, persönlicher Verlauf, vorgemerkte Sendungen und Funktionen zum Markieren gesehener Episoden oder Staffeln.",
+        "Videos direkt aus dem Dateimanager im vorhandenen Player öffnen.",
+        "Keine Transkodierung, FFmpeg-Installation oder separater Medienserver erforderlich."
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 oder neuer.",
+        "Ein Browser, der den Videocontainer und die Audio-/Video-Codecs unterstützt.",
+        "Simkl-Funktionen erfordern eine vom Administrator bereitgestellte Simkl-Client-ID; der persönliche Verlauf und die Funktionen zum Markieren als gesehen erfordern außerdem die Verbindung mit deinem Simkl-Konto."
+      ],
+      "integrations": [
+        {
+          "summary": "Übersetzt Untertiteltext in eine ausgewählte Sprache und behält dabei die Zeitmarken bei. Diese optionale Funktion erfordert Premium und die Aktivierung durch den Administrator.",
+          "requires": "mvmAI muss installiert und konfiguriert sein, und seine App-API muss unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig ausgeschaltet."
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "fr": {
+      "short_description": "Une vidéothèque dans votre navigateur pour vos films, séries et enregistrements personnels, avec sous-titres et suivi individuel de la progression de lecture.",
+      "tagline": "Vos vidéos, dans un espace familier.",
+      "description": "mvmPlayer réunit films, séries, cours et enregistrements personnels sur le bureau mvmOS et sur une page Apps Hub accessible dans le navigateur. Chaque profil conserve sa propre progression de lecture, ses favoris, son historique et ses collections.\n\nDossiers de la vidéothèque\nChoisissez un dossier sur ce serveur ou un dossier partagé depuis un autre mvmOS. Les vidéos restent à leur emplacement ; des analyses manuelles ou programmées détectent les fichiers, reconnaissent les années des films et les numéros des épisodes, et lisent les sous-titres SRT ou WebVTT placés à côté des vidéos. Les vidéos partagées sont lues directement depuis le serveur qui les partage. Ouvrez un fichier directement depuis le Gestionnaire de fichiers sans l’importer.\n\nInformations et affiches\nOuvrez une série pour rechercher ses informations en ligne, en choisissant parmi les saisons et les épisodes que vous possédez réellement. Les informations et l’affiche de la série sont conservées une seule fois et affichées sur chaque épisode qui ne possède pas sa propre image. Les nouveaux épisodes des séries déjà identifiées sont renseignés automatiquement. Les films disposent de leur propre bouton de recherche et ne sont jamais renseignés automatiquement, afin d’éviter toute correspondance erronée.\n\nSous-titres\nLe lecteur répertorie les sous-titres intégrés aux vidéos MKV et WebM dès l’ouverture du film, y compris pour les films situés dans un dossier partagé depuis un autre mvmOS. Sélectionnez-en un : votre navigateur le lit directement à l’emplacement où le film est stocké, avec un indicateur de progression, sans que rien ne transite par le serveur mvmOS. Le lecteur sélectionne également un sous-titre dans votre langue et permet de charger un fichier de sous-titres depuis votre appareil. La lecture utilise les codecs du navigateur, sans transcodage.\n\nSimkl\nAvec un identifiant client Simkl partagé par l’administrateur dans les clés de service d’Apps Hub, chaque profil peut connecter son propre compte Simkl. Parcourez les titres tendance, l’historique de visionnage et les programmes à regarder, consultez les saisons, marquez des épisodes ou des saisons comme vus et signalez à ce compte les vidéos visionnées jusqu’au bout.\n\nTraduction facultative des sous-titres\nPremium ajoute la traduction des sous-titres par l’intermédiaire de votre mvmAI configuré. Choisissez n’importe quel sous-titre disponible, externe ou intégré à la vidéo, ainsi que la langue cible ; pour un sous-titre intégré à la vidéo, le navigateur lit d’abord son texte et n’envoie que ce texte à traduire. L’administrateur active cette fonction, les spectateurs consultent l’estimation du coût en crédits et les traductions terminées deviennent des sous-titres sélectionnables. La vidéothèque et les sous-titres existants fonctionnent sans cette option.",
+      "capabilities": [
+        "Interface sur le bureau et interface adaptative dans Apps Hub, avec une vidéothèque commune.",
+        "Dossiers de vidéothèque sur le serveur ou partagés et connectés, analyses manuelles ou programmées et lecture sans copier les vidéos.",
+        "Envoi de fichiers dans un dossier de vidéothèque choisi à l’aide de l’outil d’envoi commun.",
+        "Reconnaissance des années des films, des séries, des saisons et des épisodes à partir des noms de fichiers et de dossiers.",
+        "Progression de lecture, état de visionnage terminé, favoris et collections personnelles propres à chaque profil.",
+        "Lecture dans le navigateur avec déplacement dans la vidéo, réglage de la vitesse, plein écran, incrustation vidéo et passage automatique à l’épisode suivant.",
+        "Détection des fichiers de sous-titres SRT et WebVTT associés, sous-titres intégrés aux vidéos MKV et WebM, sélection de la langue préférée et fichiers de sous-titres locaux.",
+        "Recherche en ligne de séries et de films avec sélection des saisons et des épisodes, affiche de série commune aux épisodes et renseignement automatique des séries déjà identifiées.",
+        "Connexion facultative à un compte Simkl, titres tendance, historique personnel, programmes à regarder et commandes permettant de marquer les épisodes ou les saisons comme vus.",
+        "Ouverture des vidéos directement depuis le Gestionnaire de fichiers dans le lecteur existant.",
+        "Aucun transcodage, aucune installation de FFmpeg ni aucun serveur multimédia distinct requis."
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 ou version ultérieure.",
+        "Un navigateur prenant en charge le conteneur vidéo et les codecs audio et vidéo.",
+        "Les fonctions Simkl nécessitent un identifiant client Simkl partagé par l’administrateur ; l’historique personnel et les commandes de marquage comme vu nécessitent également la connexion à votre compte Simkl."
+      ],
+      "integrations": [
+        {
+          "summary": "Traduit le texte des sous-titres dans la langue sélectionnée tout en conservant leur synchronisation. Cette fonction facultative nécessite Premium et une activation par l’administrateur.",
+          "requires": "mvmAI installé et configuré, avec son API d’application activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut."
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "es": {
+      "short_description": "Una biblioteca de vídeos en el navegador para películas, series y grabaciones personales, con subtítulos y progreso de reproducción individual.",
+      "tagline": "Tus vídeos, en un lugar familiar.",
+      "description": "mvmPlayer lleva películas, series, lecciones y grabaciones personales al escritorio de mvmOS y a una página de Apps Hub en el navegador. Cada perfil mantiene su propio progreso de reproducción, favoritos, historial y colecciones.\n\nCarpetas de la biblioteca\nElige una carpeta de este servidor o una compartida desde otro mvmOS. Los vídeos permanecen donde están; los análisis manuales o programados encuentran archivos, reconocen los años de las películas y los números de los episodios, y leen los subtítulos SRT o WebVTT situados junto a los vídeos. Los vídeos compartidos se reproducen directamente desde el servidor que los comparte. Abre un archivo suelto desde el Gestor de archivos sin importarlo.\n\nInformación y carátulas\nAbre una serie para buscar su información en línea y elige entre las temporadas y los episodios que realmente tienes. La información y la carátula de la serie se guardan una sola vez y se muestran en cada episodio que no tenga su propia imagen; además, las series que ya has identificado completan automáticamente la información de los nuevos episodios. Las películas tienen su propio botón de búsqueda y su información nunca se completa automáticamente, para evitar que se les asigne una coincidencia incorrecta.\n\nSubtítulos\nEl reproductor muestra los subtítulos integrados en los vídeos MKV y WebM en cuanto se abre la película, incluidas las películas de carpetas compartidas desde otro mvmOS. Elige uno y tu navegador lo leerá directamente desde donde está almacenada la película, con un indicador de progreso, sin que nada pase por el servidor de mvmOS. El reproductor también selecciona un subtítulo en tu idioma y permite cargar un archivo de subtítulos desde tu dispositivo. La reproducción utiliza los códecs del navegador sin transcodificación.\n\nSimkl\nCon un ID de cliente de Simkl compartido por el administrador mediante las claves de servicio de Apps Hub, cada perfil puede conectar su propia cuenta de Simkl. Explora títulos populares, el historial de visualización y las series pendientes, consulta temporadas, marca episodios o temporadas como vistos y registra los vídeos terminados en esa cuenta.\n\nTraducción opcional de subtítulos\nPremium añade la traducción de subtítulos a través de tu mvmAI configurado. Elige cualquier subtítulo disponible, externo o integrado en el vídeo, y el idioma de destino; si el subtítulo está integrado en el vídeo, el navegador lee primero su texto y envía únicamente ese texto para traducirlo. El administrador activa la función, los espectadores revisan el presupuesto en créditos y las traducciones terminadas pasan a estar disponibles como subtítulos seleccionables. La biblioteca de vídeos habitual y los subtítulos existentes funcionan sin esta opción.",
+      "capabilities": [
+        "Interfaz de escritorio y de Apps Hub adaptable a distintos dispositivos, con una biblioteca de vídeos compartida.",
+        "Carpetas de biblioteca del servidor y carpetas compartidas conectadas, análisis manuales o programados y reproducción sin copiar los vídeos.",
+        "Carga de archivos en una carpeta de biblioteca elegida mediante el cargador compartido.",
+        "Reconocimiento de nombres de archivo y carpetas para identificar años de películas, series, temporadas y episodios.",
+        "Progreso de reproducción, estado de finalización, favoritos y colecciones personales independientes.",
+        "Reproducción en el navegador con desplazamiento por el vídeo, velocidad, pantalla completa, imagen en imagen y reproducción automática del siguiente episodio.",
+        "Detección de archivos de subtítulos SRT y WebVTT junto al vídeo, subtítulos integrados en vídeos MKV y WebM, selección del idioma preferido y archivos de subtítulos locales.",
+        "Búsqueda en línea de series y películas con selección de temporadas y episodios, una carátula de serie compartida entre los episodios y cumplimentación automática de la información de series ya identificadas.",
+        "Conexión opcional con una cuenta de Simkl, títulos populares, historial personal, series pendientes y controles para marcar episodios o temporadas como vistos.",
+        "Apertura de vídeos directamente desde el Gestor de archivos en el reproductor existente.",
+        "No requiere transcodificación, instalación de FFmpeg ni un servidor multimedia independiente."
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 o posterior.",
+        "Un navegador compatible con el contenedor de vídeo y los códecs de audio y vídeo.",
+        "Las funciones de Simkl requieren un ID de cliente de Simkl compartido por el administrador; el historial personal y los controles para marcar contenido como visto también requieren conectar tu cuenta de Simkl."
+      ],
+      "integrations": [
+        {
+          "summary": "Traduce el texto de los subtítulos al idioma seleccionado conservando su sincronización. Esta función opcional requiere Premium y que el administrador la active.",
+          "requires": "mvmAI instalado y configurado, con su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. La opción está desactivada de forma predeterminada."
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "ja": {
+      "short_description": "映画、シリーズ、個人の録画をまとめて管理できるブラウザー型動画ライブラリ。字幕とプロフィールごとの視聴状況に対応しています。",
+      "tagline": "あなたの動画を、いつもの場所に。",
+      "description": "mvmPlayerは、映画、シリーズ、レッスン、個人の録画をmvmOSデスクトップとApps Hubのブラウザーページで楽しめるアプリです。視聴状況、お気に入り、履歴、コレクションは、プロフィールごとに個別に保存されます。\n\nライブラリフォルダー\nこのサーバー上のフォルダー、または別のmvmOSから共有されたフォルダーを選択できます。動画は元の場所に保存したまま、手動または定期スキャンでファイルを検出し、映画の公開年やエピソード番号を認識して、動画と同じ場所にあるSRTまたはWebVTT字幕を読み込みます。共有動画は共有元のサーバーから直接再生されます。ライブラリに取り込まずに、ファイルマネージャーから単一のファイルを開くこともできます。\n\n詳細情報とカバー画像\nシリーズを開き、実際に所有しているシーズンやエピソードを選んで、オンラインで詳細情報を検索できます。シリーズ情報とカバー画像はシリーズごとに一度だけ保存され、独自の画像がないすべてのエピソードに表示されます。すでに特定済みのシリーズでは、新しいエピソードの情報も自動で補完されます。映画には専用の検索ボタンがあり、情報が自動で補完されることはないため、誤った一致結果が知らないうちに適用されることはありません。\n\n字幕\n動画を開くと、MKVおよびWebM動画に格納されている字幕がすぐに一覧表示されます。別のmvmOSから共有されたフォルダー内の動画にも対応しています。字幕を選ぶと、ブラウザーが動画の保存場所から直接読み込み、進行状況を表示します。このため、データがmvmOSサーバーを経由することはありません。また、使用言語に合った字幕が選択され、端末から字幕ファイルを読み込むこともできます。再生にはブラウザーのコーデックを使用し、トランスコードは行いません。\n\nSimkl\n管理者がApps Hubのサービスキーを通じてSimklクライアントIDを共有すると、各プロフィールで自分のSimklアカウントを接続できます。話題の作品、視聴履歴、視聴予定の番組を閲覧し、シーズンの内容を確認したり、エピソードやシーズンを視聴済みにしたり、視聴を終えた動画をそのアカウントに記録したりできます。\n\nオプションの字幕翻訳\nPremiumでは、設定済みのmvmAIを通じて字幕を翻訳できます。外部ファイルでも動画内に格納されたものでも、利用可能な字幕と翻訳先の言語を選択できます。動画内の字幕の場合は、ブラウザーが先にテキストを読み取り、そのテキストだけを翻訳用に送信します。管理者がこの機能を有効にし、視聴者が必要なクレジット数の見積もりを確認すると、翻訳を利用できます。翻訳が完了した字幕は選択できるようになります。通常の動画ライブラリと既存の字幕は、このオプションがなくても利用できます。",
+      "capabilities": [
+        "共通の動画ライブラリを利用できるデスクトップ画面とレスポンシブ対応のApps Hubインターフェース。",
+        "サーバー上および接続された共有ライブラリフォルダー、手動または定期スキャン、動画をコピーせずに行う再生。",
+        "共通のアップローダーから、選択したライブラリフォルダーへのアップロード。",
+        "ファイル名とフォルダーから映画の公開年、シリーズ、シーズン、エピソードを認識。",
+        "プロフィールごとに独立した視聴状況、視聴完了状態、お気に入り、個人用コレクション。",
+        "シーク、再生速度、全画面表示、ピクチャーインピクチャー、次のエピソードの自動再生に対応したブラウザー再生。",
+        "動画に付随するSRTおよびWebVTTファイルの検出、MKVおよびWebM動画内の字幕、優先言語の選択、ローカル字幕ファイルに対応。",
+        "シーズンとエピソードを選べるシリーズ・映画のオンライン検索、エピソードで共用するシリーズのカバー画像、特定済みシリーズの情報の自動補完。",
+        "オプションのSimklアカウント接続、話題の作品、個人の履歴、視聴予定の番組、エピソードやシーズンの視聴済み設定。",
+        "ファイルマネージャーから既存のプレーヤーで動画を直接開く。",
+        "トランスコード、FFmpegのインストール、別途メディアサーバーを用意する必要はありません。"
+      ],
+      "requirements": [
+        "mvmOS 1.22.1以降。",
+        "動画のコンテナ形式と音声・映像コーデックに対応したブラウザー。",
+        "Simkl機能には、管理者が共有するSimklクライアントIDが必要です。個人の履歴と視聴済み設定の操作には、自分のSimklアカウントの接続も必要です。"
+      ],
+      "integrations": [
+        {
+          "summary": "字幕のタイミングを維持したまま、テキストを選択した言語に翻訳します。このオプション機能にはPremiumと管理者による有効化が必要です。",
+          "requires": "mvmAIがインストール・設定され、Apps Hub → 設定 → App APIでmvmAIのApp APIが有効になっている必要があります。このスイッチは初期状態ではオフです。"
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "pt-BR": {
+      "short_description": "Uma biblioteca de vídeos no navegador para filmes, séries e gravações pessoais, com legendas e progresso de reprodução individual.",
+      "tagline": "Seus vídeos, em um lugar familiar.",
+      "description": "mvmPlayer leva filmes, séries, aulas e gravações pessoais para a área de trabalho do mvmOS e uma página do Apps Hub no navegador. Cada perfil mantém seu próprio progresso de reprodução, favoritos, histórico e coleções.\n\nPastas da biblioteca\nEscolha uma pasta neste servidor ou uma compartilhada por outro mvmOS. Os vídeos permanecem onde estão; verificações manuais ou agendadas encontram arquivos, reconhecem os anos dos filmes e os números dos episódios e leem legendas SRT ou WebVTT ao lado dos vídeos. Os vídeos compartilhados são reproduzidos diretamente do servidor que os compartilha. Abra um arquivo individual pelo Gerenciador de Arquivos sem importá-lo.\n\nDetalhes e capas\nAbra uma série para consultar seus detalhes on-line, escolhendo entre as temporadas e os episódios que você realmente tem. As informações e a capa da série são armazenadas uma única vez e exibidas em todos os episódios que não têm imagem própria, e os dados das séries que você já identificou são preenchidos automaticamente nos novos episódios. Os filmes têm seu próprio botão de consulta e seus dados nunca são preenchidos automaticamente, para evitar correspondências incorretas.\n\nLegendas\nO player lista as legendas armazenadas dentro de vídeos MKV e WebM assim que o filme é aberto, incluindo filmes em pastas compartilhadas por outro mvmOS. Escolha uma legenda e seu navegador a lerá diretamente do local onde o filme está armazenado, com um indicador de progresso, sem que nada passe pelo servidor mvmOS. O player também seleciona uma legenda no seu idioma e permite carregar um arquivo de legenda do seu dispositivo. A reprodução usa os codecs do navegador, sem transcodificação.\n\nSimkl\nCom um ID de cliente do Simkl compartilhado pelo administrador nas Chaves de serviço do Apps Hub, cada perfil pode conectar sua própria conta Simkl. Explore títulos em alta, o histórico de visualização e programas que pretende assistir, consulte temporadas, marque episódios ou temporadas como assistidos e informe os vídeos concluídos a essa conta.\n\nTradução opcional de legendas\nO Premium adiciona tradução de legendas pelo mvmAI que você configurou. Escolha qualquer legenda disponível, externa ou armazenada dentro do vídeo, e o idioma de destino; para uma legenda dentro do vídeo, o navegador lê primeiro o texto e envia apenas esse texto para tradução. O administrador habilita o recurso, os espectadores conferem a estimativa de créditos, e as traduções concluídas ficam disponíveis para seleção como legendas. A biblioteca de vídeos comum e as legendas existentes funcionam sem essa opção.",
+      "capabilities": [
+        "Interface na área de trabalho e interface responsiva no Apps Hub, com uma biblioteca de vídeos compartilhada.",
+        "Pastas da biblioteca no servidor e pastas compartilhadas conectadas, verificações manuais ou agendadas e reprodução sem copiar os vídeos.",
+        "Envio de arquivos para uma pasta escolhida da biblioteca pelo recurso de envio compartilhado.",
+        "Reconhecimento de nomes de arquivos e pastas para identificar anos de filmes, séries, temporadas e episódios.",
+        "Progresso de reprodução, conclusão, favoritos e coleções pessoais independentes.",
+        "Reprodução no navegador com avanço e retrocesso, velocidade, tela cheia, picture-in-picture e próximo episódio automático.",
+        "Detecção de arquivos de legenda SRT e WebVTT junto aos vídeos, legendas armazenadas dentro de vídeos MKV e WebM, seleção do idioma preferido e arquivos de legenda locais.",
+        "Consulta on-line de séries e filmes com seleção de temporadas e episódios, uma capa de série compartilhada entre os episódios e preenchimento automático de séries já identificadas.",
+        "Conexão opcional com uma conta Simkl, títulos em alta, histórico pessoal, programas que pretende assistir e controles para marcar episódios ou temporadas como assistidos.",
+        "Abertura de vídeos diretamente pelo Gerenciador de Arquivos no player existente.",
+        "Não exige transcodificação, instalação do FFmpeg nem um servidor de mídia separado."
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 ou posterior.",
+        "Um navegador compatível com o contêiner de vídeo e os codecs de áudio/vídeo.",
+        "Os recursos do Simkl exigem um ID de cliente do Simkl compartilhado pelo administrador; o histórico pessoal e os controles de conteúdo assistido também exigem a conexão da sua conta Simkl."
+      ],
+      "integrations": [
+        {
+          "summary": "Traduz o texto das legendas para um idioma selecionado, preservando a sincronização. Esse recurso opcional exige Premium e ativação pelo administrador.",
+          "requires": "mvmAI instalado e configurado, com sua API de aplicativo habilitada em Apps Hub → Configurações → APIs de aplicativos. A opção fica desativada por padrão."
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "ru": {
+      "short_description": "Видеотека в браузере для фильмов, сериалов и личных записей с субтитрами и индивидуальным прогрессом просмотра.",
+      "tagline": "Ваши видео в одном привычном месте.",
+      "description": "mvmPlayer позволяет смотреть фильмы, сериалы, уроки и личные записи на рабочем столе mvmOS и на странице Apps Hub в браузере. У каждого профиля свой прогресс просмотра, избранное, история и коллекции.\n\nПапки видеотеки\nВыберите папку на этом сервере или папку с общим доступом на другом mvmOS. Видео остаются на своих местах; сканирование вручную или по расписанию находит файлы, распознаёт годы выпуска фильмов и номера эпизодов, а также считывает субтитры SRT или WebVTT рядом с видео. Видео из общих папок воспроизводятся напрямую с сервера, предоставившего доступ. Отдельный файл можно открыть из Файлового менеджера без импорта.\n\nСведения и обложки\nОткройте сериал, чтобы найти сведения о нём в интернете, выбирая из сезонов и эпизодов, которые у вас действительно есть. Сведения о сериале и его обложка сохраняются один раз и отображаются у всех эпизодов без собственного изображения, а для новых эпизодов уже распознанных сериалов сведения заполняются автоматически. У фильмов есть отдельная кнопка поиска, и сведения о них никогда не заполняются автоматически, чтобы исключить ошибочные совпадения.\n\nСубтитры\nСразу после открытия фильма проигрыватель показывает список субтитров, встроенных в видео MKV и WebM, в том числе для фильмов в общей папке на другом mvmOS. Выберите субтитры, и браузер прочитает их напрямую из места хранения фильма, показывая индикатор выполнения: через сервер mvmOS ничего не проходит. Проигрыватель также выбирает субтитры на вашем языке и поддерживает загрузку файла субтитров с вашего устройства. Для воспроизведения используются кодеки браузера без перекодирования.\n\nSimkl\nЕсли администратор предоставил общий идентификатор клиента Simkl через ключи сервисов Apps Hub, каждый профиль может подключить собственную учётную запись Simkl. Просматривайте популярные фильмы и сериалы, историю просмотров и запланированные к просмотру сериалы, изучайте сезоны, отмечайте эпизоды или сезоны как просмотренные и передавайте сведения о досмотренных видео в эту учётную запись.\n\nДополнительный перевод субтитров\nPremium добавляет перевод субтитров через настроенный mvmAI. Выберите любые доступные субтитры, внешние или встроенные в видео, и язык перевода; для встроенных субтитров браузер сначала считывает текст и отправляет на перевод только его. Администратор включает эту возможность, зрители проверяют стоимость в кредитах, а готовые переводы появляются в списке доступных субтитров. Обычная видеотека и существующие субтитры работают и без этой возможности.",
+      "capabilities": [
+        "Интерфейс на рабочем столе и адаптивный интерфейс Apps Hub с общей видеотекой.",
+        "Папки видеотеки на сервере и подключённые общие папки, сканирование вручную или по расписанию и воспроизведение без копирования видео.",
+        "Загрузка в выбранную папку видеотеки через общий загрузчик.",
+        "Распознавание годов выпуска фильмов, сериалов, сезонов и эпизодов по именам файлов и папок.",
+        "Индивидуальный прогресс просмотра, отметки о завершении, избранное и личные коллекции.",
+        "Воспроизведение в браузере с перемоткой, регулировкой скорости, полноэкранным режимом, режимом «картинка в картинке» и автоматическим переходом к следующему эпизоду.",
+        "Обнаружение файлов субтитров SRT и WebVTT рядом с видео, встроенные субтитры в видео MKV и WebM, выбор предпочитаемого языка и локальные файлы субтитров.",
+        "Поиск сведений о сериалах и фильмах в интернете с выбором сезона и эпизода, общей обложкой сериала для эпизодов и автоматическим заполнением сведений для уже распознанных сериалов.",
+        "Дополнительное подключение учётной записи Simkl, популярные фильмы и сериалы, личная история, запланированные к просмотру сериалы и управление отметками о просмотре эпизодов или сезонов.",
+        "Открытие видео напрямую из Файлового менеджера в существующем проигрывателе.",
+        "Не требуются перекодирование, установка FFmpeg или отдельный медиасервер."
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 или новее.",
+        "Браузер с поддержкой контейнера видео и аудио- и видеокодеков.",
+        "Для функций Simkl требуется идентификатор клиента Simkl, предоставленный администратором; для личной истории и управления отметками о просмотре также необходимо подключить свою учётную запись Simkl."
+      ],
+      "integrations": [
+        {
+          "summary": "Переводит текст субтитров на выбранный язык с сохранением временных меток. Эта дополнительная функция требует Premium и включения администратором.",
+          "requires": "Установленный и настроенный mvmAI с включённым API приложения в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен."
+        }
+      ],
+      "name": "mvmPlayer"
+    },
+    "zh-CN": {
+      "short_description": "基于浏览器的视频库，支持电影、剧集和个人录像，提供字幕和独立的观看进度。",
+      "tagline": "你的视频，尽在熟悉的一处。",
+      "description": "mvmPlayer 将电影、剧集、课程和个人录像带到 mvmOS 桌面和 Apps Hub 浏览器页面。每个个人资料都保有独立的观看进度、收藏、历史记录和合集。\n\n视频库文件夹\n选择此服务器上的文件夹，或其他 mvmOS 共享的文件夹。视频保留在原处；手动或定时扫描会查找文件、识别电影年份和集数，并读取视频旁的 SRT 或 WebVTT 字幕。共享视频直接从提供共享的服务器播放。也可以从文件管理器打开单个文件，无需导入。\n\n详情和封面\n打开一部剧集，即可在线查询其详情，并从你实际拥有的季和集中进行选择。剧集信息和封面只保存一份，并显示在所有没有独立图片的分集中；对于已识别的剧集，新增分集会自动补全信息。电影有单独的查询按钮，绝不会自动补全信息，避免意外匹配错误。\n\n字幕\n影片一打开，播放器就会列出 MKV 和 WebM 视频内嵌的字幕，包括其他 mvmOS 共享文件夹中的影片。选择字幕后，浏览器会直接从影片存储位置读取，并显示进度，因此数据不会经过 mvmOS 服务器。播放器还会选择符合你语言偏好的字幕，并支持从你的设备加载字幕文件。播放使用浏览器的编解码器，无需转码。\n\nSimkl\n管理员通过 Apps Hub 服务密钥共享 Simkl 客户端 ID 后，每个个人资料都可以连接自己的 Simkl 账号。你可以浏览热门影片和剧集、观看历史及计划观看的节目，查看各季内容，将分集或整季标记为已观看，并将已看完的视频上报到该账号。\n\n可选字幕翻译\nPremium 可通过你配置的 mvmAI 提供字幕翻译。选择任意可用字幕，无论是外部字幕还是视频内嵌字幕，然后选择目标语言；对于视频内嵌字幕，浏览器会先读取文本，并仅发送文本进行翻译。管理员启用此功能后，观看者可查看点数报价，完成的译文会成为可选字幕。普通视频库和现有字幕无需此功能也能正常使用。",
+      "capabilities": [
+        "桌面界面和自适应 Apps Hub 界面共用一个视频库。",
+        "支持服务器本地及已连接的共享视频库文件夹、手动或定时扫描，无需复制视频即可播放。",
+        "通过共用上传器将文件上传到选定的视频库文件夹。",
+        "根据文件名和文件夹识别电影年份、剧集、季和集。",
+        "独立的观看进度、看完状态、收藏和个人合集。",
+        "浏览器播放，支持跳转、倍速、全屏、画中画和自动播放下一集。",
+        "检测同目录下的 SRT 和 WebVTT 字幕，支持 MKV 和 WebM 视频内嵌字幕、首选语言选择及本地字幕文件。",
+        "在线查询剧集和电影，支持选择季和集、分集共用剧集封面，以及自动补全已识别剧集的信息。",
+        "可选连接 Simkl 账号，支持热门影片和剧集、个人历史记录、计划观看的节目，以及分集或整季的已观看状态操作。",
+        "从文件管理器直接在现有播放器中打开视频。",
+        "无需转码、安装 FFmpeg 或使用独立媒体服务器。"
+      ],
+      "requirements": [
+        "mvmOS 1.22.1 或更高版本。",
+        "支持相应视频封装格式和音视频编解码器的浏览器。",
+        "Simkl 功能需要管理员共享的 Simkl 客户端 ID；个人历史记录和已观看状态操作还需要连接你的 Simkl 账号。"
+      ],
+      "integrations": [
+        {
+          "summary": "将字幕文本翻译成所选语言，同时保留时间信息。此可选功能需要 Premium，并由管理员启用。",
+          "requires": "已安装并配置 mvmAI，且已在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭。"
+        }
+      ],
+      "name": "mvmPlayer"
+    }
+  }
 }

@@ -13,5 +13,159 @@
   ],
   "requirements": [
     "A reachable database server and credentials for it. YourSQL does not install one for you."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Datenbankverwaltung für MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL und Greenplum – Datenbanken durchsuchen, Daten bearbeiten, Abfragen ausführen sowie Daten importieren und exportieren.",
+      "tagline": "Ein Datenbank-Client für sechs Datenbanksysteme in einem Browser-Tab.",
+      "description": "YourSQL verbindet sich mit MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL und Greenplum und bietet für jede Verbindung die erwarteten Werkzeuge: Datenbanken und Tabellen durchsuchen, Zeilen lesen und bearbeiten, Strukturen ändern und SQL ausführen.\n\nDie Tabellenansicht kann mehr als nur Daten anzeigen. Du kannst Spalten filtern, sortieren, durch große Tabellen blättern, eine Zeile in einem Formular bearbeiten, viele Zeilen gemeinsam bearbeiten und die angezeigten Daten exportieren. Für Strukturänderungen – das Erstellen von Tabellen, das Hinzufügen und Ändern von Spalten, Indizes, Zeichensätzen und Sortierregeln – gibt es eine eigene Oberfläche. Alles, was darüber nicht möglich ist, kannst du im SQL-Editor mit Syntaxhervorhebung eingeben.\n\nMehrere Verbindungen bleiben gleichzeitig in Tabs geöffnet. So wechselst du mit einem Klick zwischen einer Staging- und einer Produktionsdatenbank.",
+      "capabilities": [
+        "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) und Greenplum.",
+        "Mehrere gespeicherte Verbindungen, nebeneinander in Tabs geöffnet.",
+        "Datenbanken und Tabellen über eine Baumansicht in der Seitenleiste durchsuchen.",
+        "Tabellendaten filtern, sortieren, seitenweise anzeigen und durchsuchen.",
+        "Eine Zeile in einem Formular oder viele Zeilen gemeinsam bearbeiten.",
+        "Tabellen erstellen, Spalten hinzufügen und ändern sowie Datentypen, Zeichensätze, Sortierregeln und Indizes festlegen.",
+        "SQL-Editor mit Syntaxhervorhebung und tabellarischer Ergebnisanzeige.",
+        "Daten importieren und exportieren."
+      ],
+      "requirements": [
+        "Ein erreichbarer Datenbankserver und die zugehörigen Zugangsdaten. YourSQL installiert keinen Datenbankserver für dich."
+      ],
+      "name": "YourSQL"
+    },
+    "bg": {
+      "short_description": "Инструмент за управление на бази данни MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL и Greenplum — преглеждайте бази данни, редактирайте данни, изпълнявайте заявки, импортирайте и експортирайте.",
+      "tagline": "Клиент за шест системи за бази данни в раздел на браузъра.",
+      "description": "YourSQL се свързва с MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL и Greenplum и предоставя за всяка връзка очакваните инструменти: преглед на бази данни и таблици, четене и редактиране на редове, промяна на структурата и изпълнение на SQL.\n\nПрегледът не е просто таблица само за четене. Можете да филтрирате колони, да сортирате, да прелиствате големи таблици, да редактирате ред във формуляр, да редактирате множество редове наведнъж и да експортирате това, което разглеждате. Работата със структурата — създаване на таблици, добавяне и промяна на колони, индекси, набори от знаци и правила за сравнение — има собствен интерфейс, а всичко, което интерфейсът не може да направи, можете да въведете в SQL редактора с оцветяване на синтаксиса.\n\nНяколко връзки могат да останат отворени едновременно в раздели, така че преминаването между тестова и производствена база данни става с едно щракване.",
+      "capabilities": [
+        "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) и Greenplum.",
+        "Няколко запазени връзки, отворени една до друга в раздели.",
+        "Преглед на бази данни и таблици чрез дървовидна структура в страничната лента.",
+        "Филтриране, сортиране, прелистване и търсене в данните на таблиците.",
+        "Редактиране на ред във формуляр или на множество редове наведнъж.",
+        "Създаване на таблици, добавяне и промяна на колони, задаване на типове, набори от знаци, правила за сравнение и индекси.",
+        "SQL редактор с оцветяване на синтаксиса и табличен изглед на резултатите.",
+        "Импортиране и експортиране на данни."
+      ],
+      "requirements": [
+        "Достъпен сървър за бази данни и данни за достъп до него. YourSQL не инсталира такъв вместо вас."
+      ],
+      "name": "YourSQL"
+    },
+    "es": {
+      "short_description": "Gestor de bases de datos MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL y Greenplum: explora bases de datos, edita datos, ejecuta consultas, importa y exporta.",
+      "tagline": "Un cliente de bases de datos para seis motores, en una pestaña del navegador.",
+      "description": "YourSQL se conecta a MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL y Greenplum, y ofrece en cada conexión las herramientas que esperas: explorar bases de datos y tablas, leer y editar filas, modificar la estructura y ejecutar SQL.\n\nLa exploración no se limita a una cuadrícula de solo lectura. Puedes filtrar columnas, ordenar, recorrer tablas grandes por páginas, editar una fila en un formulario, editar muchas filas en bloque y exportar lo que estás viendo. El trabajo con la estructura —crear tablas, añadir y modificar columnas, índices, juegos de caracteres y reglas de intercalación— tiene su propia interfaz, y todo lo que esta no permita hacer puedes escribirlo en el editor SQL con resaltado de sintaxis.\n\nVarias conexiones permanecen abiertas a la vez en pestañas, por lo que pasar de una base de datos de preproducción a una de producción solo requiere un clic.",
+      "capabilities": [
+        "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) y Greenplum.",
+        "Varias conexiones guardadas, abiertas en pestañas una junto a otra.",
+        "Explora bases de datos y tablas con un árbol en la barra lateral.",
+        "Filtra, ordena, pagina y busca datos de tablas.",
+        "Edita una fila en un formulario o muchas filas en bloque.",
+        "Crea tablas, añade y modifica columnas y establece tipos, juegos de caracteres, reglas de intercalación e índices.",
+        "Editor SQL con resaltado de sintaxis y cuadrículas de resultados.",
+        "Importa y exporta datos."
+      ],
+      "requirements": [
+        "Un servidor de bases de datos accesible y sus credenciales. YourSQL no instala uno por ti."
+      ],
+      "name": "YourSQL"
+    },
+    "fr": {
+      "short_description": "Gestionnaire de bases de données MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL et Greenplum : parcourez les bases, modifiez les données, exécutez des requêtes, importez et exportez.",
+      "tagline": "Un client de bases de données pour six moteurs, dans un onglet de navigateur.",
+      "description": "YourSQL se connecte à MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL et Greenplum, et fournit pour chaque connexion les outils attendus : parcourir les bases de données et les tables, lire et modifier les lignes, modifier la structure et exécuter du SQL.\n\nLa consultation ne se limite pas à une grille en lecture seule. Vous pouvez filtrer les colonnes, trier, parcourir les pages de grandes tables, modifier une ligne dans un formulaire, modifier plusieurs lignes en bloc et exporter les données affichées. Les opérations sur la structure — création de tables, ajout et modification de colonnes, d’index, de jeux de caractères et de classements — disposent de leur propre interface. Tout ce que l’interface ne permet pas peut être saisi dans l’éditeur SQL avec coloration syntaxique.\n\nPlusieurs connexions restent ouvertes simultanément dans des onglets, pour passer d’une base de préproduction à une base de production en un clic.",
+      "capabilities": [
+        "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) et Greenplum.",
+        "Plusieurs connexions enregistrées, ouvertes côte à côte dans des onglets.",
+        "Parcourez les bases de données et les tables dans une arborescence latérale.",
+        "Filtrez, triez, parcourez les pages et recherchez dans les données des tables.",
+        "Modifiez une ligne dans un formulaire ou plusieurs lignes en bloc.",
+        "Créez des tables, ajoutez et modifiez des colonnes, définissez les types, les jeux de caractères, les classements et les index.",
+        "Éditeur SQL avec coloration syntaxique et grilles de résultats.",
+        "Importez et exportez des données."
+      ],
+      "requirements": [
+        "Un serveur de base de données accessible et ses identifiants de connexion. YourSQL n’en installe pas pour vous."
+      ],
+      "name": "YourSQL"
+    },
+    "ja": {
+      "short_description": "MySQL、MariaDB、PostgreSQL、CockroachDB、Google Cloud SQL、Greenplumに対応したデータベース管理ツール。データベースの閲覧、データの編集、クエリの実行、インポートとエクスポートができます。",
+      "tagline": "ブラウザーのタブで使える、6種類のエンジンに対応したデータベースクライアント。",
+      "description": "YourSQLはMySQL、MariaDB、PostgreSQL、CockroachDB、Google Cloud SQL、Greenplumに接続し、各接続で必要なツールを提供します。データベースとテーブルの閲覧、行の参照と編集、構造の変更、SQLの実行ができます。\n\n閲覧画面は、読み取り専用のグリッドにとどまりません。列のフィルタリング、並べ替え、大きなテーブルのページ送り、フォームでの行編集、複数行の一括編集、表示中のデータのエクスポートができます。テーブルの作成、列の追加や変更、インデックス、文字セット、照合順序といった構造の操作には専用のUIがあり、UIでできないことは構文ハイライト付きのSQLエディターに入力して実行できます。\n\n複数の接続を同時にタブで開いておけるため、ステージング用と本番用のデータベースもクリックひとつで切り替えられます。",
+      "capabilities": [
+        "MySQL、MariaDB、PostgreSQL、CockroachDB、Google Cloud SQL（PostgreSQL）、Greenplumに対応。",
+        "保存した複数の接続を、タブで並べて開けます。",
+        "サイドバーのツリーからデータベースとテーブルを閲覧できます。",
+        "テーブルデータのフィルタリング、並べ替え、ページ送り、検索ができます。",
+        "フォームで1行を編集したり、複数行を一括編集したりできます。",
+        "テーブルの作成、列の追加や変更、型、文字セット、照合順序、インデックスの設定ができます。",
+        "構文ハイライトと結果グリッドを備えたSQLエディター。",
+        "データのインポートとエクスポート。"
+      ],
+      "requirements": [
+        "接続可能なデータベースサーバーと、その認証情報が必要です。YourSQLはデータベースサーバーをインストールしません。"
+      ],
+      "name": "YourSQL"
+    },
+    "pt-BR": {
+      "short_description": "Gerenciador de bancos de dados MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL e Greenplum — explore bancos de dados, edite dados, execute consultas, importe e exporte.",
+      "tagline": "Um cliente de banco de dados para seis mecanismos, em uma aba do navegador.",
+      "description": "O YourSQL se conecta a MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL e Greenplum e oferece, para cada conexão, as ferramentas que você espera: explorar bancos de dados e tabelas, ler e editar linhas, alterar a estrutura e executar SQL.\n\nA navegação vai além de uma grade somente leitura. Você pode filtrar colunas, ordenar, percorrer páginas de tabelas grandes, editar uma linha em um formulário, editar várias linhas em lote e exportar o que está visualizando. O trabalho com a estrutura — criar tabelas, adicionar e alterar colunas, índices, conjuntos de caracteres e regras de ordenação — tem uma interface própria, e tudo o que a interface não faz pode ser digitado no editor SQL com realce de sintaxe.\n\nVárias conexões ficam abertas em abas ao mesmo tempo, então basta um clique para alternar entre um banco de dados de homologação e um de produção.",
+      "capabilities": [
+        "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) e Greenplum.",
+        "Várias conexões salvas, abertas lado a lado em abas.",
+        "Explore bancos de dados e tabelas com uma árvore na barra lateral.",
+        "Filtre, ordene, percorra páginas e pesquise dados de tabelas.",
+        "Edite uma linha em um formulário ou várias linhas em lote.",
+        "Crie tabelas, adicione e altere colunas, defina tipos, conjuntos de caracteres, regras de ordenação e índices.",
+        "Editor SQL com realce de sintaxe e grades de resultados.",
+        "Importe e exporte dados."
+      ],
+      "requirements": [
+        "Um servidor de banco de dados acessível e as credenciais para acessá-lo. O YourSQL não instala um para você."
+      ],
+      "name": "YourSQL"
+    },
+    "ru": {
+      "short_description": "Менеджер баз данных MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL и Greenplum: просмотр баз данных, редактирование данных, выполнение запросов, импорт и экспорт.",
+      "tagline": "Клиент для шести СУБД во вкладке браузера.",
+      "description": "YourSQL подключается к MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL и Greenplum и предоставляет для каждого подключения привычные инструменты: просмотр баз данных и таблиц, чтение и редактирование строк, изменение структуры и выполнение SQL.\n\nПросмотр данных не ограничивается таблицей только для чтения. Вы можете фильтровать столбцы, сортировать данные, постранично просматривать большие таблицы, редактировать строку в форме, массово изменять строки и экспортировать просматриваемые данные. Для работы со структурой — создания таблиц, добавления и изменения столбцов, индексов, кодировок и правил сравнения — предусмотрен отдельный интерфейс, а всё, чего он не позволяет сделать, можно написать в SQL-редакторе с подсветкой синтаксиса.\n\nНесколько подключений могут быть одновременно открыты во вкладках, поэтому переключение между тестовой и рабочей базами данных занимает один щелчок.",
+      "capabilities": [
+        "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL (PostgreSQL) и Greenplum.",
+        "Несколько сохранённых подключений, открытых рядом во вкладках.",
+        "Просмотр баз данных и таблиц с помощью дерева в боковой панели.",
+        "Фильтрация, сортировка, постраничный просмотр и поиск данных в таблицах.",
+        "Редактирование строки в форме или массовое изменение множества строк.",
+        "Создание таблиц, добавление и изменение столбцов, настройка типов, кодировок, правил сравнения и индексов.",
+        "SQL-редактор с подсветкой синтаксиса и табличным отображением результатов.",
+        "Импорт и экспорт данных."
+      ],
+      "requirements": [
+        "Доступный сервер базы данных и учётные данные для подключения к нему. YourSQL не устанавливает сервер базы данных."
+      ],
+      "name": "YourSQL"
+    },
+    "zh-CN": {
+      "short_description": "MySQL、MariaDB、PostgreSQL、CockroachDB、Google Cloud SQL 和 Greenplum 数据库管理工具，可浏览数据库、编辑数据、运行查询以及导入和导出。",
+      "tagline": "在浏览器标签页中使用的数据库客户端，支持六种引擎。",
+      "description": "YourSQL 可连接 MySQL、MariaDB、PostgreSQL、CockroachDB、Google Cloud SQL 和 Greenplum，并为每个连接提供你所需的工具：浏览数据库和表、读取和编辑行、修改结构，以及运行 SQL。\n\n浏览功能不只是只读表格。你可以筛选列、排序、分页浏览大型表、在表单中编辑行、批量编辑多行，以及导出当前查看的内容。结构操作有专用界面，支持创建表、添加和修改列、索引、字符集及排序规则；界面无法完成的操作，都可以在支持语法高亮的 SQL 编辑器中输入执行。\n\n多个连接可同时在不同标签页中保持打开，只需单击即可在预发布数据库和生产数据库之间切换。",
+      "capabilities": [
+        "支持 MySQL、MariaDB、PostgreSQL、CockroachDB、Google Cloud SQL（PostgreSQL）和 Greenplum。",
+        "保存多个连接，并在标签页中并排打开。",
+        "通过侧边栏树状结构浏览数据库和表。",
+        "对表数据进行筛选、排序、分页和搜索。",
+        "在表单中编辑单行，或批量编辑多行。",
+        "创建表、添加和修改列，以及设置类型、字符集、排序规则和索引。",
+        "带有语法高亮和结果表格的 SQL 编辑器。",
+        "导入和导出数据。"
+      ],
+      "requirements": [
+        "需要可访问的数据库服务器及其登录凭据。YourSQL 不会为你安装数据库服务器。"
+      ],
+      "name": "YourSQL"
+    }
+  }
 }

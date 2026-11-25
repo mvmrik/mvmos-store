@@ -20,5 +20,183 @@
       "summary": "The Translate button sends the article to the free DeepL Translator app, using the DeepL API key that reader entered there themselves — never a key shared across the whole server. Turning the integration off in Settings removes the button; the reader works exactly as before.",
       "requires": "Premium, and the free DeepL Translator app with each reader's own DeepL API key."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Четец на RSS/Atom емисии с автоматично обновяване, проследяване на прочетеното и непрочетеното и възможност за публичен списък за четене.",
+      "tagline": "Вашите емисии, изтегляни по график и достъпни за четене отвсякъде.",
+      "description": "RSS четецът ви позволява да се абонирате за RSS и Atom емисии и ги изтегля във фонов режим през избран от вас интервал — от всеки пет минути до веднъж дневно. Статиите се отбелязват като прочетени и непрочетени, могат да се филтрират по емисия и състояние и се отварят в изчистен изглед за четене с връзка към оригинала.\n\nПри включена интеграция с DeepL в Premium всяка статия получава бутон „Превод“ с едно щракване, който използва безплатното приложение DeepL Translator. Всеки читател въвежда в него собствен API ключ за DeepL, така че преводът винаги използва личната му квота вместо един общ ключ за сървъра.\n\nСписъкът ви за четене може да бъде публикуван и като публична страница.",
+      "capabilities": [
+        "Абониране за всяка RSS или Atom емисия.",
+        "Изтегляне във фонов режим през интервал от 5 минути до 24 часа, изпълнявано от планировчика на mvmOS.",
+        "Проследяване на прочетеното и непрочетеното, отбелязване на всичко като прочетено и филтриране по емисия или състояние.",
+        "Изглед за четене с връзка към оригиналната статия.",
+        "Premium: бутон за превод с DeepL с едно щракване във всяка статия, който използва собствения API ключ за DeepL на всеки читател.",
+        "Състояние на изтеглянето и час на последното изтегляне за всяка емисия с показване на грешките.",
+        "Възможност за публичен списък за четене със собствен URL адрес.",
+        "Пълен превод на приложението и публичния му списък за четене на всичките девет поддържани езика."
+      ],
+      "integrations": [
+        {
+          "summary": "Бутонът „Превод“ изпраща статията към безплатното приложение DeepL Translator, като използва API ключа за DeepL, който читателят лично е въвел там — никога ключ, споделен от целия сървър. Изключването на интеграцията в „Настройки“ премахва бутона; четецът работи точно както преди.",
+          "requires": "Premium и безплатното приложение DeepL Translator със собствен API ключ за DeepL за всеки читател."
+        }
+      ],
+      "name": "RSS четец"
+    },
+    "de": {
+      "short_description": "RSS-/Atom-Feedreader mit automatischer Aktualisierung, Kennzeichnung gelesener und ungelesener Artikel und optionaler öffentlicher Leseliste.",
+      "tagline": "Ihre Feeds, nach Zeitplan abgerufen und überall lesbar.",
+      "description": "Der RSS-Reader abonniert RSS- und Atom-Feeds und ruft sie im Hintergrund in einem von Ihnen gewählten Intervall ab — von alle fünf Minuten bis einmal täglich. Artikel werden als gelesen oder ungelesen erfasst, lassen sich nach Feed und Status filtern und öffnen sich in einer übersichtlichen Leseansicht mit einem Link zum Original.\n\nWenn die DeepL-Integration mit Premium aktiviert ist, erhält jeder Artikel eine Schaltfläche zum Übersetzen mit einem Klick, die von der kostenlosen App DeepL-Übersetzer bereitgestellt wird. Jeder Leser hinterlegt dort seinen eigenen DeepL-API-Schlüssel. So wird für Übersetzungen immer das eigene Kontingent des jeweiligen Lesers verwendet und kein gemeinsam genutzter Serverschlüssel.\n\nIhre Leseliste kann auch als öffentliche Seite veröffentlicht werden.",
+      "capabilities": [
+        "Beliebige RSS- oder Atom-Feeds abonnieren.",
+        "Abruf im Hintergrund in Intervallen von 5 Minuten bis 24 Stunden, ausgeführt durch die mvmOS-Aufgabenplanung.",
+        "Kennzeichnung als gelesen oder ungelesen, alle Artikel als gelesen markieren und nach Feed oder Status filtern.",
+        "Leseansicht mit einem Link zum Originalartikel.",
+        "Premium: DeepL-Schaltfläche zum Übersetzen jedes Artikels mit einem Klick unter Verwendung des eigenen DeepL-API-Schlüssels des jeweiligen Lesers.",
+        "Abrufstatus und Zeitpunkt des letzten Abrufs für jeden Feed mit Anzeige von Fehlern.",
+        "Optionale öffentliche Leseliste mit eigener URL.",
+        "Vollständige Übersetzungen der App und ihrer öffentlichen Leseliste in alle neun unterstützten Sprachen."
+      ],
+      "integrations": [
+        {
+          "summary": "Die Schaltfläche „Übersetzen“ sendet den Artikel an die kostenlose App DeepL-Übersetzer und verwendet dabei den DeepL-API-Schlüssel, den der jeweilige Leser dort selbst hinterlegt hat — niemals einen auf dem gesamten Server gemeinsam genutzten Schlüssel. Wenn Sie die Integration in den Einstellungen deaktivieren, wird die Schaltfläche entfernt; der Reader funktioniert wie zuvor.",
+          "requires": "Premium und die kostenlose App DeepL-Übersetzer mit dem eigenen DeepL-API-Schlüssel jedes Lesers."
+        }
+      ],
+      "name": "RSS-Reader"
+    },
+    "es": {
+      "short_description": "Lector de fuentes RSS/Atom con actualización automática, seguimiento de artículos leídos y no leídos, y una lista de lectura pública opcional.",
+      "tagline": "Tus fuentes, actualizadas de forma programada y disponibles para leer en cualquier lugar.",
+      "description": "Lector RSS permite suscribirse a fuentes RSS y Atom y las actualiza en segundo plano con el intervalo que elijas, desde cada cinco minutos hasta una vez al día. Los artículos se registran como leídos o no leídos, se pueden filtrar por fuente y estado, y se abren en una vista de lectura despejada con un enlace al original.\n\nAl activar la integración Premium con DeepL, cada artículo incluye un botón Traducir con un solo clic, que utiliza la aplicación gratuita Traductor de DeepL. Cada lector introduce allí su propia clave de API de DeepL, de modo que las traducciones siempre consumen la cuota de ese lector en lugar de utilizar una única clave compartida en el servidor.\n\nTu lista de lectura también se puede publicar como página pública.",
+      "capabilities": [
+        "Suscripción a cualquier fuente RSS o Atom.",
+        "Actualización en segundo plano con intervalos de entre 5 minutos y 24 horas, ejecutada por el programador de tareas de mvmOS.",
+        "Seguimiento de artículos leídos y no leídos, opción para marcarlos todos como leídos y filtrado por fuente o estado.",
+        "Vista de lectura con un enlace al artículo original.",
+        "Premium: botón de traducción con DeepL con un solo clic en cada artículo, utilizando la clave de API de DeepL de cada lector.",
+        "Estado de actualización y hora de la última actualización de cada fuente, con los errores visibles.",
+        "Lista de lectura pública opcional con su propia URL.",
+        "Traducciones completas de la aplicación y de su lista de lectura pública a los nueve idiomas disponibles."
+      ],
+      "integrations": [
+        {
+          "summary": "El botón Traducir envía el artículo a la aplicación gratuita Traductor de DeepL utilizando la clave de API de DeepL que el propio lector haya introducido allí, nunca una clave compartida por todo el servidor. Al desactivar la integración en Ajustes, se elimina el botón; el lector sigue funcionando exactamente como antes.",
+          "requires": "Premium y la aplicación gratuita Traductor de DeepL con la clave de API de DeepL de cada lector."
+        }
+      ],
+      "name": "Lector RSS"
+    },
+    "fr": {
+      "short_description": "Lecteur de flux RSS/Atom avec actualisation automatique, suivi des articles lus et non lus, et liste de lecture publique facultative.",
+      "tagline": "Vos flux, récupérés à intervalles réguliers, lisibles partout.",
+      "description": "Lecteur RSS permet de s’abonner à des flux RSS et Atom et récupère leur contenu en arrière-plan à l’intervalle de votre choix, de toutes les cinq minutes à une fois par jour. Les articles sont suivis comme lus ou non lus, peuvent être filtrés par flux et par statut, et s’ouvrent dans une vue de lecture épurée avec un lien vers l’original.\n\nLorsque l’intégration Premium de DeepL est activée, chaque article dispose d’un bouton Traduire en un clic, qui utilise l’application gratuite Traducteur DeepL. Chaque lecteur y saisit sa propre clé API DeepL : la traduction utilise donc toujours son quota personnel, plutôt qu’une clé unique partagée sur le serveur.\n\nVotre liste de lecture peut également être publiée sous forme de page publique.",
+      "capabilities": [
+        "Abonnement à n’importe quel flux RSS ou Atom.",
+        "Récupération en arrière-plan à un intervalle de 5 minutes à 24 heures, exécutée par le planificateur mvmOS.",
+        "Suivi des articles lus et non lus, possibilité de tout marquer comme lu et filtrage par flux ou par statut.",
+        "Vue de lecture avec un lien vers l’article original.",
+        "Premium : bouton de traduction DeepL en un clic sur chaque article, utilisant la clé API DeepL personnelle de chaque lecteur.",
+        "État de récupération et date de dernière récupération pour chaque flux, avec signalement des erreurs.",
+        "Liste de lecture publique facultative avec sa propre URL.",
+        "Traduction intégrale de l’application et de sa liste de lecture publique dans les neuf langues prises en charge."
+      ],
+      "integrations": [
+        {
+          "summary": "Le bouton Traduire envoie l’article à l’application gratuite Traducteur DeepL, en utilisant la clé API DeepL que le lecteur y a lui-même saisie — jamais une clé partagée par l’ensemble du serveur. Désactiver l’intégration dans les paramètres supprime le bouton ; le lecteur fonctionne exactement comme auparavant.",
+          "requires": "Premium et l’application gratuite Traducteur DeepL, avec une clé API DeepL personnelle pour chaque lecteur."
+        }
+      ],
+      "name": "Lecteur RSS"
+    },
+    "ja": {
+      "short_description": "自動更新、既読・未読管理、任意で公開できるリーディングリストを備えたRSS/Atomフィードリーダー。",
+      "tagline": "指定した間隔でフィードを取得し、どこからでも閲覧。",
+      "description": "RSSリーダーでは、RSSとAtomのフィードを購読し、5分ごとから1日1回まで、指定した間隔でバックグラウンド取得できます。記事は既読・未読で管理され、フィードや状態で絞り込めます。記事を開くと、元の記事へのリンクを備えた読みやすいリーダー表示になります。\n\nPremiumのDeepL連携を有効にすると、無料のDeepL翻訳アプリを利用した、ワンクリックの翻訳ボタンがすべての記事に表示されます。閲覧者はそのアプリに自分のDeepL APIキーを入力するため、翻訳には常に閲覧者自身の利用枠が使われ、サーバー共通のキーは使われません。\n\nリーディングリストは公開ページとして公開することもできます。",
+      "capabilities": [
+        "あらゆるRSSまたはAtomフィードを購読。",
+        "mvmOSスケジューラにより、5分から24時間の間隔でバックグラウンド取得。",
+        "既読・未読管理、すべて既読にする操作、フィードや状態による絞り込み。",
+        "元の記事へのリンクを備えたリーダー表示。",
+        "Premium：閲覧者自身のDeepL APIキーを使用する、各記事のワンクリックDeepL翻訳ボタン。",
+        "フィードごとの取得状況と最終取得時刻を表示し、エラーも通知。",
+        "専用URLを持つ、任意で公開できるリーディングリスト。",
+        "アプリと公開リーディングリストを、対応する全9言語に完全翻訳。"
+      ],
+      "integrations": [
+        {
+          "summary": "翻訳ボタンは、閲覧者が無料のDeepL翻訳アプリに自分で入力したDeepL APIキーを使って、記事をそのアプリに送信します。サーバー全体で共有するキーは一切使いません。設定で連携をオフにするとボタンは表示されなくなり、リーダーは従来どおりに動作します。",
+          "requires": "Premiumと、閲覧者自身のDeepL APIキーを設定した無料のDeepL翻訳アプリが必要です。"
+        }
+      ],
+      "name": "RSSリーダー"
+    },
+    "pt-BR": {
+      "short_description": "Leitor de feeds RSS/Atom com atualização automática, controle de artigos lidos e não lidos e lista de leitura pública opcional.",
+      "tagline": "Seus feeds, atualizados em horários programados e disponíveis para leitura em qualquer lugar.",
+      "description": "O Leitor RSS permite assinar feeds RSS e Atom e busca atualizações em segundo plano no intervalo que você escolher, de cinco em cinco minutos a uma vez por dia. Os artigos são marcados como lidos ou não lidos, podem ser filtrados por feed e status e abrem em uma visualização de leitura limpa, com um link para o original.\n\nCom a integração Premium com o DeepL ativada, cada artigo recebe um botão Traduzir de um clique, oferecido pelo aplicativo gratuito Tradutor DeepL. Cada leitor insere sua própria chave de API do DeepL nesse aplicativo, para que a tradução sempre use a cota do próprio leitor em vez de uma única chave compartilhada pelo servidor.\n\nSua lista de leitura também pode ser publicada como uma página pública.",
+      "capabilities": [
+        "Assine qualquer feed RSS ou Atom.",
+        "Busca em segundo plano em intervalos de 5 minutos a 24 horas, executada pelo agendador do mvmOS.",
+        "Controle de artigos lidos e não lidos, opção de marcar todos como lidos e filtros por feed ou status.",
+        "Visualização de leitura com link para o artigo original.",
+        "Premium: botão de tradução com DeepL de um clique em cada artigo, usando a chave de API do DeepL de cada leitor.",
+        "Status de busca e horário da última busca por feed, com exibição de erros.",
+        "Lista de leitura pública opcional com URL própria.",
+        "Traduções completas do aplicativo e de sua lista de leitura pública nos nove idiomas disponíveis."
+      ],
+      "integrations": [
+        {
+          "summary": "O botão Traduzir envia o artigo para o aplicativo gratuito Tradutor DeepL, usando a chave de API do DeepL que o próprio leitor inseriu nele — nunca uma chave compartilhada por todo o servidor. Desativar a integração em Configurações remove o botão; o leitor continua funcionando exatamente como antes.",
+          "requires": "Premium e o aplicativo gratuito Tradutor DeepL com a chave de API do DeepL de cada leitor."
+        }
+      ],
+      "name": "Leitor RSS"
+    },
+    "ru": {
+      "short_description": "Приложение для чтения RSS/Atom с автообновлением, учётом прочитанных и непрочитанных статей и возможностью публикации списка чтения.",
+      "tagline": "Ваши ленты обновляются по расписанию и доступны для чтения где угодно.",
+      "description": "Приложение «Чтение RSS» позволяет подписываться на ленты RSS и Atom и загружает их в фоновом режиме с выбранным интервалом — от одного раза в пять минут до одного раза в день. Статьи отмечаются как прочитанные или непрочитанные, фильтруются по ленте и статусу и открываются в удобном режиме чтения со ссылкой на оригинал.\n\nПри включённой интеграции DeepL в Premium у каждой статьи появляется кнопка «Перевести», работающая через бесплатное приложение «Переводчик DeepL». Каждый читатель вводит там собственный ключ API DeepL, поэтому при переводе всегда расходуется его личная квота, а не квота единого серверного ключа.\n\nСписок чтения также можно опубликовать в виде общедоступной страницы.",
+      "capabilities": [
+        "Подписка на любые ленты RSS или Atom.",
+        "Фоновая загрузка с интервалом от 5 минут до 24 часов с помощью планировщика mvmOS.",
+        "Учёт прочитанных и непрочитанных статей, отметка всех статей как прочитанных и фильтрация по ленте или статусу.",
+        "Режим чтения со ссылкой на исходную статью.",
+        "Premium: кнопка перевода через DeepL одним нажатием у каждой статьи с использованием личного ключа API DeepL каждого читателя.",
+        "Статус и время последней загрузки для каждой ленты с отображением ошибок.",
+        "Возможность публикации списка чтения с собственным URL.",
+        "Полный перевод приложения и общедоступного списка чтения на все девять поддерживаемых языков."
+      ],
+      "integrations": [
+        {
+          "summary": "Кнопка «Перевести» отправляет статью в бесплатное приложение «Переводчик DeepL», используя ключ API DeepL, который читатель сам ввёл в этом приложении, — общий ключ сервера никогда не используется. При отключении интеграции в настройках кнопка исчезает; приложение для чтения продолжает работать как прежде.",
+          "requires": "Premium и бесплатное приложение «Переводчик DeepL» с личным ключом API DeepL каждого читателя."
+        }
+      ],
+      "name": "RSS-читалка"
+    },
+    "zh-CN": {
+      "short_description": "RSS/Atom 订阅阅读器，支持自动刷新、已读/未读状态跟踪，以及可选的公开阅读列表。",
+      "tagline": "定时获取您的订阅内容，随时随地阅读。",
+      "description": "RSS 阅读器可订阅 RSS 和 Atom 源，并按照您选择的间隔在后台获取内容，频率可设为每五分钟一次至每天一次。文章会记录已读和未读状态，可按订阅源和状态筛选，并在简洁的阅读视图中打开，同时提供原文链接。\n\n启用 Premium 的 DeepL 集成后，每篇文章都会显示由免费 DeepL 翻译器应用提供的一键翻译按钮。每位读者都需在该应用中输入自己的 DeepL API 密钥，因此翻译始终使用该读者自己的配额，而非服务器共用密钥的配额。\n\n您的阅读列表也可以发布为公开页面。",
+      "capabilities": [
+        "订阅任意 RSS 或 Atom 源。",
+        "由 mvmOS 调度程序执行后台获取，间隔可设为 5 分钟至 24 小时。",
+        "跟踪已读/未读状态、将全部标为已读，以及按订阅源或状态筛选。",
+        "提供带原文链接的阅读视图。",
+        "Premium：每篇文章均提供一键 DeepL 翻译按钮，使用各位读者自己的 DeepL API 密钥。",
+        "显示各订阅源的获取状态、上次获取时间和错误信息。",
+        "可选的公开阅读列表，拥有独立 URL。",
+        "应用及其公开阅读列表均完整翻译为全部九种受支持语言。"
+      ],
+      "integrations": [
+        {
+          "summary": "翻译按钮会将文章发送至免费的 DeepL 翻译器应用，使用该读者自行在其中输入的 DeepL API 密钥，绝不使用整台服务器共享的密钥。在设置中关闭此集成后，按钮将被移除；阅读器的使用方式与之前完全相同。",
+          "requires": "需要 Premium 和免费的 DeepL 翻译器应用，且每位读者须提供自己的 DeepL API 密钥。"
+        }
+      ],
+      "name": "RSS 阅读器"
+    }
+  }
 }

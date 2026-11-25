@@ -6,5 +6,87 @@
       "short": "Translate any available subtitle, even from a film on another server",
       "description": "Choose any available subtitle, whether a separate file or one stored inside the video, and translate it into one of the nine mvmOS languages through mvmAI. Review the credit quote before starting, follow progress and cancel if needed; failed or cancelled jobs refund their translation charges.\n\nFor a subtitle stored inside a film on another server, your browser reads its text where the film is kept and sends only that text for translation. The text is also kept, so later it plays or translates at once. The result appears in the subtitle selector and is saved beside the video when the source location allows writing. Picture subtitles are unsupported.\n\nThe administrator must enable translation and configure mvmAI with its App API switched on. Without Premium, existing subtitles and ordinary playback remain available; the desktop shows the activation option and public pages omit translation."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Превеждайте субтитри чрез конфигурирания от вас mvmAI.",
+      "features": [
+        {
+          "title": "Превод на субтитри с изкуствен интелект",
+          "short": "Превеждайте всякакви налични субтитри, дори от филм на друг сървър",
+          "description": "Изберете налични субтитри, независимо дали са в отделен файл, или са вградени във видеото, и ги преведете на един от деветте езика на mvmOS чрез mvmAI. Прегледайте предварително изчислената цена в кредити, преди да започнете, следете напредъка и отменете при нужда; при неуспешни или отменени задачи таксите за превод се възстановяват.\n\nЗа субтитри, вградени във филм на друг сървър, браузърът ви прочита текста им от мястото, където се съхранява филмът, и изпраща за превод само него. Текстът също се запазва, така че по-късно субтитрите да се показват или превеждат веднага. Резултатът се появява в списъка за избор на субтитри и се запазва до видеото, когато изходното местоположение позволява запис. Субтитри под формата на изображения не се поддържат.\n\nАдминистраторът трябва да активира превода и да конфигурира mvmAI с включен API на приложението. Без Premium съществуващите субтитри и обичайното възпроизвеждане остават достъпни; работният плот показва опцията за активиране, а публичните страници не показват превод."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Übersetze Untertitel über dein konfiguriertes mvmAI.",
+      "features": [
+        {
+          "title": "KI-Untertitelübersetzung",
+          "short": "Übersetze jeden verfügbaren Untertitel, auch aus einem Film auf einem anderen Server",
+          "description": "Wähle einen beliebigen verfügbaren Untertitel, ob als separate Datei oder im Video gespeichert, und übersetze ihn über mvmAI in eine der neun mvmOS-Sprachen. Prüfe vor dem Start die voraussichtlichen Credit-Kosten, verfolge den Fortschritt und brich den Auftrag bei Bedarf ab. Bei fehlgeschlagenen oder abgebrochenen Aufträgen werden die Übersetzungskosten erstattet.\n\nBei einem Untertitel, der in einem Film auf einem anderen Server gespeichert ist, liest dein Browser den Text am Speicherort des Films und sendet nur diesen zur Übersetzung. Der Text wird ebenfalls gespeichert, damit er später sofort wiedergegeben oder übersetzt werden kann. Das Ergebnis erscheint in der Untertitelauswahl und wird neben dem Video gespeichert, wenn der Quellspeicherort Schreibzugriff erlaubt. Bildbasierte Untertitel werden nicht unterstützt.\n\nDer Administrator muss die Übersetzung aktivieren und mvmAI mit eingeschalteter App-API konfigurieren. Ohne Premium bleiben vorhandene Untertitel und die normale Wiedergabe verfügbar; auf dem Desktop wird die Aktivierungsoption angezeigt, während öffentliche Seiten keine Übersetzungsfunktion anzeigen."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Traduisez les sous-titres par l’intermédiaire de votre mvmAI configuré.",
+      "features": [
+        {
+          "title": "Traduction des sous-titres par IA",
+          "short": "Traduisez n’importe quel sous-titre disponible, même celui d’un film situé sur un autre serveur",
+          "description": "Choisissez n’importe quel sous-titre disponible, qu’il s’agisse d’un fichier séparé ou d’un sous-titre intégré à la vidéo, et traduisez-le dans l’une des neuf langues de mvmOS par l’intermédiaire de mvmAI. Consultez l’estimation du coût en crédits avant de commencer, suivez la progression et annulez si nécessaire ; les frais de traduction sont remboursés pour les tâches qui échouent ou sont annulées.\n\nPour un sous-titre intégré à un film situé sur un autre serveur, votre navigateur lit son texte à l’emplacement où le film est stocké et n’envoie que ce texte à traduire. Le texte est également conservé pour permettre ensuite une lecture ou une traduction immédiate. Le résultat apparaît dans le sélecteur de sous-titres et est enregistré à côté de la vidéo lorsque l’emplacement source autorise l’écriture. Les sous-titres sous forme d’images ne sont pas pris en charge.\n\nL’administrateur doit activer la traduction et configurer mvmAI en activant son API d’application. Sans Premium, les sous-titres existants et la lecture habituelle restent disponibles ; le bureau affiche l’option d’activation et les pages publiques n’affichent pas la traduction."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Traduce subtítulos a través de tu mvmAI configurado.",
+      "features": [
+        {
+          "title": "Traducción de subtítulos con IA",
+          "short": "Traduce cualquier subtítulo disponible, incluso de una película alojada en otro servidor",
+          "description": "Elige cualquier subtítulo disponible, ya sea un archivo independiente o uno integrado en el vídeo, y tradúcelo a uno de los nueve idiomas de mvmOS a través de mvmAI. Revisa el presupuesto en créditos antes de empezar, sigue el progreso y cancela si lo necesitas; los trabajos fallidos o cancelados reembolsan los cargos de traducción.\n\nSi el subtítulo está integrado en una película de otro servidor, tu navegador lee su texto donde está almacenada la película y envía únicamente ese texto para traducirlo. El texto también se guarda para poder reproducirlo o traducirlo al instante más adelante. El resultado aparece en el selector de subtítulos y se guarda junto al vídeo cuando la ubicación de origen permite la escritura. No se admiten subtítulos basados en imágenes.\n\nEl administrador debe activar la traducción y configurar mvmAI con su API de aplicación activada. Sin Premium, los subtítulos existentes y la reproducción habitual siguen disponibles; el escritorio muestra la opción de activación y las páginas públicas omiten la traducción."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "設定済みのmvmAIを通じて字幕を翻訳できます。",
+      "features": [
+        {
+          "title": "AI字幕翻訳",
+          "short": "別のサーバー上の動画も含め、利用可能なあらゆる字幕を翻訳",
+          "description": "別ファイルでも動画内に格納されたものでも、利用可能な字幕を選び、mvmAIを通じてmvmOSの9言語のいずれかに翻訳できます。開始前に必要なクレジット数の見積もりを確認し、進行状況を確認しながら、必要に応じてキャンセルできます。失敗またはキャンセルされた処理の翻訳料金は返金されます。\n\n別のサーバー上の動画に格納された字幕の場合、ブラウザーが動画の保存場所からテキストを読み取り、そのテキストだけを翻訳用に送信します。テキストは保存されるため、次回からはすぐに再生や翻訳ができます。翻訳結果は字幕の選択欄に表示され、元の保存場所への書き込みが許可されている場合は、動画と同じ場所に保存されます。画像形式の字幕には対応していません。\n\n管理者が翻訳を有効にし、mvmAIを設定してApp APIをオンにする必要があります。Premiumがなくても、既存の字幕と通常の再生は引き続き利用できます。デスクトップには有効化のオプションが表示され、公開ページには翻訳機能が表示されません。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Traduza legendas pelo mvmAI que você configurou.",
+      "features": [
+        {
+          "title": "Tradução de legendas com IA",
+          "short": "Traduza qualquer legenda disponível, até de um filme em outro servidor",
+          "description": "Escolha qualquer legenda disponível, seja um arquivo separado ou uma legenda armazenada dentro do vídeo, e traduza-a para um dos nove idiomas do mvmOS pelo mvmAI. Confira a estimativa de créditos antes de começar, acompanhe o progresso e cancele se necessário; tarefas com falha ou canceladas têm os créditos cobrados pela tradução reembolsados.\n\nPara uma legenda armazenada dentro de um filme em outro servidor, seu navegador lê o texto no local onde o filme está armazenado e envia apenas esse texto para tradução. O texto também é armazenado, para que depois possa ser reproduzido ou traduzido imediatamente. O resultado aparece no seletor de legendas e é salvo ao lado do vídeo quando o local de origem permite gravação. Legendas em imagem não são compatíveis.\n\nO administrador precisa habilitar a tradução e configurar o mvmAI com sua API de aplicativo ativada. Sem Premium, as legendas existentes e a reprodução comum continuam disponíveis; a área de trabalho mostra a opção de ativação, e as páginas públicas não exibem a tradução."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Переводите субтитры через настроенный mvmAI.",
+      "features": [
+        {
+          "title": "Перевод субтитров с помощью ИИ",
+          "short": "Переводите любые доступные субтитры, даже для фильма на другом сервере",
+          "description": "Выберите любые доступные субтитры, будь то отдельный файл или субтитры, встроенные в видео, и переведите их на один из девяти языков mvmOS через mvmAI. Перед запуском проверьте стоимость в кредитах, следите за ходом выполнения и при необходимости отмените перевод; при ошибке или отмене задания списанные за перевод кредиты возвращаются.\n\nЕсли субтитры встроены в фильм на другом сервере, браузер считывает их текст из места хранения фильма и отправляет на перевод только его. Текст также сохраняется, поэтому в дальнейшем субтитры можно сразу воспроизвести или перевести. Результат появляется в списке субтитров и сохраняется рядом с видео, если исходное расположение допускает запись. Графические субтитры не поддерживаются.\n\nАдминистратор должен включить перевод и настроить mvmAI с включённым API приложения. Без Premium существующие субтитры и обычное воспроизведение остаются доступны; на рабочем столе отображается возможность активации, а на публичных страницах перевод не показывается."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "通过你配置的 mvmAI 翻译字幕。",
+      "features": [
+        {
+          "title": "AI 字幕翻译",
+          "short": "翻译任意可用字幕，包括其他服务器上影片的字幕",
+          "description": "选择任意可用字幕，无论是独立文件还是视频内嵌字幕，都可通过 mvmAI 翻译成 mvmOS 支持的九种语言之一。开始前查看点数报价，跟踪进度，并可按需取消；失败或取消的任务会退还翻译费用。\n\n对于其他服务器上影片的内嵌字幕，浏览器会从影片存储位置读取文本，并仅发送文本进行翻译。文本也会被保留，方便日后立即播放或翻译。译文会出现在字幕选择器中，并在源位置允许写入时保存到视频旁。不支持图像字幕。\n\n管理员必须启用翻译，并配置 mvmAI、开启其应用 API。没有 Premium 时，现有字幕和普通播放仍可使用；桌面会显示启用选项，公开页面则不显示翻译功能。"
+        }
+      ]
+    }
+  }
 }

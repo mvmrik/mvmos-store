@@ -24,5 +24,207 @@
       "summary": "Rooms, turns and players run on Game Hub accounts: your profile and avatar, invitations to other players, and your sessions, statistics and rating recorded in Game Hub.",
       "requires": "Game Hub 1.18.0 or newer installed."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Klassisches Sudoku in fünf Schwierigkeitsstufen ohne Zeitlimit. Jedes Rätsel hat genau eine Lösung, und der Server prüft jede Zahl. Spiele allein um Punkte, nutze Hinweise gegen Punkte oder tritt mit Freunden beim selben Rätsel an – wer zuerst fertig ist, gewinnt.",
+      "tagline": "Klassisches Sudoku in fünf Stufen, ohne Zeitlimit – allein oder im Wettstreit mit Freunden.",
+      "description": "Sudoku ist ein Zahlenrätsel für Game Hub: Fülle das Raster so aus, dass jede Zeile, jede Spalte und jeder 3×3-Block die Zahlen 1 bis 9 enthält.\n\nWähle aus fünf Schwierigkeitsstufen: Leicht, Mittel, Schwer, Experte und Meister. Jedes Rätsel wird für das Spiel erstellt und hat genau eine Lösung. Die leichteren Stufen lassen sich allein durch logisches Denken lösen, während du bei Experte und Meister weiter vorausdenken musst. Es gibt kein Zeitlimit, und die Zeit beendet niemals das Spiel. Allerdings kostet die laufende Uhr langsam Punkte: einen alle 10 Sekunden auf Leicht und einen alle 30 Sekunden auf Meister. Die Zeit wird außerdem für deine Statistik erfasst. Das Spielfeld lässt sich am Computer mit Maus oder Tastatur und auf dem Smartphone mit dem Finger bedienen. Es bietet Bleistiftnotizen, Rückgängig, Radieren, Hervorhebungen für Zeile, Spalte, Block und alle gleichen Zahlen sowie ein Zahlenfeld, das anzeigt, wie viele Exemplare jeder Zahl noch fehlen.\n\nJede richtige Zahl bringt Punkte, von 10 auf Leicht bis zu 18 auf Meister. Ein Fehler kostet das Doppelte der Punkte einer Zelle, Raten lohnt sich also nicht. Ein Hinweis füllt eine Zelle aus, bringt dafür aber keine Punkte. Er kostet die Punkte von zwei Zellen und für jede bereits ausgefüllte Zelle ein paar zusätzliche Punkte. Je weiter du im Rätsel bist, desto teurer wird er also. Wenn du das gesamte Rätsel ohne Fehler und ohne Hinweise löst, erhältst du einen Bonus. Hinweise können deinen Punktestand unter null senken. Der Server speichert die Lösung und prüft jede Zahl, sodass niemand ein erfundenes Ergebnis übermitteln kann.\n\nAllein besteht ein Spiel aus einem Rätsel. Dein Punktestand wird gespeichert, sobald du es löst. „Speichern und beenden“ bewahrt den genauen Spielstand samt Notizen, ohne ein Ergebnis zu erfassen.\n\nMit Freunden lösen alle dasselbe Rätsel in ihrem eigenen Tempo im Webbrowser auf Computern, Smartphones und Tablets. Der Gastgeber wählt die Stufe. Sobald alle fertig sind, gewinnt die Person mit den meisten Punkten. Raten und überstürztes Spielen lohnen sich also nicht: Ein Fehler kostet das Doppelte der Punkte einer Zelle. Wer fertig ist, kann zusehen, wie sich die Spielfelder der anderen füllen, oder das Spiel verlassen: Das Ergebnis ist bereits gespeichert und zählt, wenn das Spiel endet.\n\nGame Hub erfasst deine Punkte, die Stufe, gelöste Rätsel, Lösungszeit, Fehler und Hinweise sowie eine Wertung für Mehrspielerpartien.",
+      "capabilities": [
+        "Fünf Schwierigkeitsstufen von Leicht bis Meister mit Rätseln, die genau eine Lösung haben.",
+        "Kein Zeitlimit: Die Zeit beendet niemals das Spiel, kostet aber langsam Punkte (alle 10 Sekunden auf Leicht, alle 30 auf Meister) und wird für deine Statistik erfasst.",
+        "Ein übersichtliches, farbenfrohes Spielfeld für Computer und Smartphone: Hervorhebungen für Zeile, Spalte, Block und gleiche Zahlen, ein Zahlenfeld, das die noch fehlenden Zahlen zählt, und Welleneffekte, wenn eine Zeile, Spalte oder ein Block vollständig ist.",
+        "Bleistiftnotizen, die beim Eintragen von Zahlen automatisch entfernt werden, Rückgängig für Notizen und Fehler, Radieren sowie Tastatursteuerung mit Zifferntasten, Pfeiltasten, N für Notizen und H für einen Hinweis.",
+        "Punkte für jede richtige Zahl, mehr Punkte auf höheren Stufen und ein Bonus für das Lösen des Rätsels ohne Fehler und ohne Hinweise.",
+        "Ein Hinweis füllt eine Zelle aus und wählt dafür den einfachsten nächsten Schritt. Er kostet die Punkte von zwei Zellen sowie zusätzliche Punkte für jede bereits ausgefüllte Zelle und wird damit im Spielverlauf teurer. Ein Fehler kostet das Doppelte der Punkte einer Zelle.",
+        "Mehrspielermodus für bis zu sechs Personen mit demselben Rätsel: Sobald alle fertig sind, gewinnt die Person mit den meisten Punkten. Weder Raten noch Geschwindigkeit allein entscheiden also das Spiel.",
+        "Wer fertig ist, sieht die Spielfelder der anderen live und kann das Spiel jederzeit verlassen. Das Ergebnis ist bereits gespeichert.",
+        "Der Server speichert die Lösung und prüft jede Zahl.",
+        "„Speichern und beenden“ bewahrt den genauen Spielstand und deine Notizen, ohne ein Ergebnis zu erfassen.",
+        "Game Hub-Statistiken zu Stufe, gelösten Rätseln, Lösungszeit, Fehlern und Hinweisen sowie eine Wertung für Mehrspielerpartien."
+      ],
+      "integrations": [
+        {
+          "summary": "Räume, Spielzüge und Spieler werden über Game Hub-Konten verwaltet: dein Profil und Avatar, Einladungen an andere Spieler sowie deine Sitzungen, Statistiken und Wertung werden in Game Hub gespeichert.",
+          "requires": "Game Hub 1.18.0 oder neuer muss installiert sein."
+        }
+      ],
+      "name": "Sudoku"
+    },
+    "bg": {
+      "short_description": "Класическо судоку с пет нива на трудност и без ограничение във времето. Всеки пъзел има точно едно решение, а сървърът проверява всяко число. Играйте сами за точки с подсказки, които струват точки, или се състезавайте с приятели върху един и същ пъзел – печели този, който го реши пръв.",
+      "tagline": "Класическо судоку с пет нива, без ограничение във времето – самостоятелно или в състезание с приятели.",
+      "description": "Судоку е числов пъзел за Центъра за игри: попълнете решетката така, че всеки ред, колона и квадрат 3×3 да съдържа числата от 1 до 9.\n\nИзберете от пет нива на трудност: Лесно, Средно, Трудно, Експерт и Майстор. Всеки пъзел е създаден за играта и има точно едно решение. По-лесните нива могат да се решат само с логика, докато Експерт и Майстор изискват да обмисляте повече ходове напред. Няма ограничение във времето и изтичането му никога не прекратява играта, но часовникът постепенно отнема точки: по една на всеки 10 секунди на Лесно и по една на всеки 30 секунди на Майстор. Времето се записва и в статистиката ви. Игралното поле е пригодено за игра с мишка или клавиатура на компютър и с пръст на телефон, с бележки за възможните числа, отмяна, изтриване, открояване на реда, колоната, квадрата и всички съвпадащи числа, както и цифров панел, който показва колко от всяко число остават.\n\nВсяко правилно число носи точки: от 10 на Лесно до 18 на Майстор. Грешката отнема двойно повече от точките за една клетка, така че налучкването не си струва, а подсказката попълва една клетка, без да носи точки за нея. Подсказката струва точките за две клетки плюс още няколко за всяка вече попълнена клетка, така че колкото повече напредвате, толкова по-скъпа става тя. Решаването на целия пъзел без грешки и подсказки носи бонус. Подсказките могат да свалят точките ви под нулата. Сървърът съхранява решението и проверява всяко число, така че никой не може да изпрати измислен резултат.\n\nПри самостоятелна игра една игра представлява един пъзел. Резултатът ви се записва, когато го решите; „Запазване и изход“ съхранява точното състояние заедно с бележките ви, без да записва резултат.\n\nПри игра с приятели всички решават един и същ пъзел със собствено темпо на компютри, телефони и таблети в уеб браузър. Домакинът избира нивото. Когато всички приключат, печели играчът с най-много точки, така че налучкването и бързането не си струват: грешката отнема двойно повече от точките за една клетка. Играч, който е приключил, може да наблюдава как се попълват полетата на останалите или да напусне: резултатът вече е записан и се зачита, когато играта завърши.\n\nЦентърът за игри записва точките, нивото, решените пъзели, времето за решаване, грешките и подсказките ви, както и рейтинг за играта с други участници.",
+      "capabilities": [
+        "Пет нива на трудност, от Лесно до Майстор, с пъзели, които имат точно едно решение.",
+        "Без ограничение във времето: изтичането му никога не прекратява играта, но постепенно отнема точки (на всеки 10 секунди на Лесно и на всеки 30 на Майстор), а времето се записва в статистиката ви.",
+        "Ясно, цветно игрално поле за компютър и телефон: открояване на реда, колоната, квадрата и съвпадащите числа, цифров панел, който брои оставащите числа, и вълнови ефекти при завършване на ред, колона или квадрат.",
+        "Бележки за възможните числа, които се изчистват автоматично при попълване, отмяна на бележки и грешки, изтриване и управление с цифровите клавиши, стрелките, N за бележки и H за подсказка.",
+        "Точки за всяко правилно число, повече точки на по-трудните нива и бонус за решаване на пъзела без грешки и подсказки.",
+        "Подсказката попълва една клетка, като избира най-лесната следваща стъпка, срещу точките за две клетки плюс допълнителни точки за всяка вече попълнена клетка, така че цената ѝ расте с напредването ви; грешката отнема двойно повече от точките за една клетка.",
+        "Игра с до шестима участници върху един и същ пъзел: когато всички приключат, печели този с най-много точки, така че нито налучкването, нито само скоростта определят победителя.",
+        "Играч, който е приключил, вижда полетата на останалите в реално време и може да напусне по всяко време; резултатът вече е записан.",
+        "Сървърът съхранява решението и проверява всяко число.",
+        "„Запазване и изход“ съхранява точното състояние и бележките ви, без да записва резултат.",
+        "Статистика в Центъра за игри за нивото, решените пъзели, времето за решаване, грешките и подсказките, както и рейтинг за играта с други участници."
+      ],
+      "integrations": [
+        {
+          "summary": "Стаите, ходовете и играчите използват акаунтите в Центъра за игри: профила и аватара ви, поканите до други играчи, както и сесиите, статистиката и рейтинга ви, записани в Центъра за игри.",
+          "requires": "Инсталиран Център за игри 1.18.0 или по-нова версия."
+        }
+      ],
+      "name": "Судоку"
+    },
+    "es": {
+      "short_description": "Sudoku clásico con cinco niveles de dificultad y sin límite de tiempo. Cada sudoku tiene una única solución y el servidor comprueba cada número. Juega en solitario para conseguir puntos, con pistas que cuestan puntos, o compite con amigos en el mismo sudoku: gana quien termine primero.",
+      "tagline": "Sudoku clásico con cinco niveles y sin límite de tiempo, en solitario o compitiendo con amigos.",
+      "description": "Sudoku es un pasatiempo numérico para el Centro de juegos: completa la cuadrícula de modo que cada fila, columna y bloque de 3×3 contenga los números del 1 al 9.\n\nElige entre cinco niveles de dificultad: Fácil, Medio, Difícil, Experto y Maestro. Cada sudoku se crea para el juego y tiene una única solución. Los niveles más fáciles se pueden resolver solo con lógica, mientras que Experto y Maestro te obligan a anticipar más pasos. No hay límite de tiempo y el tiempo nunca pone fin a la partida, pero el reloj resta puntos poco a poco: uno cada 10 segundos en Fácil y uno cada 30 segundos en Maestro. El tiempo también se guarda para tus estadísticas. El tablero está diseñado para jugar con ratón o teclado en un ordenador y con el dedo en un teléfono, e incluye notas a lápiz, funciones para deshacer y borrar, resaltado de la fila, la columna, el bloque y todos los números coincidentes, y un teclado numérico que muestra cuántos quedan de cada número.\n\nCada número correcto suma puntos, desde 10 en Fácil hasta 18 en Maestro. Un error cuesta el doble de los puntos de una casilla, por lo que adivinar no compensa, y una pista rellena una casilla sin sumar puntos por ella. Una pista cuesta los puntos de dos casillas más unos cuantos por cada casilla ya rellenada, así que cuanto más avances, más cara será. Resolver todo el sudoku sin errores ni pistas añade una bonificación. Las pistas pueden dejar tu puntuación por debajo de cero. El servidor guarda la solución y comprueba cada número, por lo que nadie puede enviar un resultado inventado.\n\nEn solitario, cada partida consiste en un sudoku. Tu puntuación se registra cuando lo resuelves; Guardar y salir conserva el estado exacto, con tus notas, sin registrar ningún resultado.\n\nCon amigos, todos resuelven el mismo sudoku a su ritmo en ordenadores, teléfonos y tabletas desde un navegador web. El anfitrión elige el nivel. Cuando todos han terminado, gana quien tenga más puntos, por lo que adivinar y apresurarse no compensa: un error cuesta el doble de los puntos de una casilla. Quien haya terminado puede ver cómo se van completando los tableros de los demás o salir: su resultado ya está registrado y cuenta cuando termina la partida.\n\nEl Centro de juegos registra tus puntos, nivel, sudokus resueltos, tiempo de resolución, errores y pistas, con una clasificación para el modo multijugador.",
+      "capabilities": [
+        "Cinco niveles de dificultad, de Fácil a Maestro, con sudokus que tienen una única solución.",
+        "Sin límite de tiempo: el tiempo nunca pone fin a la partida, pero resta puntos poco a poco (cada 10 segundos en Fácil y cada 30 en Maestro) y se guarda para tus estadísticas.",
+        "Un tablero claro y colorido para ordenador y teléfono: resaltado de la fila, la columna, el bloque y los números coincidentes, un teclado numérico que cuenta los números restantes y ondas al completar una fila, columna o bloque.",
+        "Notas a lápiz que se borran automáticamente al colocar números, función para deshacer notas y errores, borrado y control mediante las teclas numéricas, las flechas, N para las notas y H para una pista.",
+        "Puntos por cada número correcto, más en los niveles difíciles, y una bonificación por resolver el sudoku sin errores ni pistas.",
+        "Una pista rellena una casilla eligiendo el siguiente paso más sencillo y cuesta los puntos de dos casillas más un importe adicional por cada casilla ya rellenada, así que cuesta más cuanto más hayas avanzado; un error cuesta el doble de los puntos de una casilla.",
+        "Modo multijugador para hasta seis jugadores en el mismo sudoku: cuando todos terminan, gana quien tenga más puntos, así que ni adivinar ni la velocidad por sí sola deciden el resultado.",
+        "Quien haya terminado ve los tableros de los demás en directo y puede salir en cualquier momento; su resultado ya está registrado.",
+        "El servidor guarda la solución y comprueba cada número.",
+        "Guardar y salir conserva el estado exacto y tus notas sin registrar ningún resultado.",
+        "Estadísticas del Centro de juegos sobre el nivel, los sudokus resueltos, el tiempo de resolución, los errores y las pistas, con una clasificación para el modo multijugador."
+      ],
+      "integrations": [
+        {
+          "summary": "Las salas, los turnos y los jugadores utilizan las cuentas del Centro de juegos: tu perfil y avatar, las invitaciones a otros jugadores y tus sesiones, estadísticas y clasificación se registran en el Centro de juegos.",
+          "requires": "Centro de juegos 1.18.0 o posterior instalado."
+        }
+      ],
+      "name": "Sudoku"
+    },
+    "fr": {
+      "short_description": "Le Sudoku classique avec cinq niveaux de difficulté et sans limite de temps. Chaque grille possède exactement une solution, et le serveur vérifie chaque chiffre. Jouez en solo pour gagner des points, avec des indices qui coûtent des points, ou affrontez vos amis sur la même grille : le premier à terminer gagne.",
+      "tagline": "Le Sudoku classique avec cinq niveaux, sans limite de temps : en solo ou contre vos amis.",
+      "description": "Sudoku est un jeu de chiffres du Centre de jeux : remplissez la grille de sorte que chaque ligne, chaque colonne et chaque bloc de 3×3 contienne les chiffres de 1 à 9.\n\nChoisissez parmi cinq niveaux de difficulté : Facile, Moyen, Difficile, Expert et Maître. Chaque grille est créée pour le jeu et possède exactement une solution. Les niveaux les plus faciles se résolvent par la seule logique, tandis que les niveaux Expert et Maître demandent davantage d'anticipation. Il n'y a aucune limite de temps et le temps écoulé ne met jamais fin à la partie, mais le chronomètre vous coûte progressivement des points : un toutes les 10 secondes en mode Facile et un toutes les 30 secondes en mode Maître. Le temps est également conservé pour vos statistiques. La grille est conçue pour jouer à la souris ou au clavier sur ordinateur et au doigt sur téléphone, avec des annotations au crayon, des fonctions d'annulation et d'effacement, la mise en évidence de la ligne, de la colonne, du bloc et de tous les chiffres identiques, ainsi qu'un pavé numérique indiquant combien d'exemplaires de chaque chiffre restent à placer.\n\nChaque chiffre correct rapporte des points, de 10 en mode Facile à 18 en mode Maître. Une erreur coûte le double des points d'une case : deviner n'est donc pas rentable. Un indice remplit une case sans rapporter de points pour celle-ci. Un indice coûte les points de deux cases, auxquels s'ajoutent quelques points pour chaque case déjà remplie : plus la résolution avance, plus il coûte cher. Résoudre toute la grille sans erreur ni indice rapporte un bonus. Les indices peuvent faire passer votre score sous zéro. Le serveur conserve la solution et vérifie chaque chiffre, ce qui empêche l'envoi de résultats inventés.\n\nEn solo, une partie correspond à une grille. Votre score est enregistré lorsque vous la résolvez ; Enregistrer et quitter conserve la position exacte, avec vos annotations, sans enregistrer de résultat.\n\nAvec des amis, chacun résout la même grille à son rythme, dans un navigateur web sur ordinateur, téléphone ou tablette. L'hôte choisit le niveau. Lorsque tout le monde a terminé, la personne qui a le plus de points gagne : deviner et se précipiter n'est donc pas rentable, car une erreur coûte le double des points d'une case. Une personne ayant terminé peut regarder les grilles des autres se remplir ou quitter la partie : son résultat est déjà enregistré et sera pris en compte à la fin de la partie.\n\nLe Centre de jeux enregistre vos points, le niveau, les grilles résolues, le temps de résolution, les erreurs et les indices, ainsi qu'une évaluation pour le multijoueur.",
+      "capabilities": [
+        "Cinq niveaux de difficulté, de Facile à Maître, avec des grilles qui possèdent exactement une solution.",
+        "Aucune limite de temps : le temps écoulé ne met jamais fin à la partie, mais vous coûte progressivement des points (toutes les 10 secondes en mode Facile, toutes les 30 secondes en mode Maître), et il est conservé pour vos statistiques.",
+        "Une grille claire et colorée pour ordinateur et téléphone : mise en évidence de la ligne, de la colonne, du bloc et des chiffres identiques, pavé numérique indiquant les chiffres restant à placer et effets d'ondulation lorsqu'une ligne, une colonne ou un bloc est complet.",
+        "Annotations au crayon qui s'effacent automatiquement à mesure que les chiffres sont placés, annulation des annotations et des erreurs, effacement et commandes au clavier avec les touches numériques, les flèches, N pour les annotations et H pour un indice.",
+        "Des points pour chaque chiffre correct, davantage dans les niveaux difficiles, et un bonus pour une grille résolue sans erreur ni indice.",
+        "Un indice remplit une case en choisissant l'étape suivante la plus simple. Il coûte les points de deux cases, auxquels s'ajoutent des points pour chaque case déjà remplie : plus vous avancez, plus il coûte cher ; une erreur coûte le double des points d'une case.",
+        "Multijoueur jusqu'à six personnes sur la même grille : lorsque tout le monde a terminé, le meilleur score gagne. Ni les suppositions ni la vitesse seule ne décident donc du résultat.",
+        "Une personne ayant terminé voit les grilles des autres en direct et peut quitter la partie à tout moment ; son résultat est déjà enregistré.",
+        "Le serveur conserve la solution et vérifie chaque chiffre.",
+        "Enregistrer et quitter conserve la position exacte et vos annotations sans enregistrer de résultat.",
+        "Statistiques du Centre de jeux pour le niveau, les grilles résolues, le temps de résolution, les erreurs et les indices, avec une évaluation pour le multijoueur."
+      ],
+      "integrations": [
+        {
+          "summary": "Les salons, les tours et les joueurs reposent sur les comptes du Centre de jeux : votre profil et votre avatar, les invitations à d'autres joueurs, ainsi que vos sessions, statistiques et évaluations enregistrées dans le Centre de jeux.",
+          "requires": "Centre de jeux 1.18.0 ou version ultérieure installé."
+        }
+      ],
+      "name": "Sudoku"
+    },
+    "ja": {
+      "short_description": "5段階の難易度で楽しめる、時間制限のない定番の数独です。すべての問題の解は必ず1つで、入力した数字はすべてサーバーが検証します。1人で得点を競い、得点を消費してヒントを使うことも、友達と同じ問題で競争し、最初に解き終えた人が勝つ遊び方もできます。",
+      "tagline": "5段階の難易度で楽しめる、時間制限のない定番の数独。1人でも、友達との対戦でも。",
+      "description": "数独は、ゲームハブで遊べる数字のパズルです。各行、各列、各3×3のブロックに1から9までの数字が入るようにマスを埋めます。\n\n難易度は、初級、中級、上級、エキスパート、マスターの5段階から選べます。すべての問題はこのゲーム用に作られ、解は必ず1つです。易しいレベルは論理的な推論だけで解けますが、エキスパートとマスターでは、より先を見通す必要があります。時間制限はなく、時間切れでゲームが終了することはありません。ただし、時間の経過とともに得点が少しずつ減り、初級では10秒ごとに1点、マスターでは30秒ごとに1点減ります。所要時間は統計にも記録されます。盤面は、パソコンではマウスやキーボード、スマートフォンでは指で操作できるように設計されています。候補メモ、元に戻す、消去、行・列・ブロックと同じ数字の強調表示に加え、各数字の残りの個数がわかる数字パッドを備えています。\n\n正しい数字を入れるたびに、初級では10点、マスターでは最大18点を獲得できます。間違えると1マス分の得点の2倍が減点されるため、当てずっぽうでは得をしません。ヒントは1マスを埋めますが、そのマスの得点は入りません。ヒントには2マス分の得点に加え、すでに埋まっているマスごとに追加の得点が必要になるため、解き進めるほど高くなります。間違いもヒントの使用もなく全マスを埋めると、ボーナスが加算されます。ヒントの使用で得点がマイナスになることもあります。正解はサーバーが保持し、すべての数字を検証するため、架空の結果を送信することはできません。\n\n1人で遊ぶ場合、1ゲームは1問です。解き終えると得点が記録されます。「保存して終了」では、結果を記録せず、メモも含めてその時点の状態をそのまま保存します。\n\n友達と遊ぶ場合は、パソコン、スマートフォン、タブレットのウェブブラウザーで、全員が同じ問題をそれぞれのペースで解きます。難易度はホストが選びます。全員が解き終えた時点で、最も得点の高いプレイヤーが勝ちます。間違えると1マス分の得点の2倍が減点されるため、当てずっぽうや急ぐだけの解き方では得をしません。解き終えたプレイヤーは、ほかのプレイヤーの盤面が埋まっていく様子を見たり、退出したりできます。結果はすでに記録されており、ゲーム終了時に集計されます。\n\nゲームハブには、得点、難易度、解いた問題数、所要時間、間違いとヒントの回数が記録され、マルチプレイヤーのレーティングも付きます。",
+      "capabilities": [
+        "初級からマスターまで5段階の難易度。すべての問題の解は必ず1つです。",
+        "時間制限はなく、時間切れでゲームが終了することはありません。ただし、時間の経過とともに得点が少しずつ減り（初級では10秒ごと、マスターでは30秒ごと）、所要時間は統計に記録されます。",
+        "パソコンでもスマートフォンでも見やすい、色鮮やかな盤面。行・列・ブロックと同じ数字の強調表示、残りの個数がわかる数字パッド、行・列・ブロックが完成したときの波紋エフェクトを備えています。",
+        "数字を配置すると自動的に消える候補メモ、メモや間違いを元に戻す機能、消去機能に加え、数字キー、矢印キー、メモ用のNキー、ヒント用のHキーによるキーボード操作に対応しています。",
+        "正しい数字を入れるたびに得点が入り、難易度が高いほど得点も増えます。間違いもヒントの使用もなく解くとボーナスが加算されます。",
+        "ヒントは次に最も簡単に解ける1マスを埋めます。2マス分の得点に加え、すでに埋まっているマスごとに追加の得点を消費するため、解き進めるほど高くなります。間違えると1マス分の得点の2倍が減点されます。",
+        "最大6人で同じ問題に挑戦するマルチプレイヤー。全員が解き終えた時点で最も得点の高い人が勝つため、当てずっぽうや速さだけでは勝敗が決まりません。",
+        "解き終えたプレイヤーは、ほかのプレイヤーの盤面をリアルタイムで見ることができ、いつでも退出できます。結果はすでに記録されています。",
+        "正解はサーバーが保持し、すべての数字を検証します。",
+        "「保存して終了」では、結果を記録せず、メモも含めてその時点の状態をそのまま保存します。",
+        "ゲームハブに難易度、解いた問題数、所要時間、間違いとヒントの回数を記録し、マルチプレイヤーのレーティングも付けます。"
+      ],
+      "integrations": [
+        {
+          "summary": "ルーム、ターン、プレイヤーはゲームハブのアカウントを通じて管理されます。プロフィールとアバター、ほかのプレイヤーへの招待に対応し、セッション、統計、レーティングがゲームハブに記録されます。",
+          "requires": "ゲームハブ1.18.0以降がインストールされていること。"
+        }
+      ],
+      "name": "数独"
+    },
+    "pt-BR": {
+      "short_description": "Sudoku clássico com cinco níveis de dificuldade e sem limite de tempo. Cada desafio tem exatamente uma solução, e o servidor verifica cada número. Jogue sozinho para ganhar pontos, com dicas que custam pontos, ou dispute com amigos no mesmo desafio — quem terminar primeiro vence.",
+      "tagline": "Sudoku clássico com cinco níveis e sem limite de tempo — sozinho ou em uma disputa com amigos.",
+      "description": "Sudoku é um jogo de lógica com números da Central de Jogos: preencha a grade de modo que cada linha, coluna e bloco 3×3 contenha os números de 1 a 9.\n\nEscolha entre cinco níveis de dificuldade: Fácil, Médio, Difícil, Especialista e Mestre. Cada desafio é criado para o jogo e tem exatamente uma solução. Os níveis mais fáceis podem ser resolvidos apenas com lógica, enquanto Especialista e Mestre exigem que você antecipe mais jogadas. Não há limite de tempo, e o tempo nunca encerra a partida, mas o relógio custa pontos aos poucos: um a cada 10 segundos no Fácil e um a cada 30 segundos no Mestre. O tempo também é registrado nas suas estatísticas. O tabuleiro foi feito para jogar com mouse ou teclado no computador e com o dedo no celular, com anotações a lápis, opções para desfazer e apagar, destaques para a linha, a coluna, o bloco e todos os números iguais, além de um teclado numérico que mostra quantos números de cada ainda faltam.\n\nCada número correto vale pontos, de 10 no Fácil a 18 no Mestre. Um erro custa o dobro dos pontos de uma célula, então não vale a pena chutar, e uma dica preenche uma célula sem render pontos por ela. Uma dica custa os pontos de duas células, mais alguns pontos por cada célula já preenchida; portanto, quanto mais avançado estiver o desafio, mais cara ela será. Resolver o desafio inteiro sem erros e sem dicas rende um bônus. As dicas podem deixar sua pontuação negativa. O servidor mantém a solução e verifica cada número, para que ninguém possa enviar um resultado inventado.\n\nAo jogar sozinho, cada partida consiste em um desafio. Sua pontuação é registrada quando você o resolve; Salvar e sair preserva a posição exata, com suas anotações, sem registrar nenhum resultado.\n\nCom amigos, todos resolvem o mesmo desafio no próprio ritmo, em computadores, celulares e tablets, pelo navegador. O anfitrião escolhe o nível. Quando todos terminam, vence quem tiver mais pontos, então chutar e se apressar não compensam: um erro custa o dobro dos pontos de uma célula. Quem já terminou pode acompanhar o preenchimento dos tabuleiros dos outros jogadores ou sair: o resultado já está registrado e conta quando a partida termina.\n\nA Central de Jogos registra seus pontos, nível, desafios resolvidos, tempo de resolução, erros e dicas, além de uma classificação para partidas multijogador.",
+      "capabilities": [
+        "Cinco níveis de dificuldade, do Fácil ao Mestre, com desafios que têm exatamente uma solução.",
+        "Sem limite de tempo: o tempo nunca encerra a partida, mas custa pontos aos poucos (a cada 10 segundos no Fácil e a cada 30 no Mestre) e é registrado nas suas estatísticas.",
+        "Um tabuleiro claro e colorido para computador e celular: destaques para a linha, a coluna, o bloco e os números iguais, um teclado numérico que conta o que falta e efeitos de ondulação quando uma linha, coluna ou bloco é concluído.",
+        "Anotações a lápis que são apagadas automaticamente à medida que os números são inseridos, opção para desfazer anotações e erros, apagar e controlar pelo teclado com as teclas numéricas, as setas, N para anotações e H para uma dica.",
+        "Pontos por cada número correto, com valores maiores nos níveis mais difíceis, e um bônus por resolver o desafio sem erros e sem dicas.",
+        "Uma dica preenche uma célula, escolhendo o próximo passo mais fácil, pelo custo dos pontos de duas células, mais um valor por cada célula já preenchida, ficando mais cara conforme você avança; um erro custa o dobro dos pontos de uma célula.",
+        "Partidas multijogador para até seis jogadores no mesmo desafio: quando todos terminam, vence quem tiver mais pontos, então nem os chutes nem a velocidade por si só decidem o resultado.",
+        "Quem já terminou vê os tabuleiros dos outros jogadores ao vivo e pode sair a qualquer momento; o resultado já está registrado.",
+        "O servidor mantém a solução e verifica cada número.",
+        "Salvar e sair preserva a posição exata e suas anotações sem registrar nenhum resultado.",
+        "Estatísticas da Central de Jogos sobre nível, desafios resolvidos, tempo de resolução, erros e dicas, além de uma classificação para partidas multijogador."
+      ],
+      "integrations": [
+        {
+          "summary": "Salas, turnos e jogadores usam as contas da Central de Jogos: seu perfil e avatar, convites para outros jogadores e suas sessões, estatísticas e classificação registrados na Central de Jogos.",
+          "requires": "Central de Jogos 1.18.0 ou mais recente instalada."
+        }
+      ],
+      "name": "Sudoku"
+    },
+    "ru": {
+      "short_description": "Классическое судоку с пятью уровнями сложности без ограничения времени. У каждой головоломки ровно одно решение, а сервер проверяет каждое число. Играйте в одиночку, набирая очки и используя платные подсказки, или соревнуйтесь с друзьями в решении одной головоломки — побеждает тот, кто закончит первым.",
+      "tagline": "Классическое судоку с пятью уровнями сложности без ограничения времени — в одиночку или наперегонки с друзьями.",
+      "description": "Судоку — числовая головоломка для Игрового центра: заполните поле так, чтобы в каждой строке, столбце и блоке 3×3 были числа от 1 до 9.\n\nВыберите один из пяти уровней сложности: «Лёгкий», «Средний», «Сложный», «Эксперт» и «Мастер». Каждая головоломка создана специально для игры и имеет ровно одно решение. Более простые уровни можно пройти, опираясь только на логику, а на уровнях «Эксперт» и «Мастер» придётся продумывать ходы дальше вперёд. Ограничения времени нет, и игра никогда не заканчивается из-за времени, но часы понемногу отнимают очки: по одному каждые 10 секунд на уровне «Лёгкий» и каждые 30 секунд на уровне «Мастер». Время также сохраняется в статистике. Поле удобно для игры мышью или клавиатурой на компьютере и пальцем на телефоне: есть заметки карандашом, отмена действий, стирание, подсветка строки, столбца, блока и всех одинаковых чисел, а также цифровая панель, показывающая, сколько чисел каждого вида осталось расставить.\n\nКаждое верно поставленное число приносит очки: от 10 на уровне «Лёгкий» до 18 на уровне «Мастер». Ошибка отнимает удвоенное количество очков за клетку, поэтому угадывать невыгодно, а подсказка заполняет одну клетку, не принося за неё очков. Подсказка стоит столько же, сколько две клетки, плюс ещё несколько очков за каждую уже заполненную клетку: чем дальше вы продвинулись, тем она дороже. За решение всей головоломки без ошибок и подсказок начисляется бонус. Из-за подсказок счёт может стать отрицательным. Сервер хранит решение и проверяет каждое число, поэтому отправить выдуманный результат невозможно.\n\nВ одиночном режиме одна игра — это одна головоломка. Результат записывается после её решения; команда «Сохранить и выйти» сохраняет текущее состояние поля вместе с заметками, не записывая результат.\n\nВ игре с друзьями все решают одну и ту же головоломку в своём темпе в браузере на компьютерах, телефонах и планшетах. Организатор выбирает уровень сложности. Когда все закончат, побеждает игрок с наибольшим количеством очков, поэтому угадывать и торопиться невыгодно: ошибка стоит вдвое больше очков за клетку. Закончивший игрок может наблюдать, как заполняются поля остальных, или выйти: его результат уже записан и будет учтён при завершении игры.\n\nИгровой центр сохраняет очки, уровень сложности, количество решённых головоломок, время решения, ошибки и подсказки, а также рейтинг в многопользовательском режиме.",
+      "capabilities": [
+        "Пять уровней сложности, от «Лёгкого» до «Мастера», с головоломками, у каждой из которых ровно одно решение.",
+        "Без ограничения времени: игра никогда не заканчивается из-за времени, но оно понемногу отнимает очки (каждые 10 секунд на уровне «Лёгкий», каждые 30 — на уровне «Мастер») и сохраняется в статистике.",
+        "Понятное красочное поле для компьютера и телефона: подсветка строки, столбца, блока и одинаковых чисел, цифровая панель со счётчиком оставшихся чисел и волновая анимация при заполнении строки, столбца или блока.",
+        "Заметки карандашом, которые автоматически удаляются по мере расстановки чисел, отмена заметок и ошибок, стирание и управление с клавиатуры: цифровые клавиши, стрелки, N для заметок и H для подсказки.",
+        "Очки за каждое верное число, больше очков на сложных уровнях и бонус за решение головоломки без ошибок и подсказок.",
+        "Подсказка заполняет одну клетку, выбирая самый простой следующий шаг, и стоит столько же, сколько две клетки, плюс дополнительные очки за каждую уже заполненную клетку, поэтому по мере продвижения она дорожает; ошибка отнимает удвоенное количество очков за клетку.",
+        "Многопользовательский режим для шести игроков на одной головоломке: когда все закончат, побеждает набравший больше всего очков, поэтому ни угадывание, ни одна лишь скорость не решают исход.",
+        "Закончивший игрок видит поля остальных в реальном времени и может выйти в любой момент: его результат уже записан.",
+        "Сервер хранит решение и проверяет каждое число.",
+        "Команда «Сохранить и выйти» сохраняет текущее состояние поля и заметки, не записывая результат.",
+        "Статистика Игрового центра: уровень сложности, количество решённых головоломок, время решения, ошибки и подсказки, а также рейтинг в многопользовательском режиме."
+      ],
+      "integrations": [
+        {
+          "summary": "Комнаты, ходы и игроки используют учётные записи Игрового центра: ваш профиль и аватар, приглашения другим игрокам, а также сеансы, статистика и рейтинг, сохраняемые в Игровом центре.",
+          "requires": "Установленный Игровой центр версии 1.18.0 или новее."
+        }
+      ],
+      "name": "Судоку"
+    },
+    "zh-CN": {
+      "short_description": "经典数独，提供五种难度，不限时。每道题都有且仅有一个解，服务器会核验填入的每个数字。你可以独自解题赚取积分，花费积分获取提示，也可以与好友竞解同一道题——最先完成者获胜。",
+      "tagline": "经典数独，五种难度，不限时——独自解题，或与好友竞赛。",
+      "description": "数独是游戏中心的一款数字谜题游戏：在网格中填入数字，使每一行、每一列和每个 3×3 宫内都包含数字 1 到 9。\n\n提供简单、中等、困难、专家和大师五种难度。每道题都专为游戏生成，且有且仅有一个解。较低难度仅凭逻辑推理即可解出，专家和大师难度则需要更深入地预判。游戏不限时，不会因时间耗尽而结束，但计时会缓慢扣除积分：简单难度每 10 秒扣 1 分，大师难度每 30 秒扣 1 分；用时也会计入统计。棋盘支持在电脑上使用鼠标或键盘操作，也支持在手机上用手指操作，并提供候选数笔记、撤销、擦除、所在行列和宫及所有相同数字的高亮，以及显示各数字剩余数量的数字键盘。\n\n每填对一个数字即可得分，从简单难度的 10 分到大师难度的 18 分不等。填错会扣除单格得分的两倍，因此猜数并不划算；提示会填入一格，但该格不计分。使用一次提示会扣除两格的分数，并根据已填格数额外扣分，因此解题进度越靠后，提示代价越高。全程无错误、无提示地解出整道题，还可获得额外奖励。提示可能使积分降至零以下。服务器保存答案并核验填入的每个数字，因此无人能提交伪造的成绩。\n\n单人模式下，一局游戏就是一道题。解出后会记录得分；“保存并退出”会原样保留当前进度及笔记，不记录成绩。\n\n与好友一起玩时，所有人都在电脑、手机或平板的网页浏览器中，以各自的节奏解答同一道题。房主选择难度。所有人完成后，积分最高的玩家获胜，因此猜数和一味求快都不划算：每次填错会扣除单格得分的两倍。已完成的玩家可以观看其他玩家的填数进度，也可以离开：成绩已被记录，并会在游戏结束时计入结果。\n\n游戏中心会记录你的积分、难度、解题数量、解题用时、错误和提示次数，并提供多人模式评分。",
+      "capabilities": [
+        "从简单到大师共五种难度，每道题都有且仅有一个解。",
+        "不限时：游戏不会因时间耗尽而结束，但会随时间缓慢扣分（简单难度每 10 秒扣分一次，大师难度每 30 秒一次），用时也会计入统计。",
+        "适用于电脑和手机的清晰彩色棋盘：高亮显示所在行、列、宫及相同数字，数字键盘显示剩余数量，完成一行、一列或一个宫时会出现涟漪效果。",
+        "填入数字时自动清理相关候选数笔记，支持撤销笔记和错误、擦除，以及键盘操作：数字键、方向键、N 键记笔记、H 键获取提示。",
+        "每填对一个数字即可得分，难度越高得分越多；无错误、无提示地解出整道题可获得额外奖励。",
+        "提示会选择最容易的下一步并填入一格，代价为两格的分数，再根据已填格数额外扣分，因此进度越靠后代价越高；填错一次会扣除单格得分的两倍。",
+        "支持最多六人竞解同一道题：所有人完成后，积分最高者获胜，因此胜负并非仅由猜数或速度决定。",
+        "已完成的玩家可以实时观看其他玩家的棋盘，并随时离开；成绩已被记录。",
+        "服务器保存答案并核验填入的每个数字。",
+        "保存并退出会原样保留当前进度及笔记，不记录成绩。",
+        "游戏中心提供难度、解题数量、解题用时、错误和提示次数统计，以及多人模式评分。"
+      ],
+      "integrations": [
+        {
+          "summary": "房间、回合和玩家均基于游戏中心账户运行：使用你的个人资料和头像，邀请其他玩家，并在游戏中心记录你的对局、统计数据和评分。",
+          "requires": "需安装游戏中心 1.18.0 或更新版本。"
+        }
+      ],
+      "name": "数独"
+    }
+  }
 }

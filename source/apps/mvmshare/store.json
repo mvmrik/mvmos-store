@@ -20,5 +20,215 @@
   "requirements": [
     "An Apps Hub profile to create shares. Opening a share you were sent needs no account.",
     "A browser with Web Crypto available, which means the site must be served over HTTPS."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Споделяйте файлове, бележка или връзка чрез една шифрована връзка. Файловете се шифроват в браузъра ви преди качване; изображенията се отварят като галерия, а сървърът съхранява само шифровани данни, които не може да прочете. Задайте срок на валидност на споделеното съдържание и го защитете с парола.",
+      "tagline": "Споделяйте файлове, бележка или връзка — шифровани в браузъра ви, достъпни с една връзка.",
+      "description": "mvmShare превръща всичко, което искате да изпратите, в една връзка. Добавете един файл или цяла колекция, напишете бележка или поставете адрес и mvmShare ги шифрова в браузъра ви, преди да бъде качен дори един байт. Ключът за отваряне се поставя в самата връзка, в частта, която браузърите никога не изпращат към сървър, така че тук се съхраняват шифровани данни, които този сървър няма как да прочете — нито файловете, нито бележката, нито дори адреса, към който сочи съкратена връзка.\n\nСподелянето на файлове представлява малък шифрован файлов мениджър: изображенията се показват като миниатюри и се отварят в галерия с контроли за следващо и предишно изображение, а документите, видеата и архивите остават достъпни като файлове. „Изтегляне на всичко“ създава един ZIP локално в браузъра на получателя, така че сървърът никога не получава четимо съдържание. Собственикът на сървъра определя от настройките на Магазина за приложения колко файла може да съдържа едно споделяне, максималния размер на всеки файл и дали се приемат изображения, видеа, документи и архиви.\n\nВсяко споделяне следва едни и същи правила, независимо от кой от трите вида е. Изберете колко дълго да остане валидно и го защитете с парола, която се изисква, преди да се разкрие каквото и да било — при зададена парола съкратената връзка не разкрива нищо за местоназначението си, докато не бъде въведена правилната парола. Когато срокът на споделянето изтече, то остава в акаунта ви, за да можете да го удължите и същата връзка да заработи отново.\n\nСподелената връзка е просто връзка: тя работи за всеки, на когото я изпратите, със или без акаунт на този сървър. Ако човекът вече има акаунт тук, mvmShare може да изпрати връзката директно в известията му в Apps Hub, преведени на езика, който той използва. За отваряне на споделено съдържание изобщо не е нужен акаунт — връзката отваря бележка на екрана, предлага шифровани файлове за преглед или изтегляне или препраща директно към адреса, който е скривала.",
+      "capabilities": [
+        "Споделяйте един или повече файлове, бележка или връзка чрез една връзка, с еднакви опции и за трите вида.",
+        "Шифрован файлов мениджър с миниатюри на изображенията, галерия с контроли за следващо/предишно изображение и един локално създаден ZIP при „Изтегляне на всичко“.",
+        "Всичко се шифрова в браузъра ви с AES-GCM, преди да бъде качено; сървърът съхранява единствено шифровани данни.",
+        "Ключът за дешифриране се пренася във фрагмента на връзката, който никога не се изпраща към сървъра — ако загубите връзката, нищо не може да отвори споделеното съдържание.",
+        "Задайте колко дълго да остане валидно споделянето — от един час до един месец, или го оставете безсрочно.",
+        "Защитете споделянето с парола, която се проверява, преди да бъде предоставено каквото и да е съдържание, така че скритият адрес да остане скрит.",
+        "Съкратените връзки скриват накъде сочат и препращат автоматично при отваряне.",
+        "Виждайте колко пъти е отваряно всяко споделяне и кога е било отворено за последно.",
+        "Удължете изтекло споделяне, сменете паролата му или променете срока му — същата връзка продължава да работи.",
+        "Изпратете споделено съдържание като известие до любимите си контакти в Apps Hub, на езика на всеки получател.",
+        "Собственикът на сървъра избира максималния брой файлове, максималния размер на файл и разрешените категории: изображения, видеа, документи и архиви.",
+        "Качените файлове се съхраняват в собствената база данни на приложението, никога в папка, достъпна за уеб сървъра; байтовете се предоставят само срещу краткотраен токен, издаден след успешно отключване.",
+        "Изтрийте споделянето по всяко време и шифрованото му съдържание се унищожава безвъзвратно.",
+        "Работи като приложение за работния плот и като публична страница — получателите не се нуждаят от акаунт, за да отворят изпратеното."
+      ],
+      "requirements": [
+        "Профил в Apps Hub за създаване на споделяния. За отваряне на изпратено до вас споделено съдържание не е нужен акаунт.",
+        "Браузър с достъпен Web Crypto, което означава, че сайтът трябва да се предоставя през HTTPS."
+      ],
+      "name": "mvmShare"
+    },
+    "de": {
+      "short_description": "Teile Dateien, eine Notiz oder einen Link über einen einzigen verschlüsselten Link. Dateien werden vor dem Upload in deinem Browser verschlüsselt; Bilder öffnen sich als Galerie, während der Server nur verschlüsselte Daten speichert, die er nicht lesen kann. Lege die Gültigkeitsdauer einer Freigabe fest und schütze sie mit einem Passwort.",
+      "tagline": "Teile Dateien, eine Notiz oder einen Link – in deinem Browser verschlüsselt, mit einem einzigen Link geöffnet.",
+      "description": "mvmShare macht alles, was du weitergeben möchtest, zu einem einzigen Link. Füge eine Datei oder eine ganze Sammlung hinzu, schreibe eine Notiz oder füge eine Adresse ein. mvmShare verschlüsselt alles in deinem Browser, bevor auch nur ein Byte hochgeladen wird. Der Schlüssel zum Öffnen steckt im Link selbst, und zwar in dem Teil, den Browser niemals an einen Server senden. Hier werden also nur verschlüsselte Daten gespeichert, die dieser Server unmöglich lesen kann – weder die Dateien noch die Notiz, nicht einmal die Zieladresse eines Kurzlinks.\n\nEine Dateifreigabe ist ein kleiner verschlüsselter Dateimanager: Bilder erscheinen als Vorschaubilder und öffnen sich in einer Galerie mit Schaltflächen zum Vor- und Zurückblättern, während Dokumente, Videos und Archive als Dateien verfügbar bleiben. „Alle herunterladen“ erstellt eine einzige ZIP-Datei lokal im Browser des Empfängers, sodass der Server niemals lesbare Inhalte erhält. Der Serverbetreiber legt in den App-Store-Einstellungen fest, wie viele Dateien eine Freigabe enthalten darf, wie groß jede Datei höchstens sein darf und ob Bilder, Videos, Dokumente und Archive zugelassen sind.\n\nFür jede Freigabe gelten dieselben Regeln, unabhängig davon, um welche der drei Arten es sich handelt. Wähle ihre Gültigkeitsdauer und schütze sie mit einem Passwort, das abgefragt wird, bevor irgendetwas offengelegt wird. Mit gesetztem Passwort verrät ein Kurzlink nichts über sein Ziel, bis das richtige Passwort eingegeben wurde. Nach Ablauf bleibt eine Freigabe in deinem Konto erhalten, sodass du sie verlängern und denselben Link wieder nutzbar machen kannst.\n\nEin Freigabelink ist einfach ein Link: Er funktioniert für alle, denen du ihn sendest, mit oder ohne Konto auf diesem Server. Hat die Person hier bereits ein Konto, kann mvmShare den Link direkt in ihren Apps Hub-Benachrichtigungen anzeigen, übersetzt in die Sprache, die sie gerade verwendet. Zum Öffnen einer Freigabe ist überhaupt kein Konto nötig: Ein Link zeigt eine Notiz auf dem Bildschirm an, bietet verschlüsselte Dateien zum Ansehen oder Herunterladen an oder leitet direkt an die zuvor verborgene Adresse weiter.",
+      "capabilities": [
+        "Teile eine oder mehrere Dateien, eine Notiz oder einen Link über einen einzigen Link, mit denselben Optionen für alle drei Arten.",
+        "Ein verschlüsselter Dateimanager mit Bildvorschauen, einer Galerie zum Vor- und Zurückblättern und einer lokal erstellten ZIP-Datei für „Alle herunterladen“.",
+        "Alles wird vor dem Upload in deinem Browser mit AES-GCM verschlüsselt; der Server enthält ausschließlich verschlüsselte Daten.",
+        "Der Entschlüsselungsschlüssel wird im Linkfragment übertragen, das niemals an den Server gesendet wird – geht der Link verloren, lässt sich die Freigabe nicht mehr öffnen.",
+        "Lege fest, wie lange eine Freigabe gültig bleibt, von einer Stunde bis zu einem Monat, oder lasse sie unbefristet gültig.",
+        "Schütze eine Freigabe mit einem Passwort, das vor der Auslieferung jeglicher Inhalte geprüft wird, damit eine verborgene Adresse verborgen bleibt.",
+        "Kurzlinks verbergen ihr Ziel und leiten nach dem Öffnen automatisch dorthin weiter.",
+        "Sieh, wie oft jede Freigabe geöffnet wurde und wann sie zuletzt geöffnet wurde.",
+        "Verlängere eine abgelaufene Freigabe, ändere ihr Passwort oder passe ihre Gültigkeitsdauer an – derselbe Link funktioniert weiterhin.",
+        "Sende eine Freigabe als Benachrichtigung an deine Apps Hub-Favoriten, jeweils in der Sprache der betreffenden Person.",
+        "Der Serverbetreiber legt die maximale Dateianzahl, die maximale Größe pro Datei und die zulässigen Kategorien fest: Bilder, Videos, Dokumente und Archive.",
+        "Hochgeladene Dateien werden in der eigenen Datenbank der App gespeichert, niemals in einem für den Webserver erreichbaren Ordner; die Daten werden nur gegen ein kurzlebiges Token ausgegeben, das nach erfolgreicher Entsperrung ausgestellt wird.",
+        "Lösche eine Freigabe jederzeit, um ihre verschlüsselten Inhalte endgültig zu vernichten.",
+        "Funktioniert als Desktop-App und als öffentliche Seite – Empfänger benötigen kein Konto, um deine Freigaben zu öffnen."
+      ],
+      "requirements": [
+        "Ein Apps Hub-Profil zum Erstellen von Freigaben. Zum Öffnen einer erhaltenen Freigabe ist kein Konto erforderlich.",
+        "Ein Browser mit verfügbarem Web Crypto; die Website muss daher über HTTPS bereitgestellt werden."
+      ],
+      "name": "mvmShare"
+    },
+    "fr": {
+      "short_description": "Partagez des fichiers, une note ou un lien au moyen d’un seul lien chiffré. Les fichiers sont chiffrés dans votre navigateur avant leur envoi ; les images s’ouvrent dans une galerie, tandis que le serveur ne conserve que des données chiffrées qu’il ne peut pas lire. Définissez la durée de validité d’un partage et protégez-le par un mot de passe.",
+      "tagline": "Partagez des fichiers, une note ou un lien — chiffrés dans votre navigateur, accessibles par un seul lien.",
+      "description": "mvmShare transforme tout ce que vous souhaitez transmettre en un seul lien. Ajoutez un fichier ou une collection entière, rédigez une note ou collez une adresse : mvmShare chiffre le tout dans votre navigateur avant même l’envoi du premier octet. La clé qui permet d’y accéder est placée dans le lien lui-même, dans la partie que les navigateurs n’envoient jamais à un serveur. Seules des données chiffrées sont donc stockées ici, sans que ce serveur puisse les lire : ni les fichiers, ni la note, ni même l’adresse vers laquelle pointe un lien raccourci.\n\nUn partage de fichiers est un petit gestionnaire de fichiers chiffré : les images apparaissent sous forme de miniatures et s’ouvrent dans une galerie avec des commandes de navigation vers l’image suivante ou précédente, tandis que les documents, vidéos et archives restent accessibles sous forme de fichiers. L’option Tout télécharger crée un seul ZIP localement dans le navigateur du destinataire, de sorte que le serveur ne reçoit jamais de contenu lisible. Le propriétaire du serveur définit, dans les paramètres de la Boutique d’applications, le nombre de fichiers qu’un partage peut contenir, la taille maximale de chaque fichier et les catégories acceptées : images, vidéos, documents et archives.\n\nChaque partage suit les mêmes règles, quel que soit son type parmi les trois proposés. Choisissez sa durée de validité et protégez-le par un mot de passe, demandé avant que quoi que ce soit ne soit révélé. Lorsqu’un mot de passe est défini, un lien raccourci ne révèle rien de sa destination tant que le bon mot de passe n’a pas été saisi. Lorsqu’un partage expire, il reste dans votre compte : vous pouvez ainsi le prolonger et réactiver le même lien.\n\nUn lien de partage reste un simple lien : il fonctionne pour toute personne à qui vous l’envoyez, qu’elle possède ou non un compte sur ce serveur. Si cette personne est déjà présente sur le serveur, mvmShare peut placer le lien directement dans ses notifications Apps Hub, traduites dans la langue qu’elle utilise. Aucun compte n’est nécessaire pour ouvrir un partage : le lien affiche une note à l’écran, propose des fichiers chiffrés à consulter ou à télécharger, ou redirige directement vers l’adresse qu’il masquait.",
+      "capabilities": [
+        "Partagez un ou plusieurs fichiers, une note ou un lien au moyen d’un seul lien, avec les mêmes options pour les trois types de partage.",
+        "Un gestionnaire de fichiers chiffré avec des miniatures d’images, une galerie avec navigation suivante/précédente et un seul ZIP créé localement pour l’option Tout télécharger.",
+        "Tout est chiffré dans votre navigateur avec AES-GCM avant l’envoi ; le serveur ne détient jamais que des données chiffrées.",
+        "La clé de déchiffrement est contenue dans le fragment du lien, qui n’est jamais envoyé au serveur — si vous perdez le lien, plus rien ne permet d’ouvrir le partage.",
+        "Définissez la durée de validité d’un partage, d’une heure à un mois, ou laissez-le sans date d’expiration.",
+        "Protégez un partage par un mot de passe vérifié avant la transmission de tout contenu, afin qu’une adresse masquée le reste.",
+        "Les liens raccourcis masquent leur destination et redirigent automatiquement à l’ouverture.",
+        "Consultez le nombre d’ouvertures de chaque partage et la date de sa dernière ouverture.",
+        "Prolongez un partage expiré, modifiez son mot de passe ou ajustez sa durée de validité — le même lien continue de fonctionner.",
+        "Envoyez un partage aux personnes figurant dans vos favoris Apps Hub sous forme de notification, dans la langue de chacune.",
+        "Le propriétaire du serveur choisit le nombre maximal de fichiers, la taille maximale par fichier et les catégories autorisées : images, vidéos, documents et archives.",
+        "Les fichiers envoyés sont stockés dans la base de données propre à l’application, jamais dans un dossier accessible au serveur web ; leurs octets ne sont transmis que sur présentation d’un jeton de courte durée émis après un déverrouillage réussi.",
+        "Supprimez un partage à tout moment pour détruire définitivement son contenu chiffré.",
+        "Fonctionne comme application de bureau et comme page publique — les destinataires n’ont besoin d’aucun compte pour ouvrir ce que vous leur envoyez."
+      ],
+      "requirements": [
+        "Un profil Apps Hub pour créer des partages. Aucun compte n’est nécessaire pour ouvrir un partage qui vous a été envoyé.",
+        "Un navigateur disposant de Web Crypto, ce qui nécessite que le site soit servi en HTTPS."
+      ],
+      "name": "mvmShare"
+    },
+    "es": {
+      "short_description": "Comparte archivos, una nota o una dirección mediante un único enlace cifrado. Los archivos se cifran en tu navegador antes de cargarse; las imágenes se abren en una galería y el servidor solo almacena datos cifrados que no puede leer. Define la duración del contenido compartido y protégelo con una contraseña.",
+      "tagline": "Comparte archivos, una nota o una dirección: cifrados en tu navegador y accesibles con un solo enlace.",
+      "description": "mvmShare convierte todo lo que quieras compartir en un único enlace. Añade un archivo o una colección completa, escribe una nota o pega una dirección, y mvmShare lo cifra en tu navegador antes de que se cargue un solo byte. La clave que permite abrirlo se incluye en el propio enlace, en la parte que los navegadores nunca envían al servidor, por lo que aquí se almacenan datos cifrados que este servidor no tiene forma de leer: ni los archivos, ni la nota, ni siquiera la dirección a la que apunta un enlace corto.\n\nUn conjunto de archivos compartidos funciona como un pequeño gestor de archivos cifrado: las imágenes aparecen como miniaturas y se abren en una galería con controles para avanzar y retroceder, mientras que los documentos, vídeos y archivos comprimidos siguen disponibles como archivos. Descargar todo crea un único ZIP de forma local en el navegador del destinatario, de modo que el servidor nunca recibe contenido legible. El propietario del servidor decide, desde los ajustes de la Tienda de aplicaciones, cuántos archivos puede contener cada recurso compartido, el tamaño máximo de cada archivo y si se aceptan imágenes, vídeos, documentos y archivos comprimidos.\n\nTodos los recursos compartidos siguen las mismas reglas, sea cual sea de los tres tipos. Elige cuánto tiempo será válido y protégelo con una contraseña que se solicitará antes de revelar cualquier información: si se establece una contraseña, un enlace acortado no revela nada sobre su destino hasta que se introduce la correcta. Cuando un recurso compartido caduca, permanece en tu cuenta para que puedas ampliar su vigencia y hacer que el mismo enlace vuelva a funcionar.\n\nUn enlace compartido es simplemente un enlace: funciona para cualquier persona a la que se lo envíes, tenga o no una cuenta en este servidor. Si la persona ya tiene cuenta aquí, mvmShare puede enviarle el enlace directamente a sus notificaciones de Apps Hub, traducidas al idioma que esté utilizando. No hace falta ninguna cuenta para abrir un recurso compartido: el enlace muestra una nota en pantalla, ofrece archivos cifrados para verlos o descargarlos, o redirige directamente a la dirección que ocultaba.",
+      "capabilities": [
+        "Comparte uno o varios archivos, una nota o una dirección mediante un único enlace, con las mismas opciones para los tres tipos.",
+        "Un gestor de archivos cifrado con miniaturas de imágenes, una galería con controles para avanzar y retroceder y un único ZIP creado localmente al usar Descargar todo.",
+        "Todo se cifra en tu navegador con AES-GCM antes de cargarse; el servidor solo almacena datos cifrados.",
+        "La clave de descifrado viaja en el fragmento del enlace, que nunca se envía al servidor: si pierdes el enlace, no habrá forma de abrir el recurso compartido.",
+        "Define cuánto tiempo será válido un recurso compartido, desde una hora hasta un mes, o déjalo sin fecha de caducidad.",
+        "Protege un recurso compartido con una contraseña que se comprueba antes de proporcionar cualquier contenido, para que una dirección oculta siga oculta.",
+        "Los enlaces acortados ocultan su destino y redirigen automáticamente al abrirse.",
+        "Consulta cuántas veces se ha abierto cada recurso compartido y cuándo se abrió por última vez.",
+        "Amplía la vigencia de un recurso compartido caducado, cambia su contraseña o modifica su duración: el mismo enlace sigue funcionando.",
+        "Envía un recurso compartido a tus favoritos de Apps Hub como notificación, en el idioma de cada persona.",
+        "El propietario del servidor elige el número máximo de archivos, el tamaño máximo por archivo y las categorías permitidas: imágenes, vídeos, documentos y archivos comprimidos.",
+        "Los archivos cargados se almacenan en la propia base de datos de la aplicación, nunca en una carpeta accesible para el servidor web; los bytes solo se entregan mediante un token de corta duración emitido tras un desbloqueo correcto.",
+        "Elimina un recurso compartido en cualquier momento y su contenido cifrado se destruirá definitivamente.",
+        "Funciona como aplicación de escritorio y como página pública: los destinatarios no necesitan una cuenta para abrir lo que les envíes."
+      ],
+      "requirements": [
+        "Un perfil de Apps Hub para crear recursos compartidos. No hace falta una cuenta para abrir un recurso compartido que hayas recibido.",
+        "Un navegador con Web Crypto disponible, lo que implica que el sitio debe servirse a través de HTTPS."
+      ],
+      "name": "mvmShare"
+    },
+    "ja": {
+      "short_description": "ファイル、メモ、リンクを1つの暗号化リンクで共有できます。ファイルはアップロード前にブラウザー内で暗号化され、画像はギャラリーで表示されます。サーバーに保存されるのは、サーバー自身では読み取れない暗号文だけです。共有の有効期間を設定し、パスワードで保護できます。",
+      "tagline": "ファイル、メモ、リンクを共有。ブラウザーで暗号化し、1つのリンクで開けます。",
+      "description": "mvmShareは、相手に渡したいものを1つのリンクにまとめます。1つのファイルやファイル一式を追加する、メモを書く、アドレスを貼り付けると、mvmShareはデータを一切アップロードする前にブラウザー内で暗号化します。開くための鍵はリンク自体の中でも、ブラウザーがサーバーに送信しない部分に格納されます。そのため、ここに保存されるのは、このサーバーでは読み取る手段のない暗号文だけです。ファイルもメモも、短縮リンクの転送先アドレスさえも読み取れません。\n\nファイル共有は、小さな暗号化ファイルマネージャーとして機能します。画像はサムネイルで表示され、前後に移動できるギャラリーで開きます。文書、動画、アーカイブはファイルとして利用できます。「すべてダウンロード」では、受信者のブラウザー内で1つのZIPを作成するため、サーバーが読み取り可能なコンテンツを受け取ることはありません。サーバーの所有者は、アプリストアの設定で、1件の共有に含められるファイル数、ファイルごとの最大サイズ、画像・動画・文書・アーカイブの受け入れ可否を決められます。\n\n3種類のどの共有でも、同じルールが適用されます。有効期間を選び、内容を一切表示する前に入力を求めるパスワードで保護できます。パスワードが設定された短縮リンクは、正しいパスワードが入力されるまで、転送先について何も明かしません。有効期限が切れた共有もアカウント内に残るため、期限を延長すれば同じリンクを再び利用できます。\n\n共有リンクは、通常のリンクと同じように使えます。このサーバーにアカウントがあるかどうかにかかわらず、送信先の誰でも利用できます。相手がすでにこのサーバーを利用している場合は、相手の表示言語に合わせて翻訳したApps Hub通知として、mvmShareからリンクを直接届けることもできます。共有を開くためのアカウントは一切不要です。リンクを開くと、メモが画面に表示されるか、暗号化されたファイルを表示・ダウンロードできるようになるか、隠されていたアドレスへ直接転送されます。",
+      "capabilities": [
+        "1つまたは複数のファイル、メモ、リンクを1つのリンクで共有でき、3種類すべてで同じオプションを利用できます。",
+        "画像のサムネイル、前後に移動できるギャラリー、「すべてダウンロード」用にローカルで作成される1つのZIPを備えた暗号化ファイルマネージャー。",
+        "すべての内容はアップロード前にブラウザー内でAES-GCMにより暗号化され、サーバーが保持するのは常に暗号文だけです。",
+        "復号鍵はサーバーに送信されないリンクのフラグメントに含まれます。リンクを失うと、その共有を開く手段はありません。",
+        "共有の有効期間を1時間から1か月まで設定するか、無期限にできます。",
+        "コンテンツを一切提供する前に確認されるパスワードで共有を保護し、非公開のアドレスを隠したままにできます。",
+        "短縮リンクは転送先を隠し、開くと自動的に転送します。",
+        "各共有が開かれた回数と、最後に開かれた日時を確認できます。",
+        "期限切れの共有の延長、パスワードの変更、有効期限の再設定を行っても、同じリンクを引き続き利用できます。",
+        "Apps Hubのお気に入りに登録した相手に、それぞれの言語の通知として共有を送信できます。",
+        "サーバーの所有者が、最大ファイル数、ファイルごとの最大サイズ、許可するカテゴリー（画像、動画、文書、アーカイブ）を選択できます。",
+        "アップロードされたファイルはアプリ独自のデータベース内に保存され、Webサーバーからアクセスできるフォルダーには保存されません。データは、ロック解除に成功した際に発行される短時間有効なトークンが提示された場合にのみ提供されます。",
+        "共有はいつでも削除でき、暗号化されたコンテンツは完全に破棄されます。",
+        "デスクトップアプリと公開ページの両方で利用でき、受信者はアカウントなしで送られた内容を開けます。"
+      ],
+      "requirements": [
+        "共有の作成にはApps Hubプロフィールが必要です。受け取った共有を開く際にアカウントは必要ありません。",
+        "Web Cryptoを利用できるブラウザーが必要です。そのため、サイトはHTTPSで配信されている必要があります。"
+      ],
+      "name": "mvmShare"
+    },
+    "pt-BR": {
+      "short_description": "Compartilhe arquivos, uma nota ou um link por meio de um único link criptografado. Os arquivos são criptografados no seu navegador antes do envio; as imagens abrem em uma galeria, enquanto o servidor armazena apenas dados criptografados que não consegue ler. Defina o prazo de validade do compartilhamento e proteja-o com uma senha.",
+      "tagline": "Compartilhe arquivos, uma nota ou um link — com criptografia no seu navegador e acesso por um único link.",
+      "description": "mvmShare transforma tudo o que você quer compartilhar em um único link. Adicione um arquivo ou uma coleção inteira, escreva uma nota ou cole um endereço, e o mvmShare criptografa tudo no seu navegador antes que um único byte seja enviado. A chave que permite abrir o conteúdo fica no próprio link, na parte que os navegadores nunca enviam a um servidor. Assim, o que fica armazenado aqui são dados criptografados que este servidor não tem como ler — nem os arquivos, nem a nota, nem mesmo o endereço de destino de um link encurtado.\n\nUm compartilhamento de arquivos é um pequeno gerenciador de arquivos criptografado: as imagens aparecem como miniaturas e abrem em uma galeria com controles de próximo e anterior, enquanto documentos, vídeos e arquivos compactados ficam disponíveis como arquivos. Baixar tudo cria um único ZIP localmente no navegador do destinatário, de modo que o servidor nunca recebe conteúdo legível. O proprietário do servidor define, nas configurações da Loja de Aplicativos, quantos arquivos um compartilhamento pode conter, o tamanho máximo de cada arquivo e se imagens, vídeos, documentos e arquivos compactados são aceitos.\n\nTodos os compartilhamentos seguem as mesmas regras, qualquer que seja um dos três tipos. Escolha por quanto tempo ele permanece válido e proteja-o com uma senha solicitada antes que qualquer informação seja revelada — com uma senha definida, um link encurtado não revela nada sobre seu destino até que a senha correta seja digitada. Quando um compartilhamento expira, ele permanece na sua conta, para que você possa prorrogar sua validade e fazer o mesmo link funcionar novamente.\n\nUm link compartilhado é apenas um link: funciona para qualquer pessoa a quem você o enviar, com ou sem uma conta neste servidor. Se a pessoa já estiver aqui, o mvmShare pode colocar o link diretamente nas notificações dela no Apps Hub, traduzidas para o idioma que ela estiver usando. Não é preciso ter conta para abrir um compartilhamento — um link exibe uma nota na tela, disponibiliza arquivos criptografados para visualização ou download ou redireciona diretamente para o endereço que estava oculto.",
+      "capabilities": [
+        "Compartilhe um ou vários arquivos, uma nota ou um link por meio de um único link, com as mesmas opções para os três tipos.",
+        "Um gerenciador de arquivos criptografado com miniaturas de imagens, uma galeria com controles de próximo/anterior e um único ZIP criado localmente ao usar Baixar tudo.",
+        "Tudo é criptografado no seu navegador com AES-GCM antes do envio; o servidor armazena apenas dados criptografados.",
+        "A chave de descriptografia é transmitida no fragmento do link, que nunca é enviado ao servidor — se você perder o link, nada poderá abrir o compartilhamento.",
+        "Defina por quanto tempo um compartilhamento permanece válido, de uma hora a um mês, ou deixe-o sem prazo de validade.",
+        "Proteja um compartilhamento com uma senha verificada antes que qualquer conteúdo seja disponibilizado, para que um endereço oculto permaneça oculto.",
+        "Links encurtados ocultam o destino e redirecionam automaticamente ao serem abertos.",
+        "Veja quantas vezes cada compartilhamento foi aberto e quando foi aberto pela última vez.",
+        "Prorrogue um compartilhamento expirado, altere sua senha ou ajuste seu prazo de validade — o mesmo link continua funcionando.",
+        "Envie um compartilhamento aos seus favoritos do Apps Hub como uma notificação, no idioma de cada pessoa.",
+        "O proprietário do servidor escolhe a quantidade máxima de arquivos, o tamanho máximo por arquivo e as categorias permitidas: imagens, vídeos, documentos e arquivos compactados.",
+        "Os arquivos enviados são armazenados no banco de dados do próprio aplicativo, nunca em uma pasta acessível ao servidor web; os bytes só são liberados mediante um token de curta duração emitido após um desbloqueio bem-sucedido.",
+        "Exclua um compartilhamento a qualquer momento, e seu conteúdo criptografado será destruído definitivamente.",
+        "Funciona como aplicativo de área de trabalho e como página pública — os destinatários não precisam de conta para abrir o que você enviar."
+      ],
+      "requirements": [
+        "Um perfil do Apps Hub para criar compartilhamentos. Não é preciso ter conta para abrir um compartilhamento recebido.",
+        "Um navegador com Web Crypto disponível, o que significa que o site precisa ser servido por HTTPS."
+      ],
+      "name": "mvmShare"
+    },
+    "ru": {
+      "short_description": "Делитесь файлами, заметкой или ссылкой через одну зашифрованную ссылку. Файлы шифруются в браузере до загрузки; изображения открываются в галерее, а сервер хранит только зашифрованные данные, которые не может прочитать. Задайте срок действия и защитите доступ паролем.",
+      "tagline": "Делитесь файлами, заметкой или ссылкой — с шифрованием в браузере и доступом по одной ссылке.",
+      "description": "mvmShare превращает всё, чем вы хотите поделиться, в одну ссылку. Добавьте один файл или целую коллекцию, напишите заметку или вставьте адрес, и mvmShare зашифрует содержимое в браузере ещё до загрузки первого байта. Ключ для открытия помещается в саму ссылку, в ту её часть, которую браузеры никогда не отправляют серверу. Поэтому здесь хранятся зашифрованные данные, которые сервер никак не может прочитать: ни файлы, ни заметку, ни даже адрес, на который указывает короткая ссылка.\n\nПубликация с файлами — это небольшой зашифрованный файловый менеджер: изображения отображаются в виде миниатюр и открываются в галерее с переходом к следующему и предыдущему изображению, а документы, видео и архивы остаются доступны как файлы. Команда «Скачать всё» создаёт один ZIP-архив локально в браузере получателя, поэтому сервер никогда не получает содержимое в читаемом виде. Владелец сервера задаёт в настройках Магазина приложений, сколько файлов может содержать публикация, максимальный размер каждого файла и разрешены ли изображения, видео, документы и архивы.\n\nДля всех публикаций действуют одинаковые правила независимо от того, к какому из трёх типов они относятся. Выберите срок действия и установите пароль, который потребуется ввести до раскрытия любого содержимого. Если пароль задан, сокращённая ссылка ничего не сообщает об адресе назначения, пока не введён правильный пароль. После истечения срока действия публикация остаётся в вашей учётной записи, поэтому её можно продлить, и та же ссылка снова заработает.\n\nСсылка на публикацию — это обычная ссылка: она работает для любого получателя, независимо от наличия учётной записи на этом сервере. Если получатель уже зарегистрирован здесь, mvmShare может отправить ссылку прямо в его уведомления Apps Hub с текстом на используемом им языке. Для открытия публикации учётная запись не нужна: ссылка показывает заметку на экране, предлагает просмотреть или скачать зашифрованные файлы либо сразу перенаправляет на скрытый в ней адрес.",
+      "capabilities": [
+        "Делитесь одним или несколькими файлами, заметкой или ссылкой через одну ссылку с одинаковыми настройками для всех трёх типов.",
+        "Зашифрованный файловый менеджер с миниатюрами изображений, галереей с переходом вперёд и назад и одним ZIP-архивом, создаваемым локально по команде «Скачать всё».",
+        "Всё шифруется в браузере с помощью AES-GCM до загрузки; сервер хранит только зашифрованные данные.",
+        "Ключ расшифровки передаётся во фрагменте ссылки, который никогда не отправляется серверу: если ссылка потеряна, открыть публикацию невозможно.",
+        "Задайте срок действия публикации от часа до месяца или оставьте её бессрочной.",
+        "Защитите публикацию паролем, который проверяется до выдачи любого содержимого, чтобы скрытый адрес оставался скрытым.",
+        "Сокращённые ссылки скрывают адрес назначения и автоматически перенаправляют на него при открытии.",
+        "Просматривайте количество открытий каждой публикации и время последнего открытия.",
+        "Продлевайте публикации с истёкшим сроком действия, меняйте пароль или срок действия — ссылка остаётся прежней.",
+        "Отправляйте публикацию избранным пользователям Apps Hub в виде уведомления на языке каждого получателя.",
+        "Владелец сервера выбирает максимальное количество файлов, максимальный размер каждого файла и разрешённые категории: изображения, видео, документы и архивы.",
+        "Загруженные файлы хранятся в собственной базе данных приложения, а не в папке, доступной веб-серверу; данные выдаются только по краткосрочному токену, полученному после успешной разблокировки.",
+        "Удалите публикацию в любой момент, и её зашифрованное содержимое будет уничтожено безвозвратно.",
+        "Работает как приложение на рабочем столе и как публичная страница — получателям не нужна учётная запись, чтобы открыть отправленное."
+      ],
+      "requirements": [
+        "Профиль Apps Hub для создания публикаций. Для открытия полученной публикации учётная запись не нужна.",
+        "Браузер с доступным Web Crypto, поэтому сайт должен работать по HTTPS."
+      ],
+      "name": "mvmShare"
+    },
+    "zh-CN": {
+      "short_description": "通过一个加密链接分享文件、便笺或链接。文件在上传前由浏览器加密；图片以图库形式打开，而服务器只存储无法读取的密文。可设置分享有效期，并用密码保护。",
+      "tagline": "分享文件、便笺或链接——在浏览器中加密，通过一个链接打开。",
+      "description": "mvmShare 将你想传递的任何内容汇成一个链接。添加单个文件或一整组文件、撰写便笺或粘贴网址，mvmShare 都会在上传任何字节之前，先在浏览器中完成加密。解密密钥放在链接本身之中，位于浏览器从不发送给服务器的部分，因此这里存储的只有服务器无法读取的密文——无论是文件、便笺，还是短链接指向的网址，服务器都无法读取。\n\n文件分享就是一个小型加密文件管理器：图片显示为缩略图，并可在带有上一张和下一张控件的图库中打开；文档、视频和压缩包则以文件形式供访问。“全部下载”会在接收者的浏览器中本地生成一个 ZIP 文件，因此服务器始终不会收到可读内容。服务器所有者可在应用商店设置中决定每个分享允许包含的文件数量、单个文件的大小上限，以及是否接受图片、视频、文档和压缩包。\n\n三种分享类型都遵循相同规则。你可以选择有效期，并设置密码，在显示任何内容之前要求输入密码——设置密码后，只有输入正确密码，短链接才会透露其目标地址。分享过期后仍会保留在你的账号中，因此你可以延长有效期，让原链接重新生效。\n\n分享链接就是普通链接：任何收到链接的人都可以使用，无论是否拥有此服务器的账号。如果对方已有账号，mvmShare 可以直接将链接发送到其 Apps Hub 通知中，并使用对方当前的界面语言。打开分享完全不需要账号——链接可以在屏幕上打开便笺，提供加密文件供查看或下载，或直接跳转到其隐藏的网址。",
+      "capabilities": [
+        "通过一个链接分享单个或多个文件、便笺或链接，三种类型均提供相同选项。",
+        "加密文件管理器，提供图片缩略图、可切换上一张和下一张的图库，以及通过“全部下载”在本地生成单个 ZIP 文件。",
+        "所有内容均在上传前于浏览器中使用 AES-GCM 加密；服务器始终只持有密文。",
+        "解密密钥位于链接片段中，绝不会发送给服务器——丢失链接后，就无法打开分享。",
+        "设置分享有效期，可从一小时到一个月，也可设为永久有效。",
+        "使用密码保护分享，在提供任何内容之前验证密码，确保隐藏的网址不会泄露。",
+        "短链接隐藏目标地址，打开后自动跳转。",
+        "查看每个分享的打开次数和上次打开时间。",
+        "为已过期的分享延长有效期、更改密码或重新设置有效期——原链接仍可继续使用。",
+        "以通知形式将分享发送给 Apps Hub 收藏联系人，并使用每个人各自的语言。",
+        "服务器所有者可设置文件数量上限、单个文件大小上限及允许的类别：图片、视频、文档和压缩包。",
+        "上传的文件存储在应用自身的数据库中，绝不会放在 Web 服务器可访问的文件夹内；只有凭成功解锁后签发的短期令牌，才能获取文件数据。",
+        "随时删除分享，其加密内容将被永久销毁。",
+        "既可作为桌面应用使用，也可作为公开页面使用——接收者无需账号即可打开你发送的内容。"
+      ],
+      "requirements": [
+        "创建分享需要 Apps Hub 个人资料。打开收到的分享无需账号。",
+        "浏览器须支持 Web Crypto，这意味着网站必须通过 HTTPS 提供服务。"
+      ],
+      "name": "mvmShare"
+    }
+  }
 }

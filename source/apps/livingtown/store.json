@@ -26,5 +26,231 @@
   ],
   "requirements": [
     "Game Hub 1.21.1 or later, installed and updated before using this version."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Lenke die Entwicklung einer Stadt, die sich selbst aufbaut. Weise Baugebiete aus, gestalte Straßen und öffentliche Einrichtungen und begleite alle Einwohner bei der Arbeit, unterwegs, im Familienleben und als Eigentümer.",
+      "tagline": "Weise Baugebiete aus und sorge für die Menschen; jedes Zuhause, jedes Unternehmen und jeder Weg gehört zu einem tatsächlichen Einwohner.",
+      "description": "Living Town ist eine frühe spielbare Grundlage für eine Stadtsimulation, bei der die Menschen im Mittelpunkt stehen. Du platzierst keine privaten Wohnhäuser und Unternehmen. Du zeichnest Straßen, weist Wohn- und Gewerbegebiete aus und errichtest die öffentlichen Einrichtungen, die eine Besiedlung ermöglichen. Die Einwohner entscheiden, was als Nächstes geschieht.\n\nDie Stadt beginnt mit einem Paar in einem kleinen Zuhause. Beide sind dauerhaft simulierte Personen mit Alter, Geld, Haushalt, Arbeitsplatz, aktuellem Ziel und eigener Geschichte. Sie gehen durch die sichtbare Welt zur Arbeit, kehren nach Hause zurück, verdienen Geld und geben es aus, werden älter und treffen eigene Entscheidungen. In diesem ersten Prototyp vergeht die Zeit bewusst schneller, damit sich ein Leben beobachten lässt, statt nur beschrieben zu werden.\n\nPrivate Bauvorhaben liegen in den Händen der Bevölkerung. Wenn Nachfrage und finanzielle Mittel es rechtfertigen, beanspruchen Einwohner geeignete ausgewiesene Grundstücke, finanzieren ein Gebäude und begeben sich tatsächlich zu dessen Baustelle. Fertige Wohnhäuser können bezogen oder vermietet werden; fertige Unternehmen schreiben tatsächliche Stellen aus und zahlen tatsächliche Löhne. Die zusammengefassten Kennzahlen in der Benutzeroberfläche werden aus diesen Menschen und Gebäuden abgeleitet, statt sie zu ersetzen.\n\nDu gestaltest das gemeinsame Umfeld: Straßen, Wohn- und Gewerbegebiete, eine Klinik, eine Polizeiwache und eine Feuerwache. Öffentliche Gebäude werden aus der Stadtkasse finanziert, stellen Einwohner über denselben Arbeitsmarkt ein und haben konkrete Kapazitätsgrenzen. Sie bilden den ersten Teil eines umfassenderen Versorgungssystems, in dem Einsätze, Fahrzeuge und Reaktionszeiten eine Rolle spielen werden, statt passiver Boni durch Gebietsabdeckung.\n\nDiese Version ist bewusst als Grundlage angelegt. Sie vereint ein dauerhaftes Bevölkerungsmodell, selbstständig gewählte Ziele, sichtbare Wege, Gebietsausweisung, private Bautätigkeit, Beschäftigung, Haushaltsfinanzen und die Personalbesetzung städtischer Einrichtungen auf derselben großen, verschiebbaren Karte, die auch Stonehold verwendet. Transportfahrzeuge, Einsätze, Familienzuwachs und komplexere Märkte mit Angebot und Nachfrage sind die nächsten Systeme, die darauf aufbauen sollen.\n\nNamen und Identitäten\nEinwohner verwenden Namen aus Game Hub in der jeweiligen Originalschreibweise und in lateinischer Schrift. Kinder erben eine gespeicherte Familienidentität mit der passenden Form des Nachnamens, und gespeicherte Städte behalten ihre bisherigen Einwohner.",
+      "capabilities": [
+        "Eine Welt mit 4200 mal 4200 Einheiten, flüssigem Verschieben, Zoom per Mausrad, Verschieben per Touch-Geste und einer Ausgangsansicht.",
+        "Zwei dauerhaft simulierte Gründungseinwohner mit Namen, Alter, Geld, Partnerschaft, Zuhause, Arbeit, aktuellem Ziel und einer persönlichen Ereignisgeschichte.",
+        "Selbstständige Alltagsentscheidungen: Einwohner wählen Ziele für Arbeit, Zuhause, Bauvorhaben und Leerlauf und gehen ohne direkte Befehle dorthin.",
+        "Vom Spieler gezeichnete Straßen und ausgewiesene Wohn- oder Gewerbegebiete statt der direkten Platzierung privater Gebäude.",
+        "Von Einwohnern finanzierte private Bauvorhaben auf geeigneten ausgewiesenen Grundstücken, mit sichtbarem Baufortschritt durch tatsächlich anwesende Menschen.",
+        "Wohnhäuser, Arbeitsplätze, Eigentum, Miete, Gehälter, Stellen und eine Stadtkasse als miteinander verbundene Systeme.",
+        "Vom Spieler errichtete Klinik, Polizei- und Feuerwachen, die Stellen ausschreiben und nur funktionieren, wenn dort tatsächlich Einwohner arbeiten.",
+        "Klicke auf einen beliebigen sichtbaren Einwohner oder ein Gebäude, um genau zu erfahren, um wen oder was es sich handelt, wohin die Person unterwegs ist und warum.",
+        "Fortlaufendes Speichern im Einzelspielermodus über Game Hub, sodass die gesamte Stadt zwischen Spielsitzungen erhalten bleibt.",
+        "Ein bewusst beschleunigter Kalender, mit dem du das Altern und die frühe Entwicklung der Stadt während einer normalen Spielsitzung beobachten kannst.",
+        "Einwohner verwenden Namen aus Game Hub in der jeweiligen Originalschreibweise und in lateinischer Schrift. Kinder erben eine gespeicherte Familienidentität mit der passenden Form des Nachnamens, und gespeicherte Städte behalten ihre bisherigen Einwohner."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 oder neuer, vor der Nutzung dieser Version installiert und aktualisiert."
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town läuft auf seiner öffentlichen Game Hub-Seite, die die Spieleridentität, den Einzelspielerraum und den dauerhaften Spielstand bereitstellt.",
+          "requires": "Game Hub ist erforderlich. Falls es fehlt, bietet der Launcher die Installation an."
+        }
+      ],
+      "name": "Lebendige Stadt"
+    },
+    "es": {
+      "short_description": "Dirige un pueblo que se construye solo. Zonifica el terreno, traza carreteras, desarrolla servicios públicos y sigue a cada habitante en su trabajo, sus desplazamientos, su vida familiar y sus propiedades.",
+      "tagline": "Zonifica el terreno y atiende a la población; cada hogar, negocio y trayecto pertenece a un habitante real.",
+      "description": "Living Town es una primera base jugable para un simulador de pueblos centrado en las personas. No colocas viviendas ni empresas privadas. Trazas carreteras, delimitas terrenos residenciales y comerciales, y construyes los servicios públicos que hacen posible el asentamiento. Los habitantes deciden qué ocurre después.\n\nEl pueblo comienza con una pareja en una pequeña vivienda. Cada integrante es una persona persistente con edad, dinero, unidad familiar, lugar de trabajo, destino actual e historial. Caminan por el mundo visible para ir a trabajar, vuelven a casa, ganan y gastan dinero, envejecen y toman sus propias decisiones. En este primer prototipo, el tiempo se acelera deliberadamente para que la vida pueda observarse en lugar de limitarse a una descripción.\n\nLa construcción privada está en manos de la población. Cuando la demanda y el dinero lo justifican, los habitantes se hacen con terrenos adecuados dentro de las zonas delimitadas, financian un edificio y se desplazan físicamente hasta la obra. Las viviendas terminadas pueden ocuparse o alquilarse; los negocios terminados publican ofertas de empleo reales y pagan salarios reales. Las cifras resumidas de la interfaz se calculan a partir de esas personas y edificios, en lugar de sustituirlos.\n\nEl jugador controla el entorno compartido: carreteras, zonas residenciales y comerciales, una clínica, una comisaría y un parque de bomberos. Los edificios públicos consumen fondos municipales, contratan habitantes del mismo mercado laboral y tienen una capacidad concreta. Son la primera parte de un sistema de servicios más amplio en el que los incidentes, los vehículos y el tiempo de respuesta tendrán importancia, en lugar de las bonificaciones pasivas por cobertura.\n\nEsta versión está concebida expresamente como una base. Establece el modelo de población persistente, los objetivos autónomos, los desplazamientos visibles, la zonificación, la construcción privada, el empleo, la economía familiar y la contratación de personal municipal en el mismo mapa extenso y desplazable que utiliza Stonehold. Los vehículos de transporte, los incidentes, el crecimiento de las familias y unos mercados de oferta y demanda más complejos serán los próximos sistemas que se desarrollen a partir de esta base.\n\nNombres e identidades\nLos habitantes usan nombres de Game Hub escritos tanto en su alfabeto original como en el latino. Los hijos heredan una identidad familiar almacenada con la forma de apellido correspondiente, y los pueblos guardados conservan a sus habitantes existentes.",
+      "capabilities": [
+        "Un mundo de 4200 por 4200 con desplazamiento fluido, zoom con la rueda del ratón, desplazamiento mediante arrastre táctil y una vista inicial.",
+        "Dos habitantes fundadores persistentes con nombres, edades, dinero, relación de pareja, hogar, trabajo, objetivo actual e historial de acontecimientos personales.",
+        "Decisiones cotidianas autónomas: los habitantes eligen objetivos de trabajo, hogar, construcción y descanso, y se desplazan a pie para cumplirlos sin recibir órdenes directas.",
+        "Carreteras y zonas residenciales o comerciales trazadas por el jugador, en lugar de la colocación directa de edificios privados.",
+        "Construcción privada financiada por los habitantes en terrenos adecuados dentro de las zonas delimitadas, con avances visibles realizados por personas reales.",
+        "Viviendas, lugares de trabajo, propiedad, alquileres, salarios, puestos de trabajo y fondos municipales representados como sistemas conectados.",
+        "Una clínica, una comisaría y un parque de bomberos construidos por el jugador que publican ofertas de empleo y solo funcionan cuando cuentan con habitantes reales como personal.",
+        "Haz clic en cualquier habitante o edificio visible para consultar exactamente quién es, adónde va y por qué.",
+        "Guardado continuo de la partida individual a través de Game Hub, que conserva el pueblo completo entre sesiones.",
+        "Un calendario deliberadamente acelerado para observar el envejecimiento y el desarrollo inicial del pueblo durante una sesión de juego normal.",
+        "Los habitantes usan nombres de Game Hub escritos tanto en su alfabeto original como en el latino. Los hijos heredan una identidad familiar almacenada con la forma de apellido correspondiente, y los pueblos guardados conservan a sus habitantes existentes."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 o posterior, instalado y actualizado antes de utilizar esta versión."
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town se ejecuta en su página pública de Game Hub, que proporciona la identidad del jugador, la sala individual y el guardado persistente.",
+          "requires": "Se requiere Game Hub. El lanzador ofrece instalarlo si no está instalado."
+        }
+      ],
+      "name": "Ciudad viva"
+    },
+    "bg": {
+      "short_description": "Управлявайте град, който се изгражда сам. Определяйте зони, оформяйте пътища и обществени услуги и проследявайте всеки жител през работата, пътуванията, семейния живот и собствеността му.",
+      "tagline": "Определяйте зоните и се грижете за хората; всеки дом, бизнес и пътуване принадлежи на действителен жител.",
+      "description": "Living Town е ранна версия, която вече може да се играе и полага основите на градска симулация с хората в центъра. Не поставяте частни домове и фирми. Чертаете пътища, определяте терени за жилищни и бизнес зони и изграждате обществените услуги, които правят заселването възможно. Жителите решават какво ще се случи след това.\n\nГрадът започва с двама партньори в един малък дом. Всеки от тях е човек, чието състояние се запазва във времето, със своя възраст, пари, домакинство, работно място, текуща дестинация и история. Те се придвижват пеша из видимия свят до работа, прибират се вкъщи, печелят и харчат пари, остаряват и вземат собствени решения. Времето в този първи прототип е умишлено ускорено, за да може един живот да бъде наблюдаван, а не просто описан.\n\nЧастното строителство е в ръцете на населението. Когато търсенето и наличните средства го оправдават, жителите придобиват подходящ терен в определените зони, финансират сграда и действително се придвижват до строителната ѝ площадка. Завършените домове могат да бъдат обитавани или отдавани под наем; завършените бизнес сгради предлагат действителни работни места и изплащат действителни заплати. Обобщените показатели в интерфейса се извеждат от тези хора и сгради, вместо да ги заместват.\n\nИграчът управлява общата среда: пътища, жилищни и бизнес зони, клиника, полицейско управление и пожарна станция. Обществените сгради използват средства от общинската хазна, наемат жители от същия пазар на труда и имат конкретен капацитет. Те са първата част от по-голяма система от услуги, в която значение ще имат произшествията, превозните средства и времето за реакция, вместо пасивните бонуси от покритието.\n\nТази версия умишлено полага само основите. Тя въвежда модела на население, чието състояние се запазва във времето, самостоятелните цели, видимото придвижване, зонирането, частното строителство, заетостта, средствата на домакинствата и наемането на общински служители върху същата голяма карта с възможност за преместване на изгледа, която се използва в Stonehold. Транспортните средства, произшествията, разрастването на семействата и по-задълбочените пазари, основани на търсенето и предлагането, са следващите системи, които ще се развият върху тези основи.\n\nИмена и идентичност\nЖителите използват имена от Game Hub с изписване на съответната азбука и на латиница. Децата наследяват съхранена семейна идентичност с подходящата форма на фамилното име, а запазените градове запазват съществуващите си жители.",
+      "capabilities": [
+        "Свят с размери 4200 на 4200 с плавно преместване на изгледа, мащабиране с колелцето на мишката, плъзгане чрез докосване и начален изглед.",
+        "Двама първоначални жители, чието състояние се запазва във времето, с имена, възраст, пари, партньорска връзка, дом, работа, текуща цел и лична история на събитията.",
+        "Самостоятелни ежедневни решения: жителите избират цели, свързани с работа, дом, строителство и свободно време, и се придвижват пеша до тях без преки заповеди.",
+        "Играчът чертае пътища и определя жилищни или бизнес зони, вместо да поставя частни сгради директно.",
+        "Частно строителство, финансирано от жителите, върху подходящи терени в определените зони, с видим напредък, извършван от действителни хора.",
+        "Домове, работни места, собственост, наеми, заплати, свободни позиции и общинска хазна, представени като взаимосвързани системи.",
+        "Изграждани от играча клиника, полицейско управление и пожарна станция, които обявяват свободни работни места и функционират само когато в тях работят действителни жители.",
+        "Щракнете върху който и да е видим жител или сграда, за да разгледате подробните им данни, а за жителите — и накъде отиват и защо.",
+        "Непрекъснато запазване на самостоятелната игра чрез Game Hub, което съхранява целия град между игровите сесии.",
+        "Умишлено ускорен календар, който позволява да наблюдавате остаряването и ранното развитие на града в рамките на обичайна игрова сесия.",
+        "Жителите използват имена от Game Hub с изписване на съответната азбука и на латиница. Децата наследяват съхранена семейна идентичност с подходящата форма на фамилното име, а запазените градове запазват съществуващите си жители."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 или по-нова версия, инсталирана и актуализирана преди използването на тази версия."
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town се изпълнява на своята публична страница в Game Hub, която осигурява самоличността на играча, стаята за самостоятелна игра и постоянното съхранение на записа.",
+          "requires": "Изисква се Game Hub. Програмата за стартиране предлага да го инсталира, ако липсва."
+        }
+      ],
+      "name": "Живият град"
+    },
+    "fr": {
+      "short_description": "Guidez une ville qui se construit d’elle-même. Délimitez les zones, tracez les routes, développez les services publics et suivez chaque habitant dans son travail, ses déplacements, sa vie familiale et ses biens.",
+      "tagline": "Délimitez les zones et servez la population ; chaque logement, chaque entreprise et chaque trajet sont ceux d’un habitant bien réel.",
+      "description": "Living Town est une première base jouable pour une simulation urbaine centrée sur les habitants. Vous ne placez ni logements privés ni entreprises. Vous tracez des routes, délimitez des zones résidentielles et commerciales et construisez les services publics qui permettent à la population de s’installer. Les habitants décident de la suite.\n\nLa ville commence avec un couple dans une petite maison. Chacun est une personne persistante, avec un âge, de l’argent, un foyer, un lieu de travail, une destination actuelle et une histoire. Les habitants se déplacent à pied dans le monde visible pour aller travailler, rentrent chez eux, gagnent et dépensent de l’argent, vieillissent et prennent leurs propres décisions. Le temps est volontairement accéléré dans ce premier prototype pour permettre d’observer une vie plutôt que de simplement la décrire.\n\nLa construction privée relève de la population. Lorsque la demande et les moyens financiers le justifient, les habitants s’approprient un terrain adapté dans une zone délimitée, financent un bâtiment et se rendent physiquement sur le chantier. Une fois terminés, les logements peuvent être occupés ou loués ; les entreprises publient de véritables offres d’emploi et versent de véritables salaires. Les chiffres de synthèse affichés dans l’interface découlent de ces personnes et de ces bâtiments au lieu de s’y substituer.\n\nLe joueur gère l’environnement commun : routes, zones résidentielles et commerciales, clinique, commissariat et caserne de pompiers. Les bâtiments publics puisent dans la trésorerie municipale, recrutent des habitants sur le même marché du travail et disposent d’une capacité concrète. Ils constituent le premier volet d’un système de services plus vaste dans lequel les incidents, les véhicules et les délais d’intervention auront de l’importance, au lieu de simples bonus de couverture passifs.\n\nCette version est volontairement une base. Elle met en place le modèle de population persistante, les objectifs autonomes, les déplacements visibles, le zonage, la construction privée, l’emploi, les finances des foyers et le recrutement municipal sur la même grande carte déplaçable que celle de Stonehold. Les véhicules de transport, les incidents, l’agrandissement des familles et des marchés plus poussés fondés sur l’offre et la demande seront les prochains systèmes à se développer à partir de cette base.\n\nNoms et identités\nLes habitants utilisent des noms Game Hub avec leur graphie d’origine et leur graphie latine. Les enfants héritent d’une identité familiale enregistrée avec la forme appropriée du nom de famille, et les villes sauvegardées conservent leurs habitants existants.",
+      "capabilities": [
+        "Un monde de 4200 sur 4200 avec déplacement fluide de la vue, zoom à la molette, déplacement tactile par glissement et vue d’accueil.",
+        "Deux habitants fondateurs persistants avec un nom, un âge, de l’argent, une relation de couple, un logement, un travail, un objectif actuel et un historique d’événements personnels.",
+        "Des décisions quotidiennes autonomes : les habitants choisissent des objectifs liés au travail, au domicile, à la construction ou à l’inactivité et s’y rendent à pied sans ordres directs.",
+        "Des routes et des zones résidentielles ou commerciales tracées par le joueur, au lieu de placer directement des bâtiments privés.",
+        "Des constructions privées financées par les habitants sur des terrains adaptés dans les zones délimitées, avec un avancement visible assuré par de véritables personnes.",
+        "Les logements, les lieux de travail, la propriété, les loyers, les salaires, les emplois et la trésorerie municipale sont représentés sous forme de systèmes interconnectés.",
+        "Une clinique, un commissariat et une caserne de pompiers construits par le joueur, qui publient des offres d’emploi et ne fonctionnent que lorsque de véritables habitants y travaillent.",
+        "Cliquez sur n’importe quel habitant ou bâtiment visible pour savoir précisément de qui ou de quoi il s’agit, où les habitants se rendent et pourquoi.",
+        "Une sauvegarde continue en solo via Game Hub, qui préserve l’intégralité de la ville entre les sessions.",
+        "Un calendrier volontairement accéléré pour observer le vieillissement et les premiers développements de la ville au cours d’une session de jeu normale.",
+        "Les habitants utilisent des noms Game Hub avec leur graphie d’origine et leur graphie latine. Les enfants héritent d’une identité familiale enregistrée avec la forme appropriée du nom de famille, et les villes sauvegardées conservent leurs habitants existants."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 ou version ultérieure, installé et mis à jour avant d’utiliser cette version."
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town fonctionne sur sa page publique Game Hub, qui fournit l’identité du joueur, la salle solo et la sauvegarde persistante.",
+          "requires": "Game Hub est requis. Le lanceur propose de l’installer s’il est absent."
+        }
+      ],
+      "name": "Ville vivante"
+    },
+    "pt-BR": {
+      "short_description": "Guie uma cidade que se constrói sozinha. Defina o zoneamento, trace ruas e organize serviços públicos, e acompanhe cada morador no trabalho, nos deslocamentos, na vida familiar e na aquisição de propriedades.",
+      "tagline": "Defina o zoneamento e atenda à população; cada casa, empresa e trajeto pertence a um morador real.",
+      "description": "Living Town é a base inicial e já jogável de uma simulação de cidade centrada nas pessoas. Você não posiciona casas e empresas privadas. Você traça ruas, delimita áreas residenciais e comerciais e constrói os serviços públicos que tornam possível o povoamento. Os moradores decidem o que acontece em seguida.\n\nA cidade começa com um casal em uma pequena casa. Cada integrante é uma pessoa persistente, com idade, dinheiro, núcleo familiar, local de trabalho, destino atual e histórico. Eles caminham pelo mundo visível para trabalhar, voltam para casa, ganham e gastam dinheiro, envelhecem e tomam suas próprias decisões. O tempo é deliberadamente acelerado neste primeiro protótipo para que uma vida possa ser observada em vez de apenas descrita.\n\nA construção privada fica a cargo da população. Quando a demanda e o dinheiro justificam, os moradores reivindicam terrenos adequados nas áreas demarcadas pelo zoneamento, financiam uma construção e se deslocam fisicamente até o canteiro de obras. As casas concluídas podem ser ocupadas ou alugadas; as empresas concluídas anunciam vagas reais e pagam salários reais. Os números resumidos na interface são derivados dessas pessoas e construções, em vez de substituí-las.\n\nO jogador controla o ambiente compartilhado: ruas, zonas residenciais e comerciais, uma clínica, uma delegacia e um quartel de bombeiros. Os prédios públicos consomem recursos do tesouro municipal, contratam moradores do mesmo mercado de trabalho e têm capacidade concreta de atendimento. Eles são a primeira parte de um sistema de serviços mais amplo, no qual ocorrências, veículos e tempo de resposta terão importância, em vez de bônus passivos de cobertura.\n\nEsta versão é intencionalmente uma base. Ela estabelece o modelo de população persistente, objetivos autônomos, deslocamentos visíveis, zoneamento, construção privada, emprego, finanças familiares e contratação de funcionários municipais no mesmo mapa amplo, com navegação por arraste, usado por Stonehold. Veículos de transporte, ocorrências, crescimento familiar e mercados com dinâmica mais aprofundada de oferta e demanda são os próximos sistemas a se desenvolver a partir dela.\n\nNomes e identidades\nOs moradores usam nomes do Game Hub com grafias nativas e latinas. As crianças herdam uma identidade familiar armazenada com a forma apropriada do sobrenome, e as cidades salvas mantêm seus habitantes existentes.",
+      "capabilities": [
+        "Um mundo de 4200 por 4200 com navegação suave, zoom pela roda do mouse, arraste por toque e uma visualização inicial.",
+        "Dois moradores fundadores persistentes com nomes, idades, dinheiro, relação conjugal, casa, trabalho, objetivo atual e um histórico pessoal de eventos.",
+        "Decisões cotidianas autônomas: os moradores escolhem objetivos de trabalho, casa, construção e tempo livre e caminham até eles sem ordens diretas.",
+        "Ruas traçadas pelo jogador e zonas residenciais ou comerciais, em vez do posicionamento direto de construções privadas.",
+        "Construção privada financiada pelos moradores em terrenos adequados nas áreas demarcadas pelo zoneamento, com progresso visível realizado por pessoas de fato.",
+        "Casas, locais de trabalho, propriedade, aluguel, salários, empregos e um tesouro municipal representados como sistemas interligados.",
+        "Clínica, delegacia e quartel de bombeiros construídos pelo jogador, que anunciam vagas de emprego e só funcionam quando moradores reais trabalham neles.",
+        "Clique em qualquer morador ou construção visível para inspecionar exatamente quem são, para onde estão indo e por quê.",
+        "Salvamento contínuo da partida individual pelo Game Hub, preservando a cidade inteira entre as sessões.",
+        "Um calendário deliberadamente acelerado para observar o envelhecimento e o desenvolvimento inicial da cidade durante uma sessão normal de jogo.",
+        "Os moradores usam nomes do Game Hub com grafias nativas e latinas. As crianças herdam uma identidade familiar armazenada com a forma apropriada do sobrenome, e as cidades salvas mantêm seus habitantes existentes."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 ou posterior, instalado e atualizado antes de usar esta versão."
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town é executado em sua página pública no Game Hub, que fornece a identidade do jogador, a sala individual e o salvamento persistente.",
+          "requires": "O Game Hub é obrigatório. O inicializador oferece a instalação caso ele não esteja instalado."
+        }
+      ],
+      "name": "Cidade viva"
+    },
+    "ja": {
+      "short_description": "自ら発展していく町を導きましょう。土地の用途を定め、道路や公共サービスを整えながら、住民一人ひとりの仕事、移動、家族、資産の所有を見守ります。",
+      "tagline": "土地の用途を定め、人々の暮らしを支える。すべての家、事業、移動には、実際に暮らす住民がいます。",
+      "description": "Living Townは、人々の暮らしを中心に据えた町づくりシミュレーションの土台となる、初期のプレイ可能なバージョンです。プレイヤーが民間の住宅や会社を配置することはありません。道路を引き、住宅用地や事業用地を指定し、人々が住み始めるために必要な公共サービスを整えます。その先に何が起こるかは、住民たちが決めます。\n\n町は、小さな家で暮らす2人のパートナーから始まります。それぞれが年齢、所持金、世帯、職場、現在の目的地、履歴を持ち、継続して存在する一人の人物です。目に見える世界を歩いて仕事へ向かい、家に帰り、お金を稼いでは使い、年を重ね、自分で判断します。この最初のプロトタイプでは、人生を単に説明するのではなく、実際に観察できるよう、時間の流れを意図的に速めています。\n\n民間の建設を担うのは住民です。需要と資金が十分にあれば、住民は用途指定された適切な土地を確保し、建物の建設費を負担して、自ら建設現場へ向かいます。完成した住宅には入居したり、賃貸に出したりできます。完成した事業所は実際に求人を出し、賃金を支払います。画面に表示される集計値は、こうした人々や建物から算出されるものであり、それらの代わりとなるものではありません。\n\nプレイヤーが管理するのは、道路、住宅区域、事業区域、診療所、警察署、消防署といった、町全体で共有する環境です。公共施設は町の財政から資金を使い、民間と同じ労働市場から住民を雇用し、明確な対応能力を持ちます。これらは、より大きな公共サービスの仕組みの第一歩です。そこでは、単に範囲内にあるだけで得られるボーナスではなく、事件や事故、車両、対応時間が重要になります。\n\nこのバージョンは、意図的に基盤づくりに重点を置いています。Stoneholdと同じ、広大でスクロール可能なマップ上で、住民が継続して存在するモデル、自律的な目標設定、目に見える移動、用途指定、民間の建設、雇用、世帯の所持金、自治体職員の雇用を実現しています。ここを土台に、輸送車両、事件や事故、家族の増加、さらに掘り下げた需要と供給の市場が、次の仕組みとして発展していきます。\n\n名前と家族の識別情報\n住民には、現地の文字とラテン文字で表記されたGame Hubの名前が使われます。子どもは、適切な姓の形とともに、保存された家族の識別情報を引き継ぎます。保存済みの町では、既存の住民がそのまま維持されます。",
+      "capabilities": [
+        "4200 × 4200の世界。滑らかなスクロール、マウスホイールでのズーム、タッチ操作でのドラッグ、ホームビューに対応。",
+        "町の創設者となる2人の住民が継続して存在し、それぞれに名前、年齢、所持金、パートナー関係、住居、仕事、現在の目標、個人の出来事の履歴があります。",
+        "日々の判断を自律的に実行。住民は仕事、帰宅、建設、待機といった目標を選び、直接指示を受けなくても、その場所まで歩いて向かいます。",
+        "民間の建物を直接配置する代わりに、プレイヤーが道路を引き、住宅区域や事業区域を指定します。",
+        "住民が資金を負担し、用途指定された適切な土地で民間の建物を建設。実際の住民による作業の進み具合を目で確認できます。",
+        "住宅、職場、所有権、家賃、給与、雇用、町の財政を、互いにつながる仕組みとして再現。",
+        "プレイヤーが建設する診療所、警察署、消防署は求人を出し、実際の住民が職員として働いている場合にのみ機能します。",
+        "画面上の住民や建物をクリックすると、その人物や建物の詳細、住民の行き先とその理由を正確に確認できます。",
+        "Game Hubを通じてソロプレイの進行状況を継続的に保存し、プレイを終えても町全体の状態を維持します。",
+        "通常のプレイ時間内で加齢や町の初期の発展を観察できるよう、暦の進みを意図的に速めています。",
+        "住民には、現地の文字とラテン文字で表記されたGame Hubの名前が使われます。子どもは、適切な姓の形とともに、保存された家族の識別情報を引き継ぎます。保存済みの町では、既存の住民がそのまま維持されます。"
+      ],
+      "requirements": [
+        "Game Hub 1.21.1以降。このバージョンを使用する前に、インストールと更新を済ませてください。"
+      ],
+      "integrations": [
+        {
+          "summary": "Living Townは、Game Hub上の公開ページで動作します。このページから、プレイヤーの識別情報、ソロ用ルーム、継続的なセーブ機能が提供されます。",
+          "requires": "Game Hubが必要です。未インストールの場合は、ランチャーがインストールを案内します。"
+        }
+      ],
+      "name": "生きている町"
+    },
+    "zh-CN": {
+      "short_description": "引导一座自行发展的城镇。划分用地，规划道路和公共服务，并跟随每位居民，了解他们的工作、出行、家庭和资产。",
+      "tagline": "规划土地，服务居民；每一处住宅、每一家企业、每一段旅程，都属于一位真实存在的居民。",
+      "description": "Living Town 是一款以人为本的城镇模拟游戏，目前处于可游玩的早期基础阶段。你无需亲自放置私人住宅和企业，而是修筑道路、划定住宅和商业用地，并建设让居民能够安居的公共服务设施。接下来会发生什么，由居民自行决定。\n\n城镇最初只有两位伴侣，共同住在一间小屋里。每个人都是持续存在的个体，拥有年龄、金钱、家庭、工作地点、当前目的地和个人经历。他们会在可见的世界中步行上班、回家、挣钱和花钱，逐渐变老，并自行做出决定。这个首版原型特意加快了时间流逝，让你能够亲眼观察一生，而不只是阅读对人生的描述。\n\n私人建筑由居民自行建造。当需求和资金条件具备时，居民会认领合适的已规划用地，出资建造建筑，并亲自前往施工现场。建成的住宅可供自住或出租；建成的企业会发布实际的工作岗位，并支付实际的工资。界面中的汇总数字来自这些居民和建筑，而非用数字取代他们的实际活动。\n\n玩家负责管理公共环境：道路、住宅区和商业区，以及诊所、警察局和消防站。公共建筑会消耗市政资金，从同一个劳动力市场中雇用居民，并拥有明确的服务容量。它们是更大规模服务体系的起点；在这个体系中，事件、车辆和响应时间将发挥实际作用，而非仅仅提供被动的覆盖范围加成。\n\n本版本有意以搭建基础为目标。它在与 Stonehold 相同的可平移大型地图上，建立了持续存在的居民模型、自主目标、可见的出行过程、用地规划、私人建造、就业、家庭资金和市政人员配置等系统。交通车辆、突发事件、家庭人口增长，以及更深入的供需市场，将是接下来在此基础上发展的系统。\n\n姓名与身份\n居民使用 Game Hub 姓名，同时保留本族文字和拉丁字母拼写。子女会继承已保存的家族身份，并采用相应的姓氏形式；已保存的城镇会保留原有居民。",
+      "capabilities": [
+        "一个 4200 × 4200 的世界，支持流畅平移、滚轮缩放、触控拖动和初始视角。",
+        "两位持续存在的创始居民，各自拥有姓名、年龄、金钱、伴侣关系、住所、工作、当前目标和个人事件记录。",
+        "自主做出日常决定：居民会自行选择工作、回家、建造或闲暇活动等目标，并步行前往，无需直接下令。",
+        "由玩家修筑道路并划定住宅区或商业区，而非直接放置私人建筑。",
+        "居民在合适的已规划用地上出资建造私人建筑，由实际居民完成施工，建造进度清晰可见。",
+        "住宅、工作场所、所有权、租金、薪资、岗位和市政金库构成相互关联的系统。",
+        "玩家建造的诊所、警察局和消防站会发布招聘信息，且只有实际居民到岗后才能运作。",
+        "点击任何可见的居民或建筑，即可详细查看其身份或情况，以及居民要去哪里、为何前往。",
+        "通过 Game Hub 持续保存单人游戏进度，在每次游玩之间保留完整的城镇状态。",
+        "特意加快的日历进程，让你在一次正常时长的游玩中观察居民衰老和城镇的早期发展。",
+        "居民使用 Game Hub 姓名，同时保留本族文字和拉丁字母拼写。子女会继承已保存的家族身份，并采用相应的姓氏形式；已保存的城镇会保留原有居民。"
+      ],
+      "requirements": [
+        "使用本版本前，须安装 Game Hub 并更新至 1.21.1 或更高版本。"
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town 在其公开的 Game Hub 页面上运行，由该页面提供玩家身份、单人房间和持久存档。",
+          "requires": "需要 Game Hub。若尚未安装，启动器会提示安装。"
+        }
+      ],
+      "name": "活力小镇"
+    },
+    "ru": {
+      "short_description": "Управляйте городом, который строится сам. Выделяйте зоны, прокладывайте дороги, развивайте городские службы и следите за работой, поездками, семьёй и собственностью каждого жителя.",
+      "tagline": "Выделяйте землю и заботьтесь о людях: за каждым домом, предприятием и поездкой стоит конкретный житель.",
+      "description": "Living Town — ранняя играбельная основа симулятора города, в центре которого стоят люди. Вы не размещаете частные дома и предприятия. Вы прокладываете дороги, выделяете жилые и деловые зоны и создаёте городские службы, благодаря которым становится возможным заселение. А что произойдёт дальше, решают жители.\n\nГород начинается с пары, живущей в одном небольшом доме. Каждый из них — постоянный персонаж со своим возрастом, деньгами, домохозяйством, местом работы, текущим пунктом назначения и историей. Они ходят на работу по видимому игровому миру, возвращаются домой, зарабатывают и тратят деньги, стареют и принимают собственные решения. В этом первом прототипе время намеренно ускорено, чтобы за жизнью можно было наблюдать, а не просто читать о ней.\n\nЧастным строительством занимаются сами жители. Когда спрос и средства позволяют, они занимают подходящий участок в выделенной зоне, финансируют здание и лично отправляются на стройку. В готовых домах можно жить или сдавать их в аренду; открывшиеся предприятия публикуют настоящие вакансии и платят настоящую зарплату. Сводные показатели в интерфейсе рассчитываются на основе этих людей и зданий, а не подменяют их.\n\nИгрок управляет общей средой: дорогами, жилыми и деловыми зонами, поликлиникой, полицейским участком и пожарной частью. Общественные здания расходуют средства казны, нанимают жителей на общем рынке труда и имеют определённые пределы возможностей. Это первая часть более широкой системы городских служб, в которой будут важны происшествия, транспорт и время реагирования, а не пассивные бонусы за охват территории.\n\nЭта версия намеренно служит лишь основой. Она объединяет модель постоянного населения, самостоятельные цели, видимое перемещение, зонирование, частное строительство, трудоустройство, финансы домохозяйств и найм сотрудников городских служб на той же большой карте с возможностью перемещения обзора, что используется в Stonehold. Транспорт, происшествия, рост семей и более развитые рынки со спросом и предложением станут следующими системами, которые вырастут из этой основы.\n\nИмена и семейная принадлежность\nЖители используют имена из Game Hub в оригинальном написании и латиницей. Дети наследуют сохранённую семейную принадлежность с соответствующей формой фамилии, а в сохранённых городах остаются уже существующие жители.",
+      "capabilities": [
+        "Мир размером 4200 на 4200 с плавным перемещением обзора, масштабированием колёсиком мыши, перетаскиванием на сенсорном экране и возвратом к исходному виду.",
+        "Два постоянных жителя-основателя с именами, возрастом, деньгами, партнёрскими отношениями, домом, работой, текущей целью и личной историей событий.",
+        "Самостоятельные повседневные решения: жители выбирают цели, связанные с работой, домом, строительством и отдыхом, и идут к ним без прямых указаний.",
+        "Игрок прокладывает дороги и выделяет жилые или деловые зоны, а не размещает частные здания напрямую.",
+        "Жители финансируют частное строительство на подходящих участках в выделенных зонах, а реальные люди выполняют строительные работы с видимым прогрессом.",
+        "Дома, рабочие места, собственность, аренда, зарплаты, вакансии и городская казна представлены как взаимосвязанные системы.",
+        "Игрок строит поликлинику, полицейский участок и пожарную часть, которые размещают вакансии и работают только тогда, когда в них трудятся реальные жители.",
+        "Нажмите на любого видимого жителя или здание, чтобы подробно узнать, кто перед вами, куда направляется и почему.",
+        "Непрерывное сохранение одиночной игры через Game Hub, сохраняющее весь город между сеансами.",
+        "Намеренно ускоренный календарь позволяет наблюдать за старением жителей и ранним развитием города в течение обычного игрового сеанса.",
+        "Жители используют имена из Game Hub в оригинальном написании и латиницей. Дети наследуют сохранённую семейную принадлежность с соответствующей формой фамилии, а в сохранённых городах остаются уже существующие жители."
+      ],
+      "requirements": [
+        "Game Hub 1.21.1 или новее; перед использованием этой версии его необходимо установить и обновить."
+      ],
+      "integrations": [
+        {
+          "summary": "Living Town запускается на своей общедоступной странице в Game Hub, которая обеспечивает идентификацию игрока, игровую комнату для одиночной игры и постоянное сохранение.",
+          "requires": "Требуется Game Hub. Если он отсутствует, программа запуска предложит его установить."
+        }
+      ],
+      "name": "Живой город"
+    }
+  }
 }

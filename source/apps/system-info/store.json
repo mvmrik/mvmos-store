@@ -8,5 +8,119 @@
     "Disks: every mounted filesystem with size, used and free.",
     "Network: every interface with bytes received and sent.",
     "Temperature sensors, with a clear message when the machine has none to report."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Detaillierte Hardware- und Systeminformationen – CPU, Arbeitsspeicher, Datenträger, Netzwerkschnittstellen, Temperaturen, Betriebszeit und mehr.",
+      "tagline": "Alles über diesen Rechner auf einem Bildschirm.",
+      "description": "Systeminformationen liest die Hardware- und Systemdaten aus und stellt sie in Registerkarten dar: zunächst eine Übersicht, dann CPU, Arbeitsspeicher, Datenträger, Netzwerk und Sensoren im Detail.\n\nHostname, Betriebssystem, Kernel und Betriebszeit; CPU-Modell, Anzahl der Kerne, Taktfrequenz und durchschnittliche Systemlast; belegter, freier und verfügbarer RAM und Auslagerungsspeicher; jeder Datenträger mit Größe und freiem Speicherplatz; jede Netzwerkschnittstelle mit empfangenen und gesendeten Bytes; außerdem Temperatursensoren, sofern der Rechner sie bereitstellt. Bei den meisten virtuellen Servern ist das nicht der Fall, und die App weist darauf hin, statt einfach nichts anzuzeigen.",
+      "capabilities": [
+        "Übersicht: Hostname, Betriebssystem, Kernel, Betriebszeit.",
+        "CPU: Modell, physische und logische Kerne, Taktfrequenz, durchschnittliche Systemlast über 1/5/15 Minuten.",
+        "Arbeitsspeicher: RAM und Auslagerungsspeicher, jeweils belegt, frei und verfügbar.",
+        "Datenträger: jedes eingehängte Dateisystem mit Größe sowie belegtem und freiem Speicherplatz.",
+        "Netzwerk: jede Schnittstelle mit empfangenen und gesendeten Bytes.",
+        "Temperatursensoren mit einem klaren Hinweis, wenn der Rechner keine Sensordaten bereitstellt."
+      ],
+      "name": "Systeminfo"
+    },
+    "bg": {
+      "short_description": "Подробна информация за хардуера и системата — процесор, памет, дискове, мрежови интерфейси, температури, време на работа и още.",
+      "tagline": "Всичко за тази машина на един екран.",
+      "description": "„Системна информация“ прочита данните за хардуера и системата и ги подрежда в раздели: общ преглед, последван от подробности за процесора, паметта, дисковете, мрежата и сензорите.\n\nИме на хоста, операционна система, ядро и време на работа; модел на процесора, брой ядра, честота и средно натоварване; използвана, свободна и налична RAM и суап памет; всеки диск с неговия размер и свободно пространство; всеки мрежов интерфейс с получените и изпратените байтове; и температурни сензори, когато машината предоставя такива данни — повечето виртуални сървъри не предоставят, а приложението го посочва, вместо да оставя празно място.",
+      "capabilities": [
+        "Общ преглед: име на хоста, операционна система, ядро, време на работа.",
+        "Процесор: модел, физически и логически ядра, честота, средно натоварване за 1/5/15 минути.",
+        "Памет: използвана, свободна и налична RAM и суап памет.",
+        "Дискове: всяка монтирана файлова система с общо, използвано и свободно пространство.",
+        "Мрежа: всеки интерфейс с получените и изпратените байтове.",
+        "Температурни сензори с ясно съобщение, когато машината не предоставя данни от такива."
+      ],
+      "name": "Системна информация"
+    },
+    "es": {
+      "short_description": "Información detallada del hardware y del sistema: CPU, memoria, discos, interfaces de red, temperaturas, tiempo de actividad y mucho más.",
+      "tagline": "Todo sobre este equipo, en una sola pantalla.",
+      "description": "Información del sistema lee los datos del hardware y del sistema y los organiza en pestañas: una vista general y, después, información detallada de la CPU, la memoria, los discos, la red y los sensores.\n\nNombre del equipo, sistema operativo, núcleo y tiempo de actividad; modelo de CPU, número de núcleos, frecuencia y promedios de carga; RAM y memoria de intercambio usadas, libres y disponibles; cada disco con su capacidad y espacio libre; cada interfaz de red con los bytes recibidos y enviados; y sensores de temperatura cuando el equipo los expone, algo que no ocurre en la mayoría de los servidores virtuales y que la aplicación indica en lugar de dejar la pantalla vacía.",
+      "capabilities": [
+        "Vista general: nombre del equipo, sistema operativo, núcleo y tiempo de actividad.",
+        "CPU: modelo, núcleos físicos y lógicos, frecuencia y promedios de carga de 1/5/15 minutos.",
+        "Memoria: RAM y memoria de intercambio usadas, libres y disponibles.",
+        "Discos: cada sistema de archivos montado con su capacidad y espacio usado y libre.",
+        "Red: cada interfaz con los bytes recibidos y enviados.",
+        "Sensores de temperatura, con un mensaje claro cuando el equipo no proporciona datos de ninguno."
+      ],
+      "name": "Información del sistema"
+    },
+    "fr": {
+      "short_description": "Informations détaillées sur le matériel et le système : processeur, mémoire, disques, interfaces réseau, températures, durée de fonctionnement et plus encore.",
+      "tagline": "Tout sur cette machine, sur un seul écran.",
+      "description": "Informations système relève les caractéristiques du matériel et du système et les présente dans des onglets : une vue d'ensemble, puis le détail du processeur, de la mémoire, des disques, du réseau et des capteurs.\n\nNom d'hôte, système d'exploitation, noyau et durée de fonctionnement ; modèle du processeur, nombre de cœurs, fréquence et charges moyennes ; mémoire vive et espace d'échange utilisés, libres et disponibles ; chaque disque avec sa capacité et son espace libre ; chaque interface réseau avec les octets reçus et envoyés ; et les capteurs de température lorsque la machine les expose, ce que la plupart des serveurs virtuels ne font pas. L'application l'indique alors clairement au lieu de ne rien afficher.",
+      "capabilities": [
+        "Vue d'ensemble : nom d'hôte, système d'exploitation, noyau, durée de fonctionnement.",
+        "Processeur : modèle, cœurs physiques et logiques, fréquence, charges moyennes sur 1/5/15 minutes.",
+        "Mémoire : mémoire vive et espace d'échange, utilisés, libres et disponibles.",
+        "Disques : chaque système de fichiers monté avec sa capacité, l'espace utilisé et l'espace libre.",
+        "Réseau : chaque interface avec les octets reçus et envoyés.",
+        "Capteurs de température, avec un message clair lorsque la machine n'en fournit aucun."
+      ],
+      "name": "Infos système"
+    },
+    "ja": {
+      "short_description": "CPU、メモリ、ディスク、ネットワークインターフェース、温度、稼働時間など、ハードウェアとシステムの詳細情報を表示します。",
+      "tagline": "このマシンの情報を、1つの画面に。",
+      "description": "システム情報は、ハードウェアとシステムの情報を読み取り、タブに整理して表示します。概要に続き、CPU、メモリ、ディスク、ネットワーク、センサーの詳細を確認できます。\n\nホスト名、OS、カーネル、稼働時間、CPUのモデル、コア数、周波数、平均負荷、RAMとスワップの使用量、空き容量、利用可能容量、各ディスクの容量と空き容量、各ネットワークインターフェースの送受信バイト数を表示します。マシンが温度センサーの情報を公開していれば、その情報も表示します。ほとんどの仮想サーバーでは公開されていませんが、その場合も何も表示しないのではなく、情報がないことを明示します。",
+      "capabilities": [
+        "概要：ホスト名、OS、カーネル、稼働時間。",
+        "CPU：モデル、物理コア数と論理コア数、周波数、1/5/15分間の平均負荷。",
+        "メモリ：RAMとスワップの使用量、空き容量、利用可能容量。",
+        "ディスク：マウント済みのすべてのファイルシステムの容量、使用量、空き容量。",
+        "ネットワーク：すべてのインターフェースの送受信バイト数。",
+        "温度センサーの情報を表示し、マシンから取得できる情報がない場合は、その旨を明確に伝えます。"
+      ],
+      "name": "システム情報"
+    },
+    "pt-BR": {
+      "short_description": "Informações detalhadas de hardware e sistema — CPU, memória, discos, interfaces de rede, temperaturas, tempo de atividade e muito mais.",
+      "tagline": "Tudo sobre esta máquina em uma única tela.",
+      "description": "Informações do Sistema lê os dados de hardware e do sistema e os organiza em abas: uma visão geral e, em seguida, detalhes de CPU, memória, discos, rede e sensores.\n\nNome do host, sistema operacional, kernel e tempo de atividade; modelo da CPU, número de núcleos, frequência e médias de carga; RAM e swap usados, livres e disponíveis; cada disco com seu tamanho e espaço livre; cada interface de rede com bytes recebidos e enviados; e sensores de temperatura quando a máquina disponibiliza esses dados — o que a maioria dos servidores virtuais não faz, e o aplicativo informa isso em vez de não mostrar nada.",
+      "capabilities": [
+        "Visão geral: nome do host, sistema operacional, kernel e tempo de atividade.",
+        "CPU: modelo, núcleos físicos e lógicos, frequência e médias de carga de 1/5/15 minutos.",
+        "Memória: RAM e swap, usados, livres e disponíveis.",
+        "Discos: cada sistema de arquivos montado com tamanho, espaço usado e livre.",
+        "Rede: cada interface com bytes recebidos e enviados.",
+        "Sensores de temperatura, com uma mensagem clara quando a máquina não tem dados para informar."
+      ],
+      "name": "Informações do sistema"
+    },
+    "ru": {
+      "short_description": "Подробные сведения об оборудовании и системе: процессор, память, диски, сетевые интерфейсы, температуры, время работы и многое другое.",
+      "tagline": "Всё об этом компьютере на одном экране.",
+      "description": "Сведения о системе считывают данные об оборудовании и системе и распределяют их по вкладкам: общий обзор, затем подробная информация о процессоре, памяти, дисках, сети и датчиках.\n\nИмя узла, ОС, ядро и время работы; модель процессора, количество ядер, частота и средняя нагрузка; используемая, свободная и доступная оперативная память и память подкачки; каждый диск с его объёмом и свободным местом; каждый сетевой интерфейс с количеством принятых и отправленных байтов; а также датчики температуры, если компьютер предоставляет их показания. Большинство виртуальных серверов их не предоставляет, и приложение сообщает об этом, а не оставляет экран пустым.",
+      "capabilities": [
+        "Обзор: имя узла, ОС, ядро, время работы.",
+        "Процессор: модель, физические и логические ядра, частота, средняя нагрузка за 1/5/15 минут.",
+        "Память: оперативная память и память подкачки, используемый, свободный и доступный объём.",
+        "Диски: каждая смонтированная файловая система с общим, занятым и свободным объёмом.",
+        "Сеть: каждый интерфейс с количеством принятых и отправленных байтов.",
+        "Датчики температуры с понятным сообщением, если компьютер не предоставляет их показаний."
+      ],
+      "name": "Сведения о системе"
+    },
+    "zh-CN": {
+      "short_description": "详细的硬件和系统信息——CPU、内存、磁盘、网络接口、温度、运行时间等。",
+      "tagline": "一屏尽览这台机器的各项信息。",
+      "description": "系统信息读取硬件和系统数据，并以标签页呈现：先展示概览，再详细列出 CPU、内存、磁盘、网络和传感器信息。\n\n包括主机名、操作系统、内核和运行时间；CPU 型号、核心数、频率和平均负载；RAM 和交换空间的已用、空闲及可用容量；每块磁盘的容量和剩余空间；每个网络接口接收和发送的字节数；以及机器提供的温度传感器数据——大多数虚拟服务器不提供此类数据，应用会明确说明，而非显示空白。",
+      "capabilities": [
+        "概览：主机名、操作系统、内核、运行时间。",
+        "CPU：型号、物理核心数和逻辑核心数、频率、1/5/15 分钟平均负载。",
+        "内存：RAM 和交换空间的已用、空闲及可用容量。",
+        "磁盘：每个已挂载文件系统的容量、已用空间和剩余空间。",
+        "网络：每个接口接收和发送的字节数。",
+        "温度传感器；机器没有可报告的传感器数据时，会明确提示。"
+      ],
+      "name": "系统信息"
+    }
+  }
 }

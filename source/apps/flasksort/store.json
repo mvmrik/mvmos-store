@@ -55,7 +55,8 @@
           "summary": "Стаите, редуването на ходовете и играчите използват акаунти в Game Hub: профилът и аватарът ви, поканите към други играчи, както и сесиите, статистиката и рейтингът ви се записват в Game Hub.",
           "requires": "Инсталиран Game Hub."
         }
-      ]
+      ],
+      "name": "Подреди колбите"
     },
     "de": {
       "short_description": "Gieße die Flüssigkeiten um, bis jeder Kolben nur eine Farbe enthält. Eine Partie führt durch 100 immer schwierigere Level – von zwei Farben in kleinen Kolben bis zu zwanzig Farben in hohen Kolben. Spiele allein oder tritt gegen Freunde in denselben Leveln an.",
@@ -83,7 +84,8 @@
           "summary": "Räume, Spielzüge und Spieler werden über Game Hub-Konten verwaltet: dein Profil und Avatar, Einladungen an andere Spieler sowie deine Partien, Statistiken und Wertung, die in Game Hub gespeichert werden.",
           "requires": "Game Hub muss installiert sein."
         }
-      ]
+      ],
+      "name": "Flaschen sortieren"
     },
     "es": {
       "short_description": "Vierte los líquidos hasta que cada matraz contenga un solo color. Cada partida consta de 100 niveles de dificultad creciente, desde dos colores en matraces pequeños hasta veinte colores en matraces altos. Juega en solitario o compite con tus amigos en los mismos niveles.",
@@ -111,7 +113,8 @@
           "summary": "Las salas, los turnos y los jugadores funcionan con cuentas de Game Hub: tu perfil y avatar, las invitaciones a otros jugadores y tus sesiones, estadísticas y valoración quedan registrados en Game Hub.",
           "requires": "Game Hub instalado."
         }
-      ]
+      ],
+      "name": "Ordena los frascos"
     },
     "fr": {
       "short_description": "Versez les liquides jusqu’à ce que chaque fiole ne contienne qu’une seule couleur. Une partie compte 100 niveaux de difficulté croissante, de deux couleurs dans de petites fioles à vingt couleurs dans de grandes fioles. Jouez en solo ou affrontez vos amis sur les mêmes niveaux.",
@@ -139,7 +142,8 @@
           "summary": "Les salons, les tours de jeu et les joueurs reposent sur les comptes Game Hub : retrouvez votre profil et votre avatar, invitez d’autres joueurs et conservez vos sessions, vos statistiques et votre cote dans Game Hub.",
           "requires": "Game Hub doit être installé."
         }
-      ]
+      ],
+      "name": "Trie les flacons"
     },
     "pt-BR": {
       "short_description": "Despeje os líquidos até que cada frasco contenha uma única cor. Cada partida tem 100 níveis de dificuldade crescente, de duas cores em frascos pequenos a vinte cores em frascos altos. Jogue sozinho ou dispute com amigos nos mesmos níveis.",
@@ -167,7 +171,8 @@
           "summary": "Salas, turnos e jogadores usam as contas do Game Hub: seu perfil e avatar, convites para outros jogadores e suas sessões, estatísticas e classificação ficam registrados no Game Hub.",
           "requires": "Game Hub instalado."
         }
-      ]
+      ],
+      "name": "Organize os frascos"
     },
     "ja": {
       "short_description": "液体を注ぎ分けて、すべてのフラスコをそれぞれ1色にそろえましょう。1ゲームは、難易度が上がっていく全100レベル。小さなフラスコの2色から始まり、背の高いフラスコの20色へと進みます。1人でじっくり楽しむことも、同じレベルに挑む友達と競い合うこともできます。",
@@ -195,7 +200,8 @@
           "summary": "ルーム、ターン、プレイヤーはGame Hubアカウントで管理されます。プロフィールやアバターの利用、ほかのプレイヤーへの招待に対応し、セッション、統計、レーティングがGame Hubに記録されます。",
           "requires": "Game Hubがインストールされていること。"
         }
-      ]
+      ],
+      "name": "フラスコ整理"
     },
     "ru": {
       "short_description": "Переливайте жидкости, пока в каждой колбе не останется только один цвет. В игре 100 всё более сложных уровней: от двух цветов в маленьких колбах до двадцати в высоких. Играйте в одиночку или соревнуйтесь с друзьями, проходя одни и те же уровни.",
@@ -223,7 +229,8 @@
           "summary": "Комнаты, ходы и игроки используют учётные записи Game Hub: ваш профиль и аватар, приглашения другим игрокам, а также игровые сеансы, статистика и рейтинг, сохраняемые в Game Hub.",
           "requires": "Установленный Game Hub."
         }
-      ]
+      ],
+      "name": "Разлей по колбам"
     },
     "zh-CN": {
       "short_description": "在烧瓶之间倾倒液体，直到每个烧瓶中都只剩一种颜色。一局游戏包含 100 个关卡，难度逐步提升，从小烧瓶中的两种颜色，到高烧瓶中的二十种颜色。你可以独自挑战，也可以与好友在相同关卡中一较高下。",
@@ -251,7 +258,8 @@
           "summary": "房间、回合和玩家管理均通过 Game Hub 账户进行：使用你的个人资料和头像，邀请其他玩家，并在 Game Hub 中记录游戏场次、统计数据和评级。",
           "requires": "需要安装 Game Hub。"
         }
-      ]
+      ],
+      "name": "整理试管"
     }
   }
 }

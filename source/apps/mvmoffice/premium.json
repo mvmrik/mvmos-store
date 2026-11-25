@@ -16,5 +16,167 @@
       "short": "Describe a cover or an illustration and get a picture made from your book",
       "description": "Ask the assistant for a cover, a back cover or an illustration for a chapter. It draws the picture from your notes and chapters, so you do not have to retell the book, and what you add in your message comes first: a style, a scene, a colour, whether the title should appear in the picture or no text at all. The picture is placed behind the cover text, or in the chapter, and you can move and resize it like any other picture, ask for another one, or have the assistant lay out the title and author over it. Pictures are made by whichever image generator mvmAI has available on the server, so it works with the AI the administrator has chosen. It needs mvmAI with an image generator ready; a picture can cost credits, which the administrator sets in Apps Hub, and is not charged if none is made. The assistant also lays out the covers with colours, texts, effects and shapes."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Асистент за писане, който работи вътре в документа: чете записките и главите ви, пише и редактира, спазва фактите от записките и може да оформя кориците.",
+      "features": [
+        {
+          "title": "Асистент за писане",
+          "short": "Разговаряйте с асистент, който пише и редактира главите ви",
+          "description": "Отворете асистента до текста и разговаряйте с него като със съавтор. Поискайте да напише глава по вашия план, да продължи започнатата от вас според указанията ви, да поправи правописа и граматиката, да пренапише избран откъс, да промени тона, да премести или преименува глави. Той вижда главата, по която работите, и може да прочете всяка друга глава, когато е необходимо. Всяка промяна се показва предварително с текста, който би бил вмъкнат, и вие приемате или пропускате всяка от тях; бутон отменя приетите промени. При изключен преглед промените се прилагат веднага. Използва ИИ, с който е настроен да работи mvmAI, затова mvmAI трябва да е инсталиран и неговият API за приложения да е включен от администратора. Всяко съобщение може да струва няколко кредита, определени от администратора в Apps Hub; неуспешно съобщение не се таксува. В настройките на приложението администраторът може да включва или изключва асистента, изображенията му и използването му на публични страници."
+        },
+        {
+          "title": "Записки за книгата, чиито факти асистентът спазва",
+          "short": "Страница с план и резюме, която асистентът чете, пише и актуализира",
+          "description": "Всеки документ има страница „Записки“ под кориците, която никога не се отпечатва или експортира и в която записвате плана на книгата: какво се случва във всяка глава, героите, местата и датите. Когато пише, асистентът приема записките за достоверни, така че главата следва плана. Поискайте да състави записките от завършена книга или да ги актуализира, след като промените нещо. Когато нов текст противоречи на записките или на по-ранна глава, например с различна година, той ви уведомява и пита кое е вярно, вместо да избира мълчаливо."
+        },
+        {
+          "title": "Изображения и корици, създадени от асистента",
+          "short": "Опишете корица или илюстрация и получете изображение, създадено въз основа на книгата ви",
+          "description": "Поискайте от асистента предна корица, задна корица или илюстрация за глава. Той създава изображението въз основа на записките и главите ви, така че не е нужно да преразказвате книгата, а добавеното от вас в съобщението е с предимство: стил, сцена, цвят, дали заглавието да присъства в изображението, или изобщо да няма текст. Изображението се поставя зад текста на корицата или в главата и можете да го местите и преоразмерявате като всяко друго изображение, да поискате ново или да възложите на асистента да разположи заглавието и името на автора върху него. Изображенията се създават от генератора на изображения, който е наличен за mvmAI на сървъра, така че се използва ИИ, избран от администратора. Необходим е mvmAI с готов за работа генератор на изображения; едно изображение може да струва кредити, определени от администратора в Apps Hub, и не се таксува, ако не е създадено. Асистентът оформя и кориците с цветове, текстове, ефекти и фигури."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Ein Schreibassistent, der direkt im Dokument arbeitet: Er liest Ihre Notizen und Kapitel, schreibt und bearbeitet sie, hält die Notizen inhaltlich stimmig und kann die Umschläge gestalten.",
+      "features": [
+        {
+          "title": "Schreibassistent",
+          "short": "Chatten Sie mit einem Assistenten, der Ihre Kapitel schreibt und bearbeitet",
+          "description": "Öffnen Sie den Assistenten neben dem Text und sprechen Sie mit ihm wie mit einem Mitautor. Bitten Sie ihn, anhand Ihres Plans ein Kapitel zu schreiben, ein begonnenes Kapitel fortzusetzen und sein Vorgehen zu erklären, Rechtschreibung und Grammatik zu korrigieren, eine ausgewählte Passage umzuschreiben, den Ton zu ändern oder Kapitel zu verschieben oder umzubenennen. Er sieht das Kapitel, an dem Sie gerade arbeiten, und kann bei Bedarf jedes andere Kapitel lesen. Jede Änderung wird zunächst mit dem vorgesehenen Text angezeigt, und Sie nehmen sie einzeln an oder überspringen sie. Mit einer Schaltfläche machen Sie angenommene Änderungen rückgängig. Wenn die Prüfung ausgeschaltet ist, übernimmt er Änderungen sofort. Er verwendet die in mvmAI eingerichtete KI. Deshalb muss mvmAI installiert und seine App-API vom Administrator eingeschaltet sein. Jede Nachricht kann einige Guthabenpunkte kosten; die Höhe legt der Administrator in Apps Hub fest. Fehlgeschlagene Nachrichten werden nicht berechnet. In den App-Einstellungen kann der Administrator den Assistenten, seine Bilder und seine Nutzung auf öffentlichen Seiten ein- oder ausschalten."
+        },
+        {
+          "title": "Buchnotizen, die der Assistent inhaltlich stimmig hält",
+          "short": "Eine Seite für Planung und Zusammenfassung, die der Assistent liest, schreibt und aktualisiert",
+          "description": "Jedes Dokument hat unterhalb der Umschläge eine Seite „Notizen“, die nie gedruckt oder exportiert wird. Dort halten Sie den Plan des Buches fest: was in jedem Kapitel geschieht, die Figuren, die Orte und die Daten. Der Assistent betrachtet die Notizen beim Schreiben als verbindliche Grundlage, damit ein Kapitel dem Plan folgt. Bitten Sie ihn, die Notizen aus einem fertigen Buch zu erstellen oder sie nach einer Änderung zu aktualisieren. Wenn neuer Text den Notizen oder einem früheren Kapitel widerspricht, etwa durch eine andere Jahreszahl, weist er Sie darauf hin und fragt, welche Angabe richtig ist, statt stillschweigend selbst zu entscheiden."
+        },
+        {
+          "title": "Bilder und Umschläge vom Assistenten",
+          "short": "Beschreiben Sie einen Umschlag oder eine Illustration und lassen Sie ein Bild auf Grundlage Ihres Buches erstellen",
+          "description": "Bitten Sie den Assistenten um einen Vorderumschlag, einen Rückumschlag oder eine Illustration für ein Kapitel. Er erstellt das Bild anhand Ihrer Notizen und Kapitel, sodass Sie das Buch nicht erneut beschreiben müssen. Was Sie in Ihrer Nachricht ergänzen, hat Vorrang: ein Stil, eine Szene, eine Farbe, ob der Titel im Bild erscheinen soll oder überhaupt kein Text. Das Bild wird hinter dem Umschlagtext oder im Kapitel eingefügt. Sie können es wie jedes andere Bild verschieben und seine Größe ändern, um ein weiteres Bild bitten oder den Assistenten Titel und Autor darüber anordnen lassen. Bilder werden mit dem Bildgenerator erstellt, der mvmAI auf dem Server zur Verfügung steht. So funktioniert dies mit der vom Administrator gewählten KI. Dafür wird mvmAI mit einem einsatzbereiten Bildgenerator benötigt. Ein Bild kann Guthabenpunkte kosten, deren Höhe der Administrator in Apps Hub festlegt; wenn kein Bild erstellt wird, erfolgt keine Berechnung. Der Assistent gestaltet die Umschläge außerdem mit Farben, Texten, Effekten und Formen."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Un asistente de escritura que trabaja dentro del documento: lee tus apuntes y capítulos, los escribe y edita, mantiene la coherencia de los apuntes y puede diseñar las cubiertas.",
+      "features": [
+        {
+          "title": "Asistente de escritura",
+          "short": "Conversa con un asistente que escribe y edita tus capítulos",
+          "description": "Abre el asistente junto al texto y habla con él como con un coautor. Pídele que escriba un capítulo a partir de tu plan, continúe el que has empezado y explique cómo lo hace, corrija la ortografía y la gramática, reescriba un pasaje seleccionado, cambie el tono, mueva capítulos o les cambie el nombre. Ve el capítulo en el que estás trabajando y puede leer cualquier otro cuando lo necesite. Cada cambio se muestra primero, con el texto que introduciría, y tú aceptas u omites cada uno; un botón deshace lo que has aceptado. Con la revisión desactivada, aplica los cambios de inmediato. Utiliza la IA configurada en mvmAI, por lo que mvmAI debe estar instalado y el administrador debe activar su API de aplicación. Cada mensaje puede costar unos créditos, cuyo importe establece el administrador en Apps Hub; los mensajes fallidos no se cobran. En los ajustes de la aplicación, el administrador puede activar o desactivar el asistente, sus imágenes y su uso en páginas públicas."
+        },
+        {
+          "title": "Apuntes del libro cuya coherencia mantiene el asistente",
+          "short": "Una página de planificación y resumen que el asistente lee, escribe y actualiza",
+          "description": "Cada documento tiene una página de Apuntes debajo de las cubiertas, que nunca se imprime ni se exporta, donde escribes el plan del libro: qué ocurre en cada capítulo, los personajes, los lugares y las fechas. El asistente toma los apuntes como referencia al escribir, de modo que cada capítulo sigue el plan. Pídele que cree los apuntes a partir de un libro terminado o que los actualice después de que cambies algo. Cuando un texto nuevo contradice los apuntes o un capítulo anterior, por ejemplo con un año diferente, te lo indica y pregunta cuál es el correcto en lugar de elegir sin avisarte."
+        },
+        {
+          "title": "Imágenes y cubiertas creadas por el asistente",
+          "short": "Describe una cubierta o una ilustración y obtén una imagen creada a partir de tu libro",
+          "description": "Pide al asistente una portada, una contraportada o una ilustración para un capítulo. Crea la imagen a partir de tus apuntes y capítulos, para que no tengas que volver a contar el libro, y da prioridad a lo que añadas en tu mensaje: un estilo, una escena, un color, si el título debe aparecer en la imagen o si no debe haber ningún texto. La imagen se coloca detrás del texto de la cubierta o dentro del capítulo, y puedes moverla y cambiar su tamaño como cualquier otra imagen, pedir otra o hacer que el asistente coloque el título y el autor sobre ella. Las imágenes se crean con el generador de imágenes que mvmAI tenga disponible en el servidor, por lo que funciona con la IA elegida por el administrador. Requiere mvmAI con un generador de imágenes preparado; una imagen puede costar créditos, cuyo importe establece el administrador en Apps Hub, y no se cobra si no se genera ninguna. El asistente también compone las cubiertas con colores, textos, efectos y formas."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Un assistant de rédaction intégré au document : il lit vos notes et vos chapitres, les rédige et les modifie, veille à la cohérence des notes et peut concevoir les couvertures.",
+      "features": [
+        {
+          "title": "Assistant de rédaction",
+          "short": "Discutez avec un assistant qui rédige et modifie vos chapitres",
+          "description": "Ouvrez l’assistant à côté du texte et échangez avec lui comme avec un coauteur. Demandez-lui de rédiger un chapitre à partir de votre plan, de poursuivre celui que vous avez commencé en précisant comment, de corriger l’orthographe et la grammaire, de reformuler un passage sélectionné, de changer le ton, de déplacer ou de renommer des chapitres. Il voit le chapitre sur lequel vous travaillez et peut lire tout autre chapitre si nécessaire. Chaque modification est d’abord présentée avec le texte proposé, et vous pouvez l’accepter ou l’ignorer ; un bouton permet d’annuler ce que vous avez accepté. Lorsque la validation est désactivée, les modifications sont appliquées immédiatement. Il utilise l’IA configurée dans mvmAI : mvmAI doit donc être installé et son API d’application activée par l’administrateur. Chaque message peut coûter quelques crédits, selon le tarif fixé par l’administrateur dans Apps Hub ; un message qui échoue n’est pas facturé. Dans les paramètres de l’application, l’administrateur peut activer ou désactiver l’assistant, ses images et son utilisation sur les pages publiques."
+        },
+        {
+          "title": "Des notes de livre dont l’assistant préserve la cohérence",
+          "short": "Une page de plan et de résumé que l’assistant lit, rédige et met à jour",
+          "description": "Chaque document comporte une page Notes sous les couvertures, qui n’est jamais imprimée ni exportée et dans laquelle vous rédigez le plan du livre : ce qui se passe dans chaque chapitre, les personnages, les lieux et les dates. L’assistant considère ces notes comme la référence lorsqu’il écrit, afin que les chapitres suivent le plan. Demandez-lui de créer les notes à partir d’un livre terminé ou de les mettre à jour après une modification. Lorsqu’un nouveau texte contredit les notes ou un chapitre précédent, par exemple avec une année différente, il vous le signale et vous demande quelle version est correcte au lieu de choisir sans vous consulter."
+        },
+        {
+          "title": "Images et couvertures créées par l’assistant",
+          "short": "Décrivez une couverture ou une illustration et obtenez une image créée à partir de votre livre",
+          "description": "Demandez à l’assistant une première de couverture, une quatrième de couverture ou une illustration pour un chapitre. Il crée l’image à partir de vos notes et de vos chapitres : vous n’avez donc pas à raconter de nouveau le livre, et les précisions de votre message sont prioritaires, qu’il s’agisse d’un style, d’une scène, d’une couleur, de la présence du titre dans l’image ou de l’absence totale de texte. L’image est placée derrière le texte de la couverture ou dans le chapitre. Vous pouvez la déplacer et la redimensionner comme toute autre image, en demander une autre ou demander à l’assistant de disposer le titre et le nom de l’auteur par-dessus. Les images sont créées par le générateur d’images dont dispose mvmAI sur le serveur, ce qui permet d’utiliser l’IA choisie par l’administrateur. Cette fonction nécessite mvmAI avec un générateur d’images prêt à l’emploi ; une image peut coûter des crédits, selon le tarif fixé par l’administrateur dans Apps Hub, et rien n’est facturé si aucune image n’est créée. L’assistant compose aussi les couvertures avec des couleurs, des textes, des effets et des formes."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "文書内で動作する執筆アシスタントです。メモや章を読み、執筆・編集し、メモとの整合性を保ち、表紙のデザインも行えます。",
+      "features": [
+        {
+          "title": "執筆アシスタント",
+          "short": "章の執筆や編集を行うアシスタントとチャットできます",
+          "description": "本文の横でアシスタントを開き、共著者のように会話できます。構成案から章を書いたり、書きかけの章を続けて書いてその進め方を説明したり、誤字脱字や文法を修正したり、選択した文章を書き直したり、文体を変えたり、章の移動や名前の変更を依頼したりできます。アシスタントは作業中の章を把握し、必要に応じてほかの章も読めます。変更は挿入予定の文章とともに事前に表示され、それぞれ承認またはスキップできます。承認した変更はボタンで取り消せます。確認を無効にすると、変更はすぐに適用されます。mvmAIで設定されたAIを使用するため、mvmAIがインストールされ、管理者がそのApp APIを有効にしている必要があります。メッセージごとに、管理者がApps Hubで設定した数クレジットの料金がかかる場合があります。失敗したメッセージには課金されません。管理者はアプリの設定で、アシスタント、画像生成、公開ページでの利用をそれぞれ有効または無効にできます。"
+        },
+        {
+          "title": "アシスタントが整合性を保つ書籍メモ",
+          "short": "アシスタントが読み、作成し、更新する構成案と要約のページ",
+          "description": "すべての文書には、表紙の下に「メモ」ページがあり、本の構成案として各章の出来事、登場人物、場所、日付を書き込めます。このページは印刷や書き出しには含まれません。アシスタントは執筆時にメモを正しい情報として扱うため、章の内容が構成案に沿ったものになります。完成した本からメモを作成したり、内容を変更した後にメモを更新したりするよう依頼できます。新しい文章がメモや前の章と矛盾する場合、たとえば年が異なる場合は、黙って選ぶのではなく、矛盾を伝えてどちらが正しいかを確認します。"
+        },
+        {
+          "title": "アシスタントが作る画像と表紙",
+          "short": "表紙や挿絵の希望を伝えると、本の内容に基づいた画像を作成できます",
+          "description": "表紙、裏表紙、章の挿絵をアシスタントに依頼できます。メモや章の内容に基づいて画像を描くため、本の内容を説明し直す必要はありません。メッセージで追加した指定が優先され、スタイル、シーン、色、画像内にタイトルを入れるか、文字を一切入れないかなどを指定できます。画像は表紙の文字の背面や章内に配置され、ほかの画像と同じように移動やサイズ変更ができます。別の画像を依頼したり、画像の上にタイトルや著者名を配置するようアシスタントに依頼したりすることもできます。画像は、サーバー上でmvmAIが利用できる画像生成機能によって作成されるため、管理者が選んだAIを使用できます。画像生成機能が利用可能なmvmAIが必要です。画像には管理者がApps Hubで設定したクレジット料金がかかる場合があり、画像が生成されなかった場合は課金されません。アシスタントは、色、テキスト、効果、図形を使った表紙のレイアウトも行います。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Um assistente de escrita que trabalha dentro do documento: lê suas anotações e capítulos, escreve e edita esses conteúdos, mantém a coerência com as anotações e pode criar as capas.",
+      "features": [
+        {
+          "title": "Assistente de escrita",
+          "short": "Converse com um assistente que escreve e edita seus capítulos",
+          "description": "Abra o assistente ao lado do texto e converse com ele como um coautor. Peça para escrever um capítulo a partir do seu plano, continuar o que você começou e explicar como, corrigir a ortografia e a gramática, reescrever um trecho selecionado, mudar o tom, mover ou renomear capítulos. Ele vê o capítulo em que você está trabalhando e pode ler qualquer outro quando precisar. Cada alteração é mostrada primeiro, com o texto que seria inserido, e você aceita ou ignora cada uma; um botão desfaz o que você aceitou. Com a revisão desativada, ele aplica as alterações imediatamente. Ele usa a IA configurada no mvmAI, por isso o mvmAI precisa estar instalado e sua API de aplicativo deve ser ativada pelo administrador. Cada mensagem pode custar alguns créditos, conforme definido pelo administrador no Apps Hub; uma mensagem que falha não é cobrada. Nas configurações do aplicativo, o administrador pode ativar ou desativar o assistente, suas imagens e seu uso em páginas públicas."
+        },
+        {
+          "title": "Anotações do livro que o assistente mantém coerentes",
+          "short": "Uma página de planejamento e resumo que o assistente lê, escreve e atualiza",
+          "description": "Todo documento tem uma página de Anotações abaixo das capas, que nunca é impressa nem exportada, onde você escreve o plano do livro: o que acontece em cada capítulo, os personagens, os lugares e as datas. O assistente trata as anotações como a verdade ao escrever, para que o capítulo siga o plano. Peça para criar as anotações a partir de um livro concluído ou atualizá-las depois de uma mudança. Quando um novo texto contradiz as anotações ou um capítulo anterior, por exemplo, com um ano diferente, ele avisa e pergunta qual está correto, em vez de escolher silenciosamente."
+        },
+        {
+          "title": "Imagens e capas feitas pelo assistente",
+          "short": "Descreva uma capa ou ilustração e receba uma imagem criada a partir do seu livro",
+          "description": "Peça ao assistente uma capa, uma contracapa ou uma ilustração para um capítulo. Ele cria a imagem a partir das suas anotações e capítulos, para que você não precise recontar o livro, e o que você acrescentar na mensagem tem prioridade: um estilo, uma cena, uma cor, se o título deve aparecer na imagem ou se ela deve ficar sem nenhum texto. A imagem é colocada atrás do texto da capa ou no capítulo, e você pode movê-la e redimensioná-la como qualquer outra imagem, pedir outra ou solicitar que o assistente posicione o título e o nome do autor sobre ela. As imagens são criadas pelo gerador de imagens que o mvmAI tiver disponível no servidor, por isso ele funciona com a IA escolhida pelo administrador. É necessário ter o mvmAI com um gerador de imagens pronto para uso; uma imagem pode custar créditos, conforme definido pelo administrador no Apps Hub, e não é cobrada se nenhuma for criada. O assistente também compõe as capas com cores, textos, efeitos e formas."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Помощник по работе с текстом прямо в документе: читает ваши заметки и главы, пишет и редактирует их, следит за согласованностью заметок и может оформлять обложки.",
+      "features": [
+        {
+          "title": "Помощник по работе с текстом",
+          "short": "Общайтесь с помощником, который пишет и редактирует ваши главы",
+          "description": "Откройте помощника рядом с текстом и общайтесь с ним как с соавтором. Попросите написать главу по вашему плану, продолжить начатую и объяснить, как он её продолжил, исправить орфографию и грамматику, переписать выделенный отрывок, изменить тон, переместить или переименовать главы. Он видит главу, над которой вы работаете, и при необходимости может прочитать любую другую. Каждое изменение сначала показывается вместе с предлагаемым текстом, и вы принимаете или пропускаете его; принятые изменения можно отменить кнопкой. Если проверка отключена, изменения применяются сразу. Помощник использует ИИ, настроенный в mvmAI, поэтому приложение mvmAI должно быть установлено, а его API приложения — включён администратором. Каждое сообщение может стоить несколько кредитов; стоимость задаёт администратор в Apps Hub, а за неудачное сообщение плата не взимается. В настройках приложения администратор может включать и выключать помощника, создание изображений и его использование на публичных страницах."
+        },
+        {
+          "title": "Заметки о книге, за согласованностью которых следит помощник",
+          "short": "Страница с планом и кратким содержанием, которую помощник читает, заполняет и обновляет",
+          "description": "В каждом документе под обложками есть страница «Заметки», которая никогда не печатается и не экспортируется. На ней вы записываете план книги: события каждой главы, персонажей, места и даты. При написании помощник считает заметки достоверной основой, поэтому глава следует плану. Попросите его составить заметки по готовой книге или обновить их после ваших изменений. Если новый текст противоречит заметкам или предыдущей главе, например в нём указан другой год, помощник сообщит об этом и спросит, какой вариант верен, а не выберет его молча."
+        },
+        {
+          "title": "Изображения и обложки, созданные помощником",
+          "short": "Опишите обложку или иллюстрацию и получите изображение на основе вашей книги",
+          "description": "Попросите помощника создать переднюю или заднюю обложку либо иллюстрацию к главе. Он создаёт изображение на основе заметок и глав, поэтому пересказывать книгу не нужно, а ваши указания в сообщении имеют приоритет: стиль, сцена, цвет, наличие заголовка на изображении или полное отсутствие текста. Изображение размещается за текстом обложки или в главе; его можно перемещать и менять в размере, как любое другое изображение, попросить создать другой вариант или поручить помощнику расположить поверх него название и имя автора. Изображения создаются тем генератором, который доступен в mvmAI на сервере, поэтому используется ИИ, выбранный администратором. Требуется mvmAI с готовым к работе генератором изображений; создание изображения может стоить кредиты, стоимость задаёт администратор в Apps Hub, а если изображение не создано, плата не взимается. Помощник также оформляет обложки, используя цвета, текстовые блоки, эффекты и фигуры."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "直接在文档内工作的写作助手：读取你的笔记和章节，进行写作与编辑，维护笔记的准确性，还能设计封面。",
+      "features": [
+        {
+          "title": "写作助手",
+          "short": "与助手对话，让它编写和编辑章节",
+          "description": "在正文旁打开助手，像与合著者一样交流。你可以让它根据提纲撰写章节、续写已开始的章节并解释续写思路、修正拼写和语法、改写选中的段落、调整语气，以及移动或重命名章节。它能看到你正在处理的章节，并在需要时读取其他任何章节。每项修改都会先展示拟写入的文字，由你逐项接受或跳过；点击按钮即可撤销已接受的修改。关闭审阅后，修改会立即应用。助手使用 mvmAI 中配置的 AI，因此需要安装 mvmAI，并由管理员启用其应用 API。每条消息可能消耗少量积分，具体由管理员在 Apps Hub 中设置；失败的消息不收费。管理员可以在应用设置中开启或关闭助手、图片功能及其在公开页面上的使用。"
+        },
+        {
+          "title": "由助手维护准确性的书籍笔记",
+          "short": "供助手读取、编写和更新的提纲与概要页面",
+          "description": "每份文档的封面下方都有一个“笔记”页面，不会打印或导出。你可以在这里编写全书提纲：每章发生的事情、人物、地点和日期。助手写作时会以笔记为准，让章节遵循提纲。你可以让它根据已完成的书籍生成笔记，或在修改内容后更新笔记。如果新文字与笔记或先前章节不一致，例如年份不同，助手会指出问题并询问哪一个正确，而不会自行默默选择。"
+        },
+        {
+          "title": "由助手制作的图片和封面",
+          "short": "描述封面或插图，即可根据书籍内容生成图片",
+          "description": "让助手为你制作封面、封底或章节插图。它会根据笔记和章节生成图片，无需你重新讲述整本书的内容，并优先遵循你在消息中补充的要求：风格、场景、颜色，以及图片中是否应出现标题或完全不含文字。图片会放在封面文字后方或章节中，你可以像处理其他图片一样移动和调整大小，也可以要求重新生成，或让助手在图片上排版标题和作者姓名。图片由服务器上 mvmAI 可用的图片生成器制作，因此会使用管理员选择的 AI。此功能需要 mvmAI 中已配置好图片生成器；生成图片可能消耗积分，具体由管理员在 Apps Hub 中设置，未生成图片则不收费。助手还可以使用颜色、文字、效果和形状来设计封面布局。"
+        }
+      ]
+    }
+  }
 }

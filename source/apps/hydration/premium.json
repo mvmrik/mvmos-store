@@ -6,5 +6,87 @@
       "short": "Get paid in your budget for reaching your water goal",
       "description": "The server owner can enable Budget rewards in the desktop app settings. Each Apps Hub profile chooses an amount, one or more destination categories and an optional funding category.\n\nWhen the daily water goal is reached, each chosen category can receive the full reward once for that day. If the profile includes other apps' water from Health, that water also counts towards the goal. The optional source category funds each destination separately. Existing single-category settings remain supported.\n\nBudget must be installed with its App API enabled in Apps Hub → Settings → App APIs; this switch is off by default. Without the Premium module, the desktop reward control opens the Premium prompt and the public page hides the reward. Drink logging and Health integration remain available."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "summary": "Steuert die Budget-Belohnung für das Erreichen des täglichen Wasserziels.",
+      "features": [
+        {
+          "title": "Budget-Belohnung",
+          "short": "Erhalte eine Gutschrift in deinem Budget, wenn du dein Wasserziel erreichst",
+          "description": "Der Serverinhaber kann Budget-Belohnungen in den Einstellungen der Desktop-App aktivieren. Jedes Apps Hub-Profil wählt einen Betrag, eine oder mehrere Zielkategorien und optional eine Kategorie zur Finanzierung.\n\nWenn das tägliche Wasserziel erreicht ist, kann jede ausgewählte Kategorie einmal für diesen Tag die volle Belohnung erhalten. Wenn das Profil Wasser aus anderen Apps über Health berücksichtigt, zählt auch dieses Wasser zum Ziel. Die optionale Quellkategorie finanziert jedes Ziel separat. Bestehende Einstellungen mit einer einzelnen Kategorie werden weiterhin unterstützt.\n\nBudget muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Dieser Schalter ist standardmäßig ausgeschaltet. Ohne das Premium-Modul öffnet das Bedienelement für die Belohnung in der Desktop-App den Premium-Dialog, und auf der öffentlichen Seite wird die Belohnung ausgeblendet. Das Protokollieren von Getränken und die Health-Integration bleiben verfügbar."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Управлява наградата в Budget за достигане на дневната цел за вода.",
+      "features": [
+        {
+          "title": "Награда в Budget",
+          "short": "Получавайте сума в бюджета си, когато достигнете целта си за вода",
+          "description": "Собственикът на сървъра може да включи наградите в Budget от настройките на настолното приложение. Всеки профил в Apps Hub избира сума, една или повече категории получатели и незадължителна категория за финансиране.\n\nКогато дневната цел за вода бъде достигната, всяка избрана категория може да получи пълната награда веднъж за съответния ден. Ако профилът включва вода от други приложения чрез Health, тази вода също се отчита към целта. Незадължителната категория източник финансира всяка категория получател поотделно. Съществуващите настройки за една категория продължават да се поддържат.\n\nBudget трябва да е инсталиран и неговият App API да е активиран в Apps Hub → Настройки → App APIs; този превключвател е изключен по подразбиране. Без модула Premium контролата за наградата в настолното приложение отваря подканата за Premium, а публичната страница скрива наградата. Записването на напитки и интеграцията с Health остават достъпни."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Permet de gérer la récompense Budget accordée lorsque l’objectif quotidien d’eau est atteint.",
+      "features": [
+        {
+          "title": "Récompense Budget",
+          "short": "Recevez un versement dans votre budget lorsque vous atteignez votre objectif d’eau",
+          "description": "Le propriétaire du serveur peut activer les récompenses Budget dans les paramètres de l’application de bureau. Chaque profil Apps Hub choisit un montant, une ou plusieurs catégories de destination et une catégorie de financement facultative.\n\nLorsque l’objectif quotidien d’eau est atteint, chaque catégorie choisie peut recevoir la totalité de la récompense une seule fois pour cette journée. Si le profil inclut l’eau transmise à Health par d’autres applications, cette eau compte également dans l’objectif. La catégorie source facultative finance chaque destination séparément. Les paramètres existants pour une seule catégorie restent pris en charge.\n\nBudget doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications ; cette option est désactivée par défaut. Sans le module Premium, la commande de récompense de l’application de bureau ouvre l’invitation à passer à Premium et la page publique masque la récompense. L’enregistrement des boissons et l’intégration avec Health restent disponibles."
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Controla a recompensa do Budget por atingir a meta diária de água.",
+      "features": [
+        {
+          "title": "Recompensa do Budget",
+          "short": "Receba um valor no seu orçamento ao atingir sua meta de água",
+          "description": "O proprietário do servidor pode ativar as recompensas do Budget nas configurações do aplicativo para computador. Cada perfil do Apps Hub escolhe um valor, uma ou mais categorias de destino e uma categoria de origem opcional.\n\nQuando a meta diária de água é atingida, cada categoria escolhida pode receber a recompensa integral uma única vez naquele dia. Se o perfil incluir a água de outros aplicativos registrada no Health, essa água também conta para a meta. A categoria de origem opcional financia cada destino separadamente. As configurações existentes de categoria única continuam sendo aceitas.\n\nO Budget precisa estar instalado com a API de aplicativo dele ativada em Apps Hub → Configurações → APIs de aplicativos; essa opção vem desativada por padrão. Sem o módulo Premium, o controle de recompensa no aplicativo para computador abre a solicitação de ativação do Premium, e a página pública oculta a recompensa. O registro de bebidas e a integração com o Health continuam disponíveis."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Controla la recompensa de Budget por alcanzar el objetivo diario de agua.",
+      "features": [
+        {
+          "title": "Recompensa de Budget",
+          "short": "Recibe un abono en tu presupuesto por alcanzar tu objetivo de agua",
+          "description": "El propietario del servidor puede activar las recompensas de Budget en los ajustes de la aplicación de escritorio. Cada perfil de Apps Hub elige un importe, una o varias categorías de destino y una categoría de financiación opcional.\n\nCuando se alcanza el objetivo diario de agua, cada categoría elegida puede recibir la recompensa íntegra una sola vez para ese día. Si el perfil incluye el agua de otras aplicaciones recibida en Health, esa agua también cuenta para el objetivo. La categoría de origen opcional financia cada destino por separado. La configuración existente de una sola categoría sigue siendo compatible.\n\nBudget debe estar instalado y tener su App API activada en Apps Hub → Ajustes → API de aplicaciones; este interruptor está desactivado de forma predeterminada. Sin el módulo Premium, el control de recompensas del escritorio abre el mensaje de Premium y la página pública oculta la recompensa. El registro de bebidas y la integración con Health siguen disponibles."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "一日の水分目標を達成したときのBudget報酬を管理します。",
+      "features": [
+        {
+          "title": "Budget報酬",
+          "short": "水分目標を達成して予算に報酬を受け取る",
+          "description": "サーバー所有者は、デスクトップアプリの設定でBudget報酬を有効にできます。各Apps Hubプロフィールで、金額、1つ以上の加算先カテゴリー、任意の支払い元カテゴリーを選びます。\n\n一日の水分目標を達成すると、選択した各カテゴリーで、その日につき一度だけ報酬の全額を受け取れます。プロフィールでHealthにあるほかのアプリの水分量を含めるようにしている場合は、その水分量も目標に算入されます。任意で指定した差し引き元カテゴリーから、各加算先への支払いが個別に行われます。既存の単一カテゴリーの設定も引き続き利用できます。\n\nBudgetをインストールし、Apps Hub → 設定 → App APIでBudgetのApp APIを有効にする必要があります。このスイッチは初期状態ではオフです。Premiumモジュールがない場合、デスクトップの報酬設定を操作するとPremiumの案内が開き、公開ページでは報酬が非表示になります。飲み物の記録とHealth連携は引き続き利用できます。"
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "控制达到每日饮水目标后发放的 Budget 奖励。",
+      "features": [
+        {
+          "title": "Budget 奖励",
+          "short": "达到饮水目标，即可在预算中获得奖励金",
+          "description": "服务器所有者可以在桌面应用设置中启用 Budget 奖励。每个 Apps Hub 个人资料可选择奖励金额、一个或多个接收类别，以及一个可选的资金来源类别。\n\n达到每日饮水目标后，每个所选类别当天都可获得一次全额奖励。如果个人资料选择计入 Health 中来自其他应用的饮水量，这些水量也会计入目标。可选的来源类别会分别为每个接收类别提供资金。现有的单类别设置仍受支持。\n\n必须安装 Budget，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API；此开关默认关闭。没有 Premium 模块时，桌面端的奖励控件会打开 Premium 提示，公开页面则会隐藏奖励。饮品记录和 Health 集成功能仍可使用。"
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Управление вознаграждением в Budget за достижение дневной цели по воде.",
+      "features": [
+        {
+          "title": "Вознаграждение в Budget",
+          "short": "Получайте деньги в свой бюджет за достижение цели по воде",
+          "description": "Владелец сервера может включить вознаграждения в Budget в настройках приложения на компьютере. В каждом профиле Apps Hub можно выбрать сумму, одну или несколько категорий для зачисления и при желании категорию для списания средств.\n\nПри достижении дневной цели по воде каждая выбранная категория может получить полную сумму вознаграждения один раз за этот день. Если в профиле включён учёт воды из других приложений через Health, эта вода тоже засчитывается в достижение цели. Если указана категория-источник, средства из неё списываются отдельно для каждой категории зачисления. Существующие настройки с одной категорией по-прежнему поддерживаются.\n\nПриложение Budget должно быть установлено, а его App API — включён в Apps Hub → Настройки → API приложений; по умолчанию этот переключатель выключен. Без модуля Premium элемент управления вознаграждением в приложении на компьютере открывает предложение подключить Premium, а на общедоступной странице вознаграждение скрыто. Запись напитков и интеграция с Health остаются доступны."
+        }
+      ]
+    }
+  }
 }

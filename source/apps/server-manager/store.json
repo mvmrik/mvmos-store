@@ -10,5 +10,135 @@
     "SSH settings: port, root login, password and public-key auth, max auth tries, login grace time, allowed users and groups, X11 forwarding, PAM.",
     "UFW firewall: enable or disable, list rules, add and delete rules.",
     "Clear warning when a change needs a service restart to take effect."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Наблюдавайте и управлявайте системните услуги — стартирайте, спирайте, рестартирайте и проверявайте състоянието на уеб сървъри, бази данни и други. Конфигурирайте настройките на PHP, MySQL, Nginx, SSH и защитната стена UFW директно от интерфейса.",
+      "tagline": "Стартирайте, спирайте и конфигурирайте услугите, с които работи сървърът ви.",
+      "description": "Мениджърът на сървъра открива услугите, инсталирани на машината — уеб сървъри, бази данни, SSH — показва дали всяка от тях работи и ги стартира, спира или рестартира при поискване, като изисква паролата на root, когато е необходима.\n\nОсвен да ги включва и изключва, той позволява редактиране на конфигурацията им чрез формуляри вместо чрез файлове. За PHP: ограничения на паметта, времена за изпълнение, размери на качваните файлове, докладване на грешки и OPcache. За MySQL: връзки, буфери, размери на пакетите, журнал на бавните заявки, набор от знаци и правила за сравняване и сортиране. За Nginx: работни процеси, поддържане на връзката, размер на тялото на заявката, gzip и журнали, с редактор за директна промяна на конфигурацията, когато формулярът не е достатъчен. За SSH: порт, влизане като root, удостоверяване с парола и публичен ключ, разрешени потребители и групи.\n\nУправлява и защитната стена UFW: включване и изключване, добавяне и премахване на правила.",
+      "capabilities": [
+        "Откриване на инсталираните услуги и показване на състоянието им.",
+        "Стартиране, спиране и рестартиране на услуги с подкана за парола за sudo.",
+        "Настройки на PHP: ограничение на паметта, време за изпълнение и обработка на входните данни, входни променливи, размер на качваните файлове и POST данните, качване на файлове, показване и докладване на грешки, набор от знаци, часова зона, продължителност на сесията, OPcache.",
+        "Настройки на MySQL: максимален брой връзки, адрес за слушане, максимален разрешен размер на пакет, буферен пул на InnoDB, буфер за ключове, размер на временните таблици, записване на журнала на диска, журнал на бавните заявки и праг за бавна заявка, набор от знаци и правила за сравняване и сортиране.",
+        "Настройки на Nginx: работни процеси и връзки, поддържане на връзката, максимален размер на тялото на заявката, gzip и ниво на компресия, sendfile, TCP nopush, журнали за достъп и грешки, както и редактор за директна промяна на конфигурацията.",
+        "Настройки на SSH: порт, влизане като root, удостоверяване с парола и публичен ключ, максимален брой опити за удостоверяване, допустимо време за влизане, разрешени потребители и групи, пренасочване на X11, PAM.",
+        "Защитна стена UFW: включване и изключване, преглед на правилата, добавяне и изтриване на правила.",
+        "Ясно предупреждение, когато дадена промяна изисква рестартиране на услугата, за да влезе в сила."
+      ],
+      "name": "Мениджър на услуги"
+    },
+    "de": {
+      "short_description": "Systemdienste überwachen und steuern — Webserver, Datenbanken und weitere Dienste starten, stoppen, neu starten und ihren Status prüfen. Einstellungen für PHP, MySQL, Nginx, SSH und die UFW-Firewall direkt über die Benutzeroberfläche konfigurieren.",
+      "tagline": "Die Dienste, auf denen Ihr Server läuft, starten, stoppen und konfigurieren.",
+      "description": "Die Serververwaltung erkennt die auf dem Rechner installierten Dienste — Webserver, Datenbanken, SSH —, zeigt an, ob sie laufen, und startet, stoppt oder startet sie auf Wunsch neu. Bei Bedarf fragt sie nach dem Root-Passwort.\n\nÜber das Ein- und Ausschalten hinaus lassen sich die Dienste über Formulare statt über Dateien konfigurieren. Bei PHP: Speicherlimits, Ausführungszeiten, Uploadgrößen, Fehlerberichte und OPcache. Bei MySQL: Verbindungen, Puffer, Paketgrößen, Protokoll für langsame Abfragen, Zeichensatz und Sortierung. Bei Nginx: Worker, Keepalive, Größe des Anfrageinhalts, gzip und Protokolle, mit einem Editor zur direkten Bearbeitung der Konfiguration, wenn das Formular nicht ausreicht. Bei SSH: Port, Root-Anmeldung, Passwort- und Public-Key-Authentifizierung sowie zugelassene Benutzer und Gruppen.\n\nAußerdem verwaltet sie die UFW-Firewall: aktivieren oder deaktivieren sowie Regeln hinzufügen oder entfernen.",
+      "capabilities": [
+        "Installierte Dienste erkennen und ihren Status anzeigen.",
+        "Dienste starten, stoppen und neu starten, mit Abfrage des sudo-Passworts.",
+        "PHP-Einstellungen: Speicherlimit, Ausführungs- und Eingabezeit, Eingabevariablen, Upload- und POST-Größe, Datei-Uploads, Fehleranzeige und Fehlerberichte, Zeichensatz, Zeitzone, Sitzungsdauer, OPcache.",
+        "MySQL-Einstellungen: maximale Verbindungsanzahl, Bind-Adresse, maximal zulässige Paketgröße, InnoDB-Pufferpool, Schlüsselpuffer, Größe temporärer Tabellen, Schreiben des Protokolls auf den Datenträger, Protokoll für langsame Abfragen und zugehöriger Schwellenwert, Zeichensatz und Sortierung.",
+        "Nginx-Einstellungen: Worker-Prozesse und -Verbindungen, Keepalive, maximale Größe des Anfrageinhalts, gzip und Komprimierungsstufe, sendfile, TCP nopush, Zugriffs- und Fehlerprotokolle sowie ein Editor zur direkten Bearbeitung der Konfiguration.",
+        "SSH-Einstellungen: Port, Root-Anmeldung, Passwort- und Public-Key-Authentifizierung, maximale Anzahl an Authentifizierungsversuchen, Anmeldefrist, zugelassene Benutzer und Gruppen, X11-Weiterleitung, PAM.",
+        "UFW-Firewall: aktivieren oder deaktivieren, Regeln auflisten, hinzufügen und löschen.",
+        "Deutlicher Hinweis, wenn eine Änderung erst nach einem Neustart des Dienstes wirksam wird."
+      ],
+      "name": "Dienstverwaltung"
+    },
+    "es": {
+      "short_description": "Supervisa y controla los servicios del sistema: inicia, detén, reinicia y consulta el estado de servidores web, bases de datos y mucho más. Configura PHP, MySQL, Nginx, SSH y el cortafuegos UFW directamente desde la interfaz.",
+      "tagline": "Inicia, detén y configura los servicios de los que depende tu servidor.",
+      "description": "El Gestor de servidores detecta los servicios instalados en el equipo —servidores web, bases de datos, SSH—, muestra si están en ejecución y los inicia, detiene o reinicia cuando lo solicitas, pidiendo la contraseña de root cuando la necesita.\n\nAdemás de activarlos y desactivarlos, permite editar su configuración mediante formularios en lugar de archivos. Límites de memoria, tiempos de ejecución, tamaños de subida, notificación de errores y OPcache de PHP. Conexiones, búferes, tamaños de paquetes, registro de consultas lentas, juego de caracteres e intercalación de MySQL. Procesos de trabajo, conexiones persistentes, tamaño del cuerpo, gzip y registros de Nginx, con un editor de configuración en texto cuando el formulario no es suficiente. Puerto, inicio de sesión de root, autenticación por contraseña y clave pública, y usuarios y grupos permitidos de SSH.\n\nTambién gestiona el cortafuegos UFW: actívalo o desactívalo y añade o elimina reglas.",
+      "capabilities": [
+        "Detecta los servicios instalados y muestra su estado.",
+        "Inicia, detén y reinicia servicios, con una solicitud de contraseña de sudo.",
+        "Configuración de PHP: límite de memoria, tiempos de ejecución y de entrada, variables de entrada, tamaños de subida y de POST, subida de archivos, visualización y notificación de errores, juego de caracteres, zona horaria, duración de la sesión y OPcache.",
+        "Configuración de MySQL: máximo de conexiones, dirección de escucha, tamaño máximo de paquete permitido, grupo de búferes de InnoDB, búfer de claves, tamaño de tablas temporales, escritura del registro en disco, registro y umbral de consultas lentas, juego de caracteres e intercalación.",
+        "Configuración de Nginx: procesos y conexiones de trabajo, conexiones persistentes, tamaño máximo del cuerpo, gzip y su nivel, sendfile, TCP nopush, registros de acceso y errores, y un editor de configuración en texto.",
+        "Configuración de SSH: puerto, inicio de sesión de root, autenticación por contraseña y clave pública, máximo de intentos de autenticación, tiempo de gracia para iniciar sesión, usuarios y grupos permitidos, reenvío X11 y PAM.",
+        "Cortafuegos UFW: activa o desactiva el cortafuegos, consulta las reglas y añade o elimina reglas.",
+        "Aviso claro cuando un cambio requiere reiniciar un servicio para surtir efecto."
+      ],
+      "name": "Gestor de servicios"
+    },
+    "fr": {
+      "short_description": "Surveillez et contrôlez les services système : démarrez, arrêtez, redémarrez et vérifiez l’état des serveurs web, des bases de données et d’autres services. Configurez PHP, MySQL, Nginx, SSH et le pare-feu UFW directement depuis l’interface.",
+      "tagline": "Démarrez, arrêtez et configurez les services sur lesquels repose votre serveur.",
+      "description": "Le Gestionnaire de serveur détecte les services installés sur la machine — serveurs web, bases de données, SSH — indique si chacun est en cours d’exécution et les démarre, les arrête ou les redémarre à la demande, en vous demandant le mot de passe root si nécessaire.\n\nAu-delà du démarrage et de l’arrêt, il permet de modifier leur configuration à l’aide de formulaires plutôt que de fichiers. Pour PHP : limites de mémoire, délais d’exécution, tailles des téléversements, signalement des erreurs et OPcache. Pour MySQL : connexions, tampons, tailles des paquets, journal des requêtes lentes, jeu de caractères et classement. Pour Nginx : processus de travail, maintien des connexions, taille du corps des requêtes, gzip et journaux, avec un éditeur de configuration brute lorsque le formulaire ne suffit pas. Pour SSH : port, connexion root, authentification par mot de passe et par clé publique, utilisateurs et groupes autorisés.\n\nIl gère également le pare-feu UFW : activation ou désactivation, ajout ou suppression de règles.",
+      "capabilities": [
+        "Détection des services installés et affichage de leur état.",
+        "Démarrage, arrêt et redémarrage des services, avec demande du mot de passe sudo.",
+        "Paramètres PHP : limite de mémoire, délais d’exécution et de traitement des entrées, variables d’entrée, taille des téléversements et des requêtes POST, téléversement de fichiers, affichage et signalement des erreurs, jeu de caractères, fuseau horaire, durée de vie des sessions, OPcache.",
+        "Paramètres MySQL : nombre maximal de connexions, adresse d’écoute, taille maximale des paquets autorisés, pool de tampons InnoDB, tampon des clés, taille des tables temporaires, écriture du journal sur disque, journal des requêtes lentes et seuil associé, jeu de caractères et classement.",
+        "Paramètres Nginx : processus de travail et connexions, maintien des connexions, taille maximale du corps des requêtes, gzip et niveau de compression, sendfile, TCP nopush, journaux d’accès et d’erreurs, ainsi qu’un éditeur de configuration brute.",
+        "Paramètres SSH : port, connexion root, authentification par mot de passe et par clé publique, nombre maximal de tentatives d’authentification, délai accordé pour la connexion, utilisateurs et groupes autorisés, transfert X11, PAM.",
+        "Pare-feu UFW : activation ou désactivation, affichage, ajout et suppression de règles.",
+        "Avertissement clair lorsqu’une modification nécessite le redémarrage d’un service pour prendre effet."
+      ],
+      "name": "Gestionnaire de services"
+    },
+    "ja": {
+      "short_description": "システムサービスを監視・制御し、Webサーバーやデータベースなどの起動、停止、再起動、状態確認を行えます。PHP、MySQL、Nginx、SSH、UFWファイアウォールの設定をUIから直接変更できます。",
+      "tagline": "サーバーを支えるサービスを起動、停止、設定。",
+      "description": "サーバー管理は、マシンにインストールされているWebサーバー、データベース、SSHなどのサービスを検出し、それぞれの稼働状況を表示します。要求に応じて起動、停止、再起動を行い、必要な場合はrootパスワードの入力を求めます。\n\n起動と停止だけでなく、ファイルを直接編集する代わりにフォームから設定を変更できます。PHPではメモリ制限、実行時間、アップロードサイズ、エラー報告、OPcacheを設定できます。MySQLでは接続数、バッファー、パケットサイズ、スロークエリログ、文字セット、照合順序を設定できます。Nginxではワーカー、keepalive、リクエストボディのサイズ、gzip、ログを設定でき、フォームでは対応できない場合は設定ファイルを直接編集するエディターも使えます。SSHではポート、rootログイン、パスワード認証と公開鍵認証、許可するユーザーとグループを設定できます。\n\nUFWファイアウォールの管理にも対応しており、有効化・無効化やルールの追加・削除を行えます。",
+      "capabilities": [
+        "インストール済みのサービスを検出し、状態を表示。",
+        "サービスの起動、停止、再起動に対応し、sudoパスワードの入力を要求。",
+        "PHP設定：メモリ制限、実行時間と入力処理時間、入力変数数、アップロードサイズとPOSTサイズ、ファイルアップロード、エラー表示と報告、文字セット、タイムゾーン、セッションの有効期間、OPcache。",
+        "MySQL設定：最大接続数、バインドアドレス、最大許容パケットサイズ、InnoDBバッファープール、キーバッファー、一時テーブルサイズ、ログのフラッシュ、スロークエリログとしきい値、文字セット、照合順序。",
+        "Nginx設定：ワーカープロセス数と接続数、keepalive、リクエストボディの最大サイズ、gzipと圧縮レベル、sendfile、TCP nopush、アクセスログとエラーログ。設定ファイルを直接編集するエディターも搭載。",
+        "SSH設定：ポート、rootログイン、パスワード認証と公開鍵認証、認証の最大試行回数、ログイン猶予時間、許可するユーザーとグループ、X11転送、PAM。",
+        "UFWファイアウォール：有効化・無効化、ルール一覧の表示、ルールの追加・削除。",
+        "変更を反映するためにサービスの再起動が必要な場合は、明確な警告を表示。"
+      ],
+      "name": "サービスマネージャー"
+    },
+    "pt-BR": {
+      "short_description": "Monitore e controle serviços do sistema — inicie, pare, reinicie e verifique o status de servidores web, bancos de dados e muito mais. Configure PHP, MySQL, Nginx, SSH e o firewall UFW diretamente pela interface.",
+      "tagline": "Inicie, pare e configure os serviços que seu servidor executa.",
+      "description": "O Gerenciador de Servidores detecta os serviços instalados na máquina — servidores web, bancos de dados, SSH — mostra se cada um está em execução e os inicia, para ou reinicia quando solicitado, pedindo a senha de root quando necessário.\n\nAlém de ativar e desativar serviços, ele permite editar suas configurações por meio de formulários, em vez de arquivos. No PHP: limites de memória, tempos de execução, tamanhos de upload, relatórios de erros e OPcache. No MySQL: conexões, buffers, tamanhos de pacotes, log de consultas lentas, conjunto de caracteres e ordenação. No Nginx: processos de trabalho, keepalive, tamanho do corpo, gzip e logs, com um editor de configuração em texto quando o formulário não é suficiente. No SSH: porta, login de root, autenticação por senha e chave pública, usuários e grupos permitidos.\n\nEle também gerencia o firewall UFW: ative ou desative o firewall e adicione ou remova regras.",
+      "capabilities": [
+        "Detecte os serviços instalados e veja seus status.",
+        "Inicie, pare e reinicie serviços, com solicitação da senha do sudo.",
+        "Configurações do PHP: limite de memória, tempo de execução e de entrada, variáveis de entrada, tamanho de upload e de POST, uploads de arquivos, exibição e relatórios de erros, conjunto de caracteres, fuso horário, duração da sessão, OPcache.",
+        "Configurações do MySQL: máximo de conexões, endereço de escuta, tamanho máximo de pacote permitido, pool de buffers do InnoDB, buffer de chaves, tamanho de tabelas temporárias, gravação do log em disco, log de consultas lentas e seu limite de tempo, conjunto de caracteres e ordenação.",
+        "Configurações do Nginx: processos e conexões de trabalho, keepalive, tamanho máximo do corpo, gzip e nível de compressão, sendfile, TCP nopush, logs de acesso e de erros, além de um editor de configuração em texto.",
+        "Configurações do SSH: porta, login de root, autenticação por senha e chave pública, máximo de tentativas de autenticação, tempo limite para login, usuários e grupos permitidos, encaminhamento X11, PAM.",
+        "Firewall UFW: ative ou desative, liste regras, adicione e exclua regras.",
+        "Aviso claro quando uma alteração exige a reinicialização de um serviço para entrar em vigor."
+      ],
+      "name": "Gerenciador de serviços"
+    },
+    "ru": {
+      "short_description": "Отслеживайте системные службы и управляйте ими: запускайте, останавливайте, перезапускайте и проверяйте состояние веб-серверов, баз данных и других служб. Настраивайте PHP, MySQL, Nginx, SSH и межсетевой экран UFW прямо в интерфейсе.",
+      "tagline": "Запускайте, останавливайте и настраивайте службы, на которых работает ваш сервер.",
+      "description": "Менеджер сервера обнаруживает установленные на компьютере службы — веб-серверы, базы данных, SSH — показывает, запущена ли каждая из них, и по запросу запускает, останавливает или перезапускает их, при необходимости запрашивая пароль root.\n\nПомимо запуска и остановки, он позволяет редактировать настройки через формы, а не файлы. Для PHP доступны ограничения памяти, время выполнения, размеры загрузок, отчётность об ошибках и OPcache. Для MySQL — подключения, буферы, размеры пакетов, журнал медленных запросов, кодировка и правила сравнения строк. Для Nginx — рабочие процессы, keepalive, размер тела запроса, gzip и журналы, а если возможностей формы недостаточно, есть редактор конфигурационного файла. Для SSH — порт, вход под root, аутентификация по паролю и открытому ключу, разрешённые пользователи и группы.\n\nПриложение также управляет межсетевым экраном UFW: позволяет включать и отключать его, добавлять и удалять правила.",
+      "capabilities": [
+        "Обнаружение установленных служб и отображение их состояния.",
+        "Запуск, остановка и перезапуск служб с запросом пароля sudo.",
+        "Настройки PHP: ограничение памяти, время выполнения и обработки входных данных, количество входных переменных, размер загружаемых файлов и POST-запросов, загрузка файлов, отображение ошибок и отчётность о них, кодировка, часовой пояс, время жизни сеанса, OPcache.",
+        "Настройки MySQL: максимальное число подключений, адрес привязки, максимальный допустимый размер пакета, пул буферов InnoDB, буфер ключей, размер временных таблиц, сброс журнала на диск, журнал медленных запросов и порог их длительности, кодировка и правила сравнения строк.",
+        "Настройки Nginx: рабочие процессы и подключения, keepalive, максимальный размер тела запроса, gzip и степень сжатия, sendfile, TCP nopush, журналы доступа и ошибок, а также редактор конфигурационного файла.",
+        "Настройки SSH: порт, вход под root, аутентификация по паролю и открытому ключу, максимальное число попыток аутентификации, время ожидания входа, разрешённые пользователи и группы, перенаправление X11, PAM.",
+        "Межсетевой экран UFW: включение и отключение, просмотр списка правил, добавление и удаление правил.",
+        "Явное предупреждение, когда для применения изменений требуется перезапуск службы."
+      ],
+      "name": "Менеджер служб"
+    },
+    "zh-CN": {
+      "short_description": "监控和控制系统服务——启动、停止、重启 Web 服务器、数据库等服务，并查看其状态。直接通过界面配置 PHP、MySQL、Nginx、SSH 和 UFW 防火墙设置。",
+      "tagline": "启动、停止和配置服务器运行所依赖的服务。",
+      "description": "服务器管理器会检测计算机上安装的服务——Web 服务器、数据库、SSH——显示各项服务是否正在运行，并根据请求启动、停止或重启服务，在需要时提示输入 root 密码。\n\n除了启停服务，还能通过表单编辑配置，无需直接修改文件。可配置 PHP 的内存限制、执行时间、上传大小、错误报告和 OPcache；MySQL 的连接数、缓冲区、数据包大小、慢查询日志、字符集和排序规则；Nginx 的工作进程、持久连接、请求体大小、gzip 和日志，并在表单无法满足需求时使用原始配置编辑器；SSH 的端口、root 登录、密码和公钥认证，以及允许的用户和用户组。\n\n它还可以管理 UFW 防火墙：启用或禁用防火墙，以及添加或删除规则。",
+      "capabilities": [
+        "检测已安装的服务并显示其状态。",
+        "启动、停止和重启服务，并提示输入 sudo 密码。",
+        "PHP 设置：内存限制、执行和输入时间、输入变量数、上传和 POST 大小、文件上传、错误显示和报告、字符集、时区、会话有效期、OPcache。",
+        "MySQL 设置：最大连接数、绑定地址、允许的最大数据包大小、InnoDB 缓冲池、键缓冲区、临时表大小、日志刷写、慢查询日志及阈值、字符集和排序规则。",
+        "Nginx 设置：工作进程数和连接数、持久连接、最大请求体大小、gzip 及压缩级别、sendfile、TCP nopush、访问日志和错误日志，以及原始配置编辑器。",
+        "SSH 设置：端口、root 登录、密码和公钥认证、最大认证尝试次数、登录宽限时间、允许的用户和用户组、X11 转发、PAM。",
+        "UFW 防火墙：启用或禁用、列出规则、添加和删除规则。",
+        "当更改需要重启服务才能生效时，显示明确提示。"
+      ],
+      "name": "服务管理器"
+    }
+  }
 }

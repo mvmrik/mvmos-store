@@ -59,7 +59,8 @@
           "summary": "Premium: изкуственият интелект на публичната страница на mvmAI напътства ботовете на масата.",
           "requires": "Инсталиран mvmAI с активиран App API в Apps Hub → Настройки → API на приложенията. Тази настройка е изключена по подразбиране."
         }
-      ]
+      ],
+      "name": "Белот"
     },
     "de": {
       "short_description": "Spiele bulgarisches Belot oder klassisches französisches Belote mit Freunden oder eigenständig spielenden Bots und speichere eigene Regeln für beide Varianten.",
@@ -87,7 +88,8 @@
           "summary": "Premium: Die KI der öffentlichen Seite von mvmAI betreut die Bots an einem Tisch als Mentor.",
           "requires": "mvmAI muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Dieser Schalter ist standardmäßig ausgeschaltet."
         }
-      ]
+      ],
+      "name": "Belot"
     },
     "pt-BR": {
       "short_description": "Jogue Belot búlgaro ou Belote francês clássico com amigos ou bots autônomos e salve regras personalizadas para cada modalidade.",
@@ -115,7 +117,8 @@
           "summary": "Premium: a IA da página pública do mvmAI orienta os bots de uma mesa.",
           "requires": "mvmAI instalado com sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos. Essa opção vem desativada por padrão."
         }
-      ]
+      ],
+      "name": "Belote"
     },
     "es": {
       "short_description": "Juega al Belot búlgaro o al Belote francés clásico con amigos o bots autónomos y guarda reglas personalizadas para cada modalidad.",
@@ -143,7 +146,8 @@
           "summary": "Premium: la IA de la página pública de mvmAI actúa como mentora de los bots de una mesa.",
           "requires": "mvmAI instalado con su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. Esta opción está desactivada de forma predeterminada."
         }
-      ]
+      ],
+      "name": "Belot"
     },
     "fr": {
       "short_description": "Jouez au Belot bulgare ou à la belote française classique avec des amis ou des bots autonomes, et enregistrez vos règles personnalisées pour chaque variante.",
@@ -171,7 +175,8 @@
           "summary": "Premium : l’IA de la page publique de mvmAI accompagne les bots d’une table en tant que mentor.",
           "requires": "mvmAI doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut."
         }
-      ]
+      ],
+      "name": "Belote"
     },
     "ru": {
       "short_description": "Играйте в болгарский Belot или классический французский Belote с друзьями или самостоятельными ботами и сохраняйте свои правила для обоих вариантов.",
@@ -199,7 +204,8 @@
           "summary": "Premium: ИИ публичной страницы mvmAI выступает наставником для ботов за столом.",
           "requires": "Требуется установленный mvmAI с включённым API приложения в Apps Hub → Настройки → API приложений. По умолчанию этот переключатель выключен."
         }
-      ]
+      ],
+      "name": "Белот"
     },
     "zh-CN": {
       "short_description": "与好友或自主决策的机器人一起畅玩保加利亚 Belot 或经典法式 Belote，并为两种玩法保存自定义规则。",
@@ -227,7 +233,8 @@
           "summary": "Premium：由 mvmAI 公共页面的 AI 为牌桌上的机器人提供指导。",
           "requires": "需安装 mvmAI，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭。"
         }
-      ]
+      ],
+      "name": "贝洛特"
     },
     "ja": {
       "short_description": "ブルガリア式Belotやクラシックなフランス式Beloteを、友達や自律的に判断するボットとプレイ。どちらのスタイルでも、独自のルールを保存できます。",
@@ -255,7 +262,8 @@
           "summary": "Premium：mvmAIの公開ページのAIが、テーブルのボットに助言します。",
           "requires": "mvmAIをインストールし、Apps Hub → 設定 → App APIでmvmAIのApp APIを有効にする必要があります。このスイッチは初期設定ではオフです。"
         }
-      ]
+      ],
+      "name": "ベロット"
     }
   }
 }

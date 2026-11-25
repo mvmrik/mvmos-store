@@ -32,5 +32,279 @@
       "summary": "Rooms and players run on Game Hub accounts: your profile, sessions, statistics and rating are recorded in Game Hub.",
       "requires": "Game Hub 1.19.1 or newer installed."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Управлявайте състезателен отбор с два автомобила, наемайте и тренирайте пилоти, разработвайте части и настройки и провеждайте частни тестове или шампионат в Дивизия 5 от двадесет кръга с тренировки, квалификации, спирания в бокса и променливо време.",
+      "tagline": "Управлявайте два състезателни автомобила, развивайте отбора си и участвайте в самостоятелен шампионат със запазване на напредъка.",
+      "description": "Racelandia е игра за управление на отбор в моторните спортове за Game Hub. Вие подготвяте отбора, а пилотите управляват автомобилите си във физична симулация в браузъра. Новата кариера започва с два базови автомобила от ниво 20 и $6,000,000. Наемайте млади пилоти от постоянен пазар, разпределяйте ги по автомобилите и развивайте тринадесет пилотски умения чрез индивидуални тренировъчни игри и опит зад волана.\n\nВсеки автомобил запазва собствените си части, окраска и настройки за всяка писта. Настройвайте крилата, окачването, налягането в гумите, спирачния баланс, диференциала, предавателните числа, режима на двигателя и горивото. Изследвайте и произвеждайте части, монтирайте наличности от склада, купувайте няколко смеси гуми в една кошница и продавайте неизползвани гуми или части на цена според състоянието им. Записаният разход на гориво помага на отбора да предлага количества гориво за бъдещи тестове.\n\nПровеждайте частни тестове с единия или с двата автомобила, като използвате отделни настройки и комплекти гуми. Смяната на наблюдавания автомобил обновява телеметрията и времената му, а класирането в сесията запазва завършените обиколки на всеки пилот. Автомобилите използват общ часовник на сесията и реагират един на друг на пистата и в алеята на боксовете. По-бърз автомобил може да се изнесе за изпреварване на свободна права, като близките автомобили запазват физическа дистанция помежду си. Износването на гумите поддържа реалистични разлики между колелата, а повторното монтиране на използван комплект запазва позицията на всяка гума. Предпазливото каране в обиколката за излизане от бокса се прилага в завоите, без ограничение на скоростта по правите, което изчезва на финалната линия. Радиовръзката с пилота съобщава измерени събития, състоянието на гумите, горивото и промените по пистата.\n\nВлезте в самостоятелната Дивизия 5, когато двата автомобила и пилотите отговарят на изискванията ѝ. Шампионатът от двадесет кръга със запазване на напредъка включва осемнадесет компютърни съперници, три тридесетминутни тренировъчни сесии, четиридесет и пет минутна квалификация и състезания с дистанция според пистата. Отборът споделя общ лимит гуми за уикенда; всеки автомобил запазва собственото си износване на гумите и обслужване в бокса. Квалификацията заключва настройките до края на състезанието. Горивото, гумите, трафикът, изпреварванията, инцидентите и прибирането на аварирали автомобили при кола за сигурност влияят на резултата.\n\nНаемайте и обучавайте екипи за обслужване в бокса и специалисти за отбора, управлявайте спонсорството и ежедневните разходи и изградете собствена писта с трибуни. Кариерите, статистиката, рекордите за обиколка, историята на настройките и незавършените платени сесии се запазват между посещенията. Вече не се предлагат отделни квалификации; квалификацията е част от шампионата.\n\nМенютата обновяват съществуващите контроли, без да изчистват целия екран, като запазват черновите, фокуса, избраните елементи и позицията на превъртане. Незаписаните промени по настройките се запазват преди смяна на автомобила или стартиране на сесия.\n\nНаблюдавайте сесията през няколко 3D камери с данни в реално време за скоростта, педалите, износването и температурата на гумите, горивото, заряда на батерията и времената по сектори. Изгледът за телефон показва позициите на пилотите компактно до докосване и предоставя превключвател за автомобилите само с икони под радиовръзката. Поддържат се браузъри за компютри и телефони с WebGL. Необходими са Game Hub и акаунт в Apps Hub на mvmOS сървъра, на който се изпълнява играта.\n\nИмена и самоличности\nПилотите, екипите за обслужване, специалистите и международните съпернически отбори използват общия каталог с имена на Game Hub. Знамената на държавите и изписването на местния език или на латиница се съобразяват с езика на зрителя, а самоличностите се запазват при наемане, записване и възстановяване на кариерата.",
+      "capabilities": [
+        "Два автомобила с отделни пилоти, окраски, монтирани части, комплекти гуми и настройки за всяка писта.",
+        "Физична симулация на автомобилите с аеродинамика, прехвърляне на натоварването, температура и износване на гумите, тегло на горивото и променящи се условия на пистата.",
+        "Частни тестове с единия автомобил или с двата заедно, надеждно класиране по обиколки и телеметрия за наблюдавания автомобил.",
+        "Менюта с бърза реакция, които запазват черновите, фокуса и избраните елементи, като отделните настройки на автомобилите се записват преди смяна на автомобила.",
+        "Шампионат в Дивизия 5 от двадесет кръга със запазване на напредъка, осемнадесет съперници, тренировки, квалификации, състезания и запазени резултати.",
+        "Повиквания в бокса, смени на гуми, работа по настройките, където е разрешена, зареждане с гориво в тренировките и квалификациите и прибиране на аварирали автомобили при кола за сигурност.",
+        "Тринадесет пилотски умения, индивидуални тренировъчни игри, упражнения за екипите в бокса и осем роли за специалисти в отбора.",
+        "Изследване и производство на части, общ склад, кошници за покупка на гуми и препродажба според състоянието.",
+        "История на измерения разход на гориво и предложения за настройки въз основа на записаните обиколки и съветите на състезателния инженер.",
+        "Радиовръзка с пилота въз основа на записани събития в сесията, текущото състояние на гумите, горивото и условията на пистата.",
+        "Начален екран с доклади от всеки специалист в отбора, съвети за пилотите и един бутон за излизане, който иска потвърждение само когато има активна сесия.",
+        "Реален час от денонощието и метеорологични условия на всяка писта: положение на слънцето, ясно или облачно небе, нощ със звезди, луна и прожектори покрай пистата.",
+        "Компактно класиране за телефон и отделен превключвател само с икони за наблюдавания автомобил.",
+        "Проектиране на собствена писта, съоръжения, трибуни, финанси на отбора и спонсорство.",
+        "Запазени кариери, продължаване на сесии, рекорди за обиколки и сектори, история на настройките и девет езика на интерфейса.",
+        "Пилотите, екипите за обслужване, специалистите и международните съпернически отбори използват общия каталог с имена на Game Hub. Знамената на държавите и изписването на местния език или на латиница се съобразяват с езика на зрителя, а самоличностите се запазват при наемане, записване и възстановяване на кариерата."
+      ],
+      "requirements": [
+        "Браузър с активиран WebGL за 3D изгледа.",
+        "Game Hub 1.21.1 или по-нова версия, инсталирана и актуализирана преди използването на тази версия."
+      ],
+      "integrations": [
+        {
+          "summary": "Стаите и играчите използват акаунти в Game Hub: профилът, сесиите, статистиката и рейтингът ви се записват в Game Hub.",
+          "requires": "Инсталиран Game Hub 1.19.1 или по-нова версия."
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "de": {
+      "short_description": "Managen Sie ein Rennteam mit zwei Autos, verpflichten und trainieren Sie Fahrer, entwickeln Sie Teile und Setups und absolvieren Sie private Tests oder eine Meisterschaft der Division 5 über zwanzig Läufe mit Training, Qualifying, Boxenstopps und wechselndem Wetter.",
+      "tagline": "Managen Sie zwei Rennwagen, entwickeln Sie Ihr Team weiter und treten Sie in einer dauerhaft gespeicherten Solo-Meisterschaft an.",
+      "description": "Racelandia ist ein Motorsport-Managementspiel für Game Hub. Sie bereiten das Team vor, während die Fahrer ihre Autos in einer browserbasierten Physiksimulation steuern. Eine neue Karriere beginnt mit zwei Basisautos auf Level 20 und $6,000,000. Verpflichten Sie junge Fahrer auf einem dauerhaft verfügbaren Markt, weisen Sie ihnen Autos zu und entwickeln Sie dreizehn Fahrfähigkeiten durch individuelle Trainingsspiele und Fahrerfahrung.\n\nJedes Auto behält seine eigenen Teile, seine Lackierung und sein streckenspezifisches Setup. Stimmen Sie Flügel, Fahrwerk, Reifendruck, Bremsbalance, Differenzial, Übersetzung, Motormodus und Kraftstoffmenge ab. Erforschen und fertigen Sie Teile, verbauen Sie Lagerbestände, kaufen Sie mehrere Reifenmischungen in einem Warenkorb und verkaufen Sie ungenutzte Reifen oder Teile zu einem zustandsabhängigen Preis. Der aufgezeichnete Kraftstoffverbrauch hilft dem Team, Kraftstoffmengen für künftige Tests vorzuschlagen.\n\nAbsolvieren Sie private Tests mit einem oder beiden Autos und verwenden Sie dabei separate Setups und Reifensätze. Wenn Sie das beobachtete Auto wechseln, werden dessen Telemetrie und Zeiten angezeigt, während die Session-Wertung die tatsächlich absolvierten Runden jedes Fahrers beibehält. Die Autos teilen sich eine Session-Uhr und reagieren auf der Strecke und in der Boxengasse aufeinander. Ein schnelleres Auto kann auf einer freien Geraden zum Überholen ausscheren, während nahe beieinander fahrende Autos räumlich getrennt bleiben. Der Reifenverschleiß weist realistische Unterschiede zwischen den Rädern auf. Beim erneuten Aufziehen eines gebrauchten Satzes bleibt die Position jedes Reifens erhalten. Auf der Auslaufrunde fahren die Fahrer in Kurven vorsichtig, ohne eine Geschwindigkeitsbegrenzung auf Geraden, die an der Ziellinie verschwindet. Der Fahrerfunk meldet gemessene Ereignisse, Reifenzustände, Kraftstoff und Änderungen der Streckenbedingungen.\n\nSteigen Sie in die Solo-Meisterschaft der Division 5 ein, sobald beide Autos und Fahrer die Voraussetzungen erfüllen. Die dauerhaft gespeicherte Meisterschaft über zwanzig Läufe umfasst achtzehn computergesteuerte Rivalen, drei dreißigminütige Trainings, ein fünfundvierzigminütiges Qualifying und Rennen mit streckenabhängiger Distanz. Das Team teilt sich ein Reifenkontingent für das Wochenende; Reifenverschleiß und Boxenservice werden für jedes Auto separat geführt. Ab dem Qualifying bleibt das Setup bis zum Ende des Rennens gesperrt. Kraftstoff, Reifen, Verkehr, Überholmanöver, Zwischenfälle und Bergungen unter Safety-Car-Bedingungen beeinflussen das Ergebnis.\n\nStellen Sie Boxencrews und Teamspezialisten ein und trainieren Sie sie, verwalten Sie Sponsoring und tägliche Kosten und bauen Sie eine eigene Rennstrecke mit Tribünen. Karrieren, Statistiken, Rundenrekorde, Setup-Verlauf und nicht abgeschlossene kostenpflichtige Sessions bleiben über Besuche hinweg erhalten. Ein separates Qualifying wird nicht mehr angeboten; das Qualifying ist Teil der Meisterschaft.\n\nMenüs aktualisieren vorhandene Bedienelemente, ohne den gesamten Bildschirm zu leeren. Dabei bleiben Entwürfe, Fokus, Auswahlen und Scrollposition erhalten. Noch ausstehende Setup-Änderungen werden vor einem Fahrzeugwechsel oder dem Start einer Session gespeichert.\n\nVerfolgen Sie die Session über mehrere 3D-Kameras mit Live-Anzeigen für Geschwindigkeit, Pedale, Reifenverschleiß und -temperatur, Kraftstoff, Batterieladung und Sektorzeiten. In der Smartphone-Ansicht bleiben die Fahrerpositionen kompakt, bis Sie darauf tippen. Unter dem Funk befindet sich ein Fahrzeugumschalter, der nur Symbole verwendet. Unterstützt werden Desktop- und Smartphone-Browser mit WebGL. Erforderlich sind Game Hub und ein Apps Hub-Konto auf dem mvmOS-Server, auf dem das Spiel gehostet wird.\n\nNamen und Identitäten\nFahrer, Crewmitglieder, Spezialisten und internationale gegnerische Teams nutzen den gemeinsamen Namenskatalog von Game Hub. Länderflaggen und Schreibweisen in der jeweiligen Landesschrift oder in lateinischer Schrift richten sich nach der Sprache des Betrachters. Die Identitäten bleiben bei Einstellungen, beim Speichern und beim Wiederherstellen einer Karriere erhalten.",
+      "capabilities": [
+        "Zwei Autos mit jeweils eigenen Fahrern, Lackierungen, verbauten Teilen, Reifensätzen und streckenspezifischen Setups.",
+        "Physikalische Fahrzeugsimulation mit Aerodynamik, Lastverlagerung, Reifentemperatur und -verschleiß, Kraftstoffgewicht und wechselnden Streckenbedingungen.",
+        "Private Tests mit einem beliebigen Auto oder beiden gemeinsam, beständigen Rundenwertungen und Telemetrie für das beobachtete Auto.",
+        "Reaktionsschnelle Menüs, die Entwürfe, Fokus und Auswahlen erhalten und separate Fahrzeug-Setups vor dem Fahrzeugwechsel speichern.",
+        "Eine dauerhaft gespeicherte Meisterschaft der Division 5 über zwanzig Läufe mit achtzehn Rivalen, Training, Qualifying, Rennen und gespeicherten Ergebnissen.",
+        "Boxenrufe, Reifenwechsel, Setup-Arbeiten, soweit erlaubt, Nachtanken im Training und Qualifying sowie Bergungen unter Safety-Car-Bedingungen.",
+        "Dreizehn Fahrfähigkeiten, individuelle Trainingsspiele, Übungen für die Boxencrew und acht Rollen für Teamspezialisten.",
+        "Teileforschung und -fertigung, ein gemeinsames Lager, Reifen-Warenkörbe und zustandsabhängiger Wiederverkauf.",
+        "Verlauf des gemessenen Kraftstoffverbrauchs und Setup-Vorschläge auf Grundlage aufgezeichneter Runden und der Einschätzungen des Renningenieurs.",
+        "Fahrerfunk auf Grundlage aufgezeichneter Session-Ereignisse sowie der aktuellen Reifen-, Kraftstoff- und Streckenbedingungen.",
+        "Ein Startbildschirm mit Berichten aller Teamspezialisten und Ratschlägen für die Fahrer sowie einer einzigen Schaltfläche zum Verlassen, die nur bei laufender Session nachfragt.",
+        "Reale Tageszeit und Wetter an jeder Rennstrecke: Sonnenstand, klarer oder bewölkter Himmel, Nacht mit Sternen, Mond und Flutlicht entlang der Strecke.",
+        "Kompakte Wertungsanzeige auf Smartphones und ein separater Umschalter mit Symbolen für das beobachtete Auto.",
+        "Eigener Streckenbau, Einrichtungen, Tribünen, Teamfinanzen und Sponsoring.",
+        "Gespeicherte Karrieren, Fortsetzen von Sessions, Runden- und Sektorrekorde, Setup-Verlauf und neun Oberflächensprachen.",
+        "Fahrer, Crewmitglieder, Spezialisten und internationale gegnerische Teams nutzen den gemeinsamen Namenskatalog von Game Hub. Länderflaggen und Schreibweisen in der jeweiligen Landesschrift oder in lateinischer Schrift richten sich nach der Sprache des Betrachters. Die Identitäten bleiben bei Einstellungen, beim Speichern und beim Wiederherstellen einer Karriere erhalten."
+      ],
+      "requirements": [
+        "Ein Browser mit aktiviertem WebGL für die 3D-Ansicht.",
+        "Game Hub 1.21.1 oder neuer, vor der Verwendung dieser Version installiert und aktualisiert."
+      ],
+      "integrations": [
+        {
+          "summary": "Räume und Spieler verwenden Game Hub-Konten: Ihr Profil, Ihre Sessions, Statistiken und Bewertung werden in Game Hub erfasst.",
+          "requires": "Game Hub 1.19.1 oder neuer muss installiert sein."
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "es": {
+      "short_description": "Gestiona una escudería de dos coches, ficha y entrena pilotos, desarrolla piezas y configuraciones, y realiza pruebas privadas o disputa un campeonato de veinte pruebas de la División 5 con entrenamientos libres, clasificación, paradas en boxes y condiciones meteorológicas cambiantes.",
+      "tagline": "Gestiona dos coches de carreras, desarrolla tu escudería y compite en un campeonato individual persistente.",
+      "description": "Racelandia es un juego de gestión de automovilismo para Game Hub. Tú preparas la escudería mientras los pilotos controlan sus coches en una simulación física que se ejecuta en el navegador. Cada nueva carrera profesional comienza con dos coches básicos de nivel 20 y $6,000,000. Ficha jóvenes pilotos en un mercado persistente, asígnalos a los coches y desarrolla trece habilidades de pilotaje mediante juegos de entrenamiento individuales y experiencia al volante.\n\nCada coche conserva sus propias piezas, pintura y configuración para cada circuito. Ajusta alerones, suspensión, presiones de los neumáticos, reparto de frenada, diferencial, relaciones de cambio, modo del motor y combustible. Investiga y fabrica piezas, monta existencias del almacén, compra varios compuestos de neumáticos en una sola cesta y vende neumáticos o piezas sin usar por un valor basado en su estado. El consumo de combustible registrado ayuda a la escudería a sugerir cargas de combustible para futuras pruebas.\n\nRealiza pruebas privadas con uno o ambos coches, con configuraciones y juegos de neumáticos independientes. Al cambiar el coche que estás siguiendo, se actualizan su telemetría y sus tiempos, mientras que la clasificación de la sesión conserva las vueltas completadas por cada piloto. Los coches comparten el reloj de la sesión y reaccionan entre sí en la pista y en el carril de boxes. Un coche más rápido puede salirse de la trazada para adelantar en una recta despejada, mientras los coches cercanos mantienen la separación física. El desgaste de los neumáticos mantiene diferencias razonables entre las ruedas, y al volver a montar un juego usado se conserva la posición de cada neumático. La precaución en la vuelta de salida se aplica en las curvas, sin una restricción de velocidad en recta que desaparezca al cruzar la línea de meta. La radio del piloto informa de eventos medidos, del estado de los neumáticos, del combustible y de los cambios en la pista.\n\nAccede a la División 5 individual cuando ambos coches y pilotos cumplan sus requisitos. El campeonato persistente de veinte pruebas cuenta con dieciocho rivales controlados por el ordenador, tres sesiones de entrenamientos libres de treinta minutos, una clasificación de cuarenta y cinco minutos y carreras cuya distancia depende del circuito. La escudería comparte una asignación de neumáticos para el fin de semana; cada coche conserva su propio desgaste de neumáticos y su servicio en boxes. La clasificación bloquea la configuración hasta el final de la carrera. El combustible, los neumáticos, el tráfico, los adelantamientos, los incidentes y las intervenciones del coche de seguridad afectan al resultado.\n\nContrata y entrena a los mecánicos de boxes y a los especialistas de la escudería, gestiona los patrocinios y los gastos diarios, y construye un circuito original con gradas. Las carreras profesionales, las estadísticas, los récords de vuelta, el historial de configuraciones y las sesiones de pago sin terminar se conservan entre visitas. Ya no se ofrece clasificación independiente; la clasificación forma parte del campeonato.\n\nLos menús actualizan los controles existentes sin borrar toda la pantalla, conservando los borradores, el foco, las selecciones y la posición de desplazamiento. Los cambios pendientes en la configuración se guardan antes de cambiar de coche o iniciar una sesión.\n\nSigue la sesión a través de varias cámaras 3D, con datos en directo de velocidad, pedales, desgaste y temperatura de los neumáticos, combustible, carga de la batería y tiempos por sector. La vista para móviles muestra las posiciones de los pilotos de forma compacta hasta que se pulsan y ofrece un selector de coche solo con iconos debajo de la radio. Se admiten navegadores de escritorio y móviles con WebGL. Se requieren Game Hub y una cuenta de Apps Hub en el servidor mvmOS que aloja el juego.\n\nNombres e identidades\nLos pilotos, el personal, los especialistas y las escuderías rivales internacionales utilizan el catálogo de nombres compartido de Game Hub. Las banderas de los países y las grafías nativas o latinas se adaptan al idioma de quien los ve, mientras que las identidades se conservan al contratar, guardar y restaurar una carrera profesional.",
+      "capabilities": [
+        "Dos coches con pilotos, pintura, piezas montadas, juegos de neumáticos y configuraciones por circuito independientes.",
+        "Simulación física de vehículos con aerodinámica, transferencia de carga, temperatura y desgaste de los neumáticos, peso del combustible y condiciones cambiantes de la pista.",
+        "Pruebas privadas con cualquiera de los coches o con ambos a la vez, clasificaciones por vuelta estables y telemetría del coche que estás siguiendo.",
+        "Menús adaptables que conservan los borradores, el foco y las selecciones, con configuraciones independientes que se guardan antes de cambiar de coche.",
+        "Un campeonato persistente de veinte pruebas de la División 5 con dieciocho rivales, entrenamientos libres, clasificación, carreras y resultados guardados.",
+        "Órdenes de entrada en boxes, cambios de neumáticos, ajustes de configuración cuando estén permitidos, repostaje en entrenamientos libres y clasificación, e intervenciones del coche de seguridad.",
+        "Trece habilidades de pilotaje, juegos de entrenamiento individuales, ejercicios para los mecánicos de boxes y ocho funciones de especialistas de la escudería.",
+        "Investigación y fabricación de piezas, un almacén compartido, cestas de compra de neumáticos y reventa según su estado.",
+        "Historial del consumo de combustible medido y sugerencias de configuración basadas en las vueltas registradas y en el ingeniero de pista.",
+        "Radio del piloto basada en los eventos registrados durante la sesión, los neumáticos actuales, el combustible y las condiciones de la pista.",
+        "Una pantalla de inicio formada por informes de cada especialista de la escudería, con consejos para los pilotos, y un único botón de salida que solo pide confirmación cuando hay una sesión en curso.",
+        "Hora del día y meteorología reales en cada circuito: posición del sol, cielos despejados o nublados, noches con estrellas, luna y focos a lo largo de la pista.",
+        "Clasificación compacta para móviles y un selector independiente solo con iconos para el coche que estás siguiendo.",
+        "Diseño de circuitos personalizados, instalaciones, gradas, finanzas de la escudería y patrocinios.",
+        "Carreras profesionales guardadas, reanudación de sesiones, récords de vuelta y sector, historial de configuraciones y nueve idiomas de interfaz.",
+        "Los pilotos, el personal, los especialistas y las escuderías rivales internacionales utilizan el catálogo de nombres compartido de Game Hub. Las banderas de los países y las grafías nativas o latinas se adaptan al idioma de quien los ve, mientras que las identidades se conservan al contratar, guardar y restaurar una carrera profesional."
+      ],
+      "requirements": [
+        "Un navegador con WebGL activado para la vista 3D.",
+        "Game Hub 1.21.1 o posterior, instalado y actualizado antes de usar esta versión."
+      ],
+      "integrations": [
+        {
+          "summary": "Las salas y los jugadores utilizan cuentas de Game Hub: tu perfil, tus sesiones, tus estadísticas y tu puntuación se registran en Game Hub.",
+          "requires": "Game Hub 1.19.1 o posterior instalado."
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "fr": {
+      "short_description": "Gérez une écurie de course à deux voitures, recrutez et entraînez des pilotes, développez des pièces et des réglages, puis organisez des essais privés ou participez à un championnat de Division 5 en vingt manches, avec essais libres, qualifications, arrêts aux stands et météo changeante.",
+      "tagline": "Gérez deux voitures de course, développez votre écurie et participez à un championnat solo persistant.",
+      "description": "Racelandia est un jeu de gestion de sport automobile pour Game Hub. Vous préparez l’écurie tandis que les pilotes contrôlent leurs voitures dans une simulation physique exécutée dans le navigateur. Une nouvelle carrière commence avec deux voitures de base de niveau 20 et $6,000,000. Recrutez de jeunes pilotes sur un marché persistant, affectez-les aux voitures et développez treize compétences de pilotage grâce à des jeux d’entraînement individuels et à l’expérience de conduite.\n\nChaque voiture conserve ses propres pièces, sa peinture et ses réglages par circuit. Réglez les ailerons, la suspension, la pression des pneus, la répartition du freinage, le différentiel, les rapports de boîte, le mode moteur et le carburant. Recherchez et fabriquez des pièces, montez celles du stock, achetez plusieurs mélanges de pneus dans un même panier et revendez les pneus ou pièces inutilisés à un prix calculé selon leur état. La consommation de carburant enregistrée aide l’écurie à suggérer les quantités à embarquer pour les prochains essais.\n\nOrganisez des essais privés avec une voiture ou les deux, chacune utilisant ses propres réglages et trains de pneus. Changer de voiture observée met à jour la télémétrie et les chronos affichés, tandis que le classement de la séance conserve les tours effectués par chaque pilote. Les voitures partagent le même chronomètre de séance et réagissent l’une à l’autre sur la piste et dans la voie des stands. Une voiture plus rapide peut se décaler pour dépasser dans une ligne droite dégagée, tandis que les voitures proches restent physiquement séparées. L’usure des pneus conserve des écarts raisonnables entre les roues, et le remontage d’un train usagé préserve la position de chaque pneu. La prudence du tour de sortie s’applique dans les virages, sans limitation de vitesse en ligne droite qui disparaîtrait au passage de la ligne d’arrivée. La radio du pilote signale les événements mesurés, l’état des pneus, le carburant et les changements de piste.\n\nAccédez à la Division 5 en solo lorsque les deux voitures et leurs pilotes remplissent les conditions requises. Ce championnat persistant en vingt manches compte dix-huit adversaires contrôlés par l’ordinateur, trois séances d’essais libres de trente minutes, quarante-cinq minutes de qualifications et des courses dont la distance dépend du circuit. L’écurie partage une allocation de pneus pour le week-end ; chaque voiture conserve sa propre usure des pneus et ses propres interventions aux stands. Les qualifications figent les réglages jusqu’à la fin de la course. Le carburant, les pneus, le trafic, les dépassements, les incidents et les interventions de la voiture de sécurité influencent le résultat.\n\nRecrutez et entraînez des équipes de mécaniciens et des spécialistes, gérez les sponsors et les dépenses quotidiennes, et construisez un circuit original avec des tribunes. Les carrières, les statistiques, les records du tour, l’historique des réglages et les séances payantes inachevées sont conservés d’une visite à l’autre. Les qualifications indépendantes ne sont plus proposées ; elles font partie du championnat.\n\nLes menus mettent à jour les commandes existantes sans effacer tout l’écran, en préservant les brouillons, le champ actif, les sélections et la position de défilement. Les modifications de réglage en attente sont enregistrées avant de changer de voiture ou de démarrer une séance.\n\nSuivez la séance grâce à plusieurs caméras 3D, avec l’affichage en direct de la vitesse, des pédales, de l’usure et de la température des pneus, du carburant, de la charge de la batterie et des temps par secteur. Sur téléphone, les positions des pilotes restent compactes jusqu’à ce que vous les touchiez, et une commande composée uniquement d’icônes permet de changer de voiture sous la radio. Les navigateurs sur ordinateur et téléphone prenant en charge WebGL sont compatibles. Game Hub et un compte Apps Hub sur le serveur mvmOS qui héberge le jeu sont requis.\n\nNoms et identités\nLes pilotes, les mécaniciens, les spécialistes et les écuries adverses internationales utilisent le catalogue de noms partagé de Game Hub. Les drapeaux nationaux et les graphies locales ou latines s’adaptent à la langue de la personne qui consulte le jeu, tandis que les identités sont conservées lors des recrutements, des sauvegardes et des restaurations de carrière.",
+      "capabilities": [
+        "Deux voitures avec chacune ses pilotes, sa peinture, ses pièces montées, ses trains de pneus et ses réglages par circuit.",
+        "Simulation physique des véhicules avec aérodynamique, transfert de charge, température et usure des pneus, poids du carburant et conditions de piste changeantes.",
+        "Essais privés avec l’une des voitures ou les deux ensemble, classements au tour stables et télémétrie de la voiture observée.",
+        "Menus réactifs qui préservent les brouillons, le champ actif et les sélections, avec enregistrement des réglages propres à chaque voiture avant d’en changer.",
+        "Un championnat persistant de Division 5 en vingt manches avec dix-huit adversaires, des essais libres, des qualifications, des courses et des résultats enregistrés.",
+        "Appels aux stands, changements de pneus, modifications des réglages lorsqu’elles sont autorisées, ravitaillement en essais libres et en qualifications, et interventions de la voiture de sécurité.",
+        "Treize compétences de pilotage, des jeux d’entraînement individuels, des exercices pour les mécaniciens et huit rôles de spécialistes d’écurie.",
+        "Recherche et fabrication de pièces, stock partagé, paniers d’achat de pneus et revente selon l’état.",
+        "Historique de consommation mesurée et suggestions de réglages fondées sur les tours enregistrés et les conseils de l’ingénieur de course.",
+        "Radio du pilote fondée sur les événements enregistrés pendant la séance, les pneus actuels, le carburant et les conditions de piste.",
+        "Un écran d’accueil composé des rapports de chaque spécialiste de l’écurie, avec des conseils pour les pilotes, et un seul bouton pour quitter qui ne demande confirmation que lorsqu’une séance est en cours.",
+        "Heure et météo réelles sur chaque circuit : position du soleil, ciel dégagé ou nuageux, nuit avec étoiles, lune et projecteurs le long de la piste.",
+        "Classement compact sur téléphone et commande distincte composée uniquement d’icônes pour changer de voiture observée.",
+        "Conception de circuits personnalisés, installations, tribunes, finances de l’écurie et sponsors.",
+        "Carrières sauvegardées, reprise des séances, records du tour et par secteur, historique des réglages et interface en neuf langues.",
+        "Les pilotes, les mécaniciens, les spécialistes et les écuries adverses internationales utilisent le catalogue de noms partagé de Game Hub. Les drapeaux nationaux et les graphies locales ou latines s’adaptent à la langue de la personne qui consulte le jeu, tandis que les identités sont conservées lors des recrutements, des sauvegardes et des restaurations de carrière."
+      ],
+      "requirements": [
+        "Un navigateur avec WebGL activé pour la vue 3D.",
+        "Game Hub 1.21.1 ou version ultérieure, installé et mis à jour avant d’utiliser cette version."
+      ],
+      "integrations": [
+        {
+          "summary": "Les salons et les joueurs utilisent les comptes Game Hub : votre profil, vos séances, vos statistiques et votre classement sont enregistrés dans Game Hub.",
+          "requires": "Game Hub 1.19.1 ou version ultérieure installé."
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "ja": {
+      "short_description": "2台体制のレーシングチームを運営し、ドライバーの採用と育成、パーツやセッティングの開発を進め、プライベートテストや全20戦のDivision 5選手権に参加。練習走行、予選、ピットストップ、天候の変化に対応します。",
+      "tagline": "2台のレーシングカーを管理し、チームを育て、進行状況が保存されるソロ選手権に挑戦。",
+      "description": "RacelandiaはGame Hub向けのモータースポーツ運営ゲームです。プレイヤーがチームを準備し、ドライバーがブラウザ上の物理シミュレーションでマシンを操縦します。新しいキャリアは、レベル20の基本マシン2台と$6,000,000で始まります。継続的に維持される市場から若手ドライバーを採用してマシンに配属し、個別のトレーニングゲームと走行経験を通じて13種類のドライビングスキルを伸ばします。\n\n各マシンは、パーツ、塗装、サーキットごとのセッティングを個別に保持します。ウイング、サスペンション、タイヤ空気圧、ブレーキバランス、ディファレンシャル、ギア比、エンジンモード、燃料を調整できます。パーツを研究・製造し、倉庫の在庫を装着し、複数のタイヤコンパウンドを1つの買い物かごで購入し、不要なタイヤやパーツを状態に応じた価格で売却できます。記録された燃料消費量をもとに、チームが今後のテストに適した燃料搭載量を提案します。\n\n1台または2台でプライベートテストを実施し、それぞれ別のセッティングとタイヤセットを使用できます。観戦対象のマシンを切り替えると、テレメトリーとタイムの表示が更新され、セッション順位表には各ドライバー自身の完了周回が保持されます。マシンは同じセッション時間を共有し、コース上やピットレーンで互いの動きに反応します。速いマシンは見通しのよいストレートで横に出て追い越すことができ、近くのマシン同士は物理的な間隔を保ちます。タイヤの摩耗には各輪で妥当な差が生じ、使用済みセットを再装着しても各タイヤの装着位置は維持されます。アウトラップではコーナーで慎重に走行しますが、フィニッシュラインを越えると解除されるような直線での速度制限はありません。ドライバー無線は、計測された出来事、タイヤの状態、燃料、コースの変化を報告します。\n\n両方のマシンとドライバーが参加条件を満たすと、ソロのDivision 5に参戦できます。進行状況が保存される全20戦の選手権では、18人のコンピューター対戦相手と競い、30分間の練習走行が3回、45分間の予選、サーキットに応じた距離の決勝レースが行われます。チームは週末のタイヤ割当を共有し、各マシンのタイヤ摩耗とピット作業は個別に管理されます。予選開始後は決勝終了までセッティングが固定されます。燃料、タイヤ、トラフィック、追い越し、アクシデント、セーフティカーによる回収対応が結果に影響します。\n\nピットクルーやチームの専門スタッフを雇用・育成し、スポンサー契約と日々の経費を管理し、観客席を備えた独自のサーキットを建設できます。キャリア、統計、ラップ記録、セッティング履歴、未完了の有料セッションは、次回のアクセス時にも引き継がれます。単独の予選セッションは提供されなくなり、予選は選手権の一部として実施されます。\n\nメニューは画面全体を消去せずに既存の操作項目を更新するため、下書き、フォーカス、選択内容、スクロール位置が維持されます。未保存のセッティング変更は、マシンの切り替えやセッション開始前に保存されます。\n\n複数の3Dカメラでセッションを観戦し、速度、ペダル操作、タイヤの摩耗と温度、燃料、バッテリー残量、セクタータイムをリアルタイムで確認できます。スマートフォン表示では、タップするまでドライバーの順位をコンパクトに表示し、無線の下にアイコンのみのマシン切り替えボタンを配置しています。WebGL対応のデスクトップおよびスマートフォンのブラウザをサポートします。ホストとなるmvmOSサーバー上のGame HubとApps Hubアカウントが必要です。\n\n名前と人物情報\nドライバー、クルー、専門スタッフ、各国のライバルチームは、Game Hub共通の名前カタログを使用します。国旗と現地語またはラテン文字の表記は閲覧者の言語に合わせて表示され、採用、保存、キャリアの復元後も人物の同一性が維持されます。",
+      "capabilities": [
+        "ドライバー、塗装、装着パーツ、タイヤセット、サーキットごとのセッティングを個別に管理できる2台のマシン。",
+        "空力、荷重移動、タイヤの温度と摩耗、燃料重量、変化する路面状況を反映した車両物理シミュレーション。",
+        "どちらか1台または2台同時のプライベートテスト。一貫して保持される周回順位と、観戦対象マシンのテレメトリー。",
+        "下書き、フォーカス、選択内容を維持する応答性の高いメニュー。マシンごとのセッティングは切り替え前に保存。",
+        "18人のライバル、練習走行、予選、決勝、結果の保存に対応した、進行状況が保存される全20戦のDivision 5選手権。",
+        "ピットへの呼び出し、タイヤ交換、許可された場面でのセッティング作業、練習走行と予選での給油、セーフティカーによる回収対応。",
+        "13種類のドライバースキル、個別のトレーニングゲーム、ピットクルーの訓練、8種類のチーム専門職。",
+        "パーツの研究・製造、共有倉庫、タイヤの買い物かご、状態に応じた価格での再販売。",
+        "実測の燃料消費履歴と、記録されたラップやレースエンジニアの知見に基づくセッティング提案。",
+        "記録されたセッション中の出来事、現在のタイヤ、燃料、路面状況に基づくドライバー無線。",
+        "各専門スタッフのレポートとドライバーへの助言で構成されたホーム画面。退出ボタンは1つで、セッション実行中のみ確認。",
+        "各サーキットの実際の時刻と天候を反映。太陽の位置、晴天や曇天、星空の夜、月、コース沿いの照明。",
+        "スマートフォン向けのコンパクトな順位表と、観戦対象マシンを切り替える独立したアイコンボタン。",
+        "独自のサーキット設計、施設、観客席、チームの財務、スポンサー契約。",
+        "キャリアの保存、セッションの再開、ラップとセクターの記録、セッティング履歴、9言語のインターフェース。",
+        "ドライバー、クルー、専門スタッフ、各国のライバルチームは、Game Hub共通の名前カタログを使用します。国旗と現地語またはラテン文字の表記は閲覧者の言語に合わせて表示され、採用、保存、キャリアの復元後も人物の同一性が維持されます。"
+      ],
+      "requirements": [
+        "3D表示には、WebGLが有効なブラウザが必要です。",
+        "このバージョンを使用する前に、Game Hub 1.21.1以降をインストールし、更新してください。"
+      ],
+      "integrations": [
+        {
+          "summary": "ルームとプレイヤーはGame Hubアカウントで管理され、プロフィール、セッション、統計、レーティングはGame Hubに記録されます。",
+          "requires": "Game Hub 1.19.1以降のインストールが必要です。"
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "pt-BR": {
+      "short_description": "Gerencie uma equipe de automobilismo com dois carros, contrate e treine pilotos, desenvolva peças e acertos e realize testes privados ou participe de um campeonato persistente de vinte etapas da Divisão 5, com treinos livres, classificação, paradas nos boxes e condições climáticas variáveis.",
+      "tagline": "Gerencie dois carros de corrida, desenvolva sua equipe e dispute um campeonato solo persistente.",
+      "description": "Racelandia é um jogo de gerenciamento de automobilismo para o Game Hub. Você prepara a equipe enquanto os pilotos controlam seus carros em uma simulação física no navegador. Uma nova carreira começa com dois carros básicos de nível 20 e $6,000,000. Contrate jovens pilotos em um mercado persistente, atribua-os aos carros e desenvolva treze habilidades de pilotagem por meio de jogos de treinamento individual e experiência ao volante.\n\nCada carro mantém suas próprias peças, pintura e acerto por circuito. Ajuste asas, suspensão, pressões dos pneus, distribuição de frenagem, diferencial, relações de marcha, modo do motor e combustível. Pesquise e fabrique peças, instale itens do estoque, compre vários compostos de pneus em um único carrinho e venda pneus ou peças sem uso por um valor baseado no estado de conservação. O consumo de combustível registrado ajuda a equipe a sugerir cargas de combustível para testes futuros.\n\nRealize testes privados com um ou ambos os carros, usando acertos e jogos de pneus separados. Ao trocar o carro acompanhado, a telemetria e os tempos são atualizados, enquanto a classificação da sessão mantém as voltas concluídas de cada piloto. Os carros compartilham o cronômetro da sessão e reagem uns aos outros na pista e no pit lane. Um carro mais rápido pode sair de trás para ultrapassar em uma reta livre, enquanto carros próximos mantêm uma separação física. O desgaste dos pneus mantém diferenças razoáveis entre as rodas, e a reinstalação de um jogo usado preserva a posição de cada pneu. A cautela na volta de saída dos boxes se aplica às curvas, sem uma restrição de velocidade nas retas que desapareça na linha de chegada. O rádio do piloto informa eventos medidos, condições dos pneus, combustível e mudanças na pista.\n\nEntre na Divisão 5 solo quando ambos os carros e pilotos atenderem aos requisitos. O campeonato persistente de vinte etapas conta com dezoito adversários controlados pelo computador, três sessões de treinos livres de trinta minutos, uma classificação de quarenta e cinco minutos e corridas cuja distância depende do circuito. A equipe compartilha uma cota de pneus para o fim de semana; cada carro mantém seu próprio desgaste de pneus e atendimento nos boxes. A classificação trava o acerto até o fim da corrida. Combustível, pneus, tráfego, ultrapassagens, incidentes e operações de resgate sob safety car afetam o resultado.\n\nContrate e treine equipes de boxes e especialistas, gerencie patrocínios e custos diários e construa um circuito original com arquibancadas. Carreiras, estatísticas, recordes de volta, histórico de acertos e sessões pagas não concluídas são preservados entre visitas. A classificação avulsa não é mais oferecida; ela faz parte do campeonato.\n\nOs menus atualizam os controles existentes sem limpar a tela inteira, preservando rascunhos, foco, seleções e posição de rolagem. Alterações pendentes no acerto são salvas antes de trocar de carro ou iniciar uma sessão.\n\nAcompanhe a sessão por várias câmeras 3D, com velocidade, pedais, desgaste e temperatura dos pneus, combustível, carga da bateria e tempos por setor em tempo real. A visualização no celular mantém as posições dos pilotos compactas até você tocar nelas e oferece um seletor de carro apenas com ícones abaixo do rádio. Há suporte a navegadores de computadores e celulares com WebGL. São necessários o Game Hub e uma conta do Apps Hub no servidor mvmOS que hospeda o jogo.\n\nNomes e identidades\nPilotos, equipes de boxes, especialistas e equipes rivais internacionais usam o catálogo de nomes compartilhado do Game Hub. As bandeiras dos países e as grafias nativas ou em alfabeto latino seguem o idioma de quem está visualizando, enquanto as identidades são preservadas em contratações, salvamentos e restaurações de carreira.",
+      "capabilities": [
+        "Dois carros com pilotos, pinturas, peças instaladas, jogos de pneus e acertos por circuito independentes.",
+        "Simulação física dos veículos com aerodinâmica, transferência de carga, temperatura e desgaste dos pneus, peso do combustível e condições variáveis da pista.",
+        "Testes privados com um dos carros ou ambos juntos, classificações de voltas estáveis e telemetria do carro acompanhado.",
+        "Menus responsivos que preservam rascunhos, foco e seleções, com acertos independentes salvos antes de trocar de carro.",
+        "Um campeonato persistente de vinte etapas da Divisão 5 com dezoito adversários, treinos livres, classificação, corridas e resultados salvos.",
+        "Chamadas para os boxes, trocas de pneus, ajustes de acerto quando permitidos, reabastecimento nos treinos livres e na classificação e operações de resgate sob safety car.",
+        "Treze habilidades de pilotagem, jogos de treinamento individual, exercícios para a equipe de boxes e oito funções de especialistas da equipe.",
+        "Pesquisa e fabricação de peças, um estoque compartilhado, carrinhos de compras de pneus e revenda baseada no estado de conservação.",
+        "Histórico medido de consumo de combustível e sugestões de acerto baseadas nas voltas registradas e nas orientações do engenheiro de corrida.",
+        "Rádio do piloto baseado em eventos registrados na sessão e nas condições atuais dos pneus, do combustível e da pista.",
+        "Uma tela inicial composta por relatórios de cada especialista da equipe, com orientações para os pilotos e um único botão de saída que só pede confirmação quando há uma sessão em andamento.",
+        "Horário e clima reais em cada circuito: posição do sol, céu limpo ou nublado, noite com estrelas, lua e refletores ao longo da pista.",
+        "Classificação compacta no celular e um seletor separado, apenas com ícones, para o carro acompanhado.",
+        "Criação de circuitos personalizados, instalações, arquibancadas, finanças da equipe e patrocínios.",
+        "Carreiras salvas, retomada de sessões, recordes de voltas e setores, histórico de acertos e nove idiomas de interface.",
+        "Pilotos, equipes de boxes, especialistas e equipes rivais internacionais usam o catálogo de nomes compartilhado do Game Hub. As bandeiras dos países e as grafias nativas ou em alfabeto latino seguem o idioma de quem está visualizando, enquanto as identidades são preservadas em contratações, salvamentos e restaurações de carreira."
+      ],
+      "requirements": [
+        "Um navegador com WebGL ativado para a visualização 3D.",
+        "Game Hub 1.21.1 ou posterior, instalado e atualizado antes de usar esta versão."
+      ],
+      "integrations": [
+        {
+          "summary": "As salas e os jogadores usam contas do Game Hub: seu perfil, sessões, estatísticas e classificação são registrados no Game Hub.",
+          "requires": "Game Hub 1.19.1 ou mais recente instalado."
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "ru": {
+      "short_description": "Управляйте гоночной командой из двух машин, нанимайте и тренируйте пилотов, разрабатывайте детали и настройки, проводите частные тесты или участвуйте в чемпионате Division 5 из двадцати этапов с тренировками, квалификацией, пит-стопами и переменчивой погодой.",
+      "tagline": "Управляйте двумя гоночными машинами, развивайте команду и участвуйте в одиночном чемпионате с сохранением прогресса.",
+      "description": "Racelandia — игра об управлении гоночной командой для Game Hub. Вы готовите команду, а пилоты управляют машинами в браузерной физической симуляции. Новая карьера начинается с двух базовых машин 20-го уровня и $6,000,000. Нанимайте молодых пилотов на постоянно действующем рынке, назначайте их на машины и развивайте тринадцать навыков вождения с помощью индивидуальных тренировочных игр и опыта за рулём.\n\nУ каждой машины сохраняются собственные детали, окраска и настройки для каждой трассы. Настраивайте антикрылья, подвеску, давление в шинах, баланс тормозов, дифференциал, передаточные числа, режим двигателя и запас топлива. Исследуйте и производите детали, устанавливайте запчасти со склада, покупайте несколько составов шин одной корзиной и продавайте неиспользуемые шины или детали по цене, зависящей от их состояния. Записи расхода топлива помогают команде рекомендовать запас топлива для будущих тестов.\n\nПроводите частные тесты с одной или обеими машинами, используя отдельные настройки и комплекты шин. При переключении наблюдаемой машины обновляются её телеметрия и времена, а таблица результатов сессии сохраняет пройденные круги каждого пилота. Машины используют единый таймер сессии и реагируют друг на друга на трассе и пит-лейне. Более быстрая машина может выйти на обгон на свободной прямой, а находящиеся рядом машины сохраняют физическую дистанцию. Износ шин сохраняет реалистичные различия между колёсами, а при повторной установке использованного комплекта каждая шина остаётся на своём месте. На выездном круге пилот осторожнее проходит повороты, без ограничения скорости на прямых, которое исчезало бы на финишной черте. По радио пилот сообщает о зафиксированных событиях, состоянии шин, топливе и изменениях на трассе.\n\nВступайте в одиночный чемпионат Division 5, когда обе машины и оба пилота будут соответствовать его требованиям. Чемпионат из двадцати этапов с сохранением прогресса включает восемнадцать компьютерных соперников, три тридцатиминутные тренировки, сорокапятиминутную квалификацию и гонки, дистанция которых зависит от трассы. На гоночный уик-энд команда получает общий лимит шин; у каждой машины отдельно учитываются износ шин и обслуживание на пит-стопах. После квалификации настройки блокируются до конца гонки. На результат влияют топливо, шины, трафик, обгоны, инциденты и эвакуация машин под автомобилем безопасности.\n\nНанимайте и обучайте бригады механиков и специалистов команды, управляйте спонсорством и ежедневными расходами, стройте собственную трассу с трибунами. Карьеры, статистика, рекорды кругов, история настроек и незавершённые оплаченные сессии сохраняются между посещениями. Отдельная квалификация больше не доступна: она проводится только в рамках чемпионата.\n\nМеню обновляют существующие элементы управления без очистки всего экрана, сохраняя черновики, фокус ввода, выбранные значения и положение прокрутки. Несохранённые изменения настроек сохраняются перед сменой машины или началом сессии.\n\nНаблюдайте за сессией через несколько 3D-камер с отображением в реальном времени скорости, положения педалей, износа и температуры шин, топлива, заряда батареи и времени по секторам. На телефоне позиции пилотов отображаются компактно до нажатия, а под радиосвязью расположен переключатель машин в виде значков. Поддерживаются браузеры на компьютерах и телефонах с WebGL. Требуются Game Hub и учётная запись Apps Hub на сервере mvmOS, где размещена игра.\n\nИмена и личности\nПилоты, механики, специалисты и международные команды соперников используют общий каталог имён Game Hub. Флаги стран и написание имён на родном языке или латиницей зависят от языка пользователя, а личности сохраняются при найме, сохранении и восстановлении карьеры.",
+      "capabilities": [
+        "Две машины с отдельными пилотами, окраской, установленными деталями, комплектами шин и настройками для каждой трассы.",
+        "Физическая симуляция автомобиля с аэродинамикой, перераспределением нагрузки, температурой и износом шин, массой топлива и изменяющимися условиями трассы.",
+        "Частные тесты с одной машиной или обеими одновременно, стабильными таблицами результатов по кругам и телеметрией наблюдаемой машины.",
+        "Отзывчивые меню, сохраняющие черновики, фокус ввода и выбранные значения, с сохранением отдельных настроек машин перед переключением.",
+        "Чемпионат Division 5 из двадцати этапов с сохранением прогресса, восемнадцатью соперниками, тренировками, квалификацией, гонками и сохранёнными результатами.",
+        "Вызовы на пит-стоп, смена шин, изменение настроек там, где это разрешено, дозаправка на тренировках и в квалификации, эвакуация машин под автомобилем безопасности.",
+        "Тринадцать навыков пилота, индивидуальные тренировочные игры, тренировки бригад механиков и восемь ролей специалистов команды.",
+        "Исследование и производство деталей, общий склад, корзины для покупки шин и перепродажа по цене, зависящей от состояния.",
+        "История измеренного расхода топлива и рекомендации по настройкам на основе записанных кругов и данных гоночного инженера.",
+        "Радиосвязь с пилотом на основе зафиксированных событий сессии, текущего состояния шин, топлива и условий трассы.",
+        "Главный экран с отчётами каждого специалиста команды, советами для пилотов и единственной кнопкой выхода, которая запрашивает подтверждение только во время сессии.",
+        "Реальное время суток и погода на каждой трассе: положение солнца, ясное или облачное небо, ночь со звёздами, луной и прожекторами вдоль трассы.",
+        "Компактная таблица результатов на телефоне и отдельный переключатель наблюдаемой машины в виде значков.",
+        "Создание собственной трассы, инфраструктура, трибуны, финансы команды и спонсорство.",
+        "Сохранённые карьеры, возобновление сессий, рекорды кругов и секторов, история настроек и девять языков интерфейса.",
+        "Пилоты, механики, специалисты и международные команды соперников используют общий каталог имён Game Hub. Флаги стран и написание имён на родном языке или латиницей зависят от языка пользователя, а личности сохраняются при найме, сохранении и восстановлении карьеры."
+      ],
+      "requirements": [
+        "Браузер с включённым WebGL для отображения 3D.",
+        "Game Hub 1.21.1 или новее; установите и обновите его перед использованием этой версии."
+      ],
+      "integrations": [
+        {
+          "summary": "Комнаты и игроки используют учётные записи Game Hub: ваш профиль, сессии, статистика и рейтинг сохраняются в Game Hub.",
+          "requires": "Установленный Game Hub 1.19.1 или новее."
+        }
+      ],
+      "name": "Racelandia"
+    },
+    "zh-CN": {
+      "short_description": "管理一支拥有两辆赛车的车队，招募和训练车手，研发部件并调校赛车，开展私人测试，或参加包含练习赛、排位赛、进站和动态天气的二十站第 5 组别锦标赛。",
+      "tagline": "管理两辆赛车，发展车队，征战进度持续保存的单人锦标赛。",
+      "description": "Racelandia 是 Game Hub 的一款赛车运动管理游戏。您负责车队的赛前准备，车手则在基于浏览器的物理模拟中驾驶赛车。新生涯从两辆等级为 20 的基础赛车和 $6,000,000 起步。从持续保留的车手市场中招募年轻车手，为他们分配赛车，并通过专项训练游戏和驾驶经验提升十三项驾驶技能。\n\n每辆赛车都保留各自的部件、涂装和针对不同赛道的调校。您可以调整尾翼、悬挂、胎压、制动力分配、差速器、齿比、引擎模式和燃油量。研发和制造部件，安装仓库中的库存部件，将多种配方的轮胎放入同一购物篮购买，并按成色出售闲置轮胎或部件。记录下来的燃油消耗可帮助车队为今后的测试建议载油量。\n\n使用一辆或两辆赛车开展私人测试，各自采用独立的调校和轮胎组。切换观看的赛车时，遥测数据和计时会随之更新，而场次排名会保留每位车手各自完成的圈数。两辆赛车共用场次计时，并会在赛道和维修区通道中对彼此作出反应。速度较快的赛车可以在畅通的直道上变线超车，邻近赛车则会保持物理间距。轮胎磨损会在各车轮之间保持合理差异，重新装上用过的轮胎组时，也会保留每条轮胎原来的位置。出站圈会在弯道中采取谨慎驾驶，而不会设置一种到终点线就消失的直道限速。车手无线电会报告实际记录的事件、轮胎状况、燃油和赛道变化。\n\n当两辆赛车及其车手都满足要求后，即可参加单人第 5 组别比赛。这项进度持续保存的二十站锦标赛有十八名电脑对手，每站包括三节各三十分钟的练习赛、四十五分钟的排位赛，以及距离依赛道而定的正赛。车队在整个比赛周末共用轮胎配额；每辆赛车则保留各自的轮胎磨损和进站服务状态。排位赛开始后，调校将锁定至正赛结束。燃油、轮胎、赛道交通、超车、事故和安全车带领下的赛道恢复都会影响比赛结果。\n\n雇用和训练维修站团队及车队专业人员，管理赞助和日常开支，并建造配有看台的原创赛道。生涯、统计数据、单圈纪录、调校历史和未完成的付费场次都会在下次访问时保留。不再提供独立排位赛；排位赛是锦标赛的一部分。\n\n菜单会更新现有控件，而不清空整个屏幕，从而保留草稿、焦点、选择和滚动位置。切换赛车或开始场次前，尚未保存的调校更改会先行保存。\n\n通过多个 3D 镜头观看场次，实时查看速度、踏板操作、轮胎磨损和温度、燃油、电池电量及分段计时。手机版会以紧凑形式显示车手排名，点击后展开，并在无线电下方提供仅含图标的赛车切换控件。支持具备 WebGL 的桌面和手机浏览器。需要 Game Hub，以及托管该游戏的 mvmOS 服务器上的 Apps Hub 账户。\n\n姓名与身份\n车手、维修人员、专业人员和国际对手车队均使用 Game Hub 共享名称库。国旗以及本地文字或拉丁字母拼写会根据查看者的语言显示，身份信息则在雇用、存档和生涯恢复后保持不变。",
+      "capabilities": [
+        "两辆赛车各自拥有独立的车手、涂装、已安装部件、轮胎组和各赛道调校。",
+        "车辆物理模拟涵盖空气动力学、载荷转移、轮胎温度与磨损、燃油重量以及不断变化的赛道状况。",
+        "可使用任意一辆赛车或两辆赛车同时进行私人测试，提供稳定的单圈排名和所观看赛车的遥测数据。",
+        "响应流畅的菜单会保留草稿、焦点和选择，并在切换赛车前保存各自的独立调校。",
+        "进度持续保存的二十站第 5 组别锦标赛，包含十八名对手、练习赛、排位赛、正赛及已保存的成绩。",
+        "支持进站指令、更换轮胎、规则允许时的调校作业、练习赛和排位赛中的加油，以及安全车带领下的赛道恢复。",
+        "十三项车手技能、专项训练游戏、维修站团队训练和八种车队专业人员职位。",
+        "部件研发与制造、共享仓库、轮胎购物篮，以及按成色转售。",
+        "实际测得的燃油消耗历史，以及结合已记录圈次和比赛工程师意见提供的调校建议。",
+        "车手无线电根据已记录的场次事件、当前轮胎、燃油和赛道状况进行报告。",
+        "主屏幕汇集各位车队专业人员的报告，提供给车手的建议，并设有统一的离开按钮，仅在场次进行中要求确认。",
+        "每条赛道都有真实的时刻和天气：太阳位置、晴空或阴天，以及夜晚的星星、月亮和沿赛道布置的泛光灯。",
+        "手机版提供紧凑的排名显示，以及独立的仅含图标的观看赛车切换控件。",
+        "自定义赛道设计、设施、看台、车队财务和赞助。",
+        "支持生涯存档、场次续玩、单圈和分段纪录、调校历史及九种界面语言。",
+        "车手、维修人员、专业人员和国际对手车队均使用 Game Hub 共享名称库。国旗以及本地文字或拉丁字母拼写会根据查看者的语言显示，身份信息则在雇用、存档和生涯恢复后保持不变。"
+      ],
+      "requirements": [
+        "浏览器须启用 WebGL，以显示 3D 画面。",
+        "使用此版本前，须先安装 Game Hub 并更新至 1.21.1 或更高版本。"
+      ],
+      "integrations": [
+        {
+          "summary": "房间和玩家均使用 Game Hub 账户：您的个人资料、场次、统计数据和评分会记录在 Game Hub 中。",
+          "requires": "已安装 Game Hub 1.19.1 或更高版本。"
+        }
+      ],
+      "name": "Racelandia"
+    }
+  }
 }

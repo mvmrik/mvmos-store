@@ -10,5 +10,135 @@
     "Test button that runs a check immediately and shows the value it got.",
     "Full state history per entity, with a day view.",
     "Push endpoint for external systems to report their own state."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Проследявайте промените в състоянието на всичко във времето — ping, HTTP проверки, стойности от API или ръчно подаване на данни.",
+      "tagline": "Следете дали нещо работи, не работи или заслужава внимание.",
+      "description": "Проследяване на състояния следи състоянието на различни обекти във времето. Обектът може да е хост, към който се изпраща ping, URL адрес, към който се правят заявки, JSON API, от който се извлича стойност, или изцяло външен източник, който сам подава състоянието си по HTTP.\n\nСами определяте състоянията — имената, цветовете им и условието, при което се задават — така че възможностите не се ограничават до „работи“ и „не работи“. Стойност от крайна точка с JSON може да се извлече чрез път с точкова нотация, включително с индекси на масиви, което прави приложението също толкова полезно за валутен курс или дължина на опашка, колкото и за сървър.\n\nВсяка проверка се съхранява, така че всеки обект има история, която можете да преглеждате, а не само индикатор за текущото състояние.",
+      "capabilities": [
+        "Четири типа източници: ръчно подаване на данни по HTTP, ping, HTTP проверка и извличане по HTTP с прочитане на стойност от JSON.",
+        "Извличане от JSON отговор чрез път с точкова нотация, включително с индекси на масиви.",
+        "Удостоверяване за HTTP източници: без удостоверяване, API ключ в заглавка, Bearer токен или Basic удостоверяване.",
+        "Персонализирани състояния със собствени имена, цветове и условия.",
+        "Интервал за проверка на всеки обект, в минути, с изпълнение от планировчика на mvmOS.",
+        "Бутон за тестване, който изпълнява проверка веднага и показва получената стойност.",
+        "Пълна история на състоянията за всеки обект с дневен изглед.",
+        "Крайна точка за подаване на данни, чрез която външни системи съобщават собственото си състояние."
+      ],
+      "name": "Проследяване на състояния"
+    },
+    "de": {
+      "short_description": "Statusänderungen beliebiger Objekte im Zeitverlauf verfolgen — per Ping, HTTP-Prüfung, API-Werten oder manueller Übermittlung.",
+      "tagline": "Verfolgen Sie, ob etwas erreichbar, ausgefallen oder einen Blick wert ist.",
+      "description": "Die Statusverfolgung verfolgt den Zustand von Objekten im Zeitverlauf. Ein Objekt kann ein Host sein, den sie per Ping prüft, eine URL, die sie abruft, eine JSON-API, aus der sie einen Wert liest, oder ein vollständig externes System, das seinen eigenen Status per HTTP übermittelt.\n\nSie definieren die Zustände selbst — ihre Namen, ihre Farben und die Bedingung, die sie auslöst. So sind Sie nicht auf erreichbar und ausgefallen beschränkt. Ein Wert aus einem JSON-Endpunkt lässt sich über einen Punktpfad einschließlich Array-Indizes auslesen. Damit eignet sich die App ebenso für Wechselkurse oder die Länge einer Warteschlange wie für einen Server.\n\nJede Prüfung wird gespeichert. So hat jedes Objekt einen nachvollziehbaren Verlauf statt nur einer Anzeige des aktuellen Status.",
+      "capabilities": [
+        "Vier Quelltypen: manuelle Übermittlung per HTTP, Ping, HTTP-Prüfung und HTTP-Abruf zum Auslesen eines Werts aus JSON.",
+        "Extraktion aus einer JSON-Antwort über einen Punktpfad, einschließlich Array-Indizes.",
+        "Authentifizierung für HTTP-Quellen: keine, API-Schlüssel im Header, Bearer-Token oder Basic-Authentifizierung.",
+        "Benutzerdefinierte Zustände mit eigenen Namen, Farben und Bedingungen.",
+        "Prüfintervall je Objekt in Minuten, ausgeführt vom mvmOS-Aufgabenplaner.",
+        "Testschaltfläche, die sofort eine Prüfung ausführt und den ermittelten Wert anzeigt.",
+        "Vollständiger Statusverlauf je Objekt mit Tagesansicht.",
+        "Push-Endpunkt, über den externe Systeme ihren eigenen Status melden können."
+      ],
+      "name": "Zustandsverfolgung"
+    },
+    "es": {
+      "short_description": "Registra los cambios de estado de cualquier elemento a lo largo del tiempo mediante ping, comprobaciones HTTP, valores de API o envío manual.",
+      "tagline": "Supervisa si cualquier elemento está disponible, no responde o merece atención.",
+      "description": "El Seguimiento de estados registra el estado de distintos elementos a lo largo del tiempo. Una entidad puede ser un equipo al que hace ping, una URL a la que envía solicitudes, una API JSON de la que lee un valor o un sistema completamente externo que envía su propio estado por HTTP.\n\nTú defines los estados —sus nombres, sus colores y la condición que los produce—, por lo que no se limita a disponible o no disponible. Se puede leer un valor de un punto de conexión JSON mediante una ruta con notación de puntos, incluidos los índices de matrices, lo que lo hace tan útil para un tipo de cambio o la longitud de una cola como para un servidor.\n\nCada comprobación se almacena, de modo que cada entidad tiene un historial que puedes consultar, además de un indicador de su estado actual.",
+      "capabilities": [
+        "Cuatro tipos de origen: envío manual por HTTP, ping, comprobación HTTP y obtención por HTTP con lectura de un valor de JSON.",
+        "Extracción mediante rutas con notación de puntos a partir de una respuesta JSON, incluidos los índices de matrices.",
+        "Autenticación para orígenes HTTP: ninguna, clave de API en una cabecera, token Bearer o autenticación básica.",
+        "Estados personalizados con tus propios nombres, colores y condiciones.",
+        "Intervalo de comprobación por entidad, en minutos, ejecutado por el programador de tareas de mvmOS.",
+        "Botón de prueba que ejecuta una comprobación de inmediato y muestra el valor obtenido.",
+        "Historial completo de estados por entidad, con una vista diaria.",
+        "Punto de conexión de envío para que los sistemas externos comuniquen su propio estado."
+      ],
+      "name": "Seguimiento de estados"
+    },
+    "fr": {
+      "short_description": "Suivez les changements d’état de n’importe quel élément au fil du temps : ping, vérifications HTTP, valeurs d’API ou envoi manuel.",
+      "tagline": "Suivez la disponibilité ou l’état de tout ce qui mérite votre attention.",
+      "description": "Le Suivi d’état suit l’état de différents éléments au fil du temps. Une entité peut être un hôte interrogé par ping, une URL à laquelle il envoie une requête, une API JSON dont il lit une valeur, ou un élément entièrement externe qui transmet son propre état via HTTP.\n\nVous définissez vous-même les états — leurs noms, leurs couleurs et la condition qui les déclenche — ce qui ne limite pas le suivi à la disponibilité ou à l’indisponibilité. Une valeur provenant d’un point de terminaison JSON peut être lue à l’aide d’un chemin en notation pointée, y compris avec des indices de tableau, ce qui rend l’outil aussi utile pour suivre un taux de change ou la longueur d’une file d’attente que pour surveiller un serveur.\n\nChaque vérification est enregistrée : chaque entité dispose donc d’un historique consultable, au-delà d’un simple témoin de son état actuel.",
+      "capabilities": [
+        "Quatre types de sources : envoi manuel via HTTP, ping, vérification HTTP et récupération HTTP avec lecture d’une valeur dans une réponse JSON.",
+        "Extraction à partir d’une réponse JSON à l’aide d’un chemin en notation pointée, y compris avec des indices de tableau.",
+        "Authentification pour les sources HTTP : aucune, clé d’API dans un en-tête, jeton Bearer ou authentification Basic.",
+        "États personnalisés avec vos propres noms, couleurs et conditions.",
+        "Intervalle de vérification par entité, en minutes, géré par le planificateur mvmOS.",
+        "Bouton de test qui lance immédiatement une vérification et affiche la valeur obtenue.",
+        "Historique complet des états par entité, avec une vue par jour.",
+        "Point de terminaison permettant aux systèmes externes de transmettre leur propre état."
+      ],
+      "name": "Suivi d’états"
+    },
+    "ja": {
+      "short_description": "ping、HTTPチェック、APIの値、手動プッシュで、さまざまな対象の状態の変化を継続的に記録。",
+      "tagline": "稼働中か、停止中か、注目すべき状態か。さまざまな対象を追跡。",
+      "description": "状態トラッカーは、さまざまな対象の状態を継続的に追跡します。対象として、pingを送信するホスト、リクエストを送信するURL、値を読み取るJSON API、またはHTTP経由で自身の状態をプッシュ送信する外部システムを登録できます。\n\n状態の名前、色、その状態になる条件を自分で定義できるため、稼働中と停止中だけに限られません。JSONエンドポイントの値は、配列のインデックスを含むドット区切りのパスで読み取れます。そのため、サーバーだけでなく、為替レートやキューの長さの追跡にも役立ちます。\n\nすべてのチェック結果が保存されるため、各対象について、現在の状態を示すランプだけでなく、過去の履歴も確認できます。",
+      "capabilities": [
+        "4種類のソースに対応：HTTP経由の手動プッシュ、ping、HTTPチェック、JSONから値を読み取るHTTP取得。",
+        "配列のインデックスを含むドット区切りのパスで、JSONレスポンスから値を抽出。",
+        "HTTPソースの認証：認証なし、APIキーヘッダー、Bearerトークン、Basic認証。",
+        "独自の名前、色、条件で状態をカスタマイズ。",
+        "対象ごとにチェック間隔を分単位で設定し、mvmOSのスケジューラーで実行。",
+        "テストボタンでチェックを即座に実行し、取得した値を表示。",
+        "対象ごとのすべての状態履歴を保存し、日単位で表示。",
+        "外部システムが自身の状態を報告するためのプッシュエンドポイント。"
+      ],
+      "name": "状態トラッカー"
+    },
+    "pt-BR": {
+      "short_description": "Acompanhe mudanças de estado de qualquer coisa ao longo do tempo — ping, verificações HTTP, valores de APIs ou envio manual.",
+      "tagline": "Acompanhe se algo está disponível, indisponível ou merece atenção.",
+      "description": "O Monitor de Estados acompanha o estado de elementos ao longo do tempo. Uma entidade pode ser um host para o qual ele envia pings, uma URL à qual faz requisições, uma API JSON da qual lê um valor ou algo totalmente externo que envia seu próprio estado por HTTP.\n\nVocê define os estados — seus nomes, suas cores e a condição que os produz —, portanto, ele não se limita a disponível e indisponível. Um valor de um endpoint JSON pode ser lido por um caminho com notação de ponto, incluindo índices de arrays, o que o torna tão útil para acompanhar uma taxa de câmbio ou o tamanho de uma fila quanto para monitorar um servidor.\n\nCada verificação é armazenada, para que cada entidade tenha um histórico que você possa consultar, além de um indicador do estado atual.",
+      "capabilities": [
+        "Quatro tipos de fonte: envio manual por HTTP, ping, verificação HTTP e consulta HTTP com leitura de um valor do JSON.",
+        "Extração por caminho com notação de ponto de uma resposta JSON, incluindo índices de arrays.",
+        "Autenticação para fontes HTTP: nenhuma, cabeçalho com chave de API, token Bearer ou autenticação Basic.",
+        "Estados personalizados com seus próprios nomes, cores e condições.",
+        "Intervalo de verificação por entidade, em minutos, executado pelo agendador do mvmOS.",
+        "Botão de teste que executa uma verificação imediatamente e mostra o valor obtido.",
+        "Histórico completo de estados por entidade, com visualização diária.",
+        "Endpoint de envio para que sistemas externos informem seu próprio estado."
+      ],
+      "name": "Rastreador de estados"
+    },
+    "ru": {
+      "short_description": "Отслеживайте изменения состояния любых объектов во времени с помощью ping, HTTP-проверок, значений из API или ручной отправки данных.",
+      "tagline": "Отслеживайте, что работает, что недоступно и что требует внимания.",
+      "description": "Трекер состояний отслеживает состояние объектов во времени. Объектом может быть узел, проверяемый через ping, URL, к которому отправляются запросы, JSON API, из которого считывается значение, или полностью внешняя система, которая сама передаёт своё состояние по HTTP.\n\nВы сами определяете состояния — их названия, цвета и условия, при которых они устанавливаются, — поэтому возможности не ограничиваются состояниями «доступен» и «недоступен». Значение из JSON-ответа можно считывать по пути с точечной нотацией, в том числе с индексами массивов, что делает приложение столь же полезным для отслеживания валютного курса или длины очереди, как и для сервера.\n\nКаждая проверка сохраняется, поэтому у каждого объекта есть история, которую можно просмотреть, а не только индикатор текущего состояния.",
+      "capabilities": [
+        "Четыре типа источников: ручная отправка по HTTP, ping, HTTP-проверка и HTTP-запрос со считыванием значения из JSON.",
+        "Извлечение данных из JSON-ответа по пути с точечной нотацией, в том числе с индексами массивов.",
+        "Аутентификация для HTTP-источников: без аутентификации, ключ API в заголовке, токен Bearer или Basic auth.",
+        "Пользовательские состояния с собственными названиями, цветами и условиями.",
+        "Интервал проверки для каждого объекта в минутах; проверки выполняются планировщиком mvmOS.",
+        "Кнопка тестирования, которая немедленно запускает проверку и показывает полученное значение.",
+        "Полная история состояний каждого объекта с просмотром по дням.",
+        "Конечная точка для передачи внешними системами данных о своём состоянии."
+      ],
+      "name": "Отслеживание состояний"
+    },
+    "zh-CN": {
+      "short_description": "随时间跟踪各种对象的状态变化——支持 ping、HTTP 检查、API 值或手动推送。",
+      "tagline": "跟踪各种对象是否正常、是否故障，以及是否值得关注。",
+      "description": "状态跟踪器会持续跟踪各种对象的状态。一个实体可以是通过 ping 检测的主机、通过请求检查的 URL、从中读取数值的 JSON API，也可以是通过 HTTP 主动推送自身状态的完全外部的对象。\n\n你可以自行定义状态——包括名称、颜色和触发条件——因此并不局限于正常和故障两种状态。JSON 端点中的值可以通过点分隔路径读取，也支持数组索引，因此它既适合监控服务器，也适合跟踪汇率或队列深度。\n\n每次检查都会保存，因此每个实体都有可供回溯的历史记录，而不只是一个显示当前状态的指示灯。",
+      "capabilities": [
+        "四种数据源类型：通过 HTTP 手动推送、ping、HTTP 检查，以及通过 HTTP 获取 JSON 并读取其中的值。",
+        "通过点分隔路径从 JSON 响应中提取值，支持数组索引。",
+        "HTTP 数据源认证：无认证、API 密钥请求头、Bearer 令牌或 Basic 认证。",
+        "自定义状态，自行设置名称、颜色和条件。",
+        "为每个实体设置以分钟为单位的检查间隔，由 mvmOS 调度器执行。",
+        "通过测试按钮立即运行检查，并显示获取到的值。",
+        "每个实体都有完整的状态历史记录，并提供按日查看的视图。",
+        "提供推送端点，供外部系统报告自身状态。"
+      ],
+      "name": "状态跟踪器"
+    }
+  }
 }

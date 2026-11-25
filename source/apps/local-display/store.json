@@ -16,5 +16,183 @@
     "A monitor or TV connected to the computer.",
     "An internet connection on first use to install cage and Chromium.",
     "A Linux user allowed to use sudo."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Zeigt mvmOS im Vollbildmodus auf dem Monitor oder Fernseher, der an einen Computer ohne Desktop-Umgebung und mit reiner Textkonsole angeschlossen ist.",
+      "tagline": "Macht den eigenen Bildschirm des Computers zum mvmOS-Desktop.",
+      "description": "Local Display ist für Computer gedacht, auf denen mvmOS ausschließlich mit einer Textkonsole läuft, etwa einen kleinen Heimserver oder einen an einen Fernseher angeschlossenen Mini-PC. Die App zeigt mvmOS im Vollbildmodus auf dem angeschlossenen Monitor oder Fernseher an. So lässt sich derselbe Computer direkt mit Tastatur und Maus bedienen, ohne eine Desktop-Umgebung zu installieren.\n\nSie können die Anzeige über die App oder mit einem Befehl im lokalen Terminal des Computers oder über SSH einschalten. Die App kann außerdem dafür sorgen, dass der Computer mvmOS bei jedem Start auf seinem Bildschirm öffnet. Auf dem Bildschirm melden Sie sich wie im Browser mit Ihrem Linux-Benutzerkonto an. Sie können jederzeit zur Textkonsole zurückwechseln.\n\nBeim ersten Start werden ein schlanker Kiosk-Compositor und der Chromium-Browser installiert, die unter einem eigenen Benutzerkonto mit eingeschränkten Rechten laufen. Beim Entfernen der App werden auch ihr Dienst, ihr Benutzerkonto und ihr Befehl wieder vom System entfernt. Dasselbe gilt für die beim ersten Start installierten Pakete, sofern diese nicht inzwischen von anderer Software benötigt werden.",
+      "capabilities": [
+        "Zeigt mvmOS im Vollbildmodus auf dem Monitor oder Fernseher an, der an den Computer angeschlossen ist.",
+        "Erkennt, welche Bildschirme angeschlossen sind.",
+        "Option, mvmOS bei jedem Start des Computers auf dem Bildschirm zu öffnen.",
+        "Der Befehl mvmos-display zum Umschalten der Bildschirmanzeige über das lokale Terminal oder über SSH.",
+        "Installiert die benötigten Komponenten bei der ersten Verwendung selbstständig und entfernt sie wieder, wenn die App entfernt wird.",
+        "Bietet jederzeit eine Möglichkeit, zur Textkonsole zurückzukehren.",
+        "Bei jeder Änderung wird Ihr sudo-Passwort abgefragt."
+      ],
+      "requirements": [
+        "Ein auf Debian oder Ubuntu basierendes System.",
+        "Auf dem Computer läuft kein grafischer Desktop, sondern nur eine Textkonsole.",
+        "Ein an den Computer angeschlossener Monitor oder Fernseher.",
+        "Eine Internetverbindung bei der ersten Verwendung, um cage und Chromium zu installieren.",
+        "Ein Linux-Benutzerkonto mit sudo-Berechtigung."
+      ],
+      "name": "Lokale Anzeige"
+    },
+    "fr": {
+      "short_description": "Affichez mvmOS en plein écran sur le moniteur ou le téléviseur connecté à un ordinateur dépourvu d’environnement de bureau, qui dispose uniquement d’une console texte.",
+      "tagline": "Transformez l’écran de l’ordinateur en bureau mvmOS.",
+      "description": "Affichage local s’adresse aux ordinateurs qui exécutent mvmOS avec pour seule interface une console texte, comme un petit serveur domestique ou un mini PC connecté à un téléviseur. L’application affiche mvmOS en plein écran sur le moniteur ou le téléviseur connecté, ce qui permet d’utiliser directement le même ordinateur avec un clavier et une souris, sans installer d’environnement de bureau.\n\nVous pouvez activer cet affichage depuis l’application ou à l’aide d’une commande exécutée dans le terminal de l’ordinateur ou via SSH. L’application peut également ouvrir mvmOS sur l’écran de l’ordinateur à chaque démarrage. À l’écran, vous vous connectez avec votre compte utilisateur Linux, comme dans le navigateur, et vous pouvez revenir à la console texte à tout moment.\n\nLe premier lancement installe un petit compositeur pour le mode kiosque et le navigateur Chromium, qui s’exécutent sous un compte utilisateur restreint dédié. La désinstallation de l’application supprime du système son service, son compte utilisateur et sa commande, ainsi que les paquets installés au premier lancement, sauf si d’autres logiciels en ont désormais besoin.",
+      "capabilities": [
+        "Affiche mvmOS en plein écran sur le moniteur ou le téléviseur connecté à l’ordinateur.",
+        "Détecte les écrans connectés.",
+        "Permet d’ouvrir mvmOS sur l’écran à chaque démarrage de l’ordinateur.",
+        "La commande mvmos-display permet de basculer l’affichage depuis le terminal local ou via SSH.",
+        "Installe automatiquement les composants nécessaires à la première utilisation et les supprime lors de la désinstallation de l’application.",
+        "Permet toujours de revenir à la console texte.",
+        "Chaque modification nécessite votre mot de passe sudo."
+      ],
+      "requirements": [
+        "Un système basé sur Debian ou Ubuntu.",
+        "Aucun bureau graphique en cours d’exécution sur l’ordinateur, uniquement une console texte.",
+        "Un moniteur ou un téléviseur connecté à l’ordinateur.",
+        "Une connexion Internet à la première utilisation pour installer cage et Chromium.",
+        "Un compte utilisateur Linux autorisé à utiliser sudo."
+      ],
+      "name": "Affichage local"
+    },
+    "es": {
+      "short_description": "Muestra mvmOS a pantalla completa en el monitor o televisor conectado a un ordenador que no tiene entorno de escritorio, solo una consola de texto.",
+      "tagline": "Convierte la pantalla del propio ordenador en un escritorio mvmOS.",
+      "description": "Pantalla local está pensada para un ordenador que ejecuta mvmOS únicamente con una consola de texto, como un pequeño servidor doméstico o un mini PC conectado a un televisor. Muestra mvmOS a pantalla completa en el monitor o televisor conectado, para que puedas usar ese mismo ordenador directamente con un teclado y un ratón, sin instalar un entorno de escritorio.\n\nPuedes activarla desde la aplicación o mediante un comando desde el terminal del propio ordenador o a través de SSH. La aplicación también puede hacer que el ordenador abra mvmOS en su pantalla cada vez que se inicie. En la pantalla, inicias sesión con tu usuario de Linux, igual que en el navegador, y puedes volver a la consola de texto cuando quieras.\n\nLa primera vez que se inicia, instala un pequeño compositor para modo quiosco y el navegador Chromium, que se ejecutan con su propio usuario con permisos restringidos. Al desinstalar la aplicación, también se eliminan del sistema su servicio, su usuario y su comando, junto con los paquetes instalados en el primer inicio, salvo que otro software haya pasado a necesitarlos.",
+      "capabilities": [
+        "Muestra mvmOS a pantalla completa en el monitor o televisor conectado al ordenador.",
+        "Detecta qué pantallas están conectadas.",
+        "Opción para abrir mvmOS en la pantalla cada vez que se inicia el ordenador.",
+        "El comando mvmos-display permite activar o desactivar la visualización desde el terminal local o a través de SSH.",
+        "Instala automáticamente lo que necesita la primera vez que se usa y lo elimina al desinstalar la aplicación.",
+        "Siempre permite volver a la consola de texto.",
+        "Solicita tu contraseña de sudo para cada cambio."
+      ],
+      "requirements": [
+        "Un sistema basado en Debian o Ubuntu.",
+        "Ningún escritorio gráfico en ejecución en el ordenador, solo una consola de texto.",
+        "Un monitor o televisor conectado al ordenador.",
+        "Una conexión a internet la primera vez que se usa para instalar cage y Chromium.",
+        "Un usuario de Linux con permiso para usar sudo."
+      ],
+      "name": "Pantalla local"
+    },
+    "bg": {
+      "short_description": "Показвайте mvmOS на цял екран на монитора или телевизора, свързан към компютър без графична работна среда, само с текстова конзола.",
+      "tagline": "Превърнете екрана на самия компютър в работен плот на mvmOS.",
+      "description": "Локален дисплей е предназначен за компютър, на който mvmOS работи само с текстова конзола, например малък домашен сървър или миникомпютър, свързан към телевизор. Приложението показва mvmOS на цял екран на свързания монитор или телевизор, така че същият компютър да може да се използва директно с клавиатура и мишка, без да се инсталира графична работна среда.\n\nМожете да го включите от приложението или с команда от терминала на самия компютър или през SSH. Приложението може също да настрои компютъра да отваря mvmOS на екрана си при всяко стартиране. На екрана влизате с потребителския си акаунт в Linux, както в браузъра, и можете да се върнете към текстовата конзола, когато пожелаете.\n\nПри първото стартиране се инсталират малък композитор за режим „киоск“ и браузърът Chromium, които работят със собствен потребителски акаунт с ограничени права. При премахване на приложението от системата се премахват и неговата услуга, потребителски акаунт и команда, заедно с пакетите, инсталирани при първото стартиране, освен ако междувременно не са станали необходими на друг софтуер.",
+      "capabilities": [
+        "Показва mvmOS на цял екран на монитора или телевизора, свързан към компютъра.",
+        "Открива кои екрани са свързани.",
+        "Възможност за отваряне на mvmOS на екрана при всяко стартиране на компютъра.",
+        "Командата mvmos-display за превключване на екрана от локалния терминал или през SSH.",
+        "Самостоятелно инсталира необходимите компоненти при първата употреба и ги премахва при премахване на приложението.",
+        "Винаги запазва възможността за връщане към текстовата конзола.",
+        "При всяка промяна изисква паролата ви за sudo."
+      ],
+      "requirements": [
+        "Система, базирана на Debian или Ubuntu.",
+        "На компютъра да работи само текстова конзола, без графична работна среда.",
+        "Монитор или телевизор, свързан към компютъра.",
+        "Интернет връзка при първата употреба за инсталиране на cage и Chromium.",
+        "Потребителски акаунт в Linux с право да използва sudo."
+      ],
+      "name": "Локален дисплей"
+    },
+    "ja": {
+      "short_description": "デスクトップ環境がなく、テキストコンソールのみを備えたコンピューターに接続されたモニターやテレビに、mvmOSを全画面表示します。",
+      "tagline": "コンピューター自体の画面をmvmOSのデスクトップに。",
+      "description": "Local Displayは、小型のホームサーバーやテレビに接続したミニPCなど、テキストコンソールのみの環境でmvmOSを実行するコンピューター向けのアプリです。接続されたモニターやテレビにmvmOSを全画面表示するため、デスクトップ環境をインストールせずに、そのコンピューターをキーボードとマウスで直接操作できます。\n\nアプリから有効にすることも、コンピューター自体のターミナルやSSH経由でコマンドを実行して有効にすることもできます。また、コンピューターの起動時に毎回、画面にmvmOSを表示するよう設定することもできます。画面上では、ブラウザーの場合と同じようにLinuxユーザーでサインインし、いつでもテキストコンソールに戻ることができます。\n\n初回起動時に、軽量なキオスク用コンポジターとChromiumブラウザーがインストールされ、専用の制限付きユーザーで実行されます。アプリを削除すると、そのサービス、ユーザー、コマンドもシステムから削除されます。初回起動時にインストールされたパッケージも、他のソフトウェアで必要になっていない限り、一緒に削除されます。",
+      "capabilities": [
+        "コンピューターに接続されたモニターやテレビにmvmOSを全画面表示します。",
+        "接続されている画面を検出します。",
+        "コンピューターの起動時に毎回、画面にmvmOSを表示するよう設定できます。",
+        "mvmos-displayコマンドを使って、ローカルターミナルやSSH経由で画面表示を切り替えられます。",
+        "初回使用時に必要なものを自動でインストールし、アプリの削除時にそれらも削除します。",
+        "いつでもテキストコンソールに戻れる手段を確保します。",
+        "変更のたびにsudoパスワードの入力を求めます。"
+      ],
+      "requirements": [
+        "DebianまたはUbuntuベースのシステム。",
+        "コンピューターでグラフィカルなデスクトップが動作しておらず、テキストコンソールのみの環境であること。",
+        "コンピューターに接続されたモニターまたはテレビ。",
+        "初回使用時にcageとChromiumをインストールするためのインターネット接続。",
+        "sudoの使用を許可されたLinuxユーザー。"
+      ],
+      "name": "ローカルディスプレイ"
+    },
+    "pt-BR": {
+      "short_description": "Exiba o mvmOS em tela cheia no monitor ou na TV conectados a um computador sem ambiente de desktop, apenas com um console de texto.",
+      "tagline": "Transforme a própria tela do computador em um desktop mvmOS.",
+      "description": "O Local Display foi feito para computadores que executam o mvmOS apenas com um console de texto, como um pequeno servidor doméstico ou um mini PC conectado a uma TV. Ele exibe o mvmOS em tela cheia no monitor ou na TV conectados, permitindo usar o próprio computador diretamente com teclado e mouse, sem instalar um ambiente de desktop.\n\nVocê pode ativá-lo pelo aplicativo ou com um comando no próprio terminal do computador ou via SSH. O aplicativo também pode fazer o computador abrir o mvmOS na tela sempre que for iniciado. Na tela, você entra com seu usuário do Linux, o mesmo usado no navegador, e pode voltar ao console de texto quando quiser.\n\nA primeira inicialização instala um compositor leve para modo quiosque e o navegador Chromium, que são executados com um usuário próprio com permissões restritas. Ao remover o aplicativo, seu serviço, usuário e comando também são removidos do sistema, junto com os pacotes instalados na primeira inicialização, a menos que outros programas tenham passado a depender deles.",
+      "capabilities": [
+        "Exibe o mvmOS em tela cheia no monitor ou na TV conectados ao computador.",
+        "Detecta quais telas estão conectadas.",
+        "Opção de abrir o mvmOS na tela sempre que o computador for iniciado.",
+        "O comando mvmos-display permite alternar a tela pelo terminal local ou via SSH.",
+        "Instala automaticamente o que precisa no primeiro uso e remove esses componentes quando o aplicativo é removido.",
+        "Sempre mantém uma forma de voltar ao console de texto.",
+        "Solicita sua senha do sudo a cada alteração."
+      ],
+      "requirements": [
+        "Um sistema baseado em Debian ou Ubuntu.",
+        "Nenhum ambiente de desktop gráfico em execução no computador, apenas um console de texto.",
+        "Um monitor ou uma TV conectados ao computador.",
+        "Uma conexão com a internet no primeiro uso para instalar cage e Chromium.",
+        "Um usuário do Linux com permissão para usar sudo."
+      ],
+      "name": "Tela local"
+    },
+    "zh-CN": {
+      "short_description": "在未安装桌面环境、仅有文本控制台的计算机所连接的显示器或电视上，全屏显示 mvmOS。",
+      "tagline": "将计算机自身的屏幕变成 mvmOS 桌面。",
+      "description": "本地显示适用于仅通过文本控制台运行 mvmOS 的计算机，例如小型家庭服务器或连接电视的迷你电脑。它会在所连接的显示器或电视上全屏显示 mvmOS，让你无需安装桌面环境，即可使用键盘和鼠标直接操作这台计算机。\n\n你可以在应用中启用它，也可以在计算机本机的终端中或通过 SSH 执行命令来启用。该应用还可以让计算机在每次启动时自动在屏幕上打开 mvmOS。你可以像在浏览器中一样，使用自己的 Linux 用户在屏幕上登录，并随时切换回文本控制台。\n\n首次启动时，应用会安装一个轻量级自助终端合成器和 Chromium 浏览器，它们以专用的受限用户身份运行。卸载应用时，会从系统中一并移除其服务、用户和命令，以及首次启动时安装的软件包，除非其他软件已开始依赖这些软件包。",
+      "capabilities": [
+        "在计算机所连接的显示器或电视上全屏显示 mvmOS。",
+        "检测已连接的屏幕。",
+        "可选择在计算机每次启动时自动在屏幕上打开 mvmOS。",
+        "提供 mvmos-display 命令，可从本机终端或通过 SSH 切换屏幕显示。",
+        "首次使用时自动安装所需组件，并在卸载应用时将其移除。",
+        "始终保留返回文本控制台的方式。",
+        "每次更改都需要输入 sudo 密码。"
+      ],
+      "requirements": [
+        "基于 Debian 或 Ubuntu 的系统。",
+        "计算机上没有运行图形桌面，只有文本控制台。",
+        "连接到计算机的显示器或电视。",
+        "首次使用时需要联网，以安装 cage 和 Chromium。",
+        "有权使用 sudo 的 Linux 用户。"
+      ],
+      "name": "本地显示屏"
+    },
+    "ru": {
+      "short_description": "Выводите mvmOS на весь экран монитора или телевизора, подключённого к компьютеру без среды рабочего стола, только с текстовой консолью.",
+      "tagline": "Превратите экран самого компьютера в рабочий стол mvmOS.",
+      "description": "Приложение «Локальный экран» предназначено для компьютеров, на которых mvmOS работает только с текстовой консолью, например небольшого домашнего сервера или мини-ПК, подключённого к телевизору. Оно выводит mvmOS на весь экран подключённого монитора или телевизора, позволяя работать на этом же компьютере с клавиатурой и мышью без установки среды рабочего стола.\n\nВключить вывод можно из приложения или командой в локальном терминале компьютера либо по SSH. Приложение также может автоматически открывать mvmOS на экране при каждом запуске компьютера. На экране вы входите под своей учётной записью Linux, как и в браузере, и в любой момент можете вернуться к текстовой консоли.\n\nПри первом запуске устанавливаются небольшой композитный менеджер для режима киоска и браузер Chromium, которые работают под отдельной учётной записью с ограниченными правами. При удалении приложения из системы также удаляются его служба, учётная запись и команда, а вместе с ними — пакеты, установленные при первом запуске, если они не стали нужны другим программам.",
+      "capabilities": [
+        "Выводит mvmOS на весь экран монитора или телевизора, подключённого к компьютеру.",
+        "Определяет подключённые экраны.",
+        "Позволяет автоматически открывать mvmOS на экране при каждом запуске компьютера.",
+        "Предоставляет команду mvmos-display для переключения режима экрана из локального терминала или по SSH.",
+        "Самостоятельно устанавливает необходимые компоненты при первом использовании и удаляет их при удалении приложения.",
+        "Всегда сохраняет возможность вернуться к текстовой консоли.",
+        "При каждом изменении запрашивает ваш пароль sudo."
+      ],
+      "requirements": [
+        "Система на базе Debian или Ubuntu.",
+        "На компьютере должна работать только текстовая консоль, без запущенной графической среды рабочего стола.",
+        "Монитор или телевизор, подключённый к компьютеру.",
+        "Подключение к интернету при первом использовании для установки cage и Chromium.",
+        "Учётная запись Linux с правом использования sudo."
+      ],
+      "name": "Локальный дисплей"
+    }
+  }
 }

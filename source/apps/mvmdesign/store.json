@@ -20,5 +20,183 @@
       "summary": "Use the server's installed fonts in page designs and subtitles.",
       "requires": "mvmFonts installed and its App API enabled in Apps Hub settings. Otherwise generic sans, serif and monospace fonts remain available. Custom fonts need to be installed on a server where the project is reopened."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Създавайте страници за многократна употреба с форматиран текст, изображения и фигури, синхронизирайте ги с музика и ги експортирайте като изображения или анимирано видео.",
+      "tagline": "Създайте страниците веднъж, използвайте ги многократно с музика и експортирайте изображения или анимирани видеоклипове.",
+      "description": "mvmDesign съчетава редактор за оформление на страници с работен процес за създаване на видео по музика. Създавайте изображения, плакати, страници с текстове на песни и истории с помощта на редактируем текст, фигури и качени изображения. Използвайте една и съща страница няколко пъти в песен: промените в оформлението ѝ се отразяват навсякъде, където е използвана. Дублирайте страница, когато искате независим вариант.\n\nТекстът поддържа инсталираната библиотека mvmFonts, контури, градиенти, сенки, сияние, фонови панели, подравняване, междуредие и разредка между буквите. Елементите могат да се появяват и изчезват с плъзгане, плавен преход или мащабиране, а текстът може да се появява буква по буква или дума по дума. При експортиране на статични изображения винаги се показва цялото оформление.\n\nДобавете музика, подредете препратките към страници, повтаряйте избрани блокове и натискайте „Следваща страница“, докато слушате, за да запишете моментите на смяна. Инструментите за субтитри включват поставяне на текстове на песни, задаване на времето при слушане, импортиране и експортиране на SRT, надписи с контур и в рамка, сияние, ефект на пишеща машина и подчертаване за караоке. Пътеката за субтитри под музиката показва всеки сегмент: плъзнете блок, за да го преместите, или някой от краищата му, за да го отрежете спрямо звуковата вълна. Активните сегменти се осветяват при възпроизвеждане; отделните сегменти могат да се преглеждат с оформлението и музиката. Анимациите за поява и изчезване могат да се настройват. Караокето разпределя думите равномерно в рамките на сегмента; то не разпознава пеене.\n\nЗапазете проект във формат .mvmdesign с неговите изображения, аудио, оформления, настройки за анимация и времеви настройки. Експортирайте една страница като PNG, JPEG или WebP, няколко страници като ZIP архив с изображения или анимирано видео с избраните резолюция, кадрова честота и качество. Видеото се рендира кадър по кадър в браузъра, като наличността на MP4 или WebM зависи от неговите енкодери.",
+      "capabilities": [
+        "Редактируеми страници с изображения, текст и фигури, начални шаблони и независими копия на страници.",
+        "Контури на текста, градиенти, сенки, сияние, фонови панели и шрифтове от mvmFonts.",
+        "Преместване, преоразмеряване, завъртане, непрозрачност, заключване и подреждане на обектите по слоеве.",
+        "Анимации за поява и изчезване, текст с ефект на пишеща машина и поява дума по дума, както и плавни преходи между страниците.",
+        "Препратки към страници за многократна употреба, повтарящи се блокове и записване на моментите за смяна на страниците при слушане на музика.",
+        "Визуално задаване на времето на субтитрите с блокове за плъзгане и маркери за отрязване, придвижване по звуковата вълна, осветяване на активните сегменти при възпроизвеждане, преглед на отделни сегменти, точно задаване на секундите, SRT и пет визуални стила с анимации за поява и изчезване.",
+        "Преносими проектни файлове, съдържащи изображения и аудио, запазване в папки на сървъра и възстановяване на чернови от браузъра.",
+        "Експортиране на отделно изображение или ZIP архив с изображения и експортиране на видео кадър по кадър с опции за резолюция и качество."
+      ],
+      "integrations": [
+        {
+          "summary": "Използвайте инсталираните на сървъра шрифтове в оформленията на страниците и субтитрите.",
+          "requires": "Инсталиран mvmFonts с активиран API за приложения в настройките на Apps Hub. В противен случай остават достъпни стандартни безсерифни, серифни и моноширинни шрифтове. Персонализираните шрифтове трябва да са инсталирани на сървъра, на който проектът се отваря отново."
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "de": {
+      "short_description": "Gestalten Sie wiederverwendbare Seiten mit formatiertem Text, Bildern und Formen, stimmen Sie ihren Ablauf auf Musik ab und exportieren Sie Bilder oder ein animiertes Video.",
+      "tagline": "Seiten einmal gestalten, passend zur Musik wiederverwenden und als Bilder oder animierte Videos exportieren.",
+      "description": "mvmDesign verbindet einen Seiteneditor mit einem musikgesteuerten Video-Workflow. Erstellen Sie Bilder, Poster, Liedtextseiten und Geschichten mit bearbeitbarem Text, Formen und hochgeladenen Bildern. Verwenden Sie dieselbe Seite mehrmals in einem Lied: Änderungen an ihrer Gestaltung werden für jedes Vorkommen übernommen. Duplizieren Sie eine Seite, wenn Sie eine unabhängige Variante erstellen möchten.\n\nText unterstützt die installierte mvmFonts-Bibliothek, Konturen, Farbverläufe, Schatten, Leuchteffekte, Hintergrundflächen, Ausrichtung, Zeilenabstand und Zeichenabstand. Elemente können hinein- und herausgleiten, ein- und ausgeblendet oder heran- und weggezoomt werden. Text kann zeichen- oder wortweise erscheinen. Statische Bildexporte zeigen immer die vollständige Gestaltung.\n\nFügen Sie Musik hinzu, ordnen Sie Seitenverweise an, wiederholen Sie ausgewählte Blöcke und drücken Sie beim Anhören auf „Nächste Seite“, um die Wechsel aufzuzeichnen. Die Untertitelwerkzeuge bieten das Einfügen von Liedtexten, das Festlegen der Zeiten beim Anhören, SRT-Import und -Export, Untertitel mit Kontur oder Hintergrundkasten, Leuchteffekte, Schreibmaschinentext und eine Karaoke-Hervorhebung. Eine Untertitelspur unterhalb der Musik zeigt jeden Untertitelblock: Ziehen Sie einen Block, um ihn zu verschieben, oder einen seiner Ränder, um ihn anhand der Wellenform zu kürzen. Aktive Untertitelblöcke leuchten während der Wiedergabe auf; einzelne Blöcke lassen sich zusammen mit der Gestaltung und der Musik in einer Vorschau ansehen. Ein- und Ausblendeanimationen sind konfigurierbar. Karaoke verteilt Wörter gleichmäßig innerhalb eines Untertitelblocks; Gesang wird dabei nicht erkannt.\n\nSpeichern Sie ein .mvmdesign-Projekt mit seinen Bildern, Audiodateien, Gestaltungen, Animationseinstellungen und Zeitangaben. Exportieren Sie eine Seite als PNG, JPEG oder WebP, mehrere Seiten als ZIP mit Bildern oder ein animiertes Video mit der gewählten Auflösung, Bildrate und Qualität. Videos werden Bild für Bild im Browser gerendert; ob MP4 oder WebM verfügbar ist, hängt von dessen Encodern ab.",
+      "capabilities": [
+        "Bearbeitbare Seiten mit Bildern, Text und Formen, Vorlagen für den Einstieg und unabhängigen Seitenduplikaten.",
+        "Textkonturen, Farbverläufe, Schatten, Leuchteffekte, Hintergrundflächen und Schriftarten aus mvmFonts.",
+        "Verschieben, Skalieren und Drehen von Objekten sowie Deckkraft, Sperren und Ebenenreihenfolge.",
+        "Ein- und Ausblendeanimationen, Schreibmaschinen- und wortweise Texteinblendung sowie Überblendungen zwischen Seiten.",
+        "Wiederverwendbare Seitenverweise, wiederholte Blöcke und beim Anhören der Musik aufgezeichnete Seitenwechsel.",
+        "Visuelle Untertitel-Zeitsteuerung mit verschiebbaren Blöcken und Ziehpunkten zum Kürzen, Navigation über die Wellenform, Hervorhebung während der Wiedergabe, Vorschau einzelner Untertitelblöcke, sekundengenauen Angaben, SRT und fünf visuellen Stilen mit Ein- und Ausblendeanimationen.",
+        "Übertragbare Projektdateien mit Bildern und Audio, Speichern in Serverordnern und Wiederherstellung von Entwürfen im Browser.",
+        "Export einzelner Bilder oder mehrerer Bilder als ZIP sowie Videoexport Bild für Bild mit Optionen für Auflösung und Qualität."
+      ],
+      "integrations": [
+        {
+          "summary": "Verwenden Sie die auf dem Server installierten Schriftarten für Seitengestaltungen und Untertitel.",
+          "requires": "mvmFonts muss installiert und seine App-API in den Apps Hub-Einstellungen aktiviert sein. Andernfalls bleiben generische serifenlose, Serifenschriften und nichtproportionale Schriftarten verfügbar. Benutzerdefinierte Schriftarten müssen auf dem Server installiert sein, auf dem das Projekt erneut geöffnet wird."
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "es": {
+      "short_description": "Diseña páginas reutilizables con texto con formato, imágenes y formas, sincronízalas con música y exporta imágenes o un vídeo animado.",
+      "tagline": "Diseña páginas una sola vez, reutilízalas al ritmo de la música y exporta imágenes o vídeos animados.",
+      "description": "mvmDesign combina un diseñador de páginas con un flujo de creación de vídeos basado en música. Crea imágenes, carteles, páginas con letras de canciones e historias con texto editable, formas e imágenes subidas. Usa la misma página varias veces en una canción: al editar su diseño, se actualizan todas sus apariciones. Duplica una página cuando quieras una variante independiente.\n\nEl texto admite la biblioteca de mvmFonts instalada, contornos, degradados, sombras, resplandor, paneles de fondo, alineación, interlineado y espaciado entre letras. Los elementos pueden deslizarse, aparecer o desaparecer gradualmente y ampliarse o reducirse al entrar y salir, mientras que el texto puede aparecer carácter a carácter o palabra a palabra. Las exportaciones de imágenes estáticas siempre muestran el diseño completo.\n\nAñade música, organiza las referencias a páginas, repite bloques seleccionados y escucha mientras pulsas Página siguiente para registrar los cambios. Las herramientas de subtítulos incluyen letras de canciones pegadas, ajuste de tiempos mientras escuchas, importación y exportación de SRT, subtítulos con contorno o recuadro, resplandor, texto con efecto de máquina de escribir y resaltado de karaoke. Una pista de subtítulos debajo de la música muestra cada segmento: arrastra un bloque para moverlo o cualquiera de sus bordes para recortarlo tomando como referencia la forma de onda. Los segmentos activos se iluminan durante la reproducción; cada segmento se puede previsualizar con el diseño y la música. Las animaciones de entrada y salida son configurables. El karaoke distribuye las palabras de manera uniforme dentro de un segmento; no reconoce el canto.\n\nGuarda un proyecto .mvmdesign con sus imágenes, audio, diseños, ajustes de animación y tiempos. Exporta una página como PNG, JPEG o WebP, varias páginas como un ZIP de imágenes o un vídeo animado con la resolución, la velocidad de fotogramas y la calidad elegidas. El vídeo se renderiza fotograma a fotograma en el navegador, con disponibilidad de MP4 o WebM según sus codificadores.",
+      "capabilities": [
+        "Páginas editables con imágenes, texto y formas, plantillas iniciales y duplicados de páginas independientes.",
+        "Contornos de texto, degradados, sombras, resplandor, paneles de fondo y fuentes de mvmFonts.",
+        "Movimiento, cambio de tamaño, rotación, opacidad, bloqueo y orden de capas de los objetos.",
+        "Animaciones de entrada y salida, texto con efecto de máquina de escribir y palabra a palabra, y fundidos entre páginas.",
+        "Referencias reutilizables a páginas, bloques repetidos y tiempos de página registrados mientras escuchas música.",
+        "Ajuste visual de los tiempos de los subtítulos con bloques arrastrables y controles de recorte, navegación por la forma de onda, resaltado durante la reproducción, vista previa de cada segmento, tiempos exactos en segundos, SRT y cinco estilos visuales con animaciones de entrada y salida.",
+        "Archivos de proyecto portátiles que incluyen imágenes y audio, guardado en carpetas del servidor y recuperación de borradores del navegador.",
+        "Exportación de una sola imagen o de un ZIP de imágenes y exportación de vídeo fotograma a fotograma con opciones de resolución y calidad."
+      ],
+      "integrations": [
+        {
+          "summary": "Usa las fuentes instaladas en el servidor en los diseños de página y los subtítulos.",
+          "requires": "mvmFonts instalado y su API de aplicación activada en los ajustes de Apps Hub. De lo contrario, siguen disponibles las fuentes genéricas sin serifa, con serifa y monoespaciadas. Las fuentes personalizadas deben estar instaladas en el servidor donde se vuelva a abrir el proyecto."
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "fr": {
+      "short_description": "Créez des pages réutilisables avec du texte mis en forme, des images et des formes, puis synchronisez-les avec de la musique et exportez des images ou une vidéo animée.",
+      "tagline": "Créez vos pages une seule fois, réutilisez-les au rythme de la musique et exportez des images ou des vidéos animées.",
+      "description": "mvmDesign associe un outil de création de pages à un processus de réalisation vidéo rythmé par la musique. Créez des images, des affiches, des pages de paroles et des récits à l’aide de texte modifiable, de formes et d’images importées. Utilisez une même page plusieurs fois dans une chanson : toute modification de sa composition se répercute sur chaque occurrence. Dupliquez une page pour créer une variante indépendante.\n\nLe texte prend en charge la bibliothèque de polices mvmFonts installée, les contours, les dégradés, les ombres, les lueurs, les panneaux d’arrière-plan, l’alignement, l’interligne et l’espacement des lettres. Les éléments peuvent entrer et sortir par glissement, fondu ou zoom, tandis que le texte peut apparaître caractère par caractère ou mot par mot. Les exports d’images fixes affichent toujours la composition complète.\n\nAjoutez de la musique, organisez les références aux pages, répétez les blocs sélectionnés et écoutez tout en appuyant sur Page suivante pour enregistrer les changements. Les outils de sous-titrage comprennent le collage de paroles, le minutage à l’écoute, l’importation et l’exportation SRT, les sous-titres avec contour ou encadrés, les lueurs, le texte façon machine à écrire et le surlignage karaoké. Une piste de sous-titres sous la musique affiche chaque segment : faites glisser un bloc pour le déplacer ou l’un de ses bords pour ajuster sa durée par rapport à la forme d’onde. Les segments actifs s’illuminent pendant la lecture ; chaque segment peut être prévisualisé avec la composition et la musique. Les animations d’entrée et de sortie sont configurables. Le karaoké répartit les mots uniformément sur la durée d’un segment ; il ne reconnaît pas le chant.\n\nEnregistrez un projet .mvmdesign avec ses images, son audio, ses compositions, ses paramètres d’animation et son minutage. Exportez une page au format PNG, JPEG ou WebP, plusieurs pages sous forme d’archive ZIP d’images, ou une vidéo animée avec la résolution, la fréquence d’images et la qualité choisies. La vidéo est rendue image par image dans le navigateur ; la disponibilité des formats MP4 ou WebM dépend de ses encodeurs.",
+      "capabilities": [
+        "Pages modifiables avec images, texte et formes, modèles de départ et duplications de pages indépendantes.",
+        "Contours de texte, dégradés, ombres, lueurs, panneaux d’arrière-plan et polices de mvmFonts.",
+        "Déplacement, redimensionnement, rotation, opacité, verrouillage et ordre des calques des objets.",
+        "Animations d’entrée et de sortie, texte façon machine à écrire ou mot par mot et fondus enchaînés entre les pages.",
+        "Références aux pages réutilisables, blocs répétés et minutage des pages enregistré à l’écoute de la musique.",
+        "Minutage visuel des sous-titres avec blocs déplaçables et poignées d’ajustement, navigation dans la forme d’onde, mise en évidence pendant la lecture, aperçu de chaque segment, réglage précis en secondes, SRT et cinq styles visuels avec animations d’entrée et de sortie.",
+        "Fichiers de projet portables contenant les images et l’audio, enregistrement dans les dossiers du serveur et récupération des brouillons du navigateur.",
+        "Export d’une image ou d’une archive ZIP d’images et export vidéo image par image avec options de résolution et de qualité."
+      ],
+      "integrations": [
+        {
+          "summary": "Utilisez les polices installées sur le serveur dans les compositions de pages et les sous-titres.",
+          "requires": "mvmFonts doit être installé et son API d’application activée dans les paramètres d’Apps Hub. À défaut, les polices génériques sans empattement, avec empattement et à chasse fixe restent disponibles. Les polices personnalisées doivent être installées sur le serveur où le projet est rouvert."
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "ja": {
+      "short_description": "書式付きテキスト、画像、図形で再利用可能なページをデザインし、音楽に合わせて表示タイミングを設定して、画像やアニメーション動画として書き出せます。",
+      "tagline": "一度デザインしたページを音楽に合わせて再利用し、画像やアニメーション動画として書き出せます。",
+      "description": "mvmDesignは、ページデザインと音楽に合わせた動画制作を組み合わせたアプリです。編集可能なテキスト、図形、アップロードした画像を使って、画像、ポスター、歌詞ページ、ストーリーを作成できます。同じページを曲の中で何度も使用でき、デザインを編集すると、使用されているすべての箇所に変更が反映されます。個別に変更したい場合は、ページを複製します。\n\nテキストには、インストール済みのmvmFontsライブラリ、縁取り、グラデーション、影、光彩、背景パネル、配置、行間、文字間隔を設定できます。要素にはスライド、フェード、ズームによる登場・退場効果を付けられ、テキストは1文字ずつ、または1単語ずつ表示できます。静止画像として書き出す場合は、常にデザイン全体が表示されます。\n\n音楽を追加してページ参照を並べ、選択したブロックを繰り返し、音楽を聴きながら「次のページ」を押して切り替えタイミングを記録できます。字幕ツールには、歌詞の貼り付け、再生しながらのタイミング設定、SRTの読み込みと書き出し、縁取り付き字幕、ボックス付き字幕、光彩、タイプライター表示、カラオケのハイライト機能があります。音楽の下にある字幕トラックにはすべてのキューが表示され、ブロックをドラッグして移動したり、左右の端をドラッグして波形に合わせて長さを調整したりできます。再生中は該当するキューがハイライトされ、各キューをデザインや音楽と一緒にプレビューできます。登場・退場アニメーションも設定できます。カラオケ表示ではキュー内に単語を均等に配置します。歌声の認識は行いません。\n\n画像、音声、デザイン、アニメーション設定、タイミングを含む.mvmdesignプロジェクトを保存できます。1ページをPNG、JPEG、WebPとして、複数ページを画像のZIPとして、または指定した解像度、フレームレート、品質のアニメーション動画として書き出せます。動画はブラウザー内で1フレームずつレンダリングされ、利用できるエンコーダーに応じてMP4またはWebMで書き出せます。",
+      "capabilities": [
+        "画像、テキスト、図形を含む編集可能なページ、すぐに使えるテンプレート、個別に編集できるページの複製。",
+        "テキストの縁取り、グラデーション、影、光彩、背景パネル、mvmFontsのフォント。",
+        "オブジェクトの移動、サイズ変更、回転、不透明度、ロック、レイヤーの順序変更。",
+        "登場・退場アニメーション、タイプライター表示、単語単位のテキスト表示、ページのクロスフェード。",
+        "再利用可能なページ参照、ブロックの繰り返し、音楽を聴きながら記録するページの表示タイミング。",
+        "ドラッグ可能なブロックとトリミングハンドルによる視覚的な字幕タイミング調整、波形上での再生位置の移動、再生中のキューのハイライト、キューごとのプレビュー、秒単位の正確な設定、SRT、登場・退場アニメーション付きの5種類の表示スタイル。",
+        "画像と音声を含む持ち運び可能なプロジェクトファイル、サーバーフォルダーへの保存、ブラウザー内の下書きの復元。",
+        "単一画像または画像ZIPの書き出しと、解像度・品質を指定できるフレーム単位の動画書き出し。"
+      ],
+      "integrations": [
+        {
+          "summary": "サーバーにインストールされているフォントをページデザインや字幕に使用できます。",
+          "requires": "mvmFontsがインストールされ、Apps Hubの設定でそのApp APIが有効になっている必要があります。有効でない場合も、汎用のサンセリフ、セリフ、等幅フォントは利用できます。カスタムフォントは、プロジェクトを再度開くサーバーにもインストールする必要があります。"
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "pt-BR": {
+      "short_description": "Crie páginas reutilizáveis com texto estilizado, imagens e formas, sincronize-as com música e exporte imagens ou um vídeo animado.",
+      "tagline": "Crie páginas uma vez, reutilize-as com música e exporte imagens ou vídeos animados.",
+      "description": "mvmDesign combina um editor de páginas com um fluxo de criação de vídeos orientado pela música. Crie imagens, pôsteres, páginas com letras de músicas e histórias usando texto editável, formas e imagens enviadas. Use a mesma página várias vezes em uma música: ao editar seu design, todas as ocorrências são atualizadas. Duplique uma página quando quiser uma variação independente.\n\nO texto oferece suporte à biblioteca de fontes instalada do mvmFonts, contornos, gradientes, sombras, brilho, painéis de fundo, alinhamento, espaçamento entre linhas e entre letras. Os elementos podem deslizar, aparecer ou desaparecer gradualmente e ampliar ou reduzir na entrada e na saída, enquanto o texto pode aparecer por caractere ou palavra. As exportações de imagens estáticas sempre mostram o design completo.\n\nAdicione música, organize referências a páginas, repita blocos selecionados e ouça enquanto pressiona Próxima página para registrar as mudanças. As ferramentas de legendas incluem letras de músicas coladas, marcação de tempo durante a reprodução, importação e exportação de SRT, legendas com contorno ou em caixas, brilho, texto com efeito de máquina de escrever e destaque de karaokê. Uma faixa de legendas abaixo da música mostra cada trecho: arraste um bloco para movê-lo ou uma das bordas para ajustar sua duração em relação à forma de onda. Os trechos ativos ficam destacados durante a reprodução; cada trecho pode ser pré-visualizado com o design e a música. As animações de entrada e saída são configuráveis. O karaokê distribui as palavras uniformemente dentro de um trecho; ele não reconhece o canto.\n\nSalve um projeto .mvmdesign com suas imagens, áudio, designs, configurações de animação e marcações de tempo. Exporte uma página como PNG, JPEG ou WebP, várias páginas como um ZIP de imagens ou um vídeo animado com a resolução, a taxa de quadros e a qualidade escolhidas. O vídeo é renderizado quadro a quadro no navegador, com disponibilidade de MP4 ou WebM dependendo dos codificadores dele.",
+      "capabilities": [
+        "Páginas editáveis com imagens, texto e formas, modelos iniciais e cópias independentes de páginas.",
+        "Contornos de texto, gradientes, sombras, brilho, painéis de fundo e fontes do mvmFonts.",
+        "Movimentação, redimensionamento, rotação, opacidade, bloqueio e ordenação de camadas dos objetos.",
+        "Animações de entrada e saída, texto com efeito de máquina de escrever e palavra por palavra, e transições por dissolução entre páginas.",
+        "Referências reutilizáveis a páginas, blocos repetidos e marcações de tempo das páginas registradas enquanto você ouve música.",
+        "Marcação visual de tempo das legendas com blocos arrastáveis e alças de ajuste, navegação pela forma de onda, destaque durante a reprodução, pré-visualização de cada trecho, segundos exatos, SRT e cinco estilos visuais com animações de entrada e saída.",
+        "Arquivos de projeto portáteis contendo imagens e áudio, salvamento em pastas do servidor e recuperação de rascunhos no navegador.",
+        "Exportação de uma imagem ou de um ZIP de imagens e exportação de vídeo quadro a quadro com opções de resolução e qualidade."
+      ],
+      "integrations": [
+        {
+          "summary": "Use as fontes instaladas no servidor nos designs das páginas e nas legendas.",
+          "requires": "mvmFonts instalado e sua API de aplicativo ativada nas configurações do Apps Hub. Caso contrário, as fontes genéricas sem serifa, com serifa e monoespaçadas continuam disponíveis. As fontes personalizadas precisam estar instaladas no servidor em que o projeto for reaberto."
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "ru": {
+      "short_description": "Создавайте страницы с оформленным текстом, изображениями и фигурами, используйте их повторно, синхронизируйте с музыкой и экспортируйте в виде изображений или анимированного видео.",
+      "tagline": "Создавайте страницы один раз, используйте их повторно под музыку и экспортируйте изображения или анимированные видео.",
+      "description": "mvmDesign объединяет редактор страниц с инструментами создания видео под музыку. Создавайте изображения, плакаты, страницы с текстами песен и истории, используя редактируемый текст, фигуры и загруженные изображения. Используйте одну страницу несколько раз в песне: изменения её оформления применяются ко всем вхождениям. Создайте копию страницы, если нужен независимый вариант.\n\nДля текста доступны установленная библиотека mvmFonts, обводки, градиенты, тени, свечение, фоновые подложки, выравнивание, межстрочный и межбуквенный интервалы. Элементы могут появляться и исчезать со сдвигом, плавным изменением прозрачности или масштаба, а текст — по символам или словам. При экспорте статичных изображений оформление всегда отображается полностью.\n\nДобавьте музыку, расположите ссылки на страницы, повторите выбранные блоки и во время прослушивания нажимайте «Следующая страница», чтобы записать моменты переключения. Инструменты субтитров включают вставку текста песни, настройку времени во время прослушивания, импорт и экспорт SRT, подписи с обводкой и в рамках, свечение, эффект печатной машинки и подсветку караоке. Дорожка субтитров под музыкой показывает все фрагменты: перетащите блок, чтобы переместить его, или любой его край, чтобы подогнать границы по звуковой волне. Активные фрагменты подсвечиваются при воспроизведении; каждый фрагмент можно предварительно просмотреть вместе с оформлением и музыкой. Анимации появления и исчезновения настраиваются. Караоке равномерно распределяет слова по длительности фрагмента и не распознаёт пение.\n\nСохраняйте проект .mvmdesign с изображениями, аудио, оформлением, настройками анимации и временными привязками. Экспортируйте одну страницу в PNG, JPEG или WebP, несколько страниц в ZIP-архив с изображениями или анимированное видео с выбранными разрешением, частотой кадров и качеством. Видео отрисовывается покадрово в браузере; доступность MP4 или WebM зависит от его кодировщиков.",
+      "capabilities": [
+        "Редактируемые страницы с изображениями, текстом и фигурами, готовые шаблоны и независимые копии страниц.",
+        "Обводки текста, градиенты, тени, свечение, фоновые подложки и шрифты из mvmFonts.",
+        "Перемещение, изменение размера, поворот, настройка непрозрачности, блокировка объектов и изменение порядка слоёв.",
+        "Анимации появления и исчезновения, текст с эффектом печатной машинки и появлением по словам, плавные переходы между страницами.",
+        "Повторное использование ссылок на страницы, повторение блоков и запись времени переключения страниц во время прослушивания музыки.",
+        "Визуальная настройка времени субтитров с перетаскиваемыми блоками и маркерами обрезки, переход к нужному моменту по звуковой волне, подсветка активных фрагментов при воспроизведении, предварительный просмотр каждого фрагмента, точное задание времени в секундах, SRT и пять стилей оформления с анимациями появления и исчезновения.",
+        "Переносимые файлы проектов с изображениями и аудио, сохранение в папки на сервере и восстановление черновиков из браузера.",
+        "Экспорт одного изображения или ZIP-архива с изображениями и покадровый экспорт видео с настройками разрешения и качества."
+      ],
+      "integrations": [
+        {
+          "summary": "Используйте установленные на сервере шрифты в оформлении страниц и субтитрах.",
+          "requires": "Требуется установленное приложение mvmFonts с включённым API приложения в настройках Apps Hub. В противном случае остаются доступны стандартные шрифты без засечек, с засечками и моноширинные. Пользовательские шрифты должны быть установлены на сервере, где проект открывается повторно."
+        }
+      ],
+      "name": "mvmDesign"
+    },
+    "zh-CN": {
+      "short_description": "使用带样式的文字、图片和形状设计可重复使用的页面，再为页面设置配乐时序，导出图片或动画视频。",
+      "tagline": "页面设计一次，即可随音乐重复使用，并导出图片或动画视频。",
+      "description": "mvmDesign 将页面设计器与音乐驱动的视频制作流程融为一体。使用可编辑的文字、形状和上传的图片制作图片、海报、歌词页面和故事。同一页面可以在一首歌曲中多次使用：修改页面设计后，所有使用该页面的位置都会同步更新。如需独立的变体，可复制页面。\n\n文字支持已安装的 mvmFonts 字体库，以及描边、渐变、阴影、发光、背景面板、对齐、行距和字距设置。元素可以通过滑动、淡入淡出或缩放效果进出场，文字则可以逐字或逐词显示。导出的静态图片始终显示完整设计。\n\n添加音乐，排列页面引用，重复选定的区块，并在聆听时按下“下一页”来记录页面切换。字幕工具支持粘贴歌词、边听边设置时间、SRT 导入和导出、描边字幕、方框字幕、发光、打字机文字和卡拉 OK 高亮效果。音乐下方的字幕轨道会显示每条字幕：拖动区块可移动字幕，拖动任一边缘可对照波形调整起止时间。播放时，当前字幕会高亮显示；也可以结合设计和音乐单独预览每条字幕。入场和出场动画均可配置。卡拉 OK 功能会在一条字幕的时长内均匀分配各个词的时间，不会识别演唱内容。\n\n将图片、音频、设计、动画设置和时序保存为 .mvmdesign 项目。可将单个页面导出为 PNG、JPEG 或 WebP，将多个页面导出为图片 ZIP 压缩包，或按所选分辨率、帧率和画质导出动画视频。视频在浏览器中逐帧渲染，可用的 MP4 或 WebM 格式取决于浏览器的编码器。",
+      "capabilities": [
+        "包含图片、文字和形状的可编辑页面，配有入门模板，并支持创建独立的页面副本。",
+        "文字描边、渐变、阴影、发光、背景面板和 mvmFonts 字体。",
+        "对象移动、大小调整、旋转、不透明度、锁定和图层排序。",
+        "入场和出场动画、打字机和逐词显示文字效果，以及页面交叉淡化。",
+        "可重复使用的页面引用、重复区块，以及边听音乐边记录页面时序。",
+        "可视化字幕时间设置，支持可拖动区块和裁剪手柄、波形定位、播放中的字幕高亮、逐条字幕预览、精确秒数、SRT，以及五种带入场和出场动画的视觉样式。",
+        "包含图片和音频的便携项目文件、服务器文件夹保存，以及浏览器草稿恢复。",
+        "单张图片或图片 ZIP 压缩包导出，以及可选择分辨率和画质的逐帧视频导出。"
+      ],
+      "integrations": [
+        {
+          "summary": "在页面设计和字幕中使用服务器上已安装的字体。",
+          "requires": "需安装 mvmFonts，并在 Apps Hub 设置中启用其应用 API。否则仍可使用通用无衬线、衬线和等宽字体。在其他服务器上重新打开项目时，该服务器需要安装项目使用的自定义字体。"
+        }
+      ],
+      "name": "mvmDesign"
+    }
+  }
 }

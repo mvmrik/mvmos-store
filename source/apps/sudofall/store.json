@@ -19,5 +19,175 @@
       "summary": "Your games are recorded against your Game Hub profile — sessions, scores and leaderboard position, including head-to-head results.",
       "requires": "Game Hub installed. Single player works without it."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Смесица между Tetris и Sudoku — пускайте числа в решетката и изчиствайте редове и квадрати 3x3, за да печелите точки.",
+      "tagline": "Правилата на Tetris, целта на Sudoku.",
+      "description": "В Sudofall числата падат в решетка 9×9. Поставяте ги, докато падат, и изчиствате ред, колона или квадрат 3×3 в мига, в който съдържа правилните числа — условието на Sudoku със скоростта на Tetris. Жокерите ви позволяват сами да изберете числото, когато мястото на полето намалее.\n\nИграйте самостоятелно за резултат или един срещу друг: споделете връзка с приятел и двамата ще играете с една и съща последователност от падащи числа, като накрая печели този с по-високия резултат.",
+      "capabilities": [
+        "Решетка 9×9 с падащи числа и предварителен изглед на следващото.",
+        "Изчиствайте редове, колони и квадрати 3×3 за точки.",
+        "Жокери, които можете да превърнете във всяко число.",
+        "Резултат и изминало време, с окончателно обобщение в края на играта.",
+        "Запазете и излезте от самостоятелна игра по всяко време, след което я продължете дни по-късно.",
+        "Мултиплейър един срещу друг чрез споделена връзка, с една и съща последователност за двамата играчи.",
+        "Изпраща в Game Hub данни за изчистените линии, пуснатите числа и точките в минута от завършените сесии в браузъра."
+      ],
+      "integrations": [
+        {
+          "summary": "Игрите ви се записват към профила ви в Game Hub — сесии, резултати и позиция в класацията, включително резултатите от двубоите.",
+          "requires": "Инсталиран Game Hub. Самостоятелната игра работи и без него."
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "de": {
+      "short_description": "Eine Mischung aus Tetris und Sudoku — lass Zahlen ins Raster fallen und vervollständige Zeilen und 3x3-Blöcke, um Punkte zu sammeln.",
+      "tagline": "Tetris-Regeln, Sudoku-Ziel.",
+      "description": "In Sudofall fallen Zahlen in ein 9×9-Raster. Du platzierst sie beim Fallen und räumst eine Zeile, eine Spalte oder einen 3×3-Block ab, sobald darin die richtigen Zahlen stehen — die Zahlenregel von Sudoku im Tempo von Tetris. Mit Jokern kannst du die Zahl selbst wählen, wenn es auf dem Spielfeld eng wird.\n\nSpiele allein auf Punkte oder im direkten Duell: Teile einen Link mit einem Freund, und ihr spielt beide mit derselben Abfolge fallender Zahlen. Wer am Ende die höhere Punktzahl hat, gewinnt.",
+      "capabilities": [
+        "9×9-Raster mit fallenden Zahlen und einer Vorschau auf die nächste Zahl.",
+        "Räume Zeilen, Spalten und 3×3-Blöcke ab, um Punkte zu sammeln.",
+        "Joker, die du in jede beliebige Zahl verwandeln kannst.",
+        "Punktestand und verstrichene Zeit mit einer abschließenden Übersicht am Spielende.",
+        "Speichere und beende ein Einzelspiel jederzeit und setze es Tage später fort.",
+        "Direktes Mehrspielerduell über einen geteilten Link, mit derselben Zahlenfolge für beide Spieler.",
+        "Meldet abgeräumte Linien, platzierte Zahlen und Punkte pro Minute aus abgeschlossenen Browsersitzungen an Game Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Deine Spiele werden in deinem Game Hub-Profil erfasst — Sitzungen, Punktestände und Ranglistenplatz, einschließlich der Ergebnisse direkter Duelle.",
+          "requires": "Game Hub muss installiert sein. Der Einzelspielermodus funktioniert auch ohne."
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "es": {
+      "short_description": "Una mezcla de Tetris y Sudoku: coloca los números que caen en la cuadrícula y completa filas y bloques de 3x3 para sumar puntos.",
+      "tagline": "Las reglas de Tetris, el objetivo de Sudoku.",
+      "description": "En Sudofall caen números sobre una cuadrícula de 9×9. Los colocas a medida que caen y eliminas una fila, una columna o un bloque de 3×3 en cuanto contiene los números que debe: la condición de Sudoku a la velocidad de Tetris. Los comodines te permiten elegir el número cuando queda poco espacio en el tablero.\n\nJuega en solitario para conseguir la mejor puntuación o compite cara a cara: comparte un enlace con un amigo y ambos jugaréis con la misma secuencia de números; gana quien tenga más puntos al final.",
+      "capabilities": [
+        "Cuadrícula de 9×9 con números que caen y una vista previa del siguiente.",
+        "Completa filas, columnas y bloques de 3×3 para eliminarlos y sumar puntos.",
+        "Comodines que puedes convertir en cualquier número.",
+        "Puntuación y tiempo transcurrido, con un resumen final al terminar la partida.",
+        "Guarda y sal de una partida en solitario en cualquier momento, y retómala días después.",
+        "Multijugador cara a cara mediante un enlace compartido, con la misma secuencia para ambos jugadores.",
+        "Envía a Game Hub las líneas eliminadas, los números colocados y los puntos por minuto de las sesiones completadas en el navegador."
+      ],
+      "integrations": [
+        {
+          "summary": "Tus partidas se registran en tu perfil de Game Hub: sesiones, puntuaciones y posición en la clasificación, incluidos los resultados de los enfrentamientos cara a cara.",
+          "requires": "Game Hub instalado. El modo para un jugador funciona sin él."
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "fr": {
+      "short_description": "Un mélange de Tetris et de Sudoku — faites tomber des chiffres dans la grille, complétez des lignes et des blocs de 3x3 pour marquer des points.",
+      "tagline": "Les règles de Tetris, l’objectif du Sudoku.",
+      "description": "Sudofall fait tomber des chiffres dans une grille de 9×9. Vous les placez pendant leur chute, et vous effacez une ligne, une colonne ou un bloc de 3×3 dès qu’il contient les chiffres attendus — les contraintes du Sudoku, à la vitesse de Tetris. Les jokers vous permettent de choisir vous-même le chiffre lorsque la grille se remplit.\n\nJouez en solo pour établir un score, ou en duel : partagez un lien avec un ami et jouez tous les deux avec la même séquence de chiffres, le meilleur score final remportant la partie.",
+      "capabilities": [
+        "Une grille de 9×9 avec des chiffres qui tombent et un aperçu des suivants.",
+        "Effacez des lignes, des colonnes et des blocs de 3×3 pour marquer des points.",
+        "Des jokers que vous pouvez transformer en n’importe quel chiffre.",
+        "Le score et le temps écoulé, avec un récapitulatif à la fin de la partie.",
+        "Sauvegardez et quittez une partie solo à tout moment, puis reprenez-la plusieurs jours plus tard.",
+        "Du multijoueur en duel via un lien partagé, avec la même séquence pour les deux joueurs.",
+        "Transmet à Game Hub les lignes effacées, les chiffres tombés et les points par minute des sessions terminées dans le navigateur."
+      ],
+      "integrations": [
+        {
+          "summary": "Vos parties sont enregistrées dans votre profil Game Hub — sessions, scores et position au classement, y compris les résultats des duels.",
+          "requires": "Game Hub doit être installé. Le mode solo fonctionne sans lui."
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "ja": {
+      "short_description": "Tetrisと数独を組み合わせたゲームです。グリッドに数字を落とし、行や3x3のブロックを消して得点を獲得しましょう。",
+      "tagline": "ルールはTetris、目標は数独。",
+      "description": "Sudofallでは、9×9のグリッドに数字が落ちてきます。落下中の数字を配置し、行、列、または3×3のブロックに必要な数字がそろった瞬間に消していきます。数独の条件を、Tetrisのスピードで満たすゲームです。盤面が埋まってきたら、ジョーカーで好きな数字を選べます。\n\nソロでスコアに挑むことも、1対1で対戦することもできます。友達にリンクを共有すれば、2人とも同じ順序で数字が落ちてくる条件でプレイし、最後にスコアが高い方が勝ちます。",
+      "capabilities": [
+        "9×9のグリッドに数字が落下し、次に来る数字も確認できます。",
+        "行、列、3×3のブロックを消して得点を獲得できます。",
+        "ジョーカーは好きな数字に変えられます。",
+        "スコアと経過時間を表示し、ゲームオーバー時には結果をまとめて確認できます。",
+        "ソロゲームはいつでも保存して終了し、数日後に再開できます。",
+        "共有リンクで1対1のマルチプレイができ、両プレイヤーに同じ順序で数字が落ちてきます。",
+        "ブラウザーでのプレイを完了すると、消したライン数、落とした数字の数、1分あたりの得点をGame Hubに報告します。"
+      ],
+      "integrations": [
+        {
+          "summary": "プレイ履歴はGame Hubのプロフィールに紐づけて記録されます。プレイセッション、スコア、ランキング順位に加え、1対1の対戦結果も含まれます。",
+          "requires": "Game Hubのインストールが必要です。シングルプレイはなくても遊べます。"
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "pt-BR": {
+      "short_description": "Uma mistura de Tetris e Sudoku — solte números na grade e complete linhas e blocos de 3x3 para marcar pontos.",
+      "tagline": "Regras de Tetris, objetivo de Sudoku.",
+      "description": "Sudofall faz números caírem em uma grade de 9×9. Você os posiciona durante a queda e elimina uma linha, uma coluna ou um bloco de 3×3 assim que ele contém os números corretos — a restrição do Sudoku, na velocidade do Tetris. Os curingas permitem que você escolha o número quando o tabuleiro fica apertado.\n\nJogue solo para marcar pontos ou em um duelo: compartilhe um link com um amigo e vocês dois jogarão com a mesma sequência de números em queda, vencendo quem tiver a maior pontuação no final.",
+      "capabilities": [
+        "Grade de 9×9 com números em queda e uma prévia do que vem a seguir.",
+        "Complete linhas, colunas e blocos de 3×3 para eliminá-los e ganhar pontos.",
+        "Curingas que você pode transformar em qualquer número.",
+        "Pontuação e tempo decorrido, com um resumo final ao término da partida.",
+        "Salve e saia de uma partida solo a qualquer momento e retome dias depois.",
+        "Multijogador em duelo por meio de um link compartilhado, com a mesma sequência para ambos os jogadores.",
+        "Envia ao Game Hub as linhas eliminadas, os números soltos e os pontos por minuto das sessões concluídas no navegador."
+      ],
+      "integrations": [
+        {
+          "summary": "Suas partidas são registradas no seu perfil do Game Hub — sessões, pontuações e posição na classificação, incluindo os resultados dos duelos.",
+          "requires": "Game Hub instalado. O modo para um jogador funciona sem ele."
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "ru": {
+      "short_description": "Сочетание тетриса и судоку — размещайте падающие числа в сетке, собирайте строки и блоки 3x3, чтобы набирать очки.",
+      "tagline": "Правила тетриса, цель судоку.",
+      "description": "В Sudofall числа падают в сетку 9×9. Вы выбираете, куда они упадут, а строка, столбец или блок 3×3 очищается, как только в нём собраны все нужные числа — ограничения судоку на скорости тетриса. Джокеры позволяют самостоятельно выбрать число, когда на поле становится тесно.\n\nИграйте в одиночку на очки или один на один: поделитесь ссылкой с другом, и вы оба получите одинаковую последовательность падающих чисел; победит тот, кто к концу игры наберёт больше очков.",
+      "capabilities": [
+        "Сетка 9×9 с падающими числами и предварительным просмотром следующего числа.",
+        "Собирайте строки, столбцы и блоки 3×3, чтобы очищать их и получать очки.",
+        "Джокеры, которые можно превратить в любое число.",
+        "Очки и прошедшее время с итоговой сводкой после завершения игры.",
+        "Сохраните одиночную игру и выйдите в любой момент, а через несколько дней продолжите с того же места.",
+        "Сетевая игра один на один по общей ссылке с одинаковой последовательностью чисел для обоих игроков.",
+        "Передаёт в Game Hub данные об очищенных линиях, размещённых числах и очках в минуту по завершённым игровым сеансам в браузере."
+      ],
+      "integrations": [
+        {
+          "summary": "Ваши игры записываются в профиль Game Hub: сеансы, очки и место в таблице лидеров, включая результаты матчей один на один.",
+          "requires": "Требуется установленный Game Hub. Одиночная игра работает и без него."
+        }
+      ],
+      "name": "Sudofall"
+    },
+    "zh-CN": {
+      "short_description": "融合俄罗斯方块与数独玩法——将数字落入网格，填满符合规则的行和 3x3 宫格来获得分数。",
+      "tagline": "俄罗斯方块的规则，数独的目标。",
+      "description": "Sudofall 会将数字落入一个 9×9 网格。你决定它们落在哪里，当某一行、某一列或某个 3×3 宫格包含了应有的数字时，就会立即消除——以俄罗斯方块的速度，挑战数独的规则。当棋盘空间吃紧时，万能牌可让你自行选择数字。\n\n你可以单人挑战分数，也可以一对一对战：向好友分享链接，双方将面对相同的下落序列，最终分数更高的一方获胜。",
+      "capabilities": [
+        "9×9 网格，数字不断下落，并可预览下一个数字。",
+        "消除行、列和 3×3 宫格来获得分数。",
+        "可变成任意数字的万能牌。",
+        "显示分数和已用时间，并在游戏结束时提供最终总结。",
+        "单人游戏可随时保存并退出，数天后再继续。",
+        "通过分享链接进行一对一多人对战，双方使用相同的下落序列。",
+        "将已完成的浏览器游戏场次中的消除行列数、落下数字数和每分钟得分上报至 Game Hub。"
+      ],
+      "integrations": [
+        {
+          "summary": "你的游戏记录会关联到 Game Hub 个人资料——包括场次、分数和排行榜名次，也包括一对一对战结果。",
+          "requires": "需安装 Game Hub。单人模式无需安装也可游玩。"
+        }
+      ],
+      "name": "Sudofall"
+    }
+  }
 }

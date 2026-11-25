@@ -21,5 +21,215 @@
   "requirements": [
     "qBittorrent on the same machine with its WebUI enabled. The app can install and configure it for you if it is missing."
   ],
-  "integrations": []
+  "integrations": [],
+  "i18n": {
+    "bg": {
+      "short_description": "Визуално табло за qBittorrent. Свързва се с локална инстанция на qBittorrent чрез WebUI API.",
+      "tagline": "Пълноценен интерфейс за qBittorrent, работещ на вашия сървър.",
+      "description": "qBit Dashboard се свързва с локален qBittorrent чрез неговия WebUI API и му предоставя интерфейс, подходящ за работния плот: списък с торенти с напредък, скорости, съотношение, оставащо време, сийдъри и пиъри, който може да се сортира по всеки от тези показатели и да се филтрира по състояние.\n\nДобавяте торенти чрез magnet връзка, URL или .torrent файл, избирате къде да се запазват (и запомняте този път за следващия път), задавате им категория и ги управлявате поотделно или всички наведнъж. Всеки торент се отваря в собствен подробен изглед с пълната му статистика, файлове, тракери, пиъри и възможност да го преместите на друго място на диска, а изгледът Статистика показва скоростите в реално време и колко данни са изтеглени и качени всеки ден.\n\nСобствените настройки на qBittorrent — DHT, PeX, LSD, анонимен режим, шифроване, ограничения за съотношението и сийдването, ограничения на скоростта — също могат да се редактират оттук, а ако qBittorrent още не е настроен, приложението може да го инсталира, да активира неговия WebUI и да го стартира вместо вас.\n\nПодробният изглед на торент показва информацията му в ясни карти, изброява файловете му с избор на приоритет за всеки файл и представя пиърите в таблица.\n\nТърсете торенти по име, като запазвате избрания филтър за състояние. Прозорецът за избор на папка се отваря в средата на екрана на вече въведения път за запазване както в диалога за добавяне на торент, така и в този за IPTorrents, и ви ограничава до собствената ви домашна папка, така че можете да се връщате нагоре до нея, но никога до системни папки.",
+      "capabilities": [
+        "Списък с торенти с напредък, скорост на изтегляне и качване, съотношение, оставащо време, размер, сийдъри и пиъри.",
+        "Сортиране по дата на добавяне, име, размер, напредък, скорост, съотношение, оставащо време или дата на завършване.",
+        "Филтриране по състояние: изтегляне, сийдване, на пауза, завършени, активни или с грешка.",
+        "Добавяне чрез magnet връзка, URL или .torrent файл с път за запазване, който можете да запомните, и категория по избор.",
+        "Поставяне на пауза, възобновяване, изтриване (със или без файловете) — за отделен торент или за всички наведнъж.",
+        "Подробен изглед с прехвърлени данни, съотношение, рояк, части, времена на активност, тракер и поверителност, както и файлове, тракери, пиъри и приоритети.",
+        "Изглед Статистика със скорости на изтегляне и качване в реално време и дневна история на трафика, за която сървърът събира данни във фонов режим дори когато прозорецът е затворен.",
+        "Преместване на завършен торент на друго място на диска.",
+        "Редактиране на собствените настройки на qBittorrent: DHT, PeX, LSD, анонимен режим, шифроване, ограничения за съотношението и времето за сийдване и действията при достигането им, както и общите ограничения на скоростта.",
+        "Автоматично откриване на работещ qBittorrent или инсталиране и конфигуриране от приложението.",
+        "Търсене в IPTorrents по избор с вашите собствени сесийни бисквитки.",
+        "Интерфейс, преведен на девет езика.",
+        "Търсене по име без разлика между главни и малки букви, съчетано с филтри за състоянието на торентите.",
+        "Общият прозорец за избор на папка се отваря на текущия път за запазване при добавяне на торенти или резултати от IPTorrents и остава в домашната папка на влезлия потребител.",
+        "Обновен подробен изглед на торентите с информационни карти, списък с файлове с видим избор на приоритет за всеки файл и таблица с пиъри."
+      ],
+      "requirements": [
+        "qBittorrent на същата машина с активиран WebUI. Приложението може да го инсталира и конфигурира вместо вас, ако липсва."
+      ],
+      "name": "qBit Dashboard"
+    },
+    "de": {
+      "short_description": "Visuelles Dashboard für qBittorrent. Verbindet sich über die WebUI-API mit einer lokalen qBittorrent-Instanz.",
+      "tagline": "Eine vollwertige Oberfläche für qBittorrent auf deinem Server.",
+      "description": "qBit Dashboard kommuniziert über die WebUI-API mit einem lokalen qBittorrent und bietet eine Oberfläche, die auf einen Desktop passt: eine Torrent-Liste mit Fortschritt, Geschwindigkeiten, Verhältnis, Restzeit, Seeds und Peers, nach jedem dieser Werte sortierbar und nach Status filterbar.\n\nDu fügst Torrents per Magnet-Link, URL oder .torrent-Datei hinzu, wählst den Speicherort aus und kannst diesen Pfad für das nächste Mal speichern, weist ihnen eine Kategorie zu und steuerst sie einzeln oder alle gemeinsam. Jeder Torrent lässt sich in einer eigenen Detailansicht mit vollständigen Statistiken, Dateien, Trackern, Peers und der Möglichkeit öffnen, ihn an einen anderen Ort auf dem Datenträger zu verschieben. Eine Statistikansicht zeigt aktuelle Geschwindigkeiten und die täglich herunter- und hochgeladenen Datenmengen.\n\nAuch die eigenen Einstellungen von qBittorrent – DHT, PeX, LSD, anonymer Modus, Verschlüsselung, Verhältnis- und Seeding-Limits, Geschwindigkeitsbegrenzungen – lassen sich hier bearbeiten. Falls qBittorrent noch nicht eingerichtet ist, kann die App es für dich installieren, seine WebUI aktivieren und es starten.\n\nDie Detailansicht eines Torrents zeigt seine Informationen in übersichtlichen Karten, listet seine Dateien mit einer Prioritätsauswahl für jede Datei auf und stellt Peers in einer Tabelle dar.\n\nSuche Torrents nach Namen, während der gewählte Statusfilter erhalten bleibt. Das Ordnerfenster öffnet sich sowohl im Dialog zum Hinzufügen von Torrents als auch im IPTorrents-Dialog in der Bildschirmmitte am bereits eingegebenen Speicherpfad und bleibt innerhalb deines eigenen Home-Verzeichnisses. Du kannst also bis dorthin zurückgehen, aber niemals in Systemordner wechseln.",
+      "capabilities": [
+        "Torrent-Liste mit Fortschritt, Download- und Upload-Geschwindigkeit, Verhältnis, Restzeit, Größe, Seeds und Peers.",
+        "Sortierung nach Hinzufügedatum, Name, Größe, Fortschritt, Geschwindigkeit, Verhältnis, Restzeit oder Abschlussdatum.",
+        "Filter für herunterladende, seedende, pausierte, abgeschlossene, aktive oder fehlerhafte Torrents.",
+        "Hinzufügen per Magnet-Link, URL oder .torrent-Datei mit speicherbarem Speicherpfad und optionaler Kategorie.",
+        "Pausieren, Fortsetzen und Löschen mit oder ohne Dateien – pro Torrent oder für alle gleichzeitig.",
+        "Detailansicht mit übertragenen Daten, Verhältnis, Schwarm, Teilen, Aktivitätszeiten, Tracker und Privatsphäre sowie Dateien, Trackern, Peers und Prioritäten.",
+        "Statistikansicht mit aktuellen Download- und Upload-Geschwindigkeiten und täglichem Datenverkehrsverlauf, den der Server auch bei geschlossenem Fenster im Hintergrund erfasst.",
+        "Abgeschlossene Torrents an einen anderen Ort auf dem Datenträger verschieben.",
+        "Eigene Optionen von qBittorrent bearbeiten: DHT, PeX, LSD, anonymer Modus, Verschlüsselung, Limits für Verhältnis und Seeding-Dauer sowie Aktionen bei deren Erreichen und globale Geschwindigkeitsbegrenzungen.",
+        "Laufendes qBittorrent automatisch erkennen oder direkt aus der App installieren und konfigurieren.",
+        "Optionale IPTorrents-Suche mit deinen eigenen Sitzungscookies.",
+        "In neun Sprachen übersetzte Oberfläche.",
+        "Namenssuche ohne Unterscheidung zwischen Groß- und Kleinschreibung, kombiniert mit Torrent-Statusfiltern.",
+        "Das gemeinsam verwendete Ordnerfenster öffnet sich beim Hinzufügen von Torrents oder IPTorrents-Ergebnissen am aktuellen Speicherpfad und bleibt innerhalb des Home-Verzeichnisses des angemeldeten Benutzers.",
+        "Überarbeitete Torrent-Details mit Informationskarten, einer Dateiliste mit sichtbarer Prioritätsauswahl für jede Datei und einer Peer-Tabelle."
+      ],
+      "requirements": [
+        "qBittorrent auf demselben Rechner mit aktivierter WebUI. Falls es fehlt, kann die App es für dich installieren und konfigurieren."
+      ],
+      "name": "qBit Dashboard"
+    },
+    "fr": {
+      "short_description": "Tableau de bord visuel pour qBittorrent. Se connecte à une instance locale de qBittorrent via l’API WebUI.",
+      "tagline": "Une véritable interface de bureau pour qBittorrent sur votre serveur.",
+      "description": "qBit Dashboard communique avec une instance locale de qBittorrent via son API WebUI et lui offre une interface adaptée au bureau : une liste de torrents avec progression, débits, ratio, temps restant estimé, sources complètes et pairs, triable selon chacun de ces critères et filtrable par état.\n\nAjoutez des torrents par lien magnet, URL ou fichier .torrent, choisissez leur emplacement d’enregistrement et mémorisez ce chemin pour la prochaine fois, attribuez-leur une catégorie et contrôlez-les individuellement ou tous à la fois. Chaque torrent s’ouvre dans sa propre vue détaillée avec l’ensemble de ses statistiques, fichiers, trackers et pairs, ainsi qu’une option pour le déplacer ailleurs sur le disque. Une vue Statistiques affiche les débits en temps réel et les volumes téléchargés et envoyés chaque jour.\n\nLes paramètres propres à qBittorrent — DHT, PeX, LSD, mode anonyme, chiffrement, limites de ratio et de partage, limites de débit — sont également modifiables ici. Si qBittorrent n’est pas encore configuré, l’application peut l’installer, activer son interface WebUI et le démarrer pour vous.\n\nLa vue détaillée d’un torrent présente ses informations dans des cartes claires, répertorie ses fichiers avec un sélecteur de priorité pour chacun et affiche les pairs dans un tableau.\n\nRecherchez des torrents par nom tout en conservant le filtre d’état sélectionné. La fenêtre de sélection de dossier s’ouvre au centre de l’écran, sur le chemin d’enregistrement déjà saisi dans les boîtes de dialogue d’ajout de torrent et IPTorrents. Elle vous maintient dans votre dossier personnel : vous pouvez remonter jusqu’à celui-ci, mais jamais accéder aux dossiers système.",
+      "capabilities": [
+        "Liste des torrents avec progression, débits de téléchargement et d’envoi, ratio, temps restant estimé, taille, sources complètes et pairs.",
+        "Tri par date d’ajout, nom, taille, progression, débit, ratio, temps restant estimé ou date de fin.",
+        "Filtrage par état : en téléchargement, en partage, en pause, terminé, actif ou en erreur.",
+        "Ajout par lien magnet, URL ou fichier .torrent, avec un chemin d’enregistrement mémorisable et une catégorie facultative.",
+        "Mise en pause, reprise, suppression avec ou sans les fichiers — pour chaque torrent ou pour tous à la fois.",
+        "Vue détaillée avec données transférées, ratio, essaim, blocs, horaires d’activité, tracker et confidentialité, ainsi que fichiers, trackers, pairs et priorités.",
+        "Vue Statistiques avec débits de téléchargement et d’envoi en temps réel et historique quotidien du trafic, relevé en arrière-plan par le serveur même lorsque la fenêtre est fermée.",
+        "Déplacement d’un torrent terminé vers un autre emplacement sur le disque.",
+        "Modification des options propres à qBittorrent : DHT, PeX, LSD, mode anonyme, chiffrement, limites de ratio et de durée de partage et actions à effectuer lorsqu’elles sont atteintes, ainsi que limites globales de débit.",
+        "Détection automatique d’une instance de qBittorrent en cours d’exécution, ou installation et configuration depuis l’application.",
+        "Recherche IPTorrents facultative à l’aide de vos propres cookies de session.",
+        "Interface traduite en neuf langues.",
+        "Recherche par nom insensible à la casse, combinée aux filtres d’état des torrents.",
+        "Lors de l’ajout de torrents ou de résultats IPTorrents, la fenêtre partagée de sélection de dossier s’ouvre sur le chemin d’enregistrement actuel et reste dans le dossier personnel de l’utilisateur connecté.",
+        "Vue détaillée des torrents repensée avec des cartes d’information, une liste de fichiers dotée d’un sélecteur de priorité visible pour chaque fichier et un tableau des pairs."
+      ],
+      "requirements": [
+        "qBittorrent sur la même machine, avec son interface WebUI activée. L’application peut l’installer et le configurer pour vous s’il est absent."
+      ],
+      "name": "qBit Dashboard"
+    },
+    "es": {
+      "short_description": "Panel visual para qBittorrent. Se conecta a una instancia local de qBittorrent mediante la API WebUI.",
+      "tagline": "Una interfaz a la altura del qBittorrent que se ejecuta en tu servidor.",
+      "description": "qBit Dashboard se comunica con un qBittorrent local a través de su API WebUI y le ofrece una interfaz propia de un escritorio: una lista de torrents con progreso, velocidades, ratio, tiempo restante estimado, semillas y pares, que se puede ordenar por cualquiera de estos datos y filtrar por estado.\n\nAñade torrents mediante un enlace magnet, una URL o un archivo .torrent, elige dónde se guardan y recuerda esa ruta para la próxima vez, asígnales una categoría y contrólalos individualmente o todos a la vez. Cada torrent se abre en su propia vista de detalles con todas sus estadísticas, archivos, rastreadores, pares y la opción de moverlo a otra ubicación del disco. La vista Estadísticas muestra las velocidades en tiempo real y cuánto se ha descargado y subido cada día.\n\nLas opciones del propio qBittorrent —DHT, PeX, LSD, modo anónimo, cifrado, límites de ratio y de compartición, límites de velocidad— también se pueden editar desde aquí. Si qBittorrent aún no está configurado, la aplicación puede instalarlo, habilitar su WebUI e iniciarlo por ti.\n\nLa vista de detalles de un torrent muestra su información en tarjetas claras, enumera sus archivos con un selector de prioridad para cada uno y presenta los pares en una tabla.\n\nBusca torrents por nombre manteniendo el filtro de estado seleccionado. La ventana de carpetas se abre en el centro de la pantalla, en la ruta de guardado ya introducida tanto en el cuadro de diálogo para añadir torrents como en el de IPTorrents, y te mantiene dentro de tu carpeta personal, de modo que puedes volver hasta ella, pero nunca entrar en las carpetas del sistema.",
+      "capabilities": [
+        "Lista de torrents con progreso, velocidad de descarga y subida, ratio, tiempo restante estimado, tamaño, semillas y pares.",
+        "Ordena por fecha de incorporación, nombre, tamaño, progreso, velocidad, ratio, tiempo restante estimado o fecha de finalización.",
+        "Filtra por torrents en descarga, compartiendo, pausados, completados, activos o con errores.",
+        "Añade torrents mediante un enlace magnet, una URL o un archivo .torrent, con una ruta de guardado que puedes recordar y una categoría opcional.",
+        "Pausa, reanuda o elimina, con o sin archivos, cada torrent o todos a la vez.",
+        "Vista de detalles con datos transferidos, ratio, enjambre, piezas, tiempos de actividad, rastreador y privacidad, además de archivos, rastreadores, pares y prioridades.",
+        "Vista Estadísticas con velocidades de descarga y subida en tiempo real y un historial de tráfico diario, con datos que el servidor recopila en segundo plano incluso cuando la ventana está cerrada.",
+        "Mueve un torrent finalizado a otra ubicación del disco.",
+        "Edita las opciones del propio qBittorrent: DHT, PeX, LSD, modo anónimo, cifrado, límites de ratio y de tiempo de compartición y qué ocurre al alcanzarlos, y límites globales de velocidad.",
+        "Detecta automáticamente un qBittorrent en ejecución o instálalo y configúralo desde la aplicación.",
+        "Búsqueda opcional en IPTorrents con tus propias cookies de sesión.",
+        "Interfaz traducida a nueve idiomas.",
+        "Búsqueda por nombre sin distinguir mayúsculas y minúsculas, combinada con filtros de estado de los torrents.",
+        "La ventana de carpetas compartida se abre en la ruta de guardado actual al añadir torrents o resultados de IPTorrents y permanece dentro de la carpeta personal del usuario que ha iniciado sesión.",
+        "Detalles de torrents rediseñados con tarjetas de información, una lista de archivos con un selector de prioridad visible para cada archivo y una tabla de pares."
+      ],
+      "requirements": [
+        "qBittorrent en el mismo equipo con su WebUI habilitada. La aplicación puede instalarlo y configurarlo por ti si no está instalado."
+      ],
+      "name": "qBit Dashboard"
+    },
+    "ja": {
+      "short_description": "qBittorrent用のビジュアルダッシュボード。WebUI API経由でローカルのqBittorrentインスタンスに接続します。",
+      "tagline": "サーバーで稼働するqBittorrentに、使いやすいフロントエンドを。",
+      "description": "qBit Dashboardは、WebUI APIを通じてローカルのqBittorrentと通信し、デスクトップにふさわしいインターフェースを提供します。トレント一覧には進行状況、速度、共有比、残り時間、シード数、ピア数が表示され、各項目での並べ替えや状態による絞り込みができます。\n\nマグネットリンク、URL、.torrentファイルでトレントを追加し、保存先を選択して次回用に記憶させたり、カテゴリーを付けたり、個別または一括で操作したりできます。各トレントには専用の詳細画面があり、詳しい統計、ファイル、トラッカー、ピアを確認し、ディスク上の別の場所へ移動できます。統計画面では、現在の速度と日ごとのダウンロード量・アップロード量を確認できます。\n\nDHT、PeX、LSD、匿名モード、暗号化、共有比とシードの制限、速度上限など、qBittorrent自体の設定もここから編集できます。qBittorrentがまだ設定されていない場合は、アプリからインストールし、WebUIを有効にして起動することもできます。\n\nトレントの詳細画面では、情報を見やすいカードで表示し、各ファイルに優先度セレクターを備えたファイル一覧と、ピアの表を表示します。\n\n選択中の状態フィルターを維持したまま、名前でトレントを検索できます。トレント追加ダイアログとIPTorrentsダイアログのどちらでも、フォルダーウィンドウは入力済みの保存先を開いた状態で画面中央に表示されます。移動できる範囲は自分のホームフォルダー内に限られるため、ホームフォルダーまでは上に戻れますが、システムフォルダーには入れません。",
+      "capabilities": [
+        "進行状況、ダウンロード速度、アップロード速度、共有比、残り時間、サイズ、シード数、ピア数を表示するトレント一覧。",
+        "追加日、名前、サイズ、進行状況、速度、共有比、残り時間、完了日による並べ替え。",
+        "ダウンロード中、シード中、一時停止中、完了、アクティブ、エラーによる絞り込み。",
+        "マグネットリンク、URL、.torrentファイルからの追加。保存先の記憶と任意のカテゴリー指定に対応。",
+        "トレントごと、またはすべて一括での一時停止、再開、削除。ファイルを削除するか残すかも選択可能。",
+        "転送済みデータ量、共有比、スウォーム、ピース、稼働時間、トラッカー、プライバシー情報に加え、ファイル、トラッカー、ピア、優先度を確認できる詳細画面。",
+        "現在のダウンロード速度とアップロード速度、日ごとの通信量履歴を表示する統計画面。ウィンドウを閉じている間も、サーバーがバックグラウンドでデータを収集。",
+        "完了したトレントをディスク上の別の場所へ移動。",
+        "qBittorrent自体の設定を編集。DHT、PeX、LSD、匿名モード、暗号化、共有比とシード時間の上限および上限到達時の動作、全体の速度上限に対応。",
+        "実行中のqBittorrentを自動検出、またはアプリからインストールして設定。",
+        "自分のセッションCookieを使う、任意のIPTorrents検索。",
+        "9言語に翻訳されたインターフェース。",
+        "大文字と小文字を区別しない名前検索と、トレントの状態フィルターの併用。",
+        "トレントやIPTorrentsの検索結果を追加する際、共通のフォルダーウィンドウは現在の保存先で開き、移動範囲はログイン中のユーザーのホームフォルダー内に限定。",
+        "情報カード、各ファイルに優先度セレクターを表示するファイル一覧、ピアの表を備えた、刷新されたトレント詳細画面。"
+      ],
+      "requirements": [
+        "同じマシン上に、WebUIが有効になったqBittorrentが必要です。未インストールの場合は、アプリからインストールして設定できます。"
+      ],
+      "name": "qBit Dashboard"
+    },
+    "pt-BR": {
+      "short_description": "Painel visual para qBittorrent. Conecta-se a uma instância local do qBittorrent pela API WebUI.",
+      "tagline": "Uma interface adequada para o qBittorrent em execução no seu servidor.",
+      "description": "qBit Dashboard se comunica com um qBittorrent local pela API WebUI e oferece uma interface própria para desktop: a lista de torrents com progresso, velocidades, proporção de compartilhamento, tempo restante estimado, seeds e peers, que pode ser ordenada por qualquer um desses critérios e filtrada por estado.\n\nVocê adiciona torrents por link magnet, URL ou arquivo .torrent, escolhe onde salvá-los (e pode memorizar esse caminho para a próxima vez), atribui uma categoria e os controla individualmente ou todos de uma vez. Cada torrent abre sua própria visualização de detalhes com estatísticas completas, arquivos, trackers, peers e a opção de movê-lo para outro local no disco, e a visualização de Estatísticas mostra as velocidades em tempo real e o volume baixado e enviado a cada dia.\n\nAs próprias configurações do qBittorrent — DHT, PeX, LSD, modo anônimo, criptografia, limites de proporção de compartilhamento e de semeadura, limites de velocidade — também podem ser editadas por aqui e, se o qBittorrent ainda não estiver configurado, o aplicativo pode instalá-lo, ativar sua WebUI e iniciá-lo para você.\n\nA visualização de detalhes de um torrent mostra suas informações em cartões claros, lista seus arquivos com um seletor de prioridade em cada um e apresenta os peers em uma tabela.\n\nPesquise torrents pelo nome mantendo o filtro de estado selecionado. A janela de pastas abre no centro da tela, no caminho de salvamento já informado tanto na caixa de diálogo de adição de torrents quanto na do IPTorrents, e mantém você dentro da sua própria pasta pessoal, permitindo voltar até ela, mas nunca acessar pastas do sistema.",
+      "capabilities": [
+        "Lista de torrents com progresso, velocidades de download e upload, proporção de compartilhamento, tempo restante estimado, tamanho, seeds e peers.",
+        "Ordenação por data de adição, nome, tamanho, progresso, velocidade, proporção de compartilhamento, tempo restante estimado ou data de conclusão.",
+        "Filtros por baixando, semeando, pausados, concluídos, ativos ou com erro.",
+        "Adição por link magnet, URL ou arquivo .torrent, com um caminho de salvamento que pode ser memorizado e uma categoria opcional.",
+        "Pause, retome e exclua (com ou sem os arquivos) — por torrent ou todos de uma vez.",
+        "Visualização de detalhes com dados transferidos, proporção de compartilhamento, enxame, partes, horários de atividade, tracker e privacidade, além de arquivos, trackers, peers e prioridades.",
+        "Visualização de Estatísticas com velocidades de download e upload em tempo real e um histórico diário de tráfego, com amostras coletadas pelo servidor em segundo plano mesmo com a janela fechada.",
+        "Mova um torrent concluído para outro local no disco.",
+        "Edite as próprias opções do qBittorrent: DHT, PeX, LSD, modo anônimo, criptografia, limites de proporção de compartilhamento e de tempo de semeadura e o que acontece quando são atingidos, além dos limites globais de velocidade.",
+        "Detecte automaticamente um qBittorrent em execução ou instale e configure-o pelo aplicativo.",
+        "Pesquisa opcional no IPTorrents usando seus próprios cookies de sessão.",
+        "Interface traduzida para nove idiomas.",
+        "Pesquisa por nome sem diferenciar maiúsculas e minúsculas, combinada com filtros de estado dos torrents.",
+        "A janela de pastas compartilhada abre no caminho de salvamento atual ao adicionar torrents ou resultados do IPTorrents e permanece dentro da pasta pessoal do usuário conectado.",
+        "Detalhes do torrent redesenhados com cartões de informações, uma lista de arquivos com um seletor de prioridade visível para cada arquivo e uma tabela de peers."
+      ],
+      "requirements": [
+        "qBittorrent na mesma máquina com a WebUI ativada. O aplicativo pode instalá-lo e configurá-lo para você caso ele não esteja presente."
+      ],
+      "name": "qBit Dashboard"
+    },
+    "ru": {
+      "short_description": "Визуальная панель управления qBittorrent. Подключается к локальному экземпляру qBittorrent через WebUI API.",
+      "tagline": "Полноценный интерфейс для qBittorrent, работающего на вашем сервере.",
+      "description": "qBit Dashboard взаимодействует с локальным qBittorrent через его WebUI API и предоставляет интерфейс для рабочего стола: список торрентов с прогрессом, скоростями, коэффициентом отдачи, оставшимся временем, сидами и пирами, с сортировкой по любому из этих показателей и фильтрацией по состоянию.\n\nДобавляйте торренты по magnet-ссылке, URL или файлу .torrent, выбирайте место сохранения с возможностью запомнить путь на будущее, назначайте категории и управляйте торрентами по отдельности или всеми сразу. У каждого торрента есть отдельный экран с полной статистикой, файлами, трекерами, пирами и возможностью переместить его в другое место на диске. В разделе «Статистика» отображаются текущие скорости и объёмы скачанных и отданных данных за каждый день.\n\nЗдесь также можно менять настройки самого qBittorrent — DHT, PeX, LSD, анонимный режим, шифрование, ограничения коэффициента отдачи и раздачи, ограничения скорости. Если qBittorrent ещё не настроен, приложение может установить его, включить WebUI и запустить.\n\nНа экране сведений о торренте информация представлена в наглядных карточках, у каждого файла в списке есть выбор приоритета, а пиры отображаются в таблице.\n\nИщите торренты по названию, сохраняя выбранный фильтр состояния. Окно выбора папки открывается в центре экрана по пути сохранения, уже указанному в диалоге добавления торрента или IPTorrents, и ограничивает навигацию вашей домашней папкой: можно подняться до неё, но нельзя перейти в системные папки.",
+      "capabilities": [
+        "Список торрентов с прогрессом, скоростями скачивания и отдачи, коэффициентом отдачи, оставшимся временем, размером, сидами и пирами.",
+        "Сортировка по дате добавления, названию, размеру, прогрессу, скорости, коэффициенту отдачи, оставшемуся времени или дате завершения.",
+        "Фильтрация по состоянию: скачиваются, раздаются, приостановлены, завершены, активны или с ошибками.",
+        "Добавление по magnet-ссылке, URL или файлу .torrent с возможностью запомнить путь сохранения и при желании указать категорию.",
+        "Приостановка, возобновление и удаление с файлами или без них — для отдельного торрента или всех сразу.",
+        "Экран сведений с объёмом переданных данных, коэффициентом отдачи, роем, частями, временем активности, трекером и приватностью, а также файлами, трекерами, пирами и приоритетами.",
+        "Раздел «Статистика» с текущими скоростями скачивания и отдачи и ежедневной историей трафика; сервер собирает данные в фоновом режиме, даже когда окно закрыто.",
+        "Перемещение завершённого торрента в другое место на диске.",
+        "Изменение настроек самого qBittorrent: DHT, PeX, LSD, анонимного режима, шифрования, ограничений коэффициента отдачи и времени раздачи, действий при достижении этих ограничений и общих ограничений скорости.",
+        "Автоматическое обнаружение запущенного qBittorrent или его установка и настройка из приложения.",
+        "Дополнительный поиск в IPTorrents с использованием ваших собственных файлов cookie сеанса.",
+        "Интерфейс переведён на девять языков.",
+        "Поиск по названию без учёта регистра в сочетании с фильтрами состояния торрентов.",
+        "Общее окно выбора папки открывается по текущему пути сохранения при добавлении торрентов или результатов IPTorrents и ограничивает навигацию домашней папкой вошедшего пользователя.",
+        "Обновлённый экран сведений о торренте с информационными карточками, списком файлов с видимым выбором приоритета для каждого файла и таблицей пиров."
+      ],
+      "requirements": [
+        "qBittorrent на том же компьютере с включённым WebUI. Если он отсутствует, приложение может установить и настроить его."
+      ],
+      "name": "qBit Dashboard"
+    },
+    "zh-CN": {
+      "short_description": "qBittorrent 的可视化控制面板。通过 WebUI API 连接本地 qBittorrent 实例。",
+      "tagline": "为服务器上运行的 qBittorrent 提供完善的前端界面。",
+      "description": "qBit Dashboard 通过 WebUI API 与本地 qBittorrent 通信，为其提供适合桌面使用的界面：种子列表包含进度、速度、分享率、预计剩余时间、做种数和对等节点数，可按任意一项排序，并按状态筛选。\n\n您可以通过磁力链接、URL 或 .torrent 文件添加种子，选择保存位置（并记住该路径以供下次使用），为其指定分类，然后单独或批量控制。每个种子都有独立的详情视图，包含完整统计信息、文件、Tracker、对等节点，以及将其移动到磁盘其他位置的选项。“统计”视图则显示实时速度和每日下载、上传的数据量。\n\n您还可以在此编辑 qBittorrent 自身的设置，包括 DHT、PeX、LSD、匿名模式、加密、分享率与做种限制、速度上限。如果尚未配置 qBittorrent，应用可以为您安装它、启用 WebUI 并启动。\n\n种子详情视图通过清晰的卡片展示信息，文件列表中的每个文件都配有优先级选择器，对等节点则以表格形式呈现。\n\n按名称搜索种子时，会保留已选的状态筛选条件。在添加种子和 IPTorrents 对话框中，文件夹窗口会在屏幕中央打开，并定位到已输入的保存路径。浏览范围限定在您自己的主文件夹内，因此可以向上返回主文件夹，但无法进入系统文件夹。",
+      "capabilities": [
+        "种子列表包含进度、下载和上传速度、分享率、预计剩余时间、大小、做种数和对等节点数。",
+        "按添加日期、名称、大小、进度、速度、分享率、预计剩余时间或完成日期排序。",
+        "按下载中、做种中、已暂停、已完成、活动中或出错状态筛选。",
+        "通过磁力链接、URL 或 .torrent 文件添加，支持记住保存路径并选择分类。",
+        "暂停、继续、删除（可选择是否同时删除文件）——可针对单个种子或一次处理全部种子。",
+        "详情视图包含传输数据量、分享率、节点群、分块、活动时间、Tracker 和私密性，以及文件、Tracker、对等节点和优先级。",
+        "统计视图显示实时下载和上传速度及每日流量历史；即使窗口已关闭，服务器仍会在后台采样记录。",
+        "将已完成的种子移动到磁盘上的其他位置。",
+        "编辑 qBittorrent 自身的选项：DHT、PeX、LSD、匿名模式、加密、分享率与做种时长限制及达到限制后的操作，以及全局速度上限。",
+        "自动检测正在运行的 qBittorrent，或直接在应用中安装和配置。",
+        "可选择使用自己的会话 Cookie 搜索 IPTorrents。",
+        "界面已翻译为九种语言。",
+        "不区分大小写的名称搜索，可与种子状态筛选结合使用。",
+        "添加种子或 IPTorrents 搜索结果时，共用的文件夹窗口会在当前保存路径打开，且浏览范围限定在已登录用户的主文件夹内。",
+        "重新设计的种子详情，包含信息卡片、每个文件均带有可见优先级选择器的文件列表，以及对等节点表格。"
+      ],
+      "requirements": [
+        "同一台计算机上需安装 qBittorrent 并启用其 WebUI。如果尚未安装，应用可以为您安装和配置。"
+      ],
+      "name": "qBit Dashboard"
+    }
+  }
 }

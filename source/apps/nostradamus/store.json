@@ -38,5 +38,295 @@
       "summary": "The optional Premium helper asks mvmAI for post explanations, answers and comment drafts, and can start a saved discussion for the same profile.",
       "requires": "mvmAI installed, a usable AI provider and its App API enabled in Apps Hub → Settings → App APIs. The App API is off by default. Nostradamus' Premium AI feature must be enabled by the administrator."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Клиент за Nostr: управлявайте релейните си сървъри, четете емисията си и публикувайте бележки и отговори чрез хранилище за ключове с криптиране от край до край.",
+      "tagline": "Клиент за Nostr, вграден в работния ви плот, с криптирано хранилище за ключове и публична страница за профила ви в Apps Hub.",
+      "description": "Nostradamus ви свързва с мрежата Nostr, без да напускате mvmOS. Управлявайте релейните си сървъри, четете емисията си и публикувайте бележки и отговори с частен ключ, който никога не напуска браузъра ви в некриптиран вид.\n\nВашата самоличност в Nostr (nsec) е защитена по същия начин, по който mvmPasswords защитава хранилището ви: от главна парола локално се извежда AES-256-GCM ключ, а сървърът съхранява единствено непрозрачен криптиран блок данни и несекретна сол. Това означава, че една и съща самоличност работи безпроблемно на компютър и мобилно устройство, без да разчита на разширение за браузър, каквото мобилните браузъри не поддържат.\n\nNostradamus работи и като публична страница, така че всеки притежател на акаунт в Apps Hub може да чете и публикува в Nostr чрез собственото си криптирано хранилище, независимо от работния плот на mvmOS.\n\nСъхранявайте повече от една криптирана самоличност в Nostr в един и същ акаунт и превключвайте между тях, без да губите активна сесия. Когато интеграцията с DeepL в Premium е включена, всяка публикация получава бутон „Превод“ към предпочитания от вас език, а редакторът получава собствен бутон „Превод“, за да проверите чернова на друг език, преди да я публикувате — и двата използват вашия собствен ключ за DeepL Translator, никога ключ, споделен за целия сървър. Приложението продължава да се фокусира върху основното: управление на релейни сървъри, настройки на профила, емисия и публикуване на бележки и отговори. Следването, реакциите и zap плащанията са планирани за бъдещи версии.\n\nПубликации, хора и прегледи\nОтваряйте изображения в преглед в приложението, използвайте менютата за повторно публикуване и цитиране, редактирайте бележка чрез публикуване на заместваща бележка или заявете изтриване на собствена бележка. Релейните сървъри може да запазят първоначалното събитие. Заглушавайте хора или отменяйте заглушаването им чрез списък за заглушаване в Nostr, който запазва съществуващите тагове и криптирано съдържание. Емисията „Следвани“ показва хората, които следвате, а собствените ви публикации са в профила ви. Редовете с известия открояват новата активност и показват публикацията, за която се отнася. Търсенето на контакти и профили изпраща заявки и към индексиращи релейни сървъри, а бавен релеен сървър вече не задържа цял списък в състояние „Зареждане“.\n\nНезадължителен AI помощник\nКогато AI функцията на Premium е включена, поискайте обяснение, задайте един въпрос или създайте чернова на коментар за публикация. Прегледайте и редактирайте предложения коментар, преди да го публикувате. Езикът и стилът на коментарите се задават за всеки профил. Обясненията и въпросите остават в история само за четене и могат да бъдат пренесени в запазен разговор в mvmAI чрез „Започване на дискусия“; черновите на коментари не се съхраняват в тази история. За това са необходими mvmAI и активиран негов API за приложения в Apps Hub → Настройки → API за приложения, който е изключен по подразбиране. Администраторът може да зададе цена в кредити за всяко съобщение, получило отговор.",
+      "capabilities": [
+        "Управлявайте списъка си с релейни сървъри с отделен контрол за четене и запис за всеки сървър и състояние на връзката в реално време",
+        "Преглеждайте и редактирайте профила си в Nostr (показвано име, информация, снимка)",
+        "Четете емисия от бележки на хората, които следвате, обединени от релейните сървъри и без дубликати",
+        "Публикувайте бележки директно към релейните си сървъри за запис",
+        "Отговаряйте на бележки с правилно подреждане в нишки (NIP-10)",
+        "Следвайте други акаунти в Nostr и прекратявайте следването им",
+        "Хранилище за ключове с криптиране от край до край — частният ви ключ се криптира в браузъра, преди изобщо да достигне сървъра",
+        "Съхранявайте няколко криптирани самоличности в Nostr за всеки профил в Apps Hub и превключвайте между отделните им кеширани сесии с отключено хранилище.",
+        "Работи по един и същ начин на работния плот на mvmOS и на публична страница за всеки акаунт в Apps Hub",
+        "Premium: бутон за превод с DeepL с едно щракване под всяка публикация и бутон за превод преди публикуване в редактора, като и двата използват собствения ви DeepL API ключ",
+        "Откривайте скорошни бележки, разглеждайте популярни публикации и търсете профили в Nostr по име, npub или NIP-05 адрес.",
+        "Прегледи на връзки чрез Open Graph и вградени изображения, видео и аудио, включително преглед при съставяне на публикация.",
+        "Преглед на изображения в приложението и комбинирани менюта за повторно публикуване и цитиране.",
+        "Редактирайте собствените си бележки чрез публикуване на заместваща бележка и заявяване на изтриване на старото събитие.",
+        "Заглушавайте хора и отменяйте заглушаването им, като запазвате останалата част от списъка за заглушаване в Nostr.",
+        "Открояване на новите известия и показване на контекста на свързаната публикация.",
+        "Подобрено зареждане на профили, списъци с контакти и емисии от релейните сървъри.",
+        "Незадължителни функции на Premium за обяснения на публикации, въпроси, чернови на коментари с преглед преди публикуване и продължаване в mvmAI."
+      ],
+      "integrations": [
+        {
+          "summary": "Бутонът „Превод“ в публикациите и в редактора изпраща текст към безплатното приложение DeepL Translator, като използва DeepL API ключа, който всеки потребител сам е въвел там — никога ключ, споделен за целия сървър. Изключването на интеграцията премахва и двата бутона; клиентът работи точно както преди.",
+          "requires": "Premium и безплатното приложение DeepL Translator със собствен DeepL API ключ за всеки потребител."
+        },
+        {
+          "summary": "Незадължителният помощник на Premium изпраща заявки към mvmAI за обяснения на публикации, отговори и чернови на коментари и може да започне запазена дискусия за същия профил.",
+          "requires": "Инсталиран mvmAI, работещ доставчик на AI и активиран негов API за приложения в Apps Hub → Настройки → API за приложения. API за приложения е изключен по подразбиране. AI функцията на Premium за Nostradamus трябва да бъде включена от администратора."
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "de": {
+      "short_description": "Ein Nostr-Client: Verwalten Sie Ihre Relays, lesen Sie Ihren Feed und veröffentlichen Sie Notizen und Antworten aus einem Ende-zu-Ende-verschlüsselten Schlüsseltresor.",
+      "tagline": "Ein in Ihren Desktop integrierter Nostr-Client mit verschlüsseltem Schlüsseltresor und einer öffentlichen Seite für Ihr Apps Hub-Profil.",
+      "description": "Nostradamus verbindet Sie mit dem Nostr-Netzwerk, ohne mvmOS zu verlassen. Verwalten Sie Ihre Relays, lesen Sie Ihren Feed und veröffentlichen Sie Notizen und Antworten mit einem privaten Schlüssel, der Ihren Browser niemals unverschlüsselt verlässt.\n\nIhre Nostr-Identität (nsec) wird auf dieselbe Weise geschützt wie Ihr Tresor in mvmPasswords: Aus einem Masterpasswort wird lokal ein AES-256-GCM-Schlüssel abgeleitet, und der Server speichert ausschließlich einen nicht einsehbaren verschlüsselten Datenblock zusammen mit einem nicht geheimen Salt. Dadurch lässt sich dieselbe Identität nahtlos auf dem Desktop und auf Mobilgeräten verwenden, ohne auf eine Browsererweiterung angewiesen zu sein, die mobile Browser nicht unterstützen.\n\nNostradamus ist auch als öffentliche Seite verfügbar. So kann jeder Inhaber eines Apps Hub-Kontos unabhängig vom mvmOS-Desktop über seinen eigenen verschlüsselten Tresor auf Nostr lesen und veröffentlichen.\n\nSpeichern Sie mehrere verschlüsselte Nostr-Identitäten in demselben Konto und wechseln Sie zwischen ihnen, ohne eine aktive Sitzung zu verlieren. Wenn die DeepL-Integration von Premium aktiviert ist, erhält jeder Beitrag eine Schaltfläche „Übersetzen“ für Ihre bevorzugte Sprache. Auch der Beitragseditor erhält eine eigene Schaltfläche „Übersetzen“, um einen Entwurf vor der Veröffentlichung in einer anderen Sprache zu prüfen. Beide verwenden Ihren eigenen DeepL Translator-Schlüssel, niemals einen serverweit gemeinsam genutzten Schlüssel. Der Schwerpunkt liegt weiterhin auf den Grundlagen: Relay-Verwaltung, Profileinstellungen, einem Feed sowie dem Veröffentlichen von Notizen und Antworten. Folgen, Reaktionen und Zaps sind für künftige Versionen geplant.\n\nBeiträge, Personen und Vorschauen\nÖffnen Sie Bilder in einer Vorschau innerhalb der App, nutzen Sie Menüs zum Weiterveröffentlichen und Zitieren, bearbeiten Sie eine Notiz durch das Veröffentlichen eines Ersatzes oder fordern Sie die Löschung Ihrer eigenen Notiz an. Relays können das ursprüngliche Ereignis weiterhin speichern. Schalten Sie Personen über eine Nostr-Stummschaltungsliste stumm oder heben Sie die Stummschaltung auf, wobei vorhandene Tags und verschlüsselte Inhalte erhalten bleiben. Der Feed „Gefolgt“ zeigt Personen, denen Sie folgen, während Ihre eigenen Beiträge in Ihrem Profil zu finden sind. Benachrichtigungszeilen heben neue Aktivitäten hervor und zeigen den zugehörigen Beitrag. Bei der Suche nach Kontakten und Profilen werden auch Indexer-Relays abgefragt, und ein langsames Relay hält nicht mehr eine ganze Liste im Zustand „Wird geladen“ fest.\n\nOptionaler KI-Assistent\nWenn die KI-Funktion von Premium aktiviert ist, können Sie sich einen Beitrag erklären lassen, eine Frage dazu stellen oder einen Kommentar entwerfen lassen. Prüfen und bearbeiten Sie einen vorgeschlagenen Kommentar, bevor Sie ihn veröffentlichen. Sprache und Stil der Kommentare werden für jedes Profil separat festgelegt. Erklärungen und Fragen bleiben in einem schreibgeschützten Verlauf erhalten und können über „Diskussion starten“ in eine gespeicherte mvmAI-Unterhaltung übernommen werden; Kommentarentwürfe werden in diesem Verlauf nicht gespeichert. Dafür müssen mvmAI und dessen App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Die App-API ist standardmäßig deaktiviert. Der Administrator kann für jede beantwortete Nachricht einen Preis in Credits festlegen.",
+      "capabilities": [
+        "Ihre Relay-Liste mit Lese- und Schreibsteuerung pro Relay und Verbindungsstatus in Echtzeit verwalten",
+        "Ihr Nostr-Profil anzeigen und bearbeiten (Anzeigename, Beschreibung, Bild)",
+        "Einen Feed mit Notizen der Personen lesen, denen Sie folgen, relayübergreifend zusammengeführt und ohne Duplikate",
+        "Notizen direkt auf Ihren Schreib-Relays veröffentlichen",
+        "Auf Notizen mit korrekter Thread-Zuordnung antworten (NIP-10)",
+        "Anderen Nostr-Konten folgen und ihnen entfolgen",
+        "Ende-zu-Ende-verschlüsselter Schlüsseltresor — Ihr privater Schlüssel wird im Browser verschlüsselt, bevor er den Server erreicht",
+        "Mehrere verschlüsselte Nostr-Identitäten pro Apps Hub-Profil speichern und zwischen ihren jeweils zwischengespeicherten Entsperrsitzungen wechseln.",
+        "Funktioniert auf dem mvmOS-Desktop und auf einer öffentlichen Seite für jedes Apps Hub-Konto identisch",
+        "Premium: DeepL-Schaltfläche zum Übersetzen mit einem Klick unter jedem Beitrag sowie eine Schaltfläche zum Übersetzen vor der Veröffentlichung im Beitragseditor, beide mit Ihrem eigenen DeepL-API-Schlüssel",
+        "Aktuelle Notizen entdecken, beliebte Beiträge durchstöbern und Nostr-Profile nach Namen, npub oder NIP-05-Adresse suchen.",
+        "Open Graph-Linkvorschauen und direkt eingebettete Bilder, Videos und Audiodateien, einschließlich einer Vorschau beim Verfassen eines Beitrags.",
+        "Bildvorschau innerhalb der App und kombinierte Menüs zum Weiterveröffentlichen und Zitieren.",
+        "Eigene Notizen bearbeiten, indem Sie einen Ersatz veröffentlichen und die Löschung des alten Ereignisses anfordern.",
+        "Personen stummschalten und die Stummschaltung aufheben, während der Rest der Nostr-Stummschaltungsliste erhalten bleibt.",
+        "Hervorhebung neuer Benachrichtigungen mit dem Kontext des zugehörigen Beitrags.",
+        "Verbessertes Laden von Profilen, Kontaktlisten und Feeds über mehrere Relays hinweg.",
+        "Optionale Premium-Funktionen für Beitragserklärungen, Fragen, überprüfbare Kommentarentwürfe und die Fortsetzung in mvmAI."
+      ],
+      "integrations": [
+        {
+          "summary": "Die Schaltfläche „Übersetzen“ in Beiträgen und im Beitragseditor sendet Text an die kostenlose App DeepL Translator und verwendet dabei den DeepL-API-Schlüssel, den jeder Nutzer dort selbst eingetragen hat — niemals einen Schlüssel, der auf dem gesamten Server gemeinsam genutzt wird. Wird die Integration deaktiviert, werden beide Schaltflächen entfernt; der Client funktioniert wie zuvor.",
+          "requires": "Premium und die kostenlose App DeepL Translator mit einem eigenen DeepL-API-Schlüssel für jeden Nutzer."
+        },
+        {
+          "summary": "Der optionale Premium-Assistent fordert von mvmAI Erklärungen zu Beiträgen, Antworten und Kommentarentwürfe an und kann eine gespeicherte Diskussion für dasselbe Profil starten.",
+          "requires": "mvmAI muss installiert sein, ein nutzbarer KI-Anbieter muss verfügbar sein und die App-API muss unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Die App-API ist standardmäßig deaktiviert. Die Premium-KI-Funktion von Nostradamus muss vom Administrator aktiviert werden."
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "es": {
+      "short_description": "Un cliente de Nostr: gestiona tus relés, lee tu feed y publica notas y respuestas desde una bóveda de claves cifrada de extremo a extremo.",
+      "tagline": "Un cliente de Nostr integrado en tu escritorio, con una bóveda de claves cifrada y una página pública para tu perfil de Apps Hub.",
+      "description": "Nostradamus te conecta a la red Nostr sin salir de mvmOS. Gestiona tus relés, lee tu feed y publica notas y respuestas con una clave privada que nunca sale de tu navegador sin cifrar.\n\nTu identidad de Nostr (nsec) está protegida del mismo modo que mvmPasswords protege tu bóveda: una contraseña maestra deriva una clave AES-256-GCM localmente, y el servidor solo almacena un bloque de datos cifrado y opaco junto con una sal no secreta. Así, la misma identidad funciona sin problemas en ordenadores y móviles, sin depender de una extensión que los navegadores móviles no admiten.\n\nNostradamus también funciona como página pública, de modo que cualquier titular de una cuenta de Apps Hub puede leer y publicar en Nostr a través de su propia bóveda cifrada, independientemente del escritorio de mvmOS.\n\nGuarda más de una identidad de Nostr cifrada en la misma cuenta y cambia entre ellas sin perder una sesión activa. Con la integración Premium de DeepL activada, cada publicación incluye un botón Traducir al idioma que prefieras, y el editor dispone de su propio botón Traducir para revisar un borrador en otro idioma antes de publicarlo; ambos utilizan tu propia clave de DeepL Translator, nunca una clave compartida por todo el servidor. La aplicación sigue centrándose en lo esencial: gestión de relés, ajustes del perfil, un feed y publicación de notas y respuestas. El seguimiento de cuentas, las reacciones y los zaps están previstos para futuras versiones.\n\nPublicaciones, personas y vistas previas\nAbre imágenes en una vista previa dentro de la aplicación, utiliza los menús para republicar y citar, edita una nota publicando una versión que la sustituya o solicita la eliminación de una nota propia. Los relés pueden conservar el evento original. Silencia o deja de silenciar a personas mediante una lista de silenciamiento de Nostr que conserva las etiquetas existentes y el contenido cifrado. El feed Siguiendo muestra a las personas que sigues, mientras que tus propias publicaciones están en tu perfil. Las filas de notificaciones destacan la actividad nueva y muestran la publicación correspondiente. Las búsquedas de contactos y perfiles también consultan los relés de indexación, y un relé lento ya no deja una lista entera en el estado Cargando.\n\nAsistente de IA opcional\nCon la función de IA Premium activada, solicita una explicación, haz una pregunta o pide un borrador de comentario sobre una publicación. Revisa y edita el comentario sugerido antes de publicarlo. El idioma y el estilo de los comentarios se configuran para cada perfil. Las explicaciones y las preguntas permanecen en un historial de solo lectura y se pueden trasladar a una conversación guardada de mvmAI mediante Iniciar una conversación; los borradores de comentarios no se conservan en ese historial. Esto requiere mvmAI y que su API de aplicación esté activada en Apps Hub → Ajustes → API de aplicaciones, donde está desactivada de forma predeterminada. El administrador puede establecer un precio en créditos por cada mensaje respondido.",
+      "capabilities": [
+        "Gestiona tu lista de relés con control de lectura y escritura por relé y estado de conexión en tiempo real",
+        "Consulta y edita tu perfil de Nostr (nombre para mostrar, información personal, imagen)",
+        "Lee un feed de notas de las personas que sigues, combinadas entre relés y sin duplicados",
+        "Publica notas directamente en tus relés de escritura",
+        "Responde a las notas con una estructura de hilos correcta (NIP-10)",
+        "Sigue y deja de seguir otras cuentas de Nostr",
+        "Bóveda de claves cifrada de extremo a extremo: tu clave privada se cifra en el navegador antes de llegar al servidor",
+        "Guarda varias identidades de Nostr cifradas por perfil de Apps Hub y cambia entre sus respectivas sesiones de desbloqueo almacenadas en caché.",
+        "Funciona de la misma manera en el escritorio de mvmOS y en una página pública para cualquier cuenta de Apps Hub",
+        "Premium: botón de traducción con DeepL en un clic debajo de cada publicación y botón para traducir antes de publicar en el editor, ambos con tu propia clave API de DeepL",
+        "Descubre notas recientes, explora publicaciones populares y busca perfiles de Nostr por nombre, npub o dirección NIP-05.",
+        "Vistas previas de enlaces con Open Graph y contenido de imagen, vídeo y audio integrado, incluida una vista previa mientras redactas una publicación.",
+        "Vista previa de imágenes dentro de la aplicación y menús combinados para republicar y citar.",
+        "Edita tus propias notas publicando una versión que las sustituya y solicitando la eliminación del evento anterior.",
+        "Silencia y deja de silenciar a personas conservando el resto de la lista de silenciamiento de Nostr.",
+        "Notificaciones nuevas destacadas y contexto de la publicación relacionada.",
+        "Carga mejorada de perfiles, listas de contactos y feeds entre relés.",
+        "Explicaciones de publicaciones, preguntas, borradores de comentarios sujetos a revisión y continuación en mvmAI, disponibles de forma opcional con Premium."
+      ],
+      "integrations": [
+        {
+          "summary": "El botón Traducir de las publicaciones y del editor envía el texto a la aplicación gratuita DeepL Translator utilizando la clave API de DeepL que cada usuario ha introducido allí personalmente, nunca una clave compartida por todo el servidor. Al desactivar la integración, desaparecen ambos botones; el cliente funciona exactamente igual que antes.",
+          "requires": "Premium y la aplicación gratuita DeepL Translator con la clave API de DeepL propia de cada usuario."
+        },
+        {
+          "summary": "El asistente opcional de Premium solicita a mvmAI explicaciones de publicaciones, respuestas y borradores de comentarios, y puede iniciar una conversación guardada para el mismo perfil.",
+          "requires": "mvmAI instalado, un proveedor de IA disponible para su uso y su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. La API de aplicación está desactivada de forma predeterminada. El administrador debe activar la función de IA Premium de Nostradamus."
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "fr": {
+      "short_description": "Un client Nostr : gérez vos relais, consultez votre fil et publiez des notes et des réponses depuis un coffre-fort de clés chiffré de bout en bout.",
+      "tagline": "Un client Nostr intégré à votre bureau, avec un coffre-fort de clés chiffré et une page publique pour votre profil Apps Hub.",
+      "description": "Nostradamus vous connecte au réseau Nostr sans quitter mvmOS. Gérez vos relais, consultez votre fil et publiez des notes et des réponses à l’aide d’une clé privée qui ne quitte jamais votre navigateur sans être chiffrée.\n\nVotre identité Nostr (nsec) est protégée de la même manière que votre coffre-fort dans mvmPasswords : un mot de passe principal sert à dériver localement une clé AES-256-GCM, et le serveur ne stocke qu’un bloc de données chiffrées opaque accompagné d’un sel non secret. La même identité fonctionne ainsi de manière fluide sur ordinateur et sur mobile, sans dépendre d’une extension de navigateur non prise en charge par les navigateurs mobiles.\n\nNostradamus fonctionne également sous forme de page publique : tout titulaire d’un compte Apps Hub peut donc consulter Nostr et y publier à l’aide de son propre coffre-fort chiffré, indépendamment du bureau mvmOS.\n\nConservez plusieurs identités Nostr chiffrées dans un même compte et passez de l’une à l’autre sans perdre de session active. Lorsque l’intégration DeepL de Premium est activée, chaque publication dispose d’un bouton Traduire vers la langue de votre choix, et l’éditeur dispose de son propre bouton Traduire pour vérifier un brouillon dans une autre langue avant de le publier. Ces deux fonctions utilisent votre propre clé Traducteur DeepL, jamais une clé partagée sur le serveur. L’application reste centrée sur l’essentiel : gestion des relais, paramètres du profil, fil et publication de notes et de réponses. Les abonnements, les réactions et les zaps sont prévus pour de futures versions.\n\nPublications, personnes et aperçus\nOuvrez les images dans un aperçu intégré à l’application, utilisez les menus de republication et de citation, modifiez une note en publiant une version de remplacement ou demandez la suppression de l’une de vos notes. Les relais peuvent conserver l’événement d’origine. Masquez ou réaffichez des personnes à l’aide d’une liste de masquage Nostr qui préserve les balises existantes et le contenu chiffré. Le fil Abonnements affiche les personnes que vous suivez, tandis que vos propres publications figurent sur votre profil. Les lignes de notification mettent en évidence les nouvelles activités et affichent la publication concernée. Les recherches de contacts et de profils interrogent également les relais d’indexation, et un relais lent ne bloque plus toute une liste sur Chargement.\n\nAssistant IA facultatif\nLorsque la fonction IA de Premium est activée, demandez une explication, posez une question ou préparez un commentaire sur une publication. Relisez et modifiez le commentaire proposé avant de le publier. La langue et le style des commentaires sont propres à chaque profil. Les explications et les questions restent dans un historique en lecture seule et peuvent être reprises dans une conversation mvmAI enregistrée via Démarrer une discussion ; les brouillons de commentaires ne sont pas conservés dans cet historique. Cette fonction nécessite mvmAI et l’activation de son API d’application dans Apps Hub → Paramètres → API des applications, désactivée par défaut. L’administrateur peut définir un coût en crédits pour chaque message ayant reçu une réponse.",
+      "capabilities": [
+        "Gérez votre liste de relais avec un contrôle de lecture et d’écriture par relais et un état de connexion en direct",
+        "Consultez et modifiez votre profil Nostr (nom affiché, présentation, photo)",
+        "Consultez un fil de notes des personnes que vous suivez, fusionnées et dédupliquées entre les relais",
+        "Publiez des notes directement sur vos relais d’écriture",
+        "Répondez aux notes en respectant la structure des fils de discussion (NIP-10)",
+        "Abonnez-vous à d’autres comptes Nostr et désabonnez-vous",
+        "Coffre-fort de clés chiffré de bout en bout — votre clé privée est chiffrée dans le navigateur avant même d’atteindre le serveur",
+        "Conservez plusieurs identités Nostr chiffrées par profil Apps Hub et passez de l’une à l’autre en utilisant leurs sessions de déverrouillage respectives mises en cache.",
+        "Fonctionne de manière identique sur le bureau mvmOS et sur une page publique pour tout compte Apps Hub",
+        "Premium : bouton de traduction DeepL en un clic sous chaque publication et bouton de traduction avant publication dans l’éditeur, tous deux utilisant votre propre clé API DeepL",
+        "Découvrez les notes récentes, parcourez les publications populaires et recherchez des profils Nostr par nom, npub ou adresse NIP-05.",
+        "Aperçus de liens Open Graph et intégration d’images, de vidéos et de fichiers audio directement dans les publications, avec aperçu pendant la rédaction.",
+        "Aperçu des images dans l’application et menus combinés de republication et de citation.",
+        "Modifiez vos propres notes en publiant une version de remplacement et en demandant la suppression de l’ancien événement.",
+        "Masquez et réaffichez des personnes tout en conservant le reste de la liste de masquage Nostr.",
+        "Mise en évidence des nouvelles notifications et contexte de la publication concernée.",
+        "Chargement amélioré des profils, des listes de contacts et du fil à partir des différents relais.",
+        "Avec Premium, explications de publications, questions, brouillons de commentaires à relire et poursuite dans mvmAI, en option."
+      ],
+      "integrations": [
+        {
+          "summary": "Le bouton Traduire des publications et de l’éditeur envoie le texte à l’application gratuite Traducteur DeepL, avec la clé API DeepL que chaque utilisateur y a saisie lui-même — jamais une clé partagée sur l’ensemble du serveur. La désactivation de l’intégration supprime les deux boutons ; le client fonctionne exactement comme auparavant.",
+          "requires": "Premium et l’application gratuite Traducteur DeepL avec la clé API DeepL propre à chaque utilisateur."
+        },
+        {
+          "summary": "L’assistant facultatif de Premium sollicite mvmAI pour obtenir des explications de publications, des réponses et des brouillons de commentaires, et peut démarrer une discussion enregistrée pour le même profil.",
+          "requires": "mvmAI installé, un fournisseur d’IA utilisable et son API d’application activée dans Apps Hub → Paramètres → API des applications. L’API d’application est désactivée par défaut. La fonction IA de Premium de Nostradamus doit être activée par l’administrateur."
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "ja": {
+      "short_description": "Nostrクライアント。リレーの管理、フィードの閲覧、エンドツーエンド暗号化された鍵保管庫を使ったノートや返信の投稿ができます。",
+      "tagline": "暗号化された鍵保管庫と、Apps Hubプロフィール用の公開ページを備えた、デスクトップ内蔵のNostrクライアント。",
+      "description": "Nostradamusを使えば、mvmOSを離れることなくNostrネットワークに接続できます。リレーの管理、フィードの閲覧、ノートや返信の投稿が可能で、秘密鍵が暗号化されずにブラウザーの外へ送られることはありません。\n\nNostrのID（nsec）は、mvmPasswordsの保管庫と同じ方式で保護されます。マスターパスワードからローカルでAES-256-GCM鍵を導出し、サーバーには中身を読み取れない暗号化データと、秘密情報ではないソルトだけを保存します。そのため、モバイルブラウザーで対応していないブラウザー拡張機能に頼ることなく、デスクトップとモバイルで同じIDをスムーズに使えます。\n\nNostradamusは公開ページとしても動作するため、Apps Hubアカウントを持つ人なら誰でも、mvmOSデスクトップとは独立して、自分専用の暗号化された保管庫からNostrを閲覧・投稿できます。\n\n1つのアカウントに複数の暗号化されたNostr IDを保存し、有効なセッションを維持したまま切り替えられます。PremiumのDeepL連携を有効にすると、各投稿に希望する言語への「翻訳」ボタンが表示されます。投稿エディターにも「翻訳」ボタンが追加され、公開前に下書きを別の言語で確認できます。どちらも各ユーザー自身のDeepL Translatorキーを使用し、サーバー共通のキーは使いません。現在も、リレー管理、プロフィール設定、フィード、ノートや返信の投稿という基本機能に重点を置いています。フォロー、リアクション、zapは今後のリリースで対応予定です。\n\n投稿、ユーザー、プレビュー\n画像をアプリ内プレビューで開く、リポストや引用のメニューを使う、置き換え用の投稿を公開してノートを編集する、自分のノートの削除をリクエストするといった操作ができます。元のイベントがリレーに残る場合があります。既存のタグと暗号化された内容を保持するNostrミュートリストを使い、ユーザーをミュートしたり解除したりできます。「フォロー中」フィードにはフォローしているユーザーが表示され、自分の投稿はプロフィールに表示されます。通知の各行では新しいアクティビティが強調表示され、関連する投稿も確認できます。連絡先やプロフィールの検索ではインデクサーリレーにも問い合わせ、応答の遅いリレーが原因でリスト全体が読み込み中のままになることもなくなりました。\n\nオプションのAIアシスタント\nPremiumのAI機能を有効にすると、投稿の解説、1つの質問への回答、コメントの下書きを依頼できます。提案されたコメントは、公開前に確認・編集できます。コメントの言語と文体はプロフィールごとに設定します。解説と質問は読み取り専用の履歴に残り、「ディスカッションを開始」から保存済みのmvmAI会話へ引き継げます。コメントの下書きは、この履歴には保存されません。利用にはmvmAIが必要で、Apps Hub → 設定 → アプリAPIでそのアプリAPIを有効にする必要があります。この設定は初期状態では無効です。管理者は、回答されたメッセージごとにクレジット料金を設定できます。",
+      "capabilities": [
+        "リレーごとの読み取り・書き込み制御と、リアルタイムの接続状態表示を備えたリレーリスト管理",
+        "Nostrプロフィール（表示名、自己紹介、画像）の表示と編集",
+        "フォローしているユーザーのノートを、複数のリレーから統合し、重複を除いてフィードに表示",
+        "書き込み用リレーへのノートの直接投稿",
+        "適切なスレッド構造（NIP-10）でのノートへの返信",
+        "ほかのNostrアカウントのフォローと解除",
+        "エンドツーエンド暗号化された鍵保管庫 — 秘密鍵はサーバーに送られる前にブラウザー内で暗号化されます",
+        "Apps Hubプロフィールごとに複数の暗号化されたNostr IDを保持し、各IDでキャッシュされたロック解除セッションを切り替えられます。",
+        "mvmOSデスクトップでも、すべてのApps Hubアカウント向けの公開ページでも同じように動作",
+        "Premium：各投稿の下にあるワンクリックのDeepL翻訳ボタンと、投稿エディターにある公開前の翻訳ボタン。どちらも自分専用のDeepL APIキーを使用",
+        "最近のノートの発見、人気の投稿の閲覧、名前・npub・NIP-05アドレスによるNostrプロフィールの検索。",
+        "Open Graphリンクプレビューと、画像・動画・音声のインライン埋め込み。投稿の作成中もプレビューできます。",
+        "アプリ内の画像プレビューと、リポスト・引用をまとめたメニュー。",
+        "置き換え用の投稿を公開し、古いイベントの削除をリクエストすることで、自分のノートを編集できます。",
+        "Nostrミュートリストのほかの内容を保持したまま、ユーザーをミュート・解除できます。",
+        "新しい通知の強調表示と、関連する投稿の表示。",
+        "複数リレーにまたがるプロフィール、連絡先リスト、フィードの読み込みを改善。",
+        "オプションのPremium機能として、投稿の解説、質問、確認してから公開できるコメント下書き、mvmAIでの会話の継続に対応。"
+      ],
+      "integrations": [
+        {
+          "summary": "投稿と投稿エディターの「翻訳」ボタンは、無料のDeepL Translatorアプリにテキストを送信します。各ユーザーがそのアプリに自分で登録したDeepL APIキーを使用し、サーバー全体で共有するキーは使いません。連携を無効にすると両方のボタンが消え、クライアントは従来どおり動作します。",
+          "requires": "Premiumと、各ユーザー自身のDeepL APIキーを設定した無料のDeepL Translatorアプリ。"
+        },
+        {
+          "summary": "オプションのPremiumアシスタントは、投稿の解説、回答、コメントの下書きをmvmAIに依頼し、同じプロフィールで保存されるディスカッションを開始できます。",
+          "requires": "mvmAIがインストールされ、利用可能なAIプロバイダーが設定されており、Apps Hub → 設定 → アプリAPIでそのアプリAPIが有効になっている必要があります。アプリAPIは初期状態では無効です。NostradamusのPremium AI機能は、管理者が有効にする必要があります。"
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "pt-BR": {
+      "short_description": "Um cliente Nostr: gerencie seus relays, leia seu feed e publique notas e respostas a partir de um cofre de chaves com criptografia de ponta a ponta.",
+      "tagline": "Um cliente Nostr integrado à sua área de trabalho, com um cofre de chaves criptografado e uma página pública para seu perfil do Apps Hub.",
+      "description": "Nostradamus conecta você à rede Nostr sem sair do mvmOS. Gerencie seus relays, leia seu feed e publique notas e respostas usando uma chave privada que nunca sai do seu navegador sem criptografia.\n\nSua identidade Nostr (nsec) é protegida da mesma forma que o mvmPasswords protege seu cofre: uma senha mestra deriva localmente uma chave AES-256-GCM, e o servidor armazena apenas um bloco de dados criptografado e opaco, além de um salt não secreto. Isso permite que a mesma identidade funcione perfeitamente no computador e no celular, sem depender de uma extensão que os navegadores móveis não suportam.\n\nNostradamus também funciona como uma página pública, para que qualquer pessoa com uma conta do Apps Hub possa ler e publicar no Nostr por meio do seu próprio cofre criptografado, independentemente da área de trabalho do mvmOS.\n\nMantenha mais de uma identidade Nostr criptografada na mesma conta e alterne entre elas sem perder uma sessão ativa. Com a integração Premium com o DeepL ativada, cada publicação recebe um botão Traduzir para o idioma que você preferir, e o editor de publicações recebe seu próprio botão Traduzir para conferir um rascunho em outro idioma antes de publicá-lo — ambos usam sua própria chave do DeepL Translator, nunca uma chave compartilhada por todo o servidor. O foco continua nos recursos essenciais: gerenciamento de relays, configurações de perfil, um feed e publicação de notas e respostas. A opção de seguir pessoas, as reações e os zaps estão planejados para versões futuras.\n\nPublicações, pessoas e prévias\nAbra imagens em uma prévia dentro do aplicativo, use os menus de republicação e citação, edite uma nota publicando uma substituta ou solicite a exclusão de uma nota sua. Os relays podem manter o evento original. Silencie pessoas ou remova o silenciamento usando uma lista de silenciamento do Nostr que preserva as tags existentes e o conteúdo criptografado. O feed Seguindo mostra as pessoas seguidas, enquanto suas próprias publicações ficam no seu perfil. As linhas de notificações destacam novas atividades e mostram a publicação relacionada. As buscas de contatos e perfis também consultam relays indexadores, e um relay lento não deixa mais uma lista inteira no estado Carregando.\n\nAssistente de IA opcional\nCom o recurso Premium de IA ativado, peça uma explicação, faça uma pergunta ou crie um rascunho de comentário sobre uma publicação. Revise e edite um comentário sugerido antes de publicá-lo. O idioma e o estilo dos comentários são definidos por perfil. As explicações e perguntas permanecem em um histórico somente leitura e podem ser levadas para uma conversa salva do mvmAI por meio de Iniciar uma discussão; os rascunhos de comentários não são mantidos nesse histórico. Isso requer o mvmAI e sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos, que fica desativada por padrão. O administrador pode definir um preço em créditos para cada mensagem respondida.",
+      "capabilities": [
+        "Gerencie sua lista de relays com controle de leitura e gravação por relay e status de conexão em tempo real",
+        "Visualize e edite seu perfil Nostr (nome de exibição, descrição, foto)",
+        "Leia um feed de notas das pessoas que você segue, reunidas de vários relays e sem duplicatas",
+        "Publique notas diretamente nos seus relays de gravação",
+        "Responda a notas com o encadeamento correto (NIP-10)",
+        "Siga e deixe de seguir outras contas Nostr",
+        "Cofre de chaves com criptografia de ponta a ponta — sua chave privada é criptografada no navegador antes de chegar ao servidor",
+        "Mantenha várias identidades Nostr criptografadas por perfil do Apps Hub e alterne entre suas respectivas sessões de desbloqueio em cache.",
+        "Funciona da mesma forma na área de trabalho do mvmOS e em uma página pública para qualquer conta do Apps Hub",
+        "Premium: botão de tradução com um clique pelo DeepL em cada publicação e um botão para traduzir antes de publicar no editor, ambos usando sua própria chave de API do DeepL",
+        "Descubra notas recentes, navegue por publicações populares e pesquise perfis Nostr por nome, npub ou endereço NIP-05.",
+        "Prévias de links com Open Graph e imagens, vídeos e áudios incorporados, incluindo uma prévia durante a criação de uma publicação.",
+        "Prévia de imagens dentro do aplicativo e menus combinados de republicação e citação.",
+        "Edite suas próprias notas publicando uma substituta e solicitando a exclusão do evento antigo.",
+        "Silencie pessoas e remova o silenciamento preservando o restante da lista de silenciamento do Nostr.",
+        "Destaques para novas notificações e contexto da publicação relacionada.",
+        "Carregamento aprimorado de perfis, listas de contatos e feeds entre relays.",
+        "Recursos Premium opcionais de explicações de publicações, perguntas, rascunhos de comentários sujeitos a revisão e continuação no mvmAI."
+      ],
+      "integrations": [
+        {
+          "summary": "O botão Traduzir nas publicações e no editor envia o texto para o aplicativo gratuito DeepL Translator, usando a chave de API do DeepL que cada usuário inseriu por conta própria nesse aplicativo — nunca uma chave compartilhada por todo o servidor. Desativar a integração remove os dois botões; o cliente continua funcionando exatamente como antes.",
+          "requires": "Premium e o aplicativo gratuito DeepL Translator com a chave de API do DeepL de cada usuário."
+        },
+        {
+          "summary": "O assistente Premium opcional solicita ao mvmAI explicações de publicações, respostas e rascunhos de comentários e pode iniciar uma discussão salva para o mesmo perfil.",
+          "requires": "mvmAI instalado, um provedor de IA disponível para uso e sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos. A API de aplicativo fica desativada por padrão. O recurso Premium de IA do Nostradamus deve ser ativado pelo administrador."
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "ru": {
+      "short_description": "Клиент Nostr: управляйте ретрансляторами, читайте ленту и публикуйте заметки и ответы, используя хранилище ключей со сквозным шифрованием.",
+      "tagline": "Клиент Nostr, встроенный в рабочий стол, с зашифрованным хранилищем ключей и публичной страницей вашего профиля Apps Hub.",
+      "description": "Nostradamus подключает вас к сети Nostr прямо из mvmOS. Управляйте ретрансляторами, читайте ленту и публикуйте заметки и ответы с помощью закрытого ключа, который никогда не покидает браузер в незашифрованном виде.\n\nВаша идентичность Nostr (nsec) защищена так же, как хранилище в mvmPasswords: ключ AES-256-GCM выводится из мастер-пароля локально, а на сервере хранится только непрозрачный зашифрованный блок данных и несекретная соль. Благодаря этому одна и та же идентичность одинаково удобно работает на компьютере и мобильном устройстве без расширения, которое мобильные браузеры не поддерживают.\n\nNostradamus также работает как публичная страница, поэтому любой владелец учётной записи Apps Hub может читать и публиковать сообщения в Nostr через собственное зашифрованное хранилище независимо от рабочего стола mvmOS.\n\nХраните несколько зашифрованных идентичностей Nostr в одной учётной записи и переключайтесь между ними без потери активного сеанса. При включённой интеграции Premium с DeepL у каждой публикации появляется кнопка «Перевести» для перевода на предпочитаемый язык, а в редакторе — отдельная кнопка «Перевести», позволяющая проверить черновик на другом языке перед публикацией. Обе функции используют ваш собственный ключ DeepL Translator, а не общий ключ сервера. Приложение по-прежнему сосредоточено на основных возможностях: управлении ретрансляторами, настройках профиля, ленте, публикации заметок и ответов. Подписки, реакции и zaps запланированы для будущих выпусков.\n\nПубликации, пользователи и предпросмотр\nОткрывайте изображения во встроенном просмотрщике, пользуйтесь меню репоста и цитирования, редактируйте заметку, публикуя её новую версию, или запрашивайте удаление собственной заметки. Ретрансляторы могут сохранить исходное событие. Скрывайте пользователей и отменяйте скрытие через список скрытых пользователей Nostr с сохранением существующих тегов и зашифрованного содержимого. Лента «Подписки» показывает публикации пользователей, на которых вы подписаны, а ваши собственные публикации находятся в профиле. В строках уведомлений выделяется новая активность и показывается связанная с ней публикация. При поиске контактов и профилей запросы также отправляются ретрансляторам-индексаторам, а медленный ретранслятор больше не заставляет весь список оставаться в состоянии «Загрузка».\n\nДополнительный ИИ-помощник\nЕсли включена функция ИИ в Premium, можно попросить объяснить публикацию, задать один вопрос или подготовить комментарий к ней. Перед публикацией предложенный комментарий можно проверить и отредактировать. Язык и стиль комментариев настраиваются отдельно для каждого профиля. Объяснения и вопросы остаются в истории, доступной только для чтения, и их можно перенести в сохранённый диалог mvmAI через действие «Начать обсуждение»; черновики комментариев в этой истории не сохраняются. Для работы необходимы mvmAI и его API приложения, включённый в Apps Hub → Настройки → API приложений. По умолчанию он отключён. Администратор может установить стоимость каждого полученного ответа в кредитах.",
+      "capabilities": [
+        "Управление списком ретрансляторов с отдельными правами чтения и записи для каждого и отображением состояния подключения в реальном времени",
+        "Просмотр и редактирование профиля Nostr: отображаемого имени, описания и изображения",
+        "Чтение ленты заметок пользователей, на которых вы подписаны, с объединением данных ретрансляторов и удалением дубликатов",
+        "Публикация заметок напрямую на ретрансляторы, для которых разрешена запись",
+        "Ответы на заметки с корректным построением веток обсуждения (NIP-10)",
+        "Подписка на другие учётные записи Nostr и отмена подписки",
+        "Хранилище ключей со сквозным шифрованием — закрытый ключ шифруется в браузере ещё до отправки на сервер",
+        "Хранение нескольких зашифрованных идентичностей Nostr в одном профиле Apps Hub и переключение между их отдельными кэшированными сеансами разблокировки.",
+        "Одинаковая работа на рабочем столе mvmOS и на публичной странице для любой учётной записи Apps Hub",
+        "Premium: перевод через DeepL одним нажатием под каждой публикацией и кнопка перевода черновика перед публикацией в редакторе. Обе функции используют ваш собственный API-ключ DeepL",
+        "Просмотр свежих заметок и популярных публикаций, поиск профилей Nostr по имени, npub или адресу NIP-05.",
+        "Предпросмотр ссылок Open Graph и встроенные изображения, видео и аудио, включая предпросмотр при создании публикации.",
+        "Просмотр изображений внутри приложения и объединённые меню репоста и цитирования.",
+        "Редактирование собственных заметок путём публикации новой версии и запроса на удаление старого события.",
+        "Скрытие пользователей и отмена скрытия с сохранением остального содержимого списка скрытых пользователей Nostr.",
+        "Выделение новых уведомлений и отображение связанной публикации.",
+        "Улучшенная загрузка профилей, списков контактов и ленты с разных ретрансляторов.",
+        "Дополнительные возможности Premium: объяснения публикаций, ответы на вопросы и черновики комментариев от ИИ с проверкой перед публикацией, а также продолжение обсуждения в mvmAI."
+      ],
+      "integrations": [
+        {
+          "summary": "Кнопка «Перевести» под публикациями и в редакторе отправляет текст в бесплатное приложение DeepL Translator, используя API-ключ DeepL, который каждый пользователь самостоятельно указал в нём, а не общий ключ сервера. При отключении интеграции обе кнопки исчезают; клиент продолжает работать как прежде.",
+          "requires": "Premium и бесплатное приложение DeepL Translator с собственным API-ключом DeepL у каждого пользователя."
+        },
+        {
+          "summary": "Дополнительный помощник Premium обращается к mvmAI за объяснениями публикаций, ответами и черновиками комментариев, а также может начать сохраняемое обсуждение для того же профиля.",
+          "requires": "Установленный mvmAI, доступный для работы ИИ-провайдер и API приложения, включённый в Apps Hub → Настройки → API приложений. По умолчанию API приложения отключён. Функция ИИ в Premium для Nostradamus должна быть включена администратором."
+        }
+      ],
+      "name": "Nostradamus"
+    },
+    "zh-CN": {
+      "short_description": "一款 Nostr 客户端：管理中继服务器、阅读动态，并通过端到端加密的密钥保险库发布短帖和回复。",
+      "tagline": "内置于桌面的 Nostr 客户端，配备加密密钥保险库，并为你的 Apps Hub 个人资料提供公开页面。",
+      "description": "Nostradamus 让你无需离开 mvmOS 即可连接 Nostr 网络。管理中继服务器、阅读动态，并使用私钥发布短帖和回复；私钥离开浏览器前始终会经过加密。\n\n你的 Nostr 身份（nsec）采用与 mvmPasswords 保险库相同的保护方式：主密码在本地派生出 AES-256-GCM 密钥，服务器只存储无法直接读取的加密数据块和非保密的盐值。因此，同一个身份可以在桌面和移动设备上无缝使用，无需依赖移动浏览器不支持的浏览器扩展。\n\nNostradamus 也可作为公开页面运行，因此任何 Apps Hub 账户持有者都能通过自己的加密保险库阅读和发布 Nostr 内容，无需使用 mvmOS 桌面。\n\n在同一账户中保存多个加密的 Nostr 身份，并在它们之间切换，同时保留当前有效会话。开启 Premium 的 DeepL 集成后，每条帖子都会显示“翻译”按钮，可翻译成你偏好的语言；编辑器也会提供“翻译”按钮，方便在发布前用另一种语言检查草稿。两者均使用你自己的 DeepL Translator 密钥，绝不使用全服务器共享的密钥。目前仍以核心功能为主：中继服务器管理、个人资料设置、动态浏览，以及发布短帖和回复。关注、回应和 zaps 打赏计划在后续版本中推出。\n\n帖子、用户和预览\n在应用内预览图片，使用转发和引用菜单，通过发布替代短帖来编辑内容，或请求删除自己的短帖。中继服务器可能会保留原始事件。通过 Nostr 屏蔽列表屏蔽或取消屏蔽用户，同时保留现有标签和加密内容。“关注”动态显示你关注的用户的内容，你自己发布的帖子则显示在个人资料页中。通知条目会突出显示新动态，并展示相关帖子。查找联系人和个人资料时也会查询索引中继服务器，响应缓慢的中继服务器不会再让整个列表一直停留在“加载中”。\n\n可选 AI 助手\n启用 Premium AI 功能后，可以请 AI 解释帖子、就帖子提出一个问题，或起草评论。发布前可审阅和编辑建议的评论。每个个人资料都可以单独设置评论语言和风格。解释和问答会保留在只读历史记录中，并可通过“开始讨论”转入已保存的 mvmAI 对话；评论草稿不会保存在该历史记录中。此功能需要安装 mvmAI，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API，该开关默认关闭。管理员可以为每条已回答的消息设置积分价格。",
+      "capabilities": [
+        "管理中继服务器列表，单独控制每个中继服务器的读写权限，并查看实时连接状态",
+        "查看和编辑你的 Nostr 个人资料（显示名称、简介、头像）",
+        "阅读你关注的用户发布的短帖动态，自动合并多个中继服务器的内容并去重",
+        "直接向可写的中继服务器发布短帖",
+        "按正确的对话串结构回复短帖（NIP-10）",
+        "关注和取消关注其他 Nostr 账户",
+        "端到端加密的密钥保险库——私钥在到达服务器之前就已在浏览器中加密",
+        "每个 Apps Hub 个人资料可保存多个加密的 Nostr 身份，并在各自缓存的解锁会话之间切换。",
+        "在 mvmOS 桌面和面向任何 Apps Hub 账户的公开页面上提供相同的使用体验",
+        "Premium：每条帖子下方提供一键 DeepL 翻译按钮，编辑器中提供发布前翻译按钮，两者均使用你自己的 DeepL API 密钥",
+        "发现最新短帖、浏览热门帖子，并按名称、npub 或 NIP-05 地址搜索 Nostr 个人资料。",
+        "支持 Open Graph 链接预览，以及内嵌图片、视频和音频，也可在撰写帖子时预览。",
+        "应用内图片预览，以及整合的转发和引用菜单。",
+        "通过发布替代短帖并请求删除旧事件来编辑自己的短帖。",
+        "屏蔽和取消屏蔽用户，同时保留 Nostr 屏蔽列表中的其他内容。",
+        "突出显示新通知，并展示相关帖子的上下文。",
+        "改进跨中继服务器的个人资料、联系人列表和动态加载。",
+        "可选的 Premium 功能：解释帖子、回答问题、提供可审阅的评论草稿，以及在 mvmAI 中继续讨论。"
+      ],
+      "integrations": [
+        {
+          "summary": "帖子和编辑器中的“翻译”按钮会将文本发送至免费的 DeepL Translator 应用，使用每位用户自行在该应用中填写的 DeepL API 密钥，绝不使用整个服务器共享的密钥。关闭集成后，两个按钮都会移除，客户端的其他行为与此前完全一致。",
+          "requires": "Premium，以及免费的 DeepL Translator 应用，每位用户需提供自己的 DeepL API 密钥。"
+        },
+        {
+          "summary": "可选的 Premium 助手会向 mvmAI 请求帖子解释、问题答案和评论草稿，并可为同一个人资料发起可保存的讨论。",
+          "requires": "已安装 mvmAI，配置了可用的 AI 提供商，并在 Apps Hub → 设置 → 应用 API 中启用了其应用 API。应用 API 默认关闭。管理员必须启用 Nostradamus 的 Premium AI 功能。"
+        }
+      ],
+      "name": "Nostradamus"
+    }
+  }
 }

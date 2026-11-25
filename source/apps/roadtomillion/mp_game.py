@@ -307,7 +307,8 @@ class Game:
     def _pick_question(self):
         n = min(self.level, LEVELS)
         countries = [self._country(p) for p in self._active()] or ["US"]
-        pool = [q for q in self.bank if q["id"] not in self.used_ids]
+        pool = [q for q in self.bank if q["id"] not in self.used_ids
+                and (self.level == 1 or int(q.get("d", 10)) != 1)]
         if not pool:
             return None
 

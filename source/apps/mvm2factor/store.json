@@ -24,5 +24,215 @@
       "summary": "Other apps can list account metadata and request encrypted secrets with their vault parameters. A browser holding the vault key computes the code locally. Encrypted code data is kept internal and is not offered to Automations, External APIs or mvmAI.",
       "requires": "The mvm2factor App API enabled in Apps Hub → Settings → App APIs, which is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Защитено с парола TOTP хранилище с тайни ключове, шифровани в браузъра ви, локално генерирани шестцифрени кодове и автоматично попълване в браузъра по избор.",
+      "tagline": "Вашите 2FA кодове на устройството, в което вече сте влезли.",
+      "description": "mvm2factor е приложение за TOTP удостоверяване. Добавете акаунт с тайния ключ във формат Base32, предоставен от услугата, и приложението ще покаже шестцифрения код с пръстен, който отброява тридесетте секунди до следващия.\n\nПрозорецът на работния плот и незадължителната публична страница използват една и съща самоличност в Apps Hub, така че всеки профил в Apps Hub има собствено лично хранилище и вижда едни и същи акаунти на всяко устройство, на което влиза. Публичната страница остава изключена, докато администратор не я включи в Apps Hub.\n\nЗа използване в браузър mvm2factor може да генерира готово за инсталиране разширение за Chrome или Firefox от самото приложение. Разширението отваря публичното ви хранилище в компактен изскачащ прозорец, може да показва само акаунтите, съответстващи на уебсайта в активния раздел, и попълва избран еднократен код с едно щракване. Първоначалният адрес на сървъра се задава автоматично при генерирането му и може да бъде променен по-късно в настройките на разширението.\n\nКодовете се копират с едно щракване. Акаунтите могат да се сортират от най-новите към най-старите или по последно използване, така че нужният ви акаунт обикновено е най-отгоре. Тайните ключове се проверяват при добавяне, така че грешно въведен ключ се открива веднага, а не след три неуспешни опита за влизане.\n\nТайните ви ключове се шифроват в браузъра с AES-GCM и ключ, извлечен от парола, която знаете само вие. Кодовете се изчисляват локално след отключване, като нито паролата, нито дешифрованите тайни ключове се изпращат към сървъра. При първото отваряне след надграждане изберете парола, за да шифровате съществуващите си акаунти, без да ги загубите. Можете да оставите хранилището отключено за период от пет минути до една седмица или до приключване на сесията на браузъра; отварянето му подновява избрания период. Импортирането и експортирането в JSON и CSV остават достъпни след отключване, а експортираните файлове съдържат тайните ключове в четим вид.",
+      "capabilities": [
+        "TOTP кодове за всяка услуга, която предоставя таен ключ във формат Base32.",
+        "Шифроване и генериране на кодове в браузъра, защитено с парола хранилище и подновяем период на отключване.",
+        "Анимирано 30-секундно обратно броене с автоматично обновяване.",
+        "Копиране с едно щракване.",
+        "Име на акаунта и незадължително потребителско име или имейл за разграничаване на сходни акаунти.",
+        "Сортиране от най-новите към най-старите или по последно използване.",
+        "Проверка на тайния ключ при въвеждане с ясно съобщение за грешка при невалиден ключ.",
+        "Самостоятелна публична страница, която администратор може да включва или изключва от Apps Hub.",
+        "Отделно лично хранилище за всеки профил в Apps Hub.",
+        "Незадължителен уебсайт към всеки акаунт за съпоставяне с текущия раздел на браузъра.",
+        "Генерирано разширение за Chrome или Firefox с филтриране по текущия сайт и автоматично попълване с едно щракване.",
+        "API за взаимодействие между приложения за списъци с акаунти и шифровани данни за кодовете; само браузър с отключения ключ може да изчисли кода на шифрован акаунт."
+      ],
+      "integrations": [
+        {
+          "summary": "Други приложения могат да извличат списък с метаданните на акаунтите и да заявяват шифровани тайни ключове заедно с параметрите на хранилището им. Браузър, който разполага с ключа на хранилището, изчислява кода локално. Шифрованите данни за кодовете остават вътрешни и не се предоставят на „Автоматизации“, „Външни API“ или mvmAI.",
+          "requires": "Включен API на приложението mvm2factor в Apps Hub → Настройки → API на приложения, който по подразбиране е изключен."
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "de": {
+      "short_description": "Ein passwortgeschützter TOTP-Tresor mit im Browser verschlüsselten Geheimschlüsseln, lokal erzeugten sechsstelligen Codes und optionaler automatischer Eingabe im Browser.",
+      "tagline": "Deine 2FA-Codes auf dem Rechner, an dem du bereits angemeldet bist.",
+      "description": "mvm2factor ist ein TOTP-Authentifikator. Füge ein Konto mit dem Base32-Geheimschlüssel hinzu, den dir der Dienst bereitstellt. Anschließend wird der sechsstellige Code mit einem Ring angezeigt, der die dreißig Sekunden bis zum nächsten Code herunterzählt.\n\nDas Desktop-Fenster und die optionale öffentliche Seite verwenden dieselbe Apps Hub-Identität. So hat jedes Apps Hub-Profil seinen eigenen privaten Tresor und sieht auf jedem Gerät, auf dem es angemeldet ist, dieselben Konten. Die öffentliche Seite bleibt deaktiviert, bis ein Administrator sie in Apps Hub aktiviert.\n\nFür die Nutzung im Browser kann mvm2factor direkt aus der App eine installationsfertige Chrome- oder Firefox-Erweiterung erstellen. Die Erweiterung öffnet deinen öffentlichen Tresor in einem kompakten Popup, kann die Anzeige auf Konten beschränken, die zur Website im aktiven Tab passen, und trägt einen ausgewählten Einmalcode mit einem Klick ein. Die anfängliche Serveradresse wird beim Erstellen automatisch konfiguriert und kann später in den Einstellungen der Erweiterung geändert werden.\n\nCodes lassen sich mit einem Klick kopieren. Konten können nach Erstellungsdatum mit den neuesten zuerst oder nach letzter Verwendung sortiert werden, sodass das benötigte Konto meist ganz oben steht. Geheimschlüssel werden beim Hinzufügen geprüft. So wird ein Tippfehler im Schlüssel sofort erkannt und nicht erst nach drei fehlgeschlagenen Anmeldeversuchen.\n\nDeine Geheimschlüssel werden im Browser mit AES-GCM und einem Schlüssel verschlüsselt, der aus einem nur dir bekannten Passwort abgeleitet wird. Codes werden nach dem Entsperren lokal berechnet. Weder das Passwort noch entschlüsselte Geheimschlüssel werden an den Server gesendet. Wähle beim ersten Öffnen nach dem Upgrade ein Passwort, um deine vorhandenen Konten ohne Verlust zu verschlüsseln. Du kannst den Tresor für fünf Minuten bis zu einer Woche oder bis zum Ende der Browsersitzung entsperrt lassen. Beim Öffnen beginnt der gewählte Zeitraum erneut. Import und Export im JSON- und CSV-Format stehen nach dem Entsperren weiterhin zur Verfügung. Exportierte Dateien enthalten lesbare Geheimschlüssel.",
+      "capabilities": [
+        "TOTP-Codes für jeden Dienst, der einen Base32-Geheimschlüssel ausgibt.",
+        "Verschlüsselung und Codegenerierung im Browser, ein passwortgeschützter Tresor und ein verlängerbarer Entsperrzeitraum.",
+        "Animierter 30-Sekunden-Countdown mit automatischer Aktualisierung.",
+        "Kopieren mit einem Klick.",
+        "Kontoname sowie optional ein Benutzername oder eine E-Mail-Adresse, um ähnliche Konten voneinander zu unterscheiden.",
+        "Sortierung mit den neuesten Konten zuerst oder nach letzter Verwendung.",
+        "Prüfung des Geheimschlüssels bei der Eingabe mit einer verständlichen Fehlermeldung bei einem ungültigen Schlüssel.",
+        "Eine eigenständige öffentliche Seite, die ein Administrator über Apps Hub aktivieren oder deaktivieren kann.",
+        "Ein separater privater Tresor für jedes Apps Hub-Profil.",
+        "Eine optionale Website-Angabe für jedes Konto zum Abgleich mit dem aktuellen Browser-Tab.",
+        "Eine generierte Chrome- oder Firefox-Erweiterung mit Filterung nach der aktuellen Website und automatischer Eingabe mit einem Klick.",
+        "Eine API für die Kommunikation zwischen Apps zum Abrufen von Kontolisten und verschlüsselten Codedaten. Nur ein Browser mit dem entsperrten Schlüssel kann den Code eines verschlüsselten Kontos berechnen."
+      ],
+      "integrations": [
+        {
+          "summary": "Andere Apps können Kontometadaten auflisten und verschlüsselte Geheimschlüssel samt den zugehörigen Tresorparametern anfordern. Ein Browser, der über den Tresorschlüssel verfügt, berechnet den Code lokal. Verschlüsselte Codedaten bleiben intern und werden Automatisierungen, externen APIs oder mvmAI nicht zur Verfügung gestellt.",
+          "requires": "Die mvm2factor App API muss unter Apps Hub → Einstellungen → App APIs aktiviert sein. Sie ist standardmäßig deaktiviert."
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "es": {
+      "short_description": "Una bóveda TOTP protegida con contraseña, con secretos cifrados en el navegador, códigos de seis dígitos generados localmente y autocompletado opcional en el navegador.",
+      "tagline": "Tus códigos 2FA, en el equipo en el que ya has iniciado sesión.",
+      "description": "mvm2factor es un autenticador TOTP. Añade una cuenta con el secreto Base32 que te proporciona el servicio y mostrará el código de seis dígitos con un anillo que indica los treinta segundos que faltan para el siguiente.\n\nLa ventana de escritorio y la página pública opcional comparten la misma identidad de Apps Hub, por lo que cada perfil de Apps Hub tiene su propia bóveda privada y ve las mismas cuentas en todos los dispositivos en los que inicia sesión. La página pública permanece desactivada hasta que un administrador la activa en Apps Hub.\n\nPara usarlo en el navegador, mvm2factor puede generar desde la propia aplicación una extensión para Chrome o Firefox lista para instalar. La extensión abre tu bóveda pública en una ventana emergente compacta, permite mostrar solo las cuentas que coinciden con el sitio web de la pestaña activa y rellena un código de un solo uso seleccionado con un clic. La dirección inicial del servidor se configura automáticamente al generar la extensión y se puede cambiar después en sus ajustes.\n\nLos códigos se copian con un clic. Las cuentas se pueden ordenar de la más reciente a la más antigua o según el último uso, de modo que la que necesitas suele aparecer al principio. Los secretos se validan al añadirlos, por lo que una clave mal escrita se detecta de inmediato y no después de tres intentos fallidos de inicio de sesión.\n\nTus secretos se cifran en el navegador con AES-GCM y una clave derivada de una contraseña que solo tú conoces. Los códigos se calculan localmente tras desbloquear la bóveda, y ni esa contraseña ni los secretos descifrados se envían al servidor. La primera vez que abras la aplicación después de actualizarla, elige una contraseña para cifrar tus cuentas existentes sin perderlas. Puedes mantener la bóveda desbloqueada entre cinco minutos y una semana, o hasta que se cierre la sesión del navegador; al abrirla, se renueva el período elegido. La importación y exportación en JSON y CSV siguen estando disponibles tras desbloquearla, y los archivos exportados contienen secretos legibles.",
+      "capabilities": [
+        "Códigos TOTP para cualquier servicio que proporcione un secreto Base32.",
+        "Cifrado y generación de códigos en el navegador, una bóveda protegida con contraseña y un período de desbloqueo renovable.",
+        "Cuenta atrás animada de 30 segundos que se actualiza automáticamente.",
+        "Copia con un clic.",
+        "Nombre de cuenta y, opcionalmente, un nombre de usuario o correo electrónico para distinguir cuentas similares.",
+        "Ordenación de la más reciente a la más antigua o por último uso.",
+        "Validación de los secretos al introducirlos, con un mensaje de error claro si la clave no es válida.",
+        "Una página pública independiente que un administrador puede activar o desactivar desde Apps Hub.",
+        "Una bóveda privada independiente para cada perfil de Apps Hub.",
+        "Un sitio web opcional en cada cuenta para identificar las que coinciden con la pestaña actual del navegador.",
+        "Una extensión generada para Chrome o Firefox con filtrado por el sitio actual y autocompletado con un clic.",
+        "Una API entre aplicaciones para obtener listas de cuentas y datos cifrados de los códigos; solo un navegador con la clave desbloqueada puede calcular el código de una cuenta cifrada."
+      ],
+      "integrations": [
+        {
+          "summary": "Otras aplicaciones pueden consultar los metadatos de las cuentas y solicitar secretos cifrados junto con los parámetros de su bóveda. Un navegador que disponga de la clave de la bóveda calcula el código localmente. Los datos cifrados de los códigos se mantienen para uso interno y no se ofrecen a Automatizaciones, API externas ni mvmAI.",
+          "requires": "La API de la aplicación mvm2factor debe estar activada en Apps Hub → Ajustes → API de aplicaciones; está desactivada de forma predeterminada."
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "fr": {
+      "short_description": "Un coffre-fort TOTP protégé par mot de passe, avec des secrets chiffrés dans votre navigateur, des codes à six chiffres générés localement et un remplissage automatique facultatif dans le navigateur.",
+      "tagline": "Vos codes 2FA, sur la machine où vous êtes déjà connecté.",
+      "description": "mvm2factor est une application d’authentification TOTP. Ajoutez un compte à l’aide du secret Base32 fourni par le service : l’application affiche le code à six chiffres, accompagné d’un anneau qui décompte les trente secondes avant le suivant.\n\nLa fenêtre de bureau et la page publique facultative utilisent la même identité Apps Hub : chaque profil Apps Hub dispose ainsi de son propre coffre-fort privé et retrouve les mêmes comptes sur tous les appareils où il se connecte. La page publique reste désactivée tant qu’un administrateur ne l’a pas activée dans Apps Hub.\n\nPour une utilisation dans le navigateur, mvm2factor peut générer une extension Chrome ou Firefox prête à installer directement depuis l’application. L’extension ouvre votre coffre-fort public dans une fenêtre contextuelle compacte, peut afficher uniquement les comptes correspondant au site web de l’onglet actif et permet de renseigner un code à usage unique sélectionné en un clic. L’adresse initiale du serveur est configurée automatiquement lors de la génération de l’extension et peut être modifiée ultérieurement dans ses paramètres.\n\nLes codes se copient en un clic. Vous pouvez trier les comptes du plus récent au plus ancien ou par dernière utilisation, afin que celui dont vous avez besoin figure généralement en tête de liste. Les secrets sont validés lors de leur ajout : une erreur de saisie dans une clé est ainsi détectée immédiatement, plutôt qu’après trois tentatives de connexion infructueuses.\n\nVos secrets sont chiffrés dans le navigateur avec AES-GCM et une clé dérivée d’un mot de passe que vous seul connaissez. Les codes sont calculés localement après le déverrouillage, et ni ce mot de passe ni les secrets déchiffrés ne sont envoyés au serveur. À la première ouverture après la mise à niveau, choisissez un mot de passe pour chiffrer vos comptes existants sans les perdre. Gardez le coffre-fort déverrouillé pendant une durée allant de cinq minutes à une semaine, ou jusqu’à la fermeture de la session du navigateur ; chaque ouverture renouvelle la durée choisie. L’importation et l’exportation aux formats JSON et CSV restent disponibles après le déverrouillage, et les fichiers exportés contiennent les secrets en clair.",
+      "capabilities": [
+        "Codes TOTP pour tout service fournissant un secret Base32.",
+        "Chiffrement et génération des codes dans le navigateur, coffre-fort protégé par mot de passe et durée de déverrouillage renouvelable.",
+        "Compte à rebours animé de 30 secondes, avec actualisation automatique.",
+        "Copie en un clic.",
+        "Nom du compte accompagné, au choix, d’un nom d’utilisateur ou d’une adresse e-mail pour distinguer les comptes similaires.",
+        "Tri du plus récent au plus ancien ou par dernière utilisation.",
+        "Validation des secrets à la saisie, avec un message d’erreur clair en cas de clé invalide.",
+        "Page publique autonome qu’un administrateur peut activer ou désactiver depuis Apps Hub.",
+        "Coffre-fort privé distinct pour chaque profil Apps Hub.",
+        "Site web facultatif pour chaque compte, afin d’établir une correspondance avec l’onglet actif du navigateur.",
+        "Extension Chrome ou Firefox générée depuis l’application, avec filtrage selon le site actif et remplissage automatique en un clic.",
+        "API interapplications permettant d’obtenir les listes de comptes et les données chiffrées nécessaires au calcul des codes ; seul un navigateur disposant de la clé déverrouillée peut calculer le code d’un compte chiffré."
+      ],
+      "integrations": [
+        {
+          "summary": "Les autres applications peuvent obtenir la liste des métadonnées des comptes et demander les secrets chiffrés avec les paramètres de leur coffre-fort. Un navigateur détenant la clé du coffre-fort calcule le code localement. Les données chiffrées nécessaires au calcul des codes restent internes et ne sont pas accessibles aux Automatisations, aux API externes ni à mvmAI.",
+          "requires": "L’API de l’application mvm2factor doit être activée dans Apps Hub → Paramètres → API des applications ; elle est désactivée par défaut."
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "ja": {
+      "short_description": "ブラウザー内でシークレットを暗号化する、パスワード保護されたTOTP保管庫。6桁のコードをローカルで生成し、オプションでブラウザーの自動入力も利用できます。",
+      "tagline": "ログイン済みの端末で、2FAコードを確認。",
+      "description": "mvm2factorはTOTP認証アプリです。サービスから提供されたBase32形式のシークレットを使ってアカウントを追加すると、6桁のコードと、次のコードに切り替わるまでの30秒をカウントダウンするリングが表示されます。\n\nデスクトップウィンドウとオプションの公開ページは同じApps Hubの認証情報を使用します。そのため、Apps Hubの各プロフィールに専用の非公開保管庫が用意され、ログインしたどの端末でも同じアカウントを確認できます。公開ページは、管理者がApps Hubで有効にするまで無効のままです。\n\nブラウザーで利用する場合は、mvm2factorのアプリ内から、すぐにインストールできるChromeまたはFirefoxの拡張機能を生成できます。拡張機能では、公開ページの保管庫をコンパクトなポップアップで開き、アクティブなタブのウェブサイトに一致するアカウントだけを表示したり、選択したワンタイムコードをワンクリックで入力したりできます。初期サーバーアドレスは生成時に自動設定され、後から拡張機能の設定で変更できます。\n\nコードはワンクリックでコピーできます。アカウントは追加した順または最後に使用した順に並べ替えられるため、必要なアカウントが通常は上部に表示されます。シークレットは追加時に検証されるため、キーの入力ミスはログインに3回失敗した後ではなく、その場で検出されます。\n\nシークレットは、あなただけが知るパスワードから導出したキーとAES-GCMを使い、ブラウザー内で暗号化されます。ロック解除後、コードはローカルで計算され、パスワードも復号されたシークレットもサーバーには送信されません。アップグレード後に初めて開く際は、パスワードを設定することで、既存のアカウントを失うことなく暗号化できます。ロック解除の有効期間は5分から1週間まで、またはブラウザーのセッションが終了するまでに設定できます。保管庫を開くと、選択した有効期間が更新されます。ロック解除後はJSONおよびCSV形式でのインポートとエクスポートも引き続き利用でき、エクスポートしたファイルにはシークレットが読み取り可能な形式で含まれます。",
+      "capabilities": [
+        "Base32形式のシークレットを発行するあらゆるサービスのTOTPコードに対応。",
+        "ブラウザー内での暗号化とコード生成、パスワードで保護された保管庫、更新可能なロック解除の有効期間。",
+        "自動更新される、アニメーション付きの30秒カウントダウン。",
+        "ワンクリックでコピー。",
+        "アカウント名に加え、任意のユーザー名またはメールアドレスを設定して、似たアカウントを区別できます。",
+        "追加した順または最後に使用した順に並べ替え。",
+        "入力時にシークレットを検証し、無効なキーにはわかりやすいエラーを表示。",
+        "管理者がApps Hubから有効または無効にできる、独立した公開ページ。",
+        "Apps Hubのプロフィールごとに独立した非公開保管庫。",
+        "各アカウントに任意でウェブサイトを設定し、現在のブラウザータブとの照合に使用できます。",
+        "現在のサイトに応じた絞り込みとワンクリック自動入力に対応するChromeまたはFirefoxの拡張機能を生成。",
+        "アカウント一覧と暗号化されたコードデータを提供するアプリ間API。暗号化されたアカウントのコードを計算できるのは、ロック解除済みのキーを持つブラウザーだけです。"
+      ],
+      "integrations": [
+        {
+          "summary": "ほかのアプリは、アカウントのメタデータを一覧表示し、保管庫のパラメーターとともに暗号化されたシークレットを要求できます。保管庫のキーを持つブラウザーが、コードをローカルで計算します。暗号化されたコードデータは内部でのみ扱われ、自動化、外部API、mvmAIには提供されません。",
+          "requires": "Apps Hub → 設定 → アプリAPIで、mvm2factorのアプリAPIが有効になっていること。初期設定では無効です。"
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "pt-BR": {
+      "short_description": "Um cofre TOTP protegido por senha, com chaves secretas criptografadas no navegador, códigos locais de seis dígitos e preenchimento automático opcional no navegador.",
+      "tagline": "Seus códigos de 2FA, na máquina em que você já está conectado.",
+      "description": "mvm2factor é um autenticador TOTP. Adicione uma conta com a chave secreta Base32 fornecida pelo serviço, e ele exibirá o código de seis dígitos com um anel que faz a contagem regressiva dos trinta segundos até o próximo código.\n\nA janela na área de trabalho e a página pública opcional compartilham a mesma identidade do Apps Hub, então cada perfil do Apps Hub tem seu próprio cofre privado e vê as mesmas contas em todos os dispositivos em que faz login. A página pública permanece desativada até que um administrador a ative no Apps Hub.\n\nPara uso no navegador, o mvm2factor pode gerar, pelo próprio aplicativo, uma extensão para Chrome ou Firefox pronta para instalar. A extensão abre seu cofre público em uma janela compacta, pode mostrar apenas as contas correspondentes ao site da aba ativa e preenche um código de uso único selecionado com um clique. O endereço inicial do servidor é configurado automaticamente quando você gera a extensão e pode ser alterado depois nas configurações dela.\n\nOs códigos são copiados com um clique. As contas podem ser ordenadas das mais recentes para as mais antigas ou pelas usadas por último, para que a conta de que você precisa geralmente fique no topo. As chaves secretas são validadas ao serem adicionadas, então um erro de digitação é detectado imediatamente, em vez de só depois de três tentativas de login malsucedidas.\n\nSuas chaves secretas são criptografadas no navegador com AES-GCM e uma chave derivada de uma senha que só você conhece. Os códigos são calculados localmente após o desbloqueio, e nem essa senha nem as chaves secretas descriptografadas são enviadas ao servidor. Na primeira abertura após a atualização, escolha uma senha para criptografar suas contas existentes sem perdê-las. Mantenha o cofre desbloqueado por um período de cinco minutos a uma semana, ou até o encerramento da sessão do navegador; abri-lo renova o período escolhido. A importação e a exportação em JSON e CSV continuam disponíveis após o desbloqueio, e os arquivos exportados contêm chaves secretas legíveis.",
+      "capabilities": [
+        "Códigos TOTP para qualquer serviço que forneça uma chave secreta Base32.",
+        "Criptografia e geração de códigos no navegador, um cofre protegido por senha e um período de desbloqueio renovável.",
+        "Contagem regressiva animada de 30 segundos, com atualização automática.",
+        "Cópia com um clique.",
+        "Nome da conta e, opcionalmente, um nome de usuário ou e-mail para diferenciar contas semelhantes.",
+        "Ordenação das mais recentes para as mais antigas ou pelas usadas por último.",
+        "Validação da chave secreta ao inseri-la, com uma mensagem de erro clara para chaves inválidas.",
+        "Uma página pública independente que um administrador pode ativar ou desativar pelo Apps Hub.",
+        "Um cofre privado separado para cada perfil do Apps Hub.",
+        "Um site opcional em cada conta para identificar correspondências com a aba atual do navegador.",
+        "Uma extensão gerada para Chrome ou Firefox com filtro pelo site atual e preenchimento automático com um clique.",
+        "Uma API entre aplicativos para listas de contas e dados de código criptografados; apenas um navegador com a chave desbloqueada pode calcular o código de uma conta criptografada."
+      ],
+      "integrations": [
+        {
+          "summary": "Outros aplicativos podem listar os metadados das contas e solicitar chaves secretas criptografadas com os parâmetros do respectivo cofre. Um navegador que tenha a chave do cofre calcula o código localmente. Os dados de código criptografados são mantidos internamente e não são disponibilizados para Automações, APIs Externas ou mvmAI.",
+          "requires": "A API de Aplicativo do mvm2factor ativada em Apps Hub → Configurações → APIs de Aplicativos, que vem desativada por padrão."
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "ru": {
+      "short_description": "Защищённое паролем хранилище TOTP с шифрованием секретных ключей в браузере, локальным созданием шестизначных кодов и дополнительной функцией автозаполнения в браузере.",
+      "tagline": "Ваши коды 2FA — на компьютере, в который вы уже вошли.",
+      "description": "mvm2factor — приложение для аутентификации по TOTP. Добавьте учётную запись с секретным ключом Base32, предоставленным сервисом, и приложение покажет шестизначный код с кольцевым индикатором, отсчитывающим тридцать секунд до появления следующего кода.\n\nОкно приложения на рабочем столе и дополнительная общедоступная страница используют одну и ту же учётную запись Apps Hub, поэтому у каждого профиля Apps Hub есть собственное закрытое хранилище с одинаковым набором учётных записей на всех устройствах, где выполнен вход в этот профиль. Общедоступная страница остаётся отключённой, пока администратор не включит её в Apps Hub.\n\nДля работы в браузере mvm2factor может создать готовое к установке расширение Chrome или Firefox прямо из приложения. Расширение открывает ваше хранилище с общедоступной страницы в компактном всплывающем окне, позволяет показывать только учётные записи, соответствующие сайту в активной вкладке, и подставляет выбранный одноразовый код одним нажатием. Начальный адрес сервера настраивается автоматически при создании расширения; позже его можно изменить в настройках расширения.\n\nКоды копируются одним нажатием. Учётные записи можно сортировать по дате добавления, начиная с новых, или по последнему использованию, чтобы нужная обычно оказывалась вверху списка. Секретные ключи проверяются при добавлении, поэтому опечатка обнаруживается сразу, а не после трёх неудачных попыток входа.\n\nВаши секретные ключи шифруются в браузере с помощью AES-GCM и ключа, полученного из пароля, который знаете только вы. После разблокировки коды вычисляются локально; ни пароль, ни расшифрованные секретные ключи не отправляются на сервер. При первом открытии после обновления выберите пароль, чтобы зашифровать существующие учётные записи без их потери. Хранилище можно оставлять разблокированным на срок от пяти минут до недели или до завершения сеанса браузера; при его открытии выбранный срок отсчитывается заново. Импорт и экспорт в форматах JSON и CSV доступны после разблокировки, а экспортированные файлы содержат секретные ключи в открытом виде.",
+      "capabilities": [
+        "Коды TOTP для любого сервиса, предоставляющего секретный ключ Base32.",
+        "Шифрование и создание кодов в браузере, защищённое паролем хранилище и продлеваемый срок разблокировки.",
+        "Анимированный 30-секундный обратный отсчёт с автоматическим обновлением.",
+        "Копирование одним нажатием.",
+        "Название учётной записи и необязательное имя пользователя или адрес электронной почты, позволяющие различать похожие учётные записи.",
+        "Сортировка по дате добавления, начиная с новых, или по последнему использованию.",
+        "Проверка секретного ключа при вводе с понятным сообщением об ошибке, если ключ недействителен.",
+        "Отдельная общедоступная страница, которую администратор может включить или отключить в Apps Hub.",
+        "Отдельное закрытое хранилище для каждого профиля Apps Hub.",
+        "Необязательный адрес сайта для каждой учётной записи, позволяющий сопоставлять её с текущей вкладкой браузера.",
+        "Создаваемое приложением расширение Chrome или Firefox с фильтрацией по текущему сайту и автозаполнением одним нажатием.",
+        "API для взаимодействия между приложениями, предоставляющий списки учётных записей и зашифрованные данные для кодов; вычислить код зашифрованной учётной записи может только браузер с разблокированным ключом."
+      ],
+      "integrations": [
+        {
+          "summary": "Другие приложения могут получать список метаданных учётных записей и запрашивать зашифрованные секретные ключи вместе с параметрами их хранилища. Браузер, в котором есть ключ хранилища, вычисляет код локально. Зашифрованные данные для кодов остаются внутренними и не предоставляются средствам автоматизации, внешним API или mvmAI.",
+          "requires": "API приложения mvm2factor должен быть включён в Apps Hub → Настройки → API приложений; по умолчанию он отключён."
+        }
+      ],
+      "name": "mvm2factor"
+    },
+    "zh-CN": {
+      "short_description": "受密码保护的 TOTP 保险库，在浏览器中加密密钥、在本地生成六位验证码，并支持可选的浏览器自动填充功能。",
+      "tagline": "在您已登录的设备上，随时获取双重验证代码。",
+      "description": "mvm2factor 是一款 TOTP 身份验证器。使用服务提供的 Base32 密钥添加账户后，即可查看六位验证码，以及显示距离下一个验证码生成还剩多少时间的三十秒倒计时圆环。\n\n桌面窗口和可选的公共页面使用同一 Apps Hub 身份，因此每个 Apps Hub 个人资料都有独立的私密保险库，并且在任何已登录的设备上都能看到相同的账户。公共页面默认禁用，需由管理员在 Apps Hub 中启用。\n\n在浏览器中使用时，mvm2factor 可直接在应用内生成可供安装的 Chrome 或 Firefox 扩展。扩展会在紧凑的弹出窗口中打开您的公共保险库，可仅显示与当前标签页网站匹配的账户，并支持一键填充所选的一次性验证码。生成扩展时会自动配置初始服务器地址，之后可在扩展设置中更改。\n\n一键即可复制验证码。账户可按添加时间从新到旧排序，也可按最近使用时间排序，让您需要的账户通常出现在顶部。添加密钥时会进行验证，因此输入错误会立即被发现，无需等到三次登录失败后才察觉。\n\n您的密钥在浏览器中使用 AES-GCM 加密，加密所用的密钥由只有您知道的密码派生而来。解锁后，验证码会在本地计算，该密码和解密后的密钥均不会发送到服务器。升级后首次打开时，请设置密码来加密现有账户，账户不会丢失。您可以让保险库保持解锁五分钟至一周，或直到浏览器会话结束；每次打开保险库都会重新计算所选的解锁时长。解锁后仍可使用 JSON 和 CSV 导入导出功能，导出的文件包含明文密钥。",
+      "capabilities": [
+        "为任何提供 Base32 密钥的服务生成 TOTP 验证码。",
+        "在浏览器端加密和生成验证码，提供受密码保护的保险库，并支持续期的解锁时长。",
+        "带动画效果的 30 秒倒计时，自动刷新。",
+        "一键复制。",
+        "除账户名称外，还可选填用户名或电子邮箱，以区分相似账户。",
+        "按添加时间从新到旧或按最近使用时间排序。",
+        "输入时验证密钥，并在密钥无效时显示清晰的错误提示。",
+        "独立的公共页面，管理员可在 Apps Hub 中启用或禁用。",
+        "每个 Apps Hub 个人资料均有独立的私密保险库。",
+        "每个账户均可选填网站地址，用于匹配当前浏览器标签页。",
+        "可生成 Chrome 或 Firefox 扩展，支持按当前网站筛选账户和一键自动填充。",
+        "提供应用间 API，用于获取账户列表和加密的验证码数据；只有持有已解锁密钥的浏览器才能计算加密账户的验证码。"
+      ],
+      "integrations": [
+        {
+          "summary": "其他应用可以列出账户元数据，并请求获取加密密钥及其保险库参数。持有保险库密钥的浏览器会在本地计算验证码。加密的验证码数据仅供内部使用，不向自动化、外部 API 或 mvmAI 提供。",
+          "requires": "需在 Apps Hub → 设置 → 应用 API 中启用 mvm2factor 应用 API，该功能默认关闭。"
+        }
+      ],
+      "name": "mvm2factor"
+    }
+  }
 }

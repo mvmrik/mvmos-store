@@ -11869,5 +11869,2795 @@
    "Ustad Isa",
    "Mimar Sinan"
   ]
+ },
+ "q1320": {
+  "q": "Qual invenção pré-histórica revolucionou o transporte humano e a cerâmica?",
+  "a": [
+   "A roda",
+   "O tapete voador",
+   "O teletransportador de bolso",
+   "O monociclo invisível"
+  ]
+ },
+ "q1321": {
+  "q": "Quem recebeu a primeira patente norte-americana pelo telefone em 1876?",
+  "a": [
+   "Alexander Graham Bell",
+   "Thomas Edison",
+   "Nikola Tesla",
+   "Guglielmo Marconi"
+  ]
+ },
+ "q1322": {
+  "q": "Em qual país antigo a fabricação de papel foi inventada por volta do século II a.C.?",
+  "a": [
+   "China",
+   "Egito",
+   "Grécia",
+   "Mesopotâmia"
+  ]
+ },
+ "q1323": {
+  "q": "Quem inventou a prensa móvel europeia por volta de 1440?",
+  "a": [
+   "Johannes Gutenberg",
+   "Leonardo da Vinci",
+   "Galileu Galilei",
+   "Martinho Lutero"
+  ]
+ },
+ "q1324": {
+  "q": "Quais irmãos realizaram o primeiro voo controlado e sustentado de avião motorizado em 1903?",
+  "a": [
+   "Orville e Wilbur Wright",
+   "Auguste e Louis Lumière",
+   "Joseph-Michel e Jacques-Étienne Montgolfier",
+   "Jacob e Wilhelm Grimm"
+  ]
+ },
+ "q1325": {
+  "q": "Qual médico inglês desenvolveu a primeira vacina bem-sucedida contra a varíola em 1796?",
+  "a": [
+   "Edward Jenner",
+   "Louis Pasteur",
+   "Alexander Fleming",
+   "Robert Koch"
+  ]
+ },
+ "q1326": {
+  "q": "Quem patenteou o Benz Patent-Motorwagen, amplamente considerado o primeiro automóvel moderno, em 1886?",
+  "a": [
+   "Karl Benz",
+   "Henry Ford",
+   "Gottlieb Daimler",
+   "Rudolf Diesel"
+  ]
+ },
+ "q1327": {
+  "q": "Qual físico italiano inventou a pilha voltaica, a primeira bateria elétrica verdadeira, em 1800?",
+  "a": [
+   "Alessandro Volta",
+   "Luigi Galvani",
+   "André-Marie Ampère",
+   "Michael Faraday"
+  ]
+ },
+ "q1328": {
+  "q": "Qual cientista da computação britânico inventou a World Wide Web no CERN em 1989?",
+  "a": [
+   "Tim Berners-Lee",
+   "Vint Cerf",
+   "Alan Turing",
+   "Marc Andreessen"
+  ]
+ },
+ "q1329": {
+  "q": "Qual médico francês inventou o estetoscópio em 1816?",
+  "a": [
+   "René Laennec",
+   "Louis Pasteur",
+   "Claude Bernard",
+   "Ambroise Paré"
+  ]
+ },
+ "q1330": {
+  "q": "Quem criou por volta de 1826 „Vista da Janela em Le Gras“, a fotografia mais antiga ainda preservada?",
+  "a": [
+   "Nicéphore Niépce",
+   "Louis Daguerre",
+   "William Henry Fox Talbot",
+   "George Eastman"
+  ]
+ },
+ "q1331": {
+  "q": "Quem patenteou em 1853 o freio de segurança para elevadores que tornou os arranha-céus viáveis?",
+  "a": [
+   "Elisha Otis",
+   "Gustave Eiffel",
+   "George Westinghouse",
+   "Werner von Siemens"
+  ]
+ },
+ "q1332": {
+  "q": "Qual fabricante de óculos holandês registrou em 1608 o pedido de patente mais antigo conhecido para um telescópio refrator?",
+  "a": [
+   "Hans Lippershey",
+   "Christiaan Huygens",
+   "Antonie van Leeuwenhoek",
+   "Willebrord Snellius"
+  ]
+ },
+ "q1333": {
+  "q": "Quem construiu o primeiro laser de rubi funcional nos Laboratórios de Pesquisa Hughes em 1960?",
+  "a": [
+   "Theodore Maiman",
+   "Charles Townes",
+   "Arthur Schawlow",
+   "Gordon Gould"
+  ]
+ },
+ "q1334": {
+  "q": "Quem demonstrou em Londres, em 1926, o primeiro sistema funcional de televisão mecânica?",
+  "a": [
+   "John Logie Baird",
+   "Philo Farnsworth",
+   "Vladimir Zworykin",
+   "Paul Nipkow"
+  ]
+ },
+ "q1335": {
+  "q": "Quem inventou o primeiro mouse de computador, feito de madeira, no Instituto de Pesquisa de Stanford em 1964?",
+  "a": [
+   "Douglas Engelbart",
+   "Alan Kay",
+   "Ivan Sutherland",
+   "Charles Thacker"
+  ]
+ },
+ "q1336": {
+  "q": "Qual químico nascido na Bélgica inventou em 1907 a baquelite, o primeiro plástico totalmente sintético?",
+  "a": [
+   "Leo Baekeland",
+   "Wallace Carothers",
+   "Alexander Parkes",
+   "Hermann Staudinger"
+  ]
+ },
+ "q1337": {
+  "q": "Quem construiu o primeiro circuito integrado funcional na Texas Instruments em setembro de 1958?",
+  "a": [
+   "Jack Kilby",
+   "Robert Noyce",
+   "William Shockley",
+   "Gordon Moore"
+  ]
+ },
+ "q1338": {
+  "q": "Quem patenteou o zíper moderno em 1917 após aprimorar modelos anteriores de fecho?",
+  "a": [
+   "Gideon Sundback",
+   "Whitcomb Judson",
+   "Elias Howe",
+   "Walter Hunt"
+  ]
+ },
+ "q1339": {
+  "q": "Qual polímata da dinastia Han inventou em 132 d.C. o Houfeng Didong Yi, o primeiro sismoscópio conhecido?",
+  "a": [
+   "Zhang Heng",
+   "Cai Lun",
+   "Bi Sheng",
+   "Zu Chongzhi"
+  ]
+ },
+ "q1340": {
+  "q": "Quem pintou o famoso retrato Mona Lisa?",
+  "a": [
+   "Leonardo da Vinci",
+   "Michelangelo",
+   "Rafael",
+   "Botticelli"
+  ]
+ },
+ "q1341": {
+  "q": "Qual artista holandês pintou A Noite Estrelada em 1889?",
+  "a": [
+   "Vincent van Gogh",
+   "Rembrandt",
+   "Johannes Vermeer",
+   "Piet Mondrian"
+  ]
+ },
+ "q1342": {
+  "q": "Em qual museu a Mona Lisa de Leonardo da Vinci fica exposta permanentemente?",
+  "a": [
+   "Museu do Louvre",
+   "Museu do Prado",
+   "Galeria Uffizi",
+   "Museu Britânico"
+  ]
+ },
+ "q1343": {
+  "q": "Quem pintou a famosa obra expressionista O Grito em 1893?",
+  "a": [
+   "Edvard Munch",
+   "Gustav Klimt",
+   "Egon Schiele",
+   "Wassily Kandinsky"
+  ]
+ },
+ "q1344": {
+  "q": "Qual pintura de Pablo Picasso retrata o bombardeio de uma cidade basca em 1937?",
+  "a": [
+   "Guernica",
+   "Les Demoiselles d'Avignon",
+   "O Velho Guitarrista",
+   "A Mulher que Chora"
+  ]
+ },
+ "q1345": {
+  "q": "Que objetos parecem estar derretendo na pintura A Persistência da Memória, de Salvador Dalí, de 1931?",
+  "a": [
+   "Relógios de bolso",
+   "Velas",
+   "Violinos",
+   "Taças de vinho"
+  ]
+ },
+ "q1346": {
+  "q": "Qual mestre da Era de Ouro Holandesa pintou Moça com Brinco de Pérola por volta de 1665?",
+  "a": [
+   "Johannes Vermeer",
+   "Frans Hals",
+   "Jan Steen",
+   "Hieronymus Bosch"
+  ]
+ },
+ "q1347": {
+  "q": "Sobre o que Vênus está em pé na pintura O Nascimento de Vênus, de Sandro Botticelli?",
+  "a": [
+   "Uma concha gigante",
+   "Um pedestal de mármore",
+   "Um cisne branco",
+   "Uma jangada de madeira"
+  ]
+ },
+ "q1348": {
+  "q": "Qual pintor francês criou a famosa série de cerca de 250 pinturas a óleo chamada Ninfeias?",
+  "a": [
+   "Claude Monet",
+   "Pierre-Auguste Renoir",
+   "Edgar Degas",
+   "Paul Cézanne"
+  ]
+ },
+ "q1349": {
+  "q": "Qual montanha aparece ao fundo na gravura A Grande Onda de Kanagawa, de Hokusai?",
+  "a": [
+   "Monte Fuji",
+   "Monte Aso",
+   "Monte Kita",
+   "Monte Ontake"
+  ]
+ },
+ "q1350": {
+  "q": "Que ferramenta agrícola o homem segura na pintura Gótico Americano, de Grant Wood, de 1930?",
+  "a": [
+   "Um forcado",
+   "Uma foice",
+   "Uma pá",
+   "Um ancinho de madeira"
+  ]
+ },
+ "q1351": {
+  "q": "Em qual museu a pintura O Beijo, de Gustav Klimt, fica exposta permanentemente?",
+  "a": [
+   "Palácio Belvedere, em Viena",
+   "Museu de História da Arte, em Viena",
+   "Antiga Galeria Nacional, em Berlim",
+   "Pinacoteca de Arte Moderna, em Munique"
+  ]
+ },
+ "q1352": {
+  "q": "Qual pintor barroco espanhol criou a obra-prima As Meninas em 1656?",
+  "a": [
+   "Diego Velázquez",
+   "Francisco de Goya",
+   "El Greco",
+   "Bartolomé Esteban Murillo"
+  ]
+ },
+ "q1353": {
+  "q": "Que objeto encobre o rosto do homem na pintura O Filho do Homem, de René Magritte, de 1964?",
+  "a": [
+   "Uma maçã verde",
+   "Uma pomba branca",
+   "Um chapéu-coco",
+   "Uma rosa vermelha"
+  ]
+ },
+ "q1354": {
+  "q": "Na pintura A Ronda Noturna, de Rembrandt, de 1642, quem é o capitão vestido de preto com faixa vermelha?",
+  "a": [
+   "Frans Banninck Cocq",
+   "Willem van Ruytenburch",
+   "Jan Six",
+   "Nicolaes Tulp"
+  ]
+ },
+ "q1355": {
+  "q": "Qual levante inspirou a pintura A Liberdade Guiando o Povo, de Eugène Delacroix, de 1830?",
+  "a": [
+   "A Revolução de Julho de 1830",
+   "A Queda da Bastilha em 1789",
+   "A Comuna de Paris de 1871",
+   "A Revolução de Fevereiro de 1848"
+  ]
+ },
+ "q1356": {
+  "q": "Qual técnica de pintura Georges Seurat usou em Tarde de Domingo na Ilha de Grande Jatte?",
+  "a": [
+   "Pontilhismo",
+   "Claroscuro",
+   "Sfumato",
+   "Empasto"
+  ]
+ },
+ "q1357": {
+  "q": "Qual artista atuante na Bulgária pintou a famosa obra Rachenitsa em 1892?",
+  "a": [
+   "Ivan Mrkvička",
+   "Vladimir Dimitrov - Maistora",
+   "Zlatyu Boyadzhiev",
+   "Tsanko Lavrenov"
+  ]
+ },
+ "q1358": {
+  "q": "Que objeto oculto aparece distorcido em primeiro plano na pintura Os Embaixadores, de Hans Holbein, o Jovem, de 1533?",
+  "a": [
+   "Um crânio humano",
+   "Uma coroa de ouro",
+   "Uma âncora de navio",
+   "Uma serpente enrolada"
+  ]
+ },
+ "q1359": {
+  "q": "Qual frase em latim está inscrita acima do espelho na pintura O Casal Arnolfini, de Jan van Eyck, de 1434?",
+  "a": [
+   "Johannes de Eyck fuit hic",
+   "Memento mori",
+   "Ars longa vita brevis",
+   "Vanitas vanitatum"
+  ]
+ },
+ "q1360": {
+  "q": "Em que língua antiga está escrita a famosa frase 'Carpe diem'?",
+  "a": [
+   "Latim",
+   "Marciano",
+   "Língua dos gatos",
+   "Código binário"
+  ]
+ },
+ "q1361": {
+  "q": "Qual líder romano declarou a famosa frase 'Veni, vidi, vici' após uma rápida vitória militar?",
+  "a": [
+   "Júlio César",
+   "Augusto",
+   "Nero",
+   "Marco Aurélio"
+  ]
+ },
+ "q1362": {
+  "q": "Qual filósofo formulou a famosa afirmação em latim 'Cogito, ergo sum'?",
+  "a": [
+   "René Descartes",
+   "Immanuel Kant",
+   "Francis Bacon",
+   "Baruch Spinoza"
+  ]
+ },
+ "q1363": {
+  "q": "Qual evento internacional utiliza o lema latino 'Citius, Altius, Fortius'?",
+  "a": [
+   "Jogos Olímpicos",
+   "Copa do Mundo FIFA",
+   "Tour de France",
+   "Wimbledon"
+  ]
+ },
+ "q1364": {
+  "q": "Qual poeta romano escreveu a famosa expressão latina 'Carpe diem' em suas Odes?",
+  "a": [
+   "Horácio",
+   "Virgílio",
+   "Ovídio",
+   "Catulo"
+  ]
+ },
+ "q1365": {
+  "q": "Qual profissão está mais intimamente associada ao princípio latino 'Primum non nocere'?",
+  "a": [
+   "Medicina",
+   "Arquitetura",
+   "Astronomia",
+   "Navegação"
+  ]
+ },
+ "q1366": {
+  "q": "Em que área o termo latino 'Habeas corpus' é utilizado principalmente?",
+  "a": [
+   "Direito",
+   "Botânica",
+   "Teoria musical",
+   "Metalurgia"
+  ]
+ },
+ "q1367": {
+  "q": "Qual rio Júlio César atravessou em 49 a.C. ao proferir 'Alea iacta est'?",
+  "a": [
+   "Rubicão",
+   "Tibre",
+   "Pó",
+   "Arno"
+  ]
+ },
+ "q1368": {
+  "q": "Segundo a tradição romana antiga, o que era sussurrado a um general vitorioso durante um triunfo?",
+  "a": [
+   "Memento mori",
+   "Carpe diem",
+   "In vino veritas",
+   "Tabula rasa"
+  ]
+ },
+ "q1369": {
+  "q": "Qual autor romano registrou o provérbio latino 'In vino veritas' em sua Naturalis Historia?",
+  "a": [
+   "Plínio, o Velho",
+   "Sêneca",
+   "Cícero",
+   "Tácito"
+  ]
+ },
+ "q1370": {
+  "q": "Qual continente foi historicamente designado nos primeiros mapas pelo nome latino 'Terra Australis'?",
+  "a": [
+   "Austrália",
+   "América do Sul",
+   "África",
+   "América do Norte"
+  ]
+ },
+ "q1371": {
+  "q": "Qual filósofo popularizou o conceito latino 'Tabula rasa' em sua obra de 1689 Ensaio acerca do Entendimento Humano?",
+  "a": [
+   "John Locke",
+   "Thomas Hobbes",
+   "David Hume",
+   "George Berkeley"
+  ]
+ },
+ "q1372": {
+  "q": "No teatro antigo, qual expressão latina descreve um recurso em que um problema insolúvel é resolvido subitamente por uma intervenção inesperada?",
+  "a": [
+   "Deus ex machina",
+   "In medias res",
+   "Alter ego",
+   "Magnum opus"
+  ]
+ },
+ "q1373": {
+  "q": "Qual tratado militar romano de Vegécio contém a fonte original da máxima latina 'Si vis pacem, para bellum'?",
+  "a": [
+   "De re militari",
+   "De bello Gallico",
+   "Ab urbe condita",
+   "Res gestae"
+  ]
+ },
+ "q1374": {
+  "q": "O tratado filosófico 'De finibus bonorum et malorum' de qual orador romano é a fonte do texto de preenchimento 'Lorem ipsum'?",
+  "a": [
+   "Cícero",
+   "Quintiliano",
+   "Lucrécio",
+   "Varrão"
+  ]
+ },
+ "q1375": {
+  "q": "Qual cientista disse 'Eppur si muove' e antes usou a expressão latina 'Sidera Medicea' para nomear as quatro maiores luas de Júpiter?",
+  "a": [
+   "Galileu Galilei",
+   "Johannes Kepler",
+   "Nicolau Copérnico",
+   "Tycho Brahe"
+  ]
+ },
+ "q1376": {
+  "q": "Qual poeta satírico romano cunhou a famosa pergunta latina 'Quis custodiet ipsos custodes?' em suas Sátiras?",
+  "a": [
+   "Juvenal",
+   "Marcial",
+   "Pérsio",
+   "Petrônio"
+  ]
+ },
+ "q1377": {
+  "q": "Na Eneida de Virgílio, qual sacerdote troiano adverte contra o cavalo de madeira com o verso latino 'Timeo Danaos et dona ferentes'?",
+  "a": [
+   "Laocoonte",
+   "Príamo",
+   "Anquises",
+   "Heitor"
+  ]
+ },
+ "q1378": {
+  "q": "Segundo Plutarco, qual senador romano encerrava repetidamente seus discursos no Senado com 'Ceterum censeo Carthaginem esse delendam'?",
+  "a": [
+   "Catão, o Velho",
+   "Cipião Africano",
+   "Fábio Máximo",
+   "Tibério Graco"
+  ]
+ },
+ "q1379": {
+  "q": "Qual poeta romano escreveu a expressão latina 'Tempus fugit' em seu poema didático Geórgicas?",
+  "a": [
+   "Virgílio",
+   "Horácio",
+   "Ovídio",
+   "Lucano"
+  ]
+ },
+ "q1380": {
+  "q": "Qual som um gato doméstico feliz costuma fazer?",
+  "a": [
+   "Ronronar",
+   "Cantar ópera",
+   "Buzinar como carro",
+   "Acelerar como moto"
+  ]
+ },
+ "q1381": {
+  "q": "Quantos dedos um gato doméstico típico tem ao todo nas patas dianteiras?",
+  "a": [
+   "10",
+   "8",
+   "12",
+   "6"
+  ]
+ },
+ "q1382": {
+  "q": "Quantos dedos um gato doméstico típico tem ao todo nas patas traseiras?",
+  "a": [
+   "8",
+   "10",
+   "6",
+   "12"
+  ]
+ },
+ "q1383": {
+  "q": "Qual sabor básico os gatos domésticos não conseguem detectar devido à falta de um gene receptor?",
+  "a": [
+   "Doce",
+   "Salgado",
+   "Azedo",
+   "Amargo"
+  ]
+ },
+ "q1384": {
+  "q": "Aproximadamente quantas horas por dia um gato doméstico adulto passa dormindo?",
+  "a": [
+   "12 a 16 horas",
+   "4 a 6 horas",
+   "7 a 9 horas",
+   "21 a 23 horas"
+  ]
+ },
+ "q1385": {
+  "q": "Onde está localizada a maioria das glândulas sudoríparas de um gato doméstico?",
+  "a": [
+   "Nas almofadas das patas",
+   "Ao longo da coluna",
+   "Dentro das orelhas",
+   "Na barriga"
+  ]
+ },
+ "q1386": {
+  "q": "Qual é a camada de tecido refletor atrás da retina do gato que faz seus olhos brilharem no escuro?",
+  "a": [
+   "Tapetum lucidum",
+   "Corpo caloso",
+   "Estrato córneo",
+   "Fóvea central"
+  ]
+ },
+ "q1387": {
+  "q": "Qual osso no ombro do gato flutua livremente sem se ligar a outros ossos, permitindo que ele passe por espaços estreitos?",
+  "a": [
+   "Clavícula",
+   "Escápula",
+   "Esterno",
+   "Patela"
+  ]
+ },
+ "q1388": {
+  "q": "Quantos dentes permanentes um gato doméstico adulto típico tem?",
+  "a": [
+   "30",
+   "20",
+   "42",
+   "16"
+  ]
+ },
+ "q1389": {
+  "q": "Quantos músculos controlam cada uma das orelhas externas de um gato doméstico?",
+  "a": [
+   "32",
+   "6",
+   "12",
+   "64"
+  ]
+ },
+ "q1390": {
+  "q": "Qual órgão na boca do gato o ajuda a analisar cheiros quando mantém a boca levemente aberta?",
+  "a": [
+   "Órgão de Jacobson",
+   "Glândula tireoide",
+   "Glândula pineal",
+   "Glândula pituitária"
+  ]
+ },
+ "q1391": {
+  "q": "Qual felino selvagem é o ancestral direto do gato doméstico moderno?",
+  "a": [
+   "Gato-selvagem-africano",
+   "Lince-euroasiático",
+   "Gato-da-selva",
+   "Gato-de-pallas"
+  ]
+ },
+ "q1392": {
+  "q": "Por que quase todos os gatos cálico são fêmeas?",
+  "a": [
+   "Os genes da cor ficam no cromossomo X",
+   "Machos não têm células de pigmento",
+   "A testosterona inibe pelos laranjas",
+   "O cromossomo Y bloqueia manchas brancas"
+  ]
+ },
+ "q1393": {
+  "q": "Qual composto químico da erva-do-gato desencadeia uma resposta eufórica em muitos gatos domésticos?",
+  "a": [
+   "Nepetalactona",
+   "Capsaicina",
+   "Teobromina",
+   "Mentol"
+  ]
+ },
+ "q1394": {
+  "q": "Qual deusa com cabeça de gato do antigo Egito simbolizava proteção, fertilidade e maternidade?",
+  "a": [
+   "Bastet",
+   "Sekhmet",
+   "Ísis",
+   "Hathor"
+  ]
+ },
+ "q1395": {
+  "q": "Qual era o nome do primeiro gato lançado ao espaço pela França em 1963?",
+  "a": [
+   "Félicette",
+   "Laika",
+   "Belka",
+   "Strelka"
+  ]
+ },
+ "q1396": {
+  "q": "Em qual ilha no mar da Irlanda se originou o gato Manx, naturalmente sem cauda?",
+  "a": [
+   "Ilha de Man",
+   "Ilha de Wight",
+   "Ilha de Skye",
+   "Anglesey"
+  ]
+ },
+ "q1397": {
+  "q": "Qual antigo nome da Tailândia deu nome à raça de gato siamês?",
+  "a": [
+   "Sião",
+   "Birmânia",
+   "Ceilão",
+   "Formosa"
+  ]
+ },
+ "q1398": {
+  "q": "Qual raça de gato é mais conhecida por quase não ter pelos e ter a pele enrugada?",
+  "a": [
+   "Sphynx",
+   "Maine Coon",
+   "Ragdoll",
+   "Persa"
+  ]
+ },
+ "q1399": {
+  "q": "Qual mutação genética faz com que as orelhas dos gatos Scottish Fold se dobrem para a frente e para baixo?",
+  "a": [
+   "Mutação da cartilagem",
+   "Deficiência de queratina",
+   "Excesso de melanina",
+   "Duplicação de colágeno"
+  ]
+ },
+ "q1400": {
+  "q": "Qual é o termo científico para um gato nascido com mais dedos do que o normal nas patas?",
+  "a": [
+   "Polidáctilo",
+   "Sindáctilo",
+   "Braquidáctilo",
+   "Ectrodáctilo"
+  ]
+ },
+ "q1401": {
+  "q": "Qual escritor americano criou dezenas de gatos de seis dedos em sua casa em Key West, na Flórida?",
+  "a": [
+   "Ernest Hemingway",
+   "Mark Twain",
+   "F. Scott Fitzgerald",
+   "William Faulkner"
+  ]
+ },
+ "q1402": {
+  "q": "Qual proteína na saliva e nas glândulas da pele do gato é a principal causa de alergia a gatos em humanos?",
+  "a": [
+   "Fel d 1",
+   "Queratina",
+   "Caseína",
+   "Colágeno"
+  ]
+ },
+ "q1403": {
+  "q": "Qual aminoácido essencial os gatos precisam obter diretamente da carne porque seus corpos não sintetizam o suficiente?",
+  "a": [
+   "Taurina",
+   "Glicina",
+   "Alanina",
+   "Glutamina"
+  ]
+ },
+ "q1404": {
+  "q": "Qual é a temperatura corporal normal em repouso de um gato doméstico adulto saudável?",
+  "a": [
+   "38,1 a 39,2 °C",
+   "35,0 a 36,0 °C",
+   "36,5 a 37,0 °C",
+   "41,0 a 42,0 °C"
+  ]
+ },
+ "q1405": {
+  "q": "Qual sistema de grupos sanguíneos é o mais importante clinicamente em gatos domésticos?",
+  "a": [
+   "Sistema AB",
+   "Sistema Kell",
+   "Sistema Duffy",
+   "Sistema Kidd"
+  ]
+ },
+ "q1406": {
+  "q": "Quanto tempo dura o período típico de gestação de uma gata doméstica?",
+  "a": [
+   "Cerca de 63 a 65 dias",
+   "Cerca de 30 a 32 dias",
+   "Cerca de 95 a 100 dias",
+   "Cerca de 120 a 125 dias"
+  ]
+ },
+ "q1407": {
+  "q": "Qual é o nome científico da terceira pálpebra do gato, que protege e umedece o olho?",
+  "a": [
+   "Membrana nictitante",
+   "Membrana timpânica",
+   "Membrana basilar",
+   "Membrana sinovial"
+  ]
+ },
+ "q1408": {
+  "q": "Qual poeta escreveu a coletânea de poemas sobre gatos que inspirou o musical 'Cats' de Andrew Lloyd Webber?",
+  "a": [
+   "T. S. Eliot",
+   "W. B. Yeats",
+   "Dylan Thomas",
+   "W. H. Auden"
+  ]
+ },
+ "q1409": {
+  "q": "Como são chamadas as minúsculas espinhas de queratina voltadas para trás que cobrem a língua do gato doméstico?",
+  "a": [
+   "Papilas filiformes",
+   "Papilas fungiformes",
+   "Papilas circunvaladas",
+   "Papilas folhadas"
+  ]
+ },
+ "q1410": {
+  "q": "Qual é o termo científico formal para os bigodes de um gato?",
+  "a": [
+   "Vibrissas",
+   "Cílios",
+   "Flagelos",
+   "Vilosidades"
+  ]
+ },
+ "q1411": {
+  "q": "Em qual ilha do Mediterrâneo arqueólogos encontraram o sepultamento intencional de gato mais antigo conhecido, de cerca de 9.500 anos?",
+  "a": [
+   "Chipre",
+   "Creta",
+   "Sicília",
+   "Sardenha"
+  ]
+ },
+ "q1412": {
+  "q": "Qual é a faixa típica de frequência fundamental do ronronar de um gato doméstico?",
+  "a": [
+   "25 a 150 Hz",
+   "500 a 1.000 Hz",
+   "2.000 a 4.000 Hz",
+   "10.000 a 15.000 Hz"
+  ]
+ },
+ "q1413": {
+  "q": "Qual lei física permite que um gato em queda gire a parte superior e inferior do corpo em direções opostas para cair de pé?",
+  "a": [
+   "Conservação do momento angular",
+   "Princípio de Bernoulli",
+   "Lei de Hooke",
+   "Princípio de Arquimedes"
+  ]
+ },
+ "q1414": {
+  "q": "Qual enzima sensível à temperatura causa as marcas escuras no rosto, orelhas, patas e cauda dos gatos siameses?",
+  "a": [
+   "Tirosinase",
+   "Amilase",
+   "Catalase",
+   "Pepsina"
+  ]
+ },
+ "q1415": {
+  "q": "Qual era o idioma oficial do Império Romano?",
+  "a": [
+   "Latim",
+   "Emoji",
+   "Código Morse",
+   "Estalos de golfinho"
+  ]
+ },
+ "q1416": {
+  "q": "Em qual grande anfiteatro de Roma aconteciam lutas de gladiadores?",
+  "a": [
+   "O Coliseu",
+   "Um castelo inflável",
+   "Um iglu gigante",
+   "Uma casa na árvore"
+  ]
+ },
+ "q1417": {
+  "q": "Quem foi o primeiro imperador romano?",
+  "a": [
+   "Augusto",
+   "Júlio César",
+   "Nero",
+   "Constantino"
+  ]
+ },
+ "q1418": {
+  "q": "Qual vulcão destruiu Pompeia e Herculano em 79 d.C.?",
+  "a": [
+   "Vesúvio",
+   "Etna",
+   "Stromboli",
+   "Monte Olimpo"
+  ]
+ },
+ "q1419": {
+  "q": "Em que data de 44 a.C. Júlio César foi assassinado?",
+  "a": [
+   "15 de março",
+   "1º de abril",
+   "4 de julho",
+   "31 de outubro"
+  ]
+ },
+ "q1420": {
+  "q": "Para transportar o que os aquedutos romanos foram construídos?",
+  "a": [
+   "Água doce",
+   "Azeite de oliva",
+   "Moedas de prata",
+   "Grãos"
+  ]
+ },
+ "q1421": {
+  "q": "Qual imperador romano ordenou a construção de uma muralha defensiva no norte da Britânia?",
+  "a": [
+   "Adriano",
+   "Trajano",
+   "Marco Aurélio",
+   "Calígula"
+  ]
+ },
+ "q1422": {
+  "q": "Qual cidade Constantino, o Grande, tornou a nova capital do Império Romano em 330 d.C.?",
+  "a": [
+   "Constantinopla",
+   "Alexandria",
+   "Antioquia",
+   "Ravena"
+  ]
+ },
+ "q1423": {
+  "q": "Qual gladiador trácio liderou uma grande revolta de escravos contra Roma em 73 a.C.?",
+  "a": [
+   "Espártaco",
+   "Vercingetórix",
+   "Aníbal",
+   "Armínio"
+  ]
+ },
+ "q1424": {
+  "q": "Qual imperador romano escreveu a obra filosófica estoica conhecida como \"Meditações\"?",
+  "a": [
+   "Marco Aurélio",
+   "Nero",
+   "Cômodo",
+   "Tibério"
+  ]
+ },
+ "q1425": {
+  "q": "Qual rio Júlio César atravessou em 49 a.C., desencadeando uma guerra civil contra Pompeu?",
+  "a": [
+   "Rubicão",
+   "Tibre",
+   "Reno",
+   "Danúbio"
+  ]
+ },
+ "q1426": {
+  "q": "Qual imperador romano nomeou seu cavalo favorito, Incitatus, para o sacerdócio?",
+  "a": [
+   "Calígula",
+   "Cláudio",
+   "Vespasiano",
+   "Antonino Pio"
+  ]
+ },
+ "q1427": {
+  "q": "Sob qual imperador o Império Romano atingiu sua maior extensão territorial em 117 d.C.?",
+  "a": [
+   "Trajano",
+   "Augusto",
+   "Diocleciano",
+   "Septímio Severo"
+  ]
+ },
+ "q1428": {
+  "q": "Quem foi o último imperador do Império Romano do Ocidente, deposto em 476 d.C.?",
+  "a": [
+   "Rômulo Augústulo",
+   "Júlio Nepos",
+   "Honório",
+   "Valentiniano III"
+  ]
+ },
+ "q1429": {
+  "q": "O que era o garum, um condimento básico da culinária romana antiga?",
+  "a": [
+   "Molho de peixe fermentado",
+   "Vinho temperado com mel",
+   "Pasta de azeitonas em conserva",
+   "Queijo de ovelha defumado"
+  ]
+ },
+ "q1430": {
+  "q": "Como se chama a abertura circular no centro da cúpula do Panteão de Roma?",
+  "a": [
+   "Óculo",
+   "Átrio",
+   "Pórtico",
+   "Abside"
+  ]
+ },
+ "q1431": {
+  "q": "Qual imperador romano instituiu a Tetrarquia em 293 d.C., dividindo o poder entre quatro governantes?",
+  "a": [
+   "Diocleciano",
+   "Constantino",
+   "Galieno",
+   "Aureliano"
+  ]
+ },
+ "q1432": {
+  "q": "Qual era o nome do maior estádio de corridas de bigas da Roma Antiga?",
+  "a": [
+   "Circo Máximo",
+   "Campo de Marte",
+   "Teatro de Pompeu",
+   "Termas de Caracala"
+  ]
+ },
+ "q1433": {
+  "q": "Qual imperador romano concedeu cidadania a quase todos os homens livres do império em 212 d.C.?",
+  "a": [
+   "Caracala",
+   "Adriano",
+   "Cláudio",
+   "Nerva"
+  ]
+ },
+ "q1434": {
+  "q": "Qual cinza vulcânica da baía de Nápoles dava ao concreto romano sua durabilidade subaquática?",
+  "a": [
+   "Pozolana",
+   "Obsidiana",
+   "Pedra-pomes",
+   "Basalto"
+  ]
+ },
+ "q1435": {
+  "q": "Em qual batalha de 9 d.C. tribos germânicas lideradas por Armínio aniquilaram três legiões romanas?",
+  "a": [
+   "Batalha da Floresta de Teutoburgo",
+   "Batalha de Canas",
+   "Batalha de Zama",
+   "Batalha de Adrianópolis"
+  ]
+ },
+ "q1436": {
+  "q": "Qual ano é conhecido na história romana como o \"Ano dos Quatro Imperadores\"?",
+  "a": [
+   "69 d.C.",
+   "14 d.C.",
+   "193 d.C.",
+   "306 d.C."
+  ]
+ },
+ "q1437": {
+  "q": "Qual autor romano morreu em 79 d.C. enquanto observava a erupção do Vesúvio?",
+  "a": [
+   "Plínio, o Velho",
+   "Sêneca, o Jovem",
+   "Tácito",
+   "Suetônio"
+  ]
+ },
+ "q1438": {
+  "q": "Qual édito promulgado em 313 d.C. concedeu tolerância religiosa aos cristãos no Império Romano?",
+  "a": [
+   "Édito de Milão",
+   "Édito de Tessalônica",
+   "Édito de Nantes",
+   "Édito de Worms"
+  ]
+ },
+ "q1439": {
+  "q": "Qual imperador romano foi capturado vivo pelo rei persa Sapor I na Batalha de Edessa em 260 d.C.?",
+  "a": [
+   "Valeriano",
+   "Galieno",
+   "Décio",
+   "Gordiano III"
+  ]
+ },
+ "q1440": {
+  "q": "Qual rainha de Palmira criou um império dissidente no Oriente romano durante o século III d.C.?",
+  "a": [
+   "Zenóbia",
+   "Boudica",
+   "Cleópatra",
+   "Agripina"
+  ]
+ },
+ "q1441": {
+  "q": "Como se chamava a moeda de ouro romana padrão introduzida sob Júlio César e reformada por Augusto?",
+  "a": [
+   "Áureo",
+   "Denário",
+   "Sestércio",
+   "Sólido"
+  ]
+ },
+ "q1442": {
+  "q": "Qual prefeito pretoriano governou Roma de fato enquanto o imperador Tibério vivia recluso em Capri?",
+  "a": [
+   "Sejano",
+   "Macro",
+   "Tigelino",
+   "Burro"
+  ]
+ },
+ "q1443": {
+  "q": "Qual imperador romano derrotou o Império das Gálias em 274 d.C. e recebeu o título de \"Restitutor Orbis\"?",
+  "a": [
+   "Aureliano",
+   "Probo",
+   "Cláudio Gótico",
+   "Caro"
+  ]
+ },
+ "q1444": {
+  "q": "Qual imperador romano promulgou o Édito Máximo em 301 d.C. para tentar conter a inflação?",
+  "a": [
+   "Diocleciano",
+   "Constantino",
+   "Galieno",
+   "Maxêncio"
+  ]
+ },
+ "q1445": {
+  "q": "Qual imperador romano foi estrangulado em seu banho pelo lutador Narciso em 31 de dezembro de 192?",
+  "a": [
+   "Cômodo",
+   "Caracala",
+   "Heliogábalo",
+   "Domiciano"
+  ]
+ },
+ "q1446": {
+  "q": "Segundo o livro de Gênesis, que enorme embarcação Noé construiu antes do dilúvio?",
+  "a": [
+   "Uma arca",
+   "Um submarino com Wi-Fi",
+   "Um balão de ar quente",
+   "Uma montanha-russa"
+  ]
+ },
+ "q1447": {
+  "q": "Que animal tentou Eva no Jardim do Éden segundo o Gênesis?",
+  "a": [
+   "Uma serpente",
+   "Um pinguim de esquis",
+   "Um canguru dançarino",
+   "Uma girafa roxa"
+  ]
+ },
+ "q1448": {
+  "q": "Que jovem pastor derrotou o gigante Golias usando uma funda e uma pedra?",
+  "a": [
+   "Davi",
+   "Salomão",
+   "Sansão",
+   "Samuel"
+  ]
+ },
+ "q1449": {
+  "q": "Onde residia a força sobre-humana de Sansão segundo o livro de Juízes?",
+  "a": [
+   "Em seus cabelos não cortados",
+   "Em seu cinto de bronze",
+   "Em seu cajado de ferro",
+   "Em seu anel de ouro"
+  ]
+ },
+ "q1450": {
+  "q": "Dentro de que criatura o profeta Jonas passou três dias e três noites?",
+  "a": [
+   "Um grande peixe",
+   "Uma tartaruga gigante",
+   "Um crocodilo-do-nilo",
+   "Uma serpente marinha"
+  ]
+ },
+ "q1451": {
+  "q": "O que aconteceu com a mulher de Ló quando ela olhou para trás, para Sodoma em chamas?",
+  "a": [
+   "Virou uma estátua de sal",
+   "Virou pedra",
+   "Perdeu a visão",
+   "Virou cinzas"
+  ]
+ },
+ "q1452": {
+  "q": "Qual mar Moisés abriu para que os israelitas escapassem do Egito segundo o Êxodo?",
+  "a": [
+   "O mar Vermelho",
+   "O mar Morto",
+   "O mar Mediterrâneo",
+   "O mar Negro"
+  ]
+ },
+ "q1453": {
+  "q": "Que peça de roupa Jacó deu a seu filho José, provocando a inveja de seus irmãos?",
+  "a": [
+   "Uma túnica de várias cores",
+   "Uma couraça de prata",
+   "Um manto real púrpura",
+   "Uma coroa de ouro"
+  ]
+ },
+ "q1454": {
+  "q": "Como o rei Salomão propôs resolver a disputa entre duas mulheres que reivindicavam o mesmo bebê?",
+  "a": [
+   "Cortando o bebê ao meio",
+   "Tirando a sorte",
+   "Perguntando a idade do bebê",
+   "Testando a caligrafia delas"
+  ]
+ },
+ "q1455": {
+  "q": "Que animal falou com o profeta Balaão depois que um anjo bloqueou o caminho deles?",
+  "a": [
+   "Uma jumenta",
+   "Um camelo",
+   "Um corvo",
+   "Um leão"
+  ]
+ },
+ "q1456": {
+  "q": "Como caíram as muralhas de Jericó segundo o livro de Josué?",
+  "a": [
+   "Após o som de trombetas e gritos do povo",
+   "Com aríetes e catapultas",
+   "Durante uma erupção vulcânica",
+   "Cavando túneis sob os alicerces"
+  ]
+ },
+ "q1457": {
+  "q": "Que alimento caía do céu todas as manhãs para alimentar os israelitas no deserto?",
+  "a": [
+   "Maná",
+   "Ambrosia",
+   "Cevada sem fermento",
+   "Figos silvestres"
+  ]
+ },
+ "q1458": {
+  "q": "Que ave Noé soltou primeiro da arca para verificar se as águas haviam baixado?",
+  "a": [
+   "Um corvo",
+   "Uma pomba",
+   "Uma andorinha",
+   "Uma águia"
+  ]
+ },
+ "q1459": {
+  "q": "Quantos anos Matusalém teria vivido segundo o livro de Gênesis?",
+  "a": [
+   "969",
+   "777",
+   "850",
+   "912"
+  ]
+ },
+ "q1460": {
+  "q": "Que profeta subiu ao céu num redemoinho com uma carruagem e cavalos de fogo?",
+  "a": [
+   "Elias",
+   "Eliseu",
+   "Isaías",
+   "Ezequiel"
+  ]
+ },
+ "q1461": {
+  "q": "Quais eram os nomes dos três homens lançados na fornalha ardente do rei Nabucodonosor?",
+  "a": [
+   "Sadraque, Mesaque e Abede-Nego",
+   "Sem, Cam e Jafé",
+   "Gérson, Coate e Merari",
+   "Elifaz, Bildade e Zofar"
+  ]
+ },
+ "q1462": {
+  "q": "Que rainha visitou o rei Salomão com ouro e especiarias para testá-lo com perguntas difíceis?",
+  "a": [
+   "A rainha de Sabá",
+   "A rainha Ester",
+   "A rainha Jezabel",
+   "A rainha Vasti"
+  ]
+ },
+ "q1463": {
+  "q": "Que rei babilônico viveu como um animal selvagem e comeu capim como um boi no livro de Daniel?",
+  "a": [
+   "Nabucodonosor",
+   "Belsazar",
+   "Hamurabi",
+   "Nabonido"
+  ]
+ },
+ "q1464": {
+  "q": "O que aconteceu com Uzá quando ele estendeu a mão para segurar a Arca da Aliança?",
+  "a": [
+   "Ele morreu imediatamente",
+   "Sua mão ficou leprosa",
+   "Ele ficou mudo",
+   "Ele foi cegado pela luz"
+  ]
+ },
+ "q1465": {
+  "q": "Qual tribo de Israel não recebeu herança territorial em Canaã por ter sido separada para o sacerdócio?",
+  "a": [
+   "Levi",
+   "Judá",
+   "Benjamim",
+   "Efraim"
+  ]
+ },
+ "q1466": {
+  "q": "Quais eram os três itens guardados dentro da Arca da Aliança segundo o Antigo Testamento?",
+  "a": [
+   "Tábuas de pedra, maná e a vara de Arão",
+   "Tábuas de pedra, incenso e uma coroa de ouro",
+   "A vara de Arão, óleo de unção e moedas de prata",
+   "Um rolo da Torá, maná e sal"
+  ]
+ },
+ "q1467": {
+  "q": "Que juiz canhoto assassinou o rei Eglom de Moabe com uma adaga de dois gumes?",
+  "a": [
+   "Eúde",
+   "Gideão",
+   "Jefté",
+   "Otniel"
+  ]
+ },
+ "q1468": {
+  "q": "Que palavras uma mão escreveu na parede durante o banquete do rei Belsazar?",
+  "a": [
+   "Mene, Mene, Tequel, Ufarsim",
+   "Kadosh, Kadosh, Kadosh",
+   "Shemá, Israel, Adonai",
+   "Elohim, Sabaoth, Shalom"
+  ]
+ },
+ "q1469": {
+  "q": "Como Jael matou o general cananeu Sísera enquanto ele dormia em sua tenda?",
+  "a": [
+   "Com uma estaca de tenda e um martelo",
+   "Com uma taça de leite envenenado",
+   "Com a própria lança de bronze dele",
+   "Com uma corda de arco"
+  ]
+ },
+ "q1470": {
+  "q": "Qual livro do Antigo Testamento não contém nenhuma menção a Deus?",
+  "a": [
+   "Ester",
+   "Rute",
+   "Jó",
+   "Eclesiastes"
+  ]
+ },
+ "q1471": {
+  "q": "Que rei de Judá teve sua vida prolongada por 15 anos após orar gravemente doente?",
+  "a": [
+   "Ezequias",
+   "Josias",
+   "Josafá",
+   "Uzias"
+  ]
+ },
+ "q1472": {
+  "q": "Quem foi o primeiro artesão citado pelo nome na Bíblia, escolhido para construir o Tabernáculo?",
+  "a": [
+   "Bezalel",
+   "Hirão",
+   "Tubalcaim",
+   "Aoliabe"
+  ]
+ },
+ "q1473": {
+  "q": "Que profeta foi jogado em uma cisterna lamacenta em Jerusalém antes de ser resgatado com cordas e trapos?",
+  "a": [
+   "Jeremias",
+   "Ezequiel",
+   "Amós",
+   "Oseias"
+  ]
+ },
+ "q1474": {
+  "q": "Como o rei Eglom de Moabe é descrito fisicamente no livro de Juízes?",
+  "a": [
+   "Era um homem muito gordo",
+   "Tinha seis dedos em cada mão",
+   "Era cego de um olho",
+   "Tinha mais de três metros de altura"
+  ]
+ },
+ "q1475": {
+  "q": "Que juiz de Israel derrotou os filisteus usando uma aguilhada de bois?",
+  "a": [
+   "Sangar",
+   "Tola",
+   "Jair",
+   "Ibsã"
+  ]
+ },
+ "q1476": {
+  "q": "Quais eram os nomes das três filhas de Jó nascidas depois que sua sorte foi restaurada?",
+  "a": [
+   "Jemima, Quézia e Quéren-Hapuque",
+   "Lia, Raquel e Diná",
+   "Macla, Noa e Hogla",
+   "Orfa, Rute e Noemi"
+  ]
+ },
+ "q1477": {
+  "q": "Qual gigante de Gate tinha seis dedos em cada mão e seis em cada pé em 2 Samuel?",
+  "a": [
+   "Um descendente anônimo de Rafa",
+   "Lami",
+   "Isbi-Benobe",
+   "Safe"
+  ]
+ },
+ "q1478": {
+  "q": "Que rei de Israel incendiou o palácio real sobre si mesmo em Tirza após reinar apenas sete dias?",
+  "a": [
+   "Zinri",
+   "Elá",
+   "Salum",
+   "Tíbni"
+  ]
+ },
+ "q1479": {
+  "q": "Segundo o Novo Testamento, em que Jesus transformou a água em um casamento em Caná?",
+  "a": [
+   "Vinho",
+   "Lava quente",
+   "Ouro líquido",
+   "Molho de soja"
+  ]
+ },
+ "q1480": {
+  "q": "Quantos apóstolos Jesus escolheu originalmente segundo os Evangelhos?",
+  "a": [
+   "12",
+   "7",
+   "10",
+   "15"
+  ]
+ },
+ "q1481": {
+  "q": "Em qual rio Jesus foi batizado por João Batista?",
+  "a": [
+   "Jordão",
+   "Nilo",
+   "Eufrates",
+   "Tigre"
+  ]
+ },
+ "q1482": {
+  "q": "De quantos livros é composto o Novo Testamento cristão padrão?",
+  "a": [
+   "27",
+   "24",
+   "33",
+   "39"
+  ]
+ },
+ "q1483": {
+  "q": "Segundo os Evangelhos, com quantos pães Jesus alimentou 5.000 homens?",
+  "a": [
+   "5",
+   "3",
+   "7",
+   "12"
+  ]
+ },
+ "q1484": {
+  "q": "Em qual idioma original foram escritos os livros do Novo Testamento?",
+  "a": [
+   "Grego",
+   "Hebraico",
+   "Latim",
+   "Aramaico"
+  ]
+ },
+ "q1485": {
+  "q": "Qual amigo Jesus ressuscitou após quatro dias em um túmulo em Betânia?",
+  "a": [
+   "Lázaro",
+   "Nicodemos",
+   "Barnabé",
+   "Zaqueu"
+  ]
+ },
+ "q1486": {
+  "q": "Qual era a profissão do apóstolo Pedro antes de se tornar discípulo de Jesus?",
+  "a": [
+   "Pescador",
+   "Cobrador de impostos",
+   "Carpinteiro",
+   "Fabricante de tendas"
+  ]
+ },
+ "q1487": {
+  "q": "Segundo o livro do Apocalipse, quantos cavaleiros aparecem na abertura dos quatro primeiros selos?",
+  "a": [
+   "4",
+   "3",
+   "7",
+   "12"
+  ]
+ },
+ "q1488": {
+  "q": "Qual autor de um Evangelho e dos Atos dos Apóstolos é descrito por Paulo como médico?",
+  "a": [
+   "Lucas",
+   "Marcos",
+   "Mateus",
+   "João"
+  ]
+ },
+ "q1489": {
+  "q": "Em que tipo de árvore o cobrador de impostos Zaqueu subiu para ver Jesus em Jericó?",
+  "a": [
+   "Sicômoro",
+   "Oliveira",
+   "Figueira",
+   "Cedro"
+  ]
+ },
+ "q1490": {
+  "q": "Segundo os Evangelhos, quantas moedas de prata Judas Iscariotes recebeu para trair Jesus?",
+  "a": [
+   "30",
+   "20",
+   "40",
+   "50"
+  ]
+ },
+ "q1491": {
+  "q": "Em qual ilha o apóstolo Paulo naufragou a caminho de Roma, segundo os Atos dos Apóstolos?",
+  "a": [
+   "Malta",
+   "Chipre",
+   "Creta",
+   "Sicília"
+  ]
+ },
+ "q1492": {
+  "q": "Em qual cidade os seguidores de Jesus foram chamados de cristãos pela primeira vez, segundo os Atos dos Apóstolos?",
+  "a": [
+   "Antioquia",
+   "Jerusalém",
+   "Éfeso",
+   "Corinto"
+  ]
+ },
+ "q1493": {
+  "q": "Em qual ilha grega João escreveu o livro do Apocalipse enquanto estava no exílio?",
+  "a": [
+   "Patmos",
+   "Rodes",
+   "Lesbos",
+   "Corfu"
+  ]
+ },
+ "q1494": {
+  "q": "Quem foi escolhido por sorteio para substituir Judas Iscariotes entre os doze apóstolos?",
+  "a": [
+   "Matias",
+   "Barnabé",
+   "Silas",
+   "Timóteo"
+  ]
+ },
+ "q1495": {
+  "q": "Segundo o Evangelho de João, quem foi a primeira pessoa a ver Jesus ressuscitado junto ao túmulo?",
+  "a": [
+   "Maria Madalena",
+   "Simão Pedro",
+   "João Apóstolo",
+   "Tomé"
+  ]
+ },
+ "q1496": {
+  "q": "Qual ofício o apóstolo Paulo exercia ao lado de Áquila e Priscila em Corinto?",
+  "a": [
+   "Fabricação de tendas",
+   "Carpintaria",
+   "Olaria",
+   "Alvenaria"
+  ]
+ },
+ "q1497": {
+  "q": "Qual é o livro mais curto em número de palavras do Novo Testamento?",
+  "a": [
+   "Terceira Epístola de João",
+   "Segunda Epístola de João",
+   "Epístola a Filemom",
+   "Epístola de Judas"
+  ]
+ },
+ "q1498": {
+  "q": "Quem carregou a cruz de Jesus por parte do caminho até o Gólgota segundo os Evangelhos sinóticos?",
+  "a": [
+   "Simão de Cirene",
+   "José de Arimateia",
+   "Nicodemos",
+   "Barrabás"
+  ]
+ },
+ "q1499": {
+  "q": "Segundo os Atos dos Apóstolos, quantas pessoas se salvaram do naufrágio com Paulo em Malta?",
+  "a": [
+   "276",
+   "144",
+   "153",
+   "312"
+  ]
+ },
+ "q1500": {
+  "q": "No Evangelho de João, quantos peixes grandes os discípulos pescaram após a ressurreição?",
+  "a": [
+   "153",
+   "120",
+   "144",
+   "200"
+  ]
+ },
+ "q1501": {
+  "q": "Que jovem adormeceu durante o sermão de Paulo em Trôade e caiu da janela do terceiro andar?",
+  "a": [
+   "Êutico",
+   "Onésimo",
+   "Tíquico",
+   "Epafras"
+  ]
+ },
+ "q1502": {
+  "q": "A quem Paulo escreveu uma breve carta do Novo Testamento intercedendo pelo escravo fugitivo Onésimo?",
+  "a": [
+   "Filemom",
+   "Tito",
+   "Gaio",
+   "Arquipo"
+  ]
+ },
+ "q1503": {
+  "q": "Em qual cidade Paulo pregou sobre um altar com a inscrição Ao Deus Desconhecido?",
+  "a": [
+   "Atenas",
+   "Roma",
+   "Corinto",
+   "Tessalônica"
+  ]
+ },
+ "q1504": {
+  "q": "Qual escriba é nomeado no final da Epístola aos Romanos como quem redigiu a carta de Paulo?",
+  "a": [
+   "Tércio",
+   "Quarto",
+   "Sóstenes",
+   "Silvano"
+  ]
+ },
+ "q1505": {
+  "q": "Como se chamava o servo do sumo sacerdote cuja orelha direita Pedro cortou no Getsêmani, segundo João?",
+  "a": [
+   "Malco",
+   "Anás",
+   "Caifás",
+   "Alexandre"
+  ]
+ },
+ "q1506": {
+  "q": "Qual figura é mencionada na Epístola de Judas disputando com o diabo o corpo de Moisés?",
+  "a": [
+   "Arcanjo Miguel",
+   "Profeta Elias",
+   "Arcanjo Gabriel",
+   "Sumo sacerdote Arão"
+  ]
+ },
+ "q1507": {
+  "q": "Segundo o Evangelho de Lucas, quantas moedas a mulher tinha antes de perder uma na parábola de Jesus?",
+  "a": [
+   "10",
+   "7",
+   "12",
+   "20"
+  ]
+ },
+ "q1508": {
+  "q": "Qual procônsul romano da Acaia rejeitou as acusações contra Paulo em Corinto?",
+  "a": [
+   "Gálio",
+   "Félix",
+   "Festo",
+   "Sérgio Paulo"
+  ]
+ },
+ "q1509": {
+  "q": "Qual membro do Areópago de Atenas tornou-se crente após ouvir o discurso de Paulo ali?",
+  "a": [
+   "Dionísio",
+   "Aristarco",
+   "Apolo",
+   "Epafrodito"
+  ]
+ },
+ "q1510": {
+  "q": "A qual astro Rá, o deus solar do Egito antigo, era associado?",
+  "a": [
+   "Ao Sol",
+   "A uma batata voadora",
+   "A um bule dançarino",
+   "A uma meia gigante"
+  ]
+ },
+ "q1511": {
+  "q": "Qual deus egípcio era marido de Ísis e pai de Hórus?",
+  "a": [
+   "Osíris",
+   "Seth",
+   "Thoth",
+   "Anúbis"
+  ]
+ },
+ "q1512": {
+  "q": "Qual deusa egípcia é a mãe de Hórus no mito de Osíris?",
+  "a": [
+   "Ísis",
+   "Néftis",
+   "Nut",
+   "Bastet"
+  ]
+ },
+ "q1513": {
+  "q": "Qual deus mata Osíris no mito egípcio?",
+  "a": [
+   "Seth",
+   "Hórus",
+   "Thoth",
+   "Ptah"
+  ]
+ },
+ "q1514": {
+  "q": "Qual deus egípcio disputa o trono com Seth após a morte de Osíris?",
+  "a": [
+   "Hórus",
+   "Anúbis",
+   "Thoth",
+   "Khnum"
+  ]
+ },
+ "q1515": {
+  "q": "Qual animal frequentemente representa o deus egípcio Hórus?",
+  "a": [
+   "Falcão",
+   "Crocodilo",
+   "Hipopótamo",
+   "Escaravelho"
+  ]
+ },
+ "q1516": {
+  "q": "Qual deus egípcio se associa ao embalsamamento e costuma ser representado com cabeça de chacal?",
+  "a": [
+   "Anúbis",
+   "Hórus",
+   "Thoth",
+   "Sobek"
+  ]
+ },
+ "q1517": {
+  "q": "Qual deus egípcio da escrita costuma ser representado com cabeça de íbis?",
+  "a": [
+   "Thoth",
+   "Hórus",
+   "Anúbis",
+   "Seth"
+  ]
+ },
+ "q1518": {
+  "q": "Qual deusa egípcia era frequentemente representada como uma gata?",
+  "a": [
+   "Bastet",
+   "Nut",
+   "Maat",
+   "Néftis"
+  ]
+ },
+ "q1519": {
+  "q": "Qual deusa egípcia é conhecida pela cabeça de leoa e pelo poder destrutivo?",
+  "a": [
+   "Sekhmet",
+   "Ísis",
+   "Nut",
+   "Néftis"
+  ]
+ },
+ "q1520": {
+  "q": "Qual deusa egípcia era frequentemente representada como uma mulher arqueada sobre a terra formando o céu?",
+  "a": [
+   "Nut",
+   "Ísis",
+   "Bastet",
+   "Maat"
+  ]
+ },
+ "q1521": {
+  "q": "Qual deus egípcio personificava a terra e era marido de Nut, deusa do céu?",
+  "a": [
+   "Geb",
+   "Shu",
+   "Thoth",
+   "Anúbis"
+  ]
+ },
+ "q1522": {
+  "q": "Qual deus egípcio do ar separa Nut, deusa do céu, de Geb, deus da terra?",
+  "a": [
+   "Shu",
+   "Seth",
+   "Thoth",
+   "Anúbis"
+  ]
+ },
+ "q1523": {
+  "q": "Qual deusa egípcia personificava a verdade, a justiça e a ordem cósmica?",
+  "a": [
+   "Maat",
+   "Bastet",
+   "Nut",
+   "Taweret"
+  ]
+ },
+ "q1524": {
+  "q": "Na crença funerária egípcia, qual órgão era pesado contra a pena de Maat?",
+  "a": [
+   "O coração",
+   "O cérebro",
+   "O fígado",
+   "Os pulmões"
+  ]
+ },
+ "q1525": {
+  "q": "Qual é o nome da criatura que, na crença funerária egípcia, devora os mortos indignos?",
+  "a": [
+   "Ammit",
+   "Apófis",
+   "Sobek",
+   "Khepri"
+  ]
+ },
+ "q1526": {
+  "q": "Que tipo de criatura é Apófis, inimigo do deus solar egípcio Rá?",
+  "a": [
+   "Uma serpente",
+   "Um crocodilo",
+   "Um falcão",
+   "Um leão"
+  ]
+ },
+ "q1527": {
+  "q": "Em que veículo o deus solar atravessa o céu na mitologia egípcia?",
+  "a": [
+   "Em um barco",
+   "Em uma biga",
+   "Em um trenó",
+   "Em uma carruagem"
+  ]
+ },
+ "q1528": {
+  "q": "Qual deus egípcio é associado aos crocodilos e ao Nilo?",
+  "a": [
+   "Sobek",
+   "Thoth",
+   "Hórus",
+   "Anúbis"
+  ]
+ },
+ "q1529": {
+  "q": "Qual deusa egípcia do parto era frequentemente representada com corpo de hipopótamo grávido?",
+  "a": [
+   "Taweret",
+   "Maat",
+   "Ísis",
+   "Nut"
+  ]
+ },
+ "q1530": {
+  "q": "Qual deus egípcio, frequentemente representado como anão, protegia os lares e as crianças?",
+  "a": [
+   "Bes",
+   "Seth",
+   "Geb",
+   "Thoth"
+  ]
+ },
+ "q1531": {
+  "q": "Qual deusa egípcia da música e da alegria era frequentemente representada com chifres de vaca ao redor de um disco solar?",
+  "a": [
+   "Hathor",
+   "Néftis",
+   "Maat",
+   "Taweret"
+  ]
+ },
+ "q1532": {
+  "q": "Qual instrumento musical semelhante a um chocalho era ligado à deusa egípcia Hathor?",
+  "a": [
+   "Sistro",
+   "Harpa",
+   "Flauta",
+   "Trompete"
+  ]
+ },
+ "q1533": {
+  "q": "Qual deus egípcio representava o sol nascente e era associado ao escaravelho?",
+  "a": [
+   "Khepri",
+   "Sobek",
+   "Anúbis",
+   "Thoth"
+  ]
+ },
+ "q1534": {
+  "q": "Qual deus criador egípcio era especialmente venerado em Mênfis e associado aos artesãos?",
+  "a": [
+   "Ptah",
+   "Sobek",
+   "Hórus",
+   "Anúbis"
+  ]
+ },
+ "q1535": {
+  "q": "Qual deus egípcio moldava as pessoas em uma roda de oleiro segundo o mito?",
+  "a": [
+   "Khnum",
+   "Seth",
+   "Thoth",
+   "Hórus"
+  ]
+ },
+ "q1536": {
+  "q": "Qual deusa egípcia ajuda Ísis a lamentar e proteger Osíris no mito de sua morte?",
+  "a": [
+   "Néftis",
+   "Bastet",
+   "Sekhmet",
+   "Taweret"
+  ]
+ },
+ "q1537": {
+  "q": "O que representa o símbolo do Egito antigo chamado ankh?",
+  "a": [
+   "A vida",
+   "A guerra",
+   "A noite",
+   "A fome"
+  ]
+ },
+ "q1538": {
+  "q": "Como era comumente usado o símbolo egípcio de proteção chamado olho de Hórus?",
+  "a": [
+   "Como amuleto",
+   "Como instrumento musical",
+   "Como ferramenta agrícola",
+   "Como panela"
+  ]
+ },
+ "q1539": {
+  "q": "Segundo a lenda romana, qual animal amamentou os gêmeos Rômulo e Remo?",
+  "a": [
+   "Uma loba",
+   "Uma ursa",
+   "Uma leoa",
+   "Uma vaca"
+  ]
+ },
+ "q1540": {
+  "q": "Quem era o deus supremo do panteão romano?",
+  "a": [
+   "Júpiter",
+   "Netuno",
+   "Marte",
+   "Mercúrio"
+  ]
+ },
+ "q1541": {
+  "q": "Qual deus romano estava associado ao mar?",
+  "a": [
+   "Netuno",
+   "Marte",
+   "Mercúrio",
+   "Vulcano"
+  ]
+ },
+ "q1542": {
+  "q": "Qual deus romano estava associado à guerra?",
+  "a": [
+   "Marte",
+   "Netuno",
+   "Mercúrio",
+   "Saturno"
+  ]
+ },
+ "q1543": {
+  "q": "Qual deusa romana estava associada ao amor e à beleza?",
+  "a": [
+   "Vênus",
+   "Diana",
+   "Vesta",
+   "Ceres"
+  ]
+ },
+ "q1544": {
+  "q": "Qual deusa romana estava associada à caça?",
+  "a": [
+   "Diana",
+   "Juno",
+   "Vesta",
+   "Ceres"
+  ]
+ },
+ "q1545": {
+  "q": "Qual deusa romana estava associada à sabedoria e aos ofícios?",
+  "a": [
+   "Minerva",
+   "Vênus",
+   "Diana",
+   "Vesta"
+  ]
+ },
+ "q1546": {
+  "q": "Qual deusa romana estava associada ao fogo do lar?",
+  "a": [
+   "Vesta",
+   "Diana",
+   "Vênus",
+   "Minerva"
+  ]
+ },
+ "q1547": {
+  "q": "Qual deus romano era mensageiro dos deuses?",
+  "a": [
+   "Mercúrio",
+   "Netuno",
+   "Saturno",
+   "Vulcano"
+  ]
+ },
+ "q1548": {
+  "q": "Qual deus romano estava associado ao fogo e à metalurgia?",
+  "a": [
+   "Vulcano",
+   "Mercúrio",
+   "Netuno",
+   "Marte"
+  ]
+ },
+ "q1549": {
+  "q": "Quem era a esposa de Júpiter na mitologia romana?",
+  "a": [
+   "Juno",
+   "Diana",
+   "Vesta",
+   "Ceres"
+  ]
+ },
+ "q1550": {
+  "q": "Qual deus romano costumava ser representado com dois rostos voltados para direções opostas?",
+  "a": [
+   "Jano",
+   "Marte",
+   "Mercúrio",
+   "Netuno"
+  ]
+ },
+ "q1551": {
+  "q": "Qual deusa romana estava associada aos cereais e à agricultura?",
+  "a": [
+   "Ceres",
+   "Diana",
+   "Vênus",
+   "Juno"
+  ]
+ },
+ "q1552": {
+  "q": "Na mitologia romana, quem era a filha de Ceres levada ao mundo subterrâneo por Plutão?",
+  "a": [
+   "Prosérpina",
+   "Minerva",
+   "Diana",
+   "Vesta"
+  ]
+ },
+ "q1553": {
+  "q": "Qual deus romano governava o mundo subterrâneo como equivalente do grego Hades?",
+  "a": [
+   "Plutão",
+   "Mercúrio",
+   "Marte",
+   "Netuno"
+  ]
+ },
+ "q1554": {
+  "q": "Qual objeto é um atributo conhecido de Netuno na arte romana?",
+  "a": [
+   "Um tridente",
+   "Um raio",
+   "Uma foice",
+   "Um arco"
+  ]
+ },
+ "q1555": {
+  "q": "Qual ave era especialmente associada a Júpiter na religião romana?",
+  "a": [
+   "Águia",
+   "Coruja",
+   "Pavão",
+   "Pomba"
+  ]
+ },
+ "q1556": {
+  "q": "Qual ave era especialmente associada a Minerva na arte romana?",
+  "a": [
+   "Coruja",
+   "Águia",
+   "Pavão",
+   "Pomba"
+  ]
+ },
+ "q1557": {
+  "q": "Segundo a lenda romana, quem era o irmão gêmeo de Rômulo?",
+  "a": [
+   "Remo",
+   "Eneias",
+   "Numitor",
+   "Fáustulo"
+  ]
+ },
+ "q1558": {
+  "q": "Na lenda romana, qual deus era o pai de Rômulo e Remo?",
+  "a": [
+   "Marte",
+   "Júpiter",
+   "Netuno",
+   "Mercúrio"
+  ]
+ },
+ "q1559": {
+  "q": "Quem era a mãe de Rômulo e Remo na lenda romana?",
+  "a": [
+   "Reia Sílvia",
+   "Lavínio",
+   "Dido",
+   "Lavínia"
+  ]
+ },
+ "q1560": {
+  "q": "Em qual rio Rômulo e Remo foram abandonados à deriva segundo a lenda romana?",
+  "a": [
+   "Tibre",
+   "Pó",
+   "Arno",
+   "Ródano"
+  ]
+ },
+ "q1561": {
+  "q": "Qual pastor encontrou Rômulo e Remo na lenda romana?",
+  "a": [
+   "Fáustulo",
+   "Numitor",
+   "Amúlio",
+   "Anquises"
+  ]
+ },
+ "q1562": {
+  "q": "Qual herói troiano está no centro da Eneida de Virgílio?",
+  "a": [
+   "Eneias",
+   "Heitor",
+   "Páris",
+   "Príamo"
+  ]
+ },
+ "q1563": {
+  "q": "Na Eneida de Virgílio, qual deusa é a mãe de Eneias?",
+  "a": [
+   "Vênus",
+   "Juno",
+   "Diana",
+   "Vesta"
+  ]
+ },
+ "q1564": {
+  "q": "Na Eneida de Virgílio, qual rainha se apaixona por Eneias?",
+  "a": [
+   "Dido",
+   "Lavínia",
+   "Reia Sílvia",
+   "Amata"
+  ]
+ },
+ "q1565": {
+  "q": "Na Eneida de Virgílio, qual cidade é governada por Dido?",
+  "a": [
+   "Cartago",
+   "Troia",
+   "Atenas",
+   "Esparta"
+  ]
+ },
+ "q1566": {
+  "q": "Na Eneida de Virgílio, quem Eneias carrega para fora de Troia em chamas?",
+  "a": [
+   "Seu pai Anquises",
+   "Seu filho Ascânio",
+   "Sua esposa Creúsa",
+   "Seu amigo Acates"
+  ]
+ },
+ "q1567": {
+  "q": "Qual festa romana era celebrada em honra de Saturno?",
+  "a": [
+   "Saturnais",
+   "Lupercais",
+   "Florais",
+   "Vestais"
+  ]
+ },
+ "q1568": {
+  "q": "Qual deusa romana era homenageada na festa das Florais?",
+  "a": [
+   "Flora",
+   "Pomona",
+   "Vesta",
+   "Juno"
+  ]
+ },
+ "q1569": {
+  "q": "Na mitologia nórdica, Thor é um deus de qual fenômeno natural?",
+  "a": [
+   "Trovão",
+   "Chuva",
+   "Neve",
+   "Vento"
+  ]
+ },
+ "q1570": {
+  "q": "Por qual arma Thor é conhecido na mitologia nórdica?",
+  "a": [
+   "Um martelo",
+   "Um arco",
+   "Um tridente",
+   "Uma foice"
+  ]
+ },
+ "q1571": {
+  "q": "Como se chama o martelo de Thor na mitologia nórdica?",
+  "a": [
+   "Mjölnir",
+   "Gungnir",
+   "Gleipnir",
+   "Gram"
+  ]
+ },
+ "q1572": {
+  "q": "Quem é o pai de Thor na mitologia nórdica?",
+  "a": [
+   "Odin",
+   "Loki",
+   "Tyr",
+   "Heimdall"
+  ]
+ },
+ "q1573": {
+  "q": "Como se chama o salão de Odin para parte dos guerreiros mortos na mitologia nórdica?",
+  "a": [
+   "Valhala",
+   "Midgard",
+   "Jotunheim",
+   "Niflheim"
+  ]
+ },
+ "q1574": {
+  "q": "Na mitologia nórdica, quais seres escolhem guerreiros mortos para Odin?",
+  "a": [
+   "Valquírias",
+   "Nornas",
+   "Anões",
+   "Gigantes"
+  ]
+ },
+ "q1575": {
+  "q": "Como se chama a árvore do mundo na mitologia nórdica?",
+  "a": [
+   "Yggdrasil",
+   "Bifröst",
+   "Valhala",
+   "Gungnir"
+  ]
+ },
+ "q1576": {
+  "q": "Que tipo de árvore é Yggdrasil na mitologia nórdica?",
+  "a": [
+   "Freixo",
+   "Carvalho",
+   "Pinheiro",
+   "Bétula"
+  ]
+ },
+ "q1577": {
+  "q": "Como se chama o mundo dos humanos na mitologia nórdica?",
+  "a": [
+   "Midgard",
+   "Asgard",
+   "Jotunheim",
+   "Niflheim"
+  ]
+ },
+ "q1578": {
+  "q": "Como se chama a morada dos deuses Æsir na mitologia nórdica?",
+  "a": [
+   "Asgard",
+   "Midgard",
+   "Jotunheim",
+   "Niflheim"
+  ]
+ },
+ "q1579": {
+  "q": "Como se chama a ponte de arco-íris que leva a Asgard na mitologia nórdica?",
+  "a": [
+   "Bifröst",
+   "Gleipnir",
+   "Mjölnir",
+   "Gungnir"
+  ]
+ },
+ "q1580": {
+  "q": "Qual deus guarda a ponte Bifröst na mitologia nórdica?",
+  "a": [
+   "Heimdall",
+   "Tyr",
+   "Freyr",
+   "Balder"
+  ]
+ },
+ "q1581": {
+  "q": "Na mitologia nórdica, como se chama o grande lobo que mata Odin no Ragnarök?",
+  "a": [
+   "Fenrir",
+   "Sleipnir",
+   "Ratatoskr",
+   "Níðhöggr"
+  ]
+ },
+ "q1582": {
+  "q": "Na mitologia nórdica, qual deus perde uma mão quando os deuses prendem Fenrir?",
+  "a": [
+   "Tyr",
+   "Thor",
+   "Balder",
+   "Heimdall"
+  ]
+ },
+ "q1583": {
+  "q": "Na mitologia nórdica, como se chama a amarra mágica usada para prender Fenrir?",
+  "a": [
+   "Gleipnir",
+   "Gungnir",
+   "Mjölnir",
+   "Gram"
+  ]
+ },
+ "q1584": {
+  "q": "Qual deus é o pai de Fenrir na mitologia nórdica?",
+  "a": [
+   "Loki",
+   "Odin",
+   "Thor",
+   "Tyr"
+  ]
+ },
+ "q1585": {
+  "q": "Na mitologia nórdica, qual filho de Odin o vinga ao matar Fenrir no Ragnarök?",
+  "a": [
+   "Vidar",
+   "Balder",
+   "Höðr",
+   "Hermóðr"
+  ]
+ },
+ "q1586": {
+  "q": "Que tipo de criatura é Jörmungandr na mitologia nórdica?",
+  "a": [
+   "Uma serpente",
+   "Um lobo",
+   "Um cavalo",
+   "Uma águia"
+  ]
+ },
+ "q1587": {
+  "q": "Na mitologia nórdica, qual deus luta contra a serpente do mundo Jörmungandr no Ragnarök?",
+  "a": [
+   "Thor",
+   "Odin",
+   "Tyr",
+   "Freyr"
+  ]
+ },
+ "q1588": {
+  "q": "Que animal é Sleipnir, a montaria de Odin na mitologia nórdica?",
+  "a": [
+   "Um cavalo",
+   "Um lobo",
+   "Um urso",
+   "Um javali"
+  ]
+ },
+ "q1589": {
+  "q": "Na mitologia nórdica, quantas pernas tem Sleipnir, o cavalo de Odin?",
+  "a": [
+   "8",
+   "4",
+   "6",
+   "10"
+  ]
+ },
+ "q1590": {
+  "q": "Na mitologia nórdica, que tipo de ave são Huginn e Muninn, os companheiros de Odin?",
+  "a": [
+   "Corvos",
+   "Águias",
+   "Cisnes",
+   "Açores"
+  ]
+ },
+ "q1591": {
+  "q": "Na mitologia nórdica, o que Odin sacrificou no poço de Mímir em troca de sabedoria?",
+  "a": [
+   "Um olho",
+   "Uma mão",
+   "Uma orelha",
+   "Um pé"
+  ]
+ },
+ "q1592": {
+  "q": "Como se chama a lança de Odin na mitologia nórdica?",
+  "a": [
+   "Gungnir",
+   "Mjölnir",
+   "Gleipnir",
+   "Gram"
+  ]
+ },
+ "q1593": {
+  "q": "Qual deusa é irmã de Freyr na mitologia nórdica?",
+  "a": [
+   "Freyja",
+   "Frigg",
+   "Sif",
+   "Idunn"
+  ]
+ },
+ "q1594": {
+  "q": "Qual deusa viaja em uma carruagem puxada por gatos na mitologia nórdica?",
+  "a": [
+   "Freyja",
+   "Frigg",
+   "Sif",
+   "Idunn"
+  ]
+ },
+ "q1595": {
+  "q": "Qual deusa é esposa de Thor na mitologia nórdica?",
+  "a": [
+   "Sif",
+   "Freyja",
+   "Idunn",
+   "Hel"
+  ]
+ },
+ "q1596": {
+  "q": "Na mitologia nórdica, qual deusa guarda as maçãs que preservam a juventude dos deuses na Edda em prosa?",
+  "a": [
+   "Idunn",
+   "Sif",
+   "Frigg",
+   "Hel"
+  ]
+ },
+ "q1597": {
+  "q": "Na mitologia nórdica, qual planta é usada para matar Balder na Edda em prosa?",
+  "a": [
+   "Visco",
+   "Hera",
+   "Azevinho",
+   "Teixo"
+  ]
+ },
+ "q1598": {
+  "q": "O que é o Ragnarök na mitologia nórdica?",
+  "a": [
+   "A batalha final dos deuses",
+   "A criação do Sol",
+   "Um casamento de gigantes",
+   "Um banquete em Valhala"
+  ]
+ },
+ "q1599": {
+  "q": "Quem era o rei dos deuses na mitologia grega?",
+  "a": [
+   "Zeus",
+   "Napoleão",
+   "Donald Trump",
+   "Gengis Khan"
+  ]
+ },
+ "q1600": {
+  "q": "Na mitologia grega, quantos trabalhos Héracles teve que realizar para o rei Euristeu?",
+  "a": [
+   "12",
+   "7",
+   "10",
+   "24"
+  ]
+ },
+ "q1601": {
+  "q": "Na mitologia grega, o que Medusa tinha na cabeça em vez de cabelos?",
+  "a": [
+   "Serpentes venenosas",
+   "Penas em chamas",
+   "Chifres de bronze",
+   "Cristais pontiagudos"
+  ]
+ },
+ "q1602": {
+  "q": "Na mitologia grega, qual parte do corpo de Aquiles permaneceu vulnerável depois que sua mãe o mergulhou no rio Estige?",
+  "a": [
+   "O calcanhar",
+   "O ombro esquerdo",
+   "A garganta",
+   "O pulso direito"
+  ]
+ },
+ "q1603": {
+  "q": "Na mitologia grega, quem abriu o jarro que liberou todos os males no mundo, deixando apenas a esperança dentro?",
+  "a": [
+   "Pandora",
+   "Cassandra",
+   "Penélope",
+   "Andrômeda"
+  ]
+ },
+ "q1604": {
+  "q": "Na mitologia grega, como os gregos finalmente entraram na cidade murada de Troia?",
+  "a": [
+   "Dentro de um cavalo gigante de madeira",
+   "Por um aqueduto inundado",
+   "Disfarçados de marinheiros mercantes",
+   "Sobre uma ponte de navios acorrentados"
+  ]
+ },
+ "q1605": {
+  "q": "Qual era o nome do cão de três cabeças que guardava a entrada do submundo grego?",
+  "a": [
+   "Cérbero",
+   "Ortro",
+   "Quimera",
+   "Tifão"
+  ]
+ },
+ "q1606": {
+  "q": "Na mitologia grega, qual rei mítico transformava em ouro tudo o que tocava?",
+  "a": [
+   "Midas",
+   "Creso",
+   "Tântalo",
+   "Sísifo"
+  ]
+ },
+ "q1607": {
+  "q": "Na mitologia grega, quem voou perto demais do sol com asas feitas de penas e cera?",
+  "a": [
+   "Ícaro",
+   "Faetonte",
+   "Belerofonte",
+   "Perseu"
+  ]
+ },
+ "q1608": {
+  "q": "Na mitologia grega, qual foi o castigo eterno de Sísifo no submundo?",
+  "a": [
+   "Rolar uma pedra morro acima para sempre",
+   "Ficar na água sem poder bebê-la",
+   "Ficar preso a uma roda em chamas",
+   "Ter o fígado devorado por uma águia"
+  ]
+ },
+ "q1609": {
+  "q": "Na mitologia grega, como Ariadne ajudou Teseu a escapar do Labirinto após matar o Minotauro?",
+  "a": [
+   "Deu-lhe um novelo de fio",
+   "Desenhou um mapa em papiro",
+   "Emprestou-lhe uma lanterna brilhante",
+   "Marcou as paredes com giz"
+  ]
+ },
+ "q1610": {
+  "q": "Qual rio do submundo grego fazia as almas esquecerem sua vida terrena ao beberem dele?",
+  "a": [
+   "Lete",
+   "Aqueronte",
+   "Cócito",
+   "Flegetonte"
+  ]
+ },
+ "q1611": {
+  "q": "Na mitologia grega, por que Orfeu perdeu Eurídice para sempre enquanto a conduzia para fora do submundo?",
+  "a": [
+   "Olhou para trás cedo demais",
+   "Parou de tocar sua lira",
+   "Falou o nome dela em voz alta",
+   "Deixou cair o ramo dourado"
+  ]
+ },
+ "q1612": {
+  "q": "Na mitologia grega, como Perseu evitou ser transformado em pedra ao lutar contra Medusa?",
+  "a": [
+   "Olhou o reflexo dela em seu escudo",
+   "Lutou de olhos vendados",
+   "Usou um capacete de invisibilidade",
+   "Fechou os olhos e usou um feitiço de espelho"
+  ]
+ },
+ "q1613": {
+  "q": "Na mitologia grega, como Odisseu protegeu sua tripulação do canto mortal das sereias?",
+  "a": [
+   "Tapou os ouvidos deles com cera de abelha",
+   "Ordenou que cantassem mais alto",
+   "Ancorou o navio longe da ilha",
+   "Tocou flauta para abafar as vozes delas"
+  ]
+ },
+ "q1614": {
+  "q": "Na mitologia grega, qual deusa surgiu totalmente adulta e armada da cabeça de Zeus?",
+  "a": [
+   "Atena",
+   "Ártemis",
+   "Afrodite",
+   "Hera"
+  ]
+ },
+ "q1615": {
+  "q": "Na mitologia grega, qual era o nome do cavalo alado que nasceu do sangue de Medusa?",
+  "a": [
+   "Pégaso",
+   "Árion",
+   "Xanto",
+   "Sleipnir"
+  ]
+ },
+ "q1616": {
+  "q": "Na mitologia grega, a qual serpente de várias cabeças cresciam duas novas para cada uma cortada?",
+  "a": [
+   "Hidra de Lerna",
+   "Píton",
+   "Equidna",
+   "Tifão"
+  ]
+ },
+ "q1617": {
+  "q": "Na mitologia grega, qual inscrição tinha a maçã dourada que iniciou a disputa entre Hera, Atena e Afrodite?",
+  "a": [
+   "À mais bela",
+   "À mais sábia",
+   "À mais forte",
+   "À rainha do céu"
+  ]
+ },
+ "q1618": {
+  "q": "Na mitologia grega, qual era o nome do barqueiro que atravessava os mortos pelo rio Aqueronte ou Estige?",
+  "a": [
+   "Caronte",
+   "Tânato",
+   "Hipnos",
+   "Morfeu"
+  ]
+ },
+ "q1619": {
+  "q": "Na mitologia grega, como Penélope adiou a escolha de um novo marido enquanto esperava por Odisseu?",
+  "a": [
+   "Desfazia sua tecelagem todas as noites",
+   "Fingiu um voto de silêncio",
+   "Realizava um torneio de arco diariamente",
+   "Afirmava que o tear estava amaldiçoado"
+  ]
+ },
+ "q1620": {
+  "q": "Na mitologia grega, qual titã roubou o fogo dos deuses e o entregou à humanidade?",
+  "a": [
+   "Prometeu",
+   "Epimeteu",
+   "Atlas",
+   "Hipérion"
+  ]
+ },
+ "q1621": {
+  "q": "Na mitologia grega, quem foi amaldiçoada para que ninguém jamais acreditasse em suas verdadeiras profecias?",
+  "a": [
+   "Cassandra",
+   "Circe",
+   "Medeia",
+   "Sêmele"
+  ]
+ },
+ "q1622": {
+  "q": "Na mitologia grega, como Héracles limpou os estábulos imundos do rei Augias em um único dia?",
+  "a": [
+   "Desviou dois rios por dentro deles",
+   "Invocou um furacão de Zeus",
+   "Queimou os estábulos e os reconstruiu",
+   "Contratou mil sátiros para limpar"
+  ]
+ },
+ "q1623": {
+  "q": "Na mitologia grega, qual caçador foi transformado em cervo e devorado por seus próprios cães após ver Ártemis se banhando?",
+  "a": [
+   "Actéon",
+   "Órion",
+   "Adônis",
+   "Endimião"
+  ]
+ },
+ "q1624": {
+  "q": "Na mitologia grega, qual nome Odisseu deu ao ciclope Polifemo antes de cegá-lo?",
+  "a": [
+   "Ninguém",
+   "Estrangeiro",
+   "Aqueu",
+   "Viajante"
+  ]
+ },
+ "q1625": {
+  "q": "Na mitologia grega, como Dédalo resolveu o enigma do rei Minos de passar um fio por uma concha espiral?",
+  "a": [
+   "Amarrou o fio a uma formiga atraída por mel",
+   "Soprou seda através de um tubo de junco",
+   "Derreteu cera dentro para formar um trilho",
+   "Flutuou uma fibra em óleo morno"
+  ]
+ },
+ "q1626": {
+  "q": "Na mitologia grega, qual tecelã foi transformada em aranha após desafiar Atena para um concurso de tecelagem?",
+  "a": [
+   "Aracne",
+   "Níobe",
+   "Dafne",
+   "Calisto"
+  ]
+ },
+ "q1627": {
+  "q": "Na mitologia grega, por que Perséfone teve que passar parte de cada ano no submundo com Hades?",
+  "a": [
+   "Comeu sementes de romã lá",
+   "Bebeu de uma taça de ouro",
+   "Assinou uma tábua de bronze",
+   "Usou uma coroa de prata escura"
+  ]
+ },
+ "q1628": {
+  "q": "Na mitologia grega, como Zeus derrotou o monstruoso Tifão depois que este cortou os tendões de Zeus?",
+  "a": [
+   "Hermes e Pã roubaram os tendões de volta",
+   "Atena forjou novos tendões de bronze",
+   "Hefesto prendeu Tifão em redes de ferro",
+   "Apolo cegou Tifão com flechas solares"
+  ]
+ },
+ "q1629": {
+  "q": "Na mitologia grega, qual filha do rei Pélias recusou-se a ajudar suas irmãs a ferver o pai vivo para rejuvenescê-lo?",
+  "a": [
+   "Alceste",
+   "Evadne",
+   "Asteropeia",
+   "Antínoe"
+  ]
  }
 }

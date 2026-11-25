@@ -28,5 +28,215 @@
       "summary": "Lets mvmPhoto list the installed fonts, so its Text tool can draw text in them.",
       "requires": "mvmPhoto installed, and the App API of mvmFonts enabled in Apps Hub → Settings → App APIs. The switch is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Колекция от безплатни шрифтове с латиница и кирилица за приложения за писане като mvmOffice, с възможност да добавяте и свои.",
+      "tagline": "Безплатни шрифтове с кирилица за приложенията за писане, съхранявани на собствения ви сървър.",
+      "description": "mvmFonts съхранява на сървъра ви около сто безплатни шрифта с латински и кирилски букви — от класически серифни и безсерифни текстови шрифтове до моноширинни, плакатни и ръкописни стилове. Търсете сред тях, въведете собствен примерен текст и разгледайте всяка дебелина и стил, преди да изберете.\n\nПриложенията за писане използват колекцията чрез API за взаимодействие между приложенията в Apps Hub. В mvmOffice шрифтовете се показват в лентата с инструменти за текст и в редактора на корици, а в mvmPhoto — в инструмента „Текст“; при експортиране в PDF, печат и електронна книга се използват действителните очертания на буквите, а EPUB включва шрифтовете, използвани в книгата. Докато хората четат, нищо не се изтегля от услуга за шрифтове, така че публичните страници и сървърите, предназначени за работа офлайн, запазват поверителността и бързината си.\n\nАдминистраторът може да добавя собствени шрифтове. Всеки файл е във формат woff2, woff, ttf или otf с размер до 6 MB, а едно семейство може да има няколко дебелини и курсивни начертания.",
+      "capabilities": [
+        "Около сто шрифтови семейства с отворен лиценз, с латиница и кирилица.",
+        "Групи с безсерифни, серифни, моноширинни, декоративни и ръкописни шрифтове.",
+        "Търсене, филтриране по група и преглед на собствен примерен текст с всеки шрифт.",
+        "Всички дебелини и стилове на едно семейство, всеки показан със собственото си начертание.",
+        "Лицензът на всяко семейство е показан и включен.",
+        "Качване и премахване на собствени шрифтове, достъпно само за администратори.",
+        "Шрифтовете се предоставят от собствения ви сървър без външна услуга за шрифтове.",
+        "Използва се от mvmOffice и mvmPhoto чрез API за взаимодействие между приложенията в Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Позволява на mvmOffice да получи списък с инсталираните шрифтове, за да ги предлага в лентата с инструменти за текст и редактора на корици и да ги използва при експортиране.",
+          "requires": "Инсталиран mvmOffice и активиран API за приложения на mvmFonts в Apps Hub → Настройки → API за приложения. Превключвателят е изключен по подразбиране."
+        },
+        {
+          "summary": "Позволява на mvmPhoto да получи списък с инсталираните шрифтове, за да изписва текст с тях чрез инструмента „Текст“.",
+          "requires": "Инсталиран mvmPhoto и активиран API за приложения на mvmFonts в Apps Hub → Настройки → API за приложения. Превключвателят е изключен по подразбиране."
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "de": {
+      "short_description": "Eine Sammlung kostenloser Schriftarten mit lateinischen und kyrillischen Zeichen für Schreib-Apps wie mvmOffice, die Sie um eigene Schriftarten ergänzen können.",
+      "tagline": "Kostenlose Schriftarten mit kyrillischen Zeichen für Schreib-Apps, auf Ihrem eigenen Server gespeichert.",
+      "description": "mvmFonts hält etwa hundert kostenlose Schriftarten mit lateinischen und kyrillischen Buchstaben auf Ihrem Server bereit – von klassischen Serifenschriften und serifenlosen Textschriften bis hin zu nichtproportionalen Schriften, Plakatschriften und Handschriften. Durchsuchen Sie die Sammlung, geben Sie einen eigenen Beispieltext ein und sehen Sie sich vor der Auswahl jede Schriftstärke und jeden Stil an.\n\nSchreib-Apps nutzen die Sammlung über die App-zu-App-API von Apps Hub. In mvmOffice erscheinen die Schriftarten in der Textwerkzeugleiste und im Umschlageditor, in mvmPhoto im Textwerkzeug. PDF-, Druck- und E-Book-Ausgaben verwenden die tatsächlichen Schriftformen, und EPUB-Dateien enthalten die im Buch verwendeten Schriftarten. Beim Lesen wird nichts von einem Schriftartendienst abgerufen. So bleiben öffentliche Seiten und auf Offline-Nutzung ausgelegte Server datenschutzfreundlich und schnell.\n\nAdministratoren können eigene Schriftarten hinzufügen. Jede Datei muss im Format woff2, woff, ttf oder otf vorliegen und darf bis zu 6 MB groß sein. Eine Schriftfamilie kann mehrere Schriftstärken und kursive Schnitte umfassen.",
+      "capabilities": [
+        "Etwa hundert Schriftfamilien mit offenen Lizenzen und lateinischen sowie kyrillischen Zeichen.",
+        "Gruppen für serifenlose Schriften, Serifenschriften, nichtproportionale Schriften, Auszeichnungsschriften und Handschriften.",
+        "Suche, Gruppenfilter und Vorschau Ihres eigenen Beispieltexts in jeder Schriftart.",
+        "Alle Schriftstärken und Stile einer Familie, jeweils in ihrer eigenen Schriftform dargestellt.",
+        "Die Lizenz jeder Schriftfamilie wird angezeigt und mitgeliefert.",
+        "Eigene Schriftarten hochladen und wieder entfernen, nur für Administratoren.",
+        "Schriftarten werden von Ihrem eigenen Server ohne Schriftartendienst eines Drittanbieters bereitgestellt.",
+        "Wird von mvmOffice und mvmPhoto über die App-zu-App-API von Apps Hub verwendet."
+      ],
+      "integrations": [
+        {
+          "summary": "Ermöglicht mvmOffice, die installierten Schriftarten aufzulisten, damit sie in der Textwerkzeugleiste und im Umschlageditor angeboten und beim Export verwendet werden können.",
+          "requires": "mvmOffice muss installiert und die App-API von mvmFonts unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig ausgeschaltet."
+        },
+        {
+          "summary": "Ermöglicht mvmPhoto, die installierten Schriftarten aufzulisten, damit das Textwerkzeug Text in diesen Schriftarten darstellen kann.",
+          "requires": "mvmPhoto muss installiert und die App-API von mvmFonts unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig ausgeschaltet."
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "es": {
+      "short_description": "Una colección de fuentes gratuitas con caracteres latinos y cirílicos que pueden usar aplicaciones de escritura como mvmOffice, con espacio para añadir las tuyas.",
+      "tagline": "Fuentes gratuitas con caracteres cirílicos para las aplicaciones de escritura, alojadas en tu propio servidor.",
+      "description": "mvmFonts mantiene en tu servidor unas cien fuentes gratuitas con letras latinas y cirílicas, desde tipografías clásicas con y sin serifa para texto hasta estilos monoespaciados, para carteles y manuscritos. Búscalas, escribe tu propio texto de muestra y consulta todos los grosores y estilos antes de elegir.\n\nLas aplicaciones de escritura utilizan la colección a través de la API entre aplicaciones de Apps Hub. En mvmOffice, las fuentes aparecen en la barra de herramientas de texto y en el editor de cubiertas, y en mvmPhoto, en la herramienta Texto; la exportación a PDF, la impresión y la exportación a libro electrónico usan las formas reales de las letras, y los archivos EPUB incluyen las fuentes que utiliza el libro. No se descarga nada de un servicio de fuentes mientras se lee, por lo que las páginas públicas y los servidores pensados para trabajar sin conexión mantienen la privacidad y la rapidez.\n\nUn administrador puede añadir sus propias fuentes. Cada archivo debe ser woff2, woff, ttf u otf de hasta 6 MB, y una familia puede tener varios grosores y cursivas.",
+      "capabilities": [
+        "Unas cien familias de fuentes con licencia abierta y caracteres latinos y cirílicos.",
+        "Grupos de fuentes sin serifa, con serifa, monoespaciadas, de exhibición y manuscritas.",
+        "Búsqueda, filtrado por grupo y vista previa de tu propio texto de muestra en cada fuente.",
+        "Todos los grosores y estilos de una familia, cada uno mostrado con su propia apariencia.",
+        "La licencia de cada familia se muestra y se incluye.",
+        "Carga y eliminación de fuentes propias, solo para administradores.",
+        "Fuentes servidas desde tu propio servidor, sin servicios de fuentes de terceros.",
+        "Utilizadas por mvmOffice y mvmPhoto a través de la API entre aplicaciones de Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Permite a mvmOffice obtener la lista de fuentes instaladas para ofrecerlas en la barra de herramientas de texto y el editor de cubiertas, y utilizarlas en las exportaciones.",
+          "requires": "mvmOffice instalado y la API de aplicación de mvmFonts activada en Apps Hub → Ajustes → API de aplicaciones. El interruptor está desactivado de forma predeterminada."
+        },
+        {
+          "summary": "Permite a mvmPhoto obtener la lista de fuentes instaladas para que su herramienta Texto pueda usarlas al dibujar texto.",
+          "requires": "mvmPhoto instalado y la API de aplicación de mvmFonts activada en Apps Hub → Ajustes → API de aplicaciones. El interruptor está desactivado de forma predeterminada."
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "fr": {
+      "short_description": "Une bibliothèque de polices gratuites avec caractères latins et cyrilliques, utilisable par les applications de rédaction comme mvmOffice, où vous pouvez aussi ajouter les vôtres.",
+      "tagline": "Des polices gratuites avec caractères cyrilliques pour les applications de rédaction, hébergées sur votre propre serveur.",
+      "description": "mvmFonts conserve sur votre serveur une centaine de polices gratuites avec caractères latins et cyrilliques, des polices de texte classiques avec ou sans empattement aux styles à chasse fixe, d’affiche et manuscrits. Recherchez-les, saisissez votre propre exemple et visualisez chaque graisse et chaque style avant de choisir.\n\nLes applications de rédaction accèdent à la bibliothèque par l’API interapplications d’Apps Hub. Dans mvmOffice, les polices apparaissent dans la barre d’outils de texte et dans l’éditeur de couverture, et dans mvmPhoto, dans l’outil Texte ; les exports PDF, d’impression et de livres numériques utilisent leurs véritables tracés, et un EPUB embarque les polices utilisées par le livre. Rien n’est téléchargé depuis un service de polices pendant la lecture : les pages publiques et les serveurs privilégiant le fonctionnement hors ligne restent ainsi rapides et respectueux de la confidentialité.\n\nUn administrateur peut ajouter ses propres polices. Chaque fichier doit être au format woff2, woff, ttf ou otf et ne pas dépasser 6 Mo ; une famille peut comporter plusieurs graisses et variantes italiques.",
+      "capabilities": [
+        "Une centaine de familles de polices sous licence ouverte avec caractères latins et cyrilliques.",
+        "Catégories sans empattement, avec empattement, à chasse fixe, de titrage et manuscrites.",
+        "Recherche, filtrage par catégorie et aperçu de votre propre texte dans chaque police.",
+        "Toutes les graisses et tous les styles d’une famille, chacun affiché avec son propre tracé.",
+        "Licence de chaque famille affichée et incluse.",
+        "Importation et suppression de vos propres polices, réservées aux administrateurs.",
+        "Polices distribuées depuis votre propre serveur, sans service de polices tiers.",
+        "Utilisation par mvmOffice et mvmPhoto via l’API interapplications d’Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Permet à mvmOffice de répertorier les polices installées pour les proposer dans sa barre d’outils de texte et son éditeur de couverture, et les utiliser dans ses exports.",
+          "requires": "mvmOffice doit être installé et l’API d’application de mvmFonts activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut."
+        },
+        {
+          "summary": "Permet à mvmPhoto de répertorier les polices installées pour que son outil Texte puisse les utiliser.",
+          "requires": "mvmPhoto doit être installé et l’API d’application de mvmFonts activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut."
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "ja": {
+      "short_description": "mvmOfficeなどの文書作成アプリで使える、ラテン文字とキリル文字に対応した無料フォント集です。独自のフォントも追加できます。",
+      "tagline": "文書作成アプリで使えるキリル文字対応の無料フォントを、自分のサーバーで管理できます。",
+      "description": "mvmFontsは、ラテン文字とキリル文字に対応した約100種類の無料フォントをサーバー上で管理します。定番のセリフ体やサンセリフ体の本文用フォントから、等幅、ポスター用、手書き風のフォントまで揃っています。検索や独自のサンプル入力ができ、すべてのウェイトとスタイルを確認してから選べます。\n\n文書作成アプリは、Apps Hubのアプリ間APIを通じてフォント集を利用します。mvmOfficeではテキストツールバーと表紙エディターに、mvmPhotoではテキストツールにフォントが表示されます。PDF、印刷、電子書籍の書き出しには実際の字形が使われ、EPUBにはその本で使用しているフォントが含まれます。閲覧中にフォントサービスからデータを取得しないため、公開ページやオフライン利用を重視するサーバーでも、プライバシーと高速な表示を維持できます。\n\n管理者は独自のフォントを追加できます。各ファイルは6 MB以下のwoff2、woff、ttf、otf形式に対応し、1つのフォントファミリーに複数のウェイトやイタリック体を登録できます。",
+      "capabilities": [
+        "ラテン文字とキリル文字に対応した、オープンライセンスの約100種類のフォントファミリー。",
+        "サンセリフ、セリフ、等幅、ディスプレイ、手書きのグループ。",
+        "検索、グループでの絞り込み、独自のサンプルテキストを使った全フォントのプレビュー。",
+        "各ファミリーのすべてのウェイトとスタイルを、それぞれの字形で表示。",
+        "各ファミリーのライセンスを表示し、同梱。",
+        "管理者による独自フォントのアップロードと削除。",
+        "サードパーティーのフォントサービスを使わず、自分のサーバーからフォントを配信。",
+        "Apps Hubのアプリ間APIを通じてmvmOfficeとmvmPhotoで利用可能。"
+      ],
+      "integrations": [
+        {
+          "summary": "mvmOfficeがインストール済みフォントの一覧を取得できるようにし、テキストツールバーや表紙エディターでの選択と、書き出しでの使用を可能にします。",
+          "requires": "mvmOfficeがインストールされ、Apps Hub → 設定 → App APIでmvmFontsのApp APIが有効になっている必要があります。初期設定では無効です。"
+        },
+        {
+          "summary": "mvmPhotoがインストール済みフォントの一覧を取得できるようにし、テキストツールでそれらのフォントを使って文字を描画できるようにします。",
+          "requires": "mvmPhotoがインストールされ、Apps Hub → 設定 → App APIでmvmFontsのApp APIが有効になっている必要があります。初期設定では無効です。"
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "pt-BR": {
+      "short_description": "Uma biblioteca de fontes gratuitas com caracteres latinos e cirílicos para aplicativos de escrita como o mvmOffice, com espaço para adicionar suas próprias fontes.",
+      "tagline": "Fontes gratuitas com caracteres cirílicos para aplicativos de escrita, mantidas no seu próprio servidor.",
+      "description": "mvmFonts mantém cerca de cem fontes gratuitas com letras latinas e cirílicas no seu servidor, desde fontes clássicas com e sem serifa para texto até estilos monoespaçados, para pôsteres e manuscritos. Pesquise, digite seu próprio texto de exemplo e veja cada peso e estilo antes de escolher.\n\nOs aplicativos de escrita usam a biblioteca pela API de comunicação entre aplicativos do Apps Hub. No mvmOffice, as fontes aparecem na barra de ferramentas de texto e no editor de capas; no mvmPhoto, na ferramenta Texto. A exportação para PDF, impressão e e-book usa os desenhos reais das fontes, e o EPUB inclui as fontes usadas no livro. Nada é carregado de um serviço de fontes durante a leitura, mantendo a privacidade e a rapidez de páginas públicas e servidores voltados ao uso offline.\n\nUm administrador pode adicionar suas próprias fontes. Cada arquivo deve ser woff2, woff, ttf ou otf de até 6 MB, e uma família pode ter vários pesos e estilos em itálico.",
+      "capabilities": [
+        "Cerca de cem famílias de fontes com licença aberta e caracteres latinos e cirílicos.",
+        "Grupos de fontes sem serifa, com serifa, monoespaçadas, decorativas e manuscritas.",
+        "Pesquisa, filtro por grupo e pré-visualização do seu próprio texto de exemplo em cada fonte.",
+        "Todos os pesos e estilos de uma família, cada um exibido com seu próprio desenho.",
+        "Licença de cada família exibida e incluída.",
+        "Envio e remoção das suas próprias fontes, disponíveis apenas para administradores.",
+        "Fontes fornecidas pelo seu próprio servidor, sem serviços de fontes de terceiros.",
+        "Usado pelo mvmOffice e pelo mvmPhoto por meio da API de comunicação entre aplicativos do Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Permite que o mvmOffice liste as fontes instaladas para oferecê-las na barra de ferramentas de texto e no editor de capas e usá-las nas exportações.",
+          "requires": "mvmOffice instalado e a API de aplicativo do mvmFonts ativada em Apps Hub → Configurações → APIs de aplicativos. A opção fica desativada por padrão."
+        },
+        {
+          "summary": "Permite que o mvmPhoto liste as fontes instaladas para que a ferramenta Texto possa usá-las para renderizar o texto.",
+          "requires": "mvmPhoto instalado e a API de aplicativo do mvmFonts ativada em Apps Hub → Configurações → APIs de aplicativos. A opção fica desativada por padrão."
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "ru": {
+      "short_description": "Коллекция бесплатных шрифтов с латиницей и кириллицей для текстовых приложений, таких как mvmOffice, с возможностью добавлять собственные шрифты.",
+      "tagline": "Бесплатные шрифты с кириллицей для работы с текстом, хранящиеся на вашем сервере.",
+      "description": "mvmFonts хранит на вашем сервере около ста бесплатных шрифтов с латиницей и кириллицей: от классических текстовых шрифтов с засечками и без них до моноширинных, плакатных и рукописных. Ищите шрифты, вводите свой текст для примера и просматривайте все варианты насыщенности и начертания перед выбором.\n\nТекстовые приложения используют коллекцию через API взаимодействия приложений Apps Hub. В mvmOffice шрифты появляются на панели форматирования текста и в редакторе обложек, а в mvmPhoto — в инструменте «Текст»; при экспорте в PDF, печати и создании электронных книг используются настоящие начертания, а в EPUB включаются шрифты, используемые в книге. Во время чтения ничего не загружается из стороннего сервиса шрифтов, поэтому публичные страницы и серверы, рассчитанные на автономную работу, сохраняют конфиденциальность и быстродействие.\n\nАдминистратор может добавлять собственные шрифты. Поддерживаются файлы woff2, woff, ttf и otf размером до 6 МБ каждый; одно семейство может содержать несколько вариантов насыщенности и курсивных начертаний.",
+      "capabilities": [
+        "Около ста семейств шрифтов с открытыми лицензиями, поддерживающих латиницу и кириллицу.",
+        "Группы шрифтов без засечек, с засечками, моноширинных, акцидентных и рукописных.",
+        "Поиск, фильтрация по группам и предварительный просмотр собственного текста в каждом шрифте.",
+        "Все варианты насыщенности и начертания семейства, каждый из которых показан в соответствующем виде.",
+        "Лицензия каждого семейства отображается и включается в комплект.",
+        "Загрузка и удаление собственных шрифтов — только для администраторов.",
+        "Шрифты загружаются с вашего сервера без сторонних сервисов шрифтов.",
+        "Используется приложениями mvmOffice и mvmPhoto через API взаимодействия приложений Apps Hub."
+      ],
+      "integrations": [
+        {
+          "summary": "Позволяет mvmOffice получать список установленных шрифтов, предлагать их на панели форматирования текста и в редакторе обложек, а также использовать при экспорте.",
+          "requires": "Требуется установленное приложение mvmOffice и включённый API приложения mvmFonts в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен."
+        },
+        {
+          "summary": "Позволяет mvmPhoto получать список установленных шрифтов и использовать их для отображения текста в инструменте «Текст».",
+          "requires": "Требуется установленное приложение mvmPhoto и включённый API приложения mvmFonts в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен."
+        }
+      ],
+      "name": "mvmFonts"
+    },
+    "zh-CN": {
+      "short_description": "收录支持拉丁字母和西里尔字母的免费字体，可供 mvmOffice 等写作应用使用，也可添加自己的字体。",
+      "tagline": "为写作应用提供支持西里尔字母的免费字体，全部保存在你自己的服务器上。",
+      "description": "mvmFonts 将约一百款支持拉丁字母和西里尔字母的免费字体保存在你的服务器上，涵盖经典的衬线和无衬线正文字体，以及等宽、海报和手写风格。你可以搜索字体，输入自己的示例文字，并在选择前查看每种字重和样式。\n\n写作应用通过 Apps Hub 的应用间 API 使用该字体库。在 mvmOffice 中，这些字体会出现在文字工具栏和封面编辑器中；在 mvmPhoto 中，则会出现在文字工具中。PDF、打印和电子书导出均使用字体的实际字形，EPUB 还会包含书中使用的字体。读者阅读时不会从字体服务获取任何内容，因此公开页面和注重离线使用的服务器都能保持私密和快速。\n\n管理员可以添加自己的字体。每个文件须为 woff2、woff、ttf 或 otf 格式，大小不超过 6 MB；一个字体家族可以包含多种字重和斜体。",
+      "capabilities": [
+        "约一百个采用开放许可证、支持拉丁字母和西里尔字母的字体家族。",
+        "按无衬线、衬线、等宽、展示和手写字体分组。",
+        "搜索、按分组筛选，并使用每款字体预览自己的示例文字。",
+        "展示一个字体家族的所有字重和样式，每种均以实际字形呈现。",
+        "显示并附带每个字体家族的许可证。",
+        "上传和移除自己的字体，仅限管理员操作。",
+        "字体由你自己的服务器提供，无需第三方字体服务。",
+        "mvmOffice 和 mvmPhoto 通过 Apps Hub 的应用间 API 使用字体。"
+      ],
+      "integrations": [
+        {
+          "summary": "允许 mvmOffice 列出已安装的字体，以便在文字工具栏和封面编辑器中提供这些字体，并在导出时使用。",
+          "requires": "需安装 mvmOffice，并在 Apps Hub → 设置 → 应用 API 中启用 mvmFonts 的应用 API。此开关默认关闭。"
+        },
+        {
+          "summary": "允许 mvmPhoto 列出已安装的字体，以便其文字工具使用这些字体绘制文字。",
+          "requires": "需安装 mvmPhoto，并在 Apps Hub → 设置 → 应用 API 中启用 mvmFonts 的应用 API。此开关默认关闭。"
+        }
+      ],
+      "name": "mvmFonts"
+    }
+  }
 }

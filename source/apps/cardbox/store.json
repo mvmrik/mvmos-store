@@ -41,7 +41,8 @@
           "summary": "Autorisierte Apps können Karten, Codes, Gutscheine, Tickets und Kontakte des aktuellen Apps Hub-Profils durchsuchen und verwalten – einschließlich optionaler Bilder als base64-Daten, Nutzungsverfolgung und Sortiereinstellungen.",
           "requires": "Die Cardbox-App-API muss unter Apps Hub → Einstellungen → App-APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
         }
-      ]
+      ],
+      "name": "Kartenbox"
     },
     "bg": {
       "short_description": "Лична колекция от карти за лоялност, кодове за отстъпка, ваучери, билети и визитки за всеки профил в Apps Hub.",
@@ -62,7 +63,8 @@
           "summary": "Упълномощените приложения могат да търсят и управляват картите, кодовете, ваучерите, билетите и контактите в текущия профил в Apps Hub, включително изображения по желание, предоставени като base64 данни, проследяване на използването и предпочитания за сортиране.",
           "requires": "API на приложението Cardbox трябва да бъде включен в Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
         }
-      ]
+      ],
+      "name": "Картотека"
     },
     "es": {
       "short_description": "Una colección personal de tarjetas de fidelización, códigos de descuento, vales, entradas y tarjetas de visita para cada perfil de Apps Hub.",
@@ -83,7 +85,8 @@
           "summary": "Las apps autorizadas pueden buscar y gestionar las tarjetas, los códigos, los vales, las entradas y los contactos del perfil actual de Apps Hub, incluidas las imágenes opcionales proporcionadas como datos base64, el seguimiento del uso y las preferencias de ordenación.",
           "requires": "La API de la app Cardbox debe estar activada en Apps Hub → Ajustes → API de apps. Está desactivada de forma predeterminada."
         }
-      ]
+      ],
+      "name": "Tarjetero"
     },
     "fr": {
       "short_description": "Une collection personnelle de cartes de fidélité, de codes de réduction, de bons, de billets et de cartes de visite pour chaque profil Apps Hub.",
@@ -104,7 +107,8 @@
           "summary": "Les applications autorisées peuvent rechercher et gérer les cartes, codes, bons, billets et contacts du profil Apps Hub actif, ainsi que les images facultatives fournies sous forme de données base64, le suivi de l’utilisation et les préférences de tri.",
           "requires": "L’API de l’application Cardbox doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
         }
-      ]
+      ],
+      "name": "Porte-cartes"
     },
     "ja": {
       "short_description": "ポイントカード、割引コード、クーポン、チケット、名刺を、Apps Hubのプロフィールごとに自分専用のコレクションに。",
@@ -125,7 +129,8 @@
           "summary": "認可されたアプリは、現在のApps Hubプロフィールにあるカード、コード、クーポン、チケット、連絡先を検索・管理できます。必要に応じてbase64データで提供される画像や、使用状況の記録、並び順の設定も扱えます。",
           "requires": "Apps Hub → 設定 → App APIで、Cardbox App APIを有効にする必要があります。初期設定では無効になっています。"
         }
-      ]
+      ],
+      "name": "カードボックス"
     },
     "pt-BR": {
       "short_description": "Uma coleção pessoal de cartões de fidelidade, códigos de desconto, vales, ingressos e cartões de visita para cada perfil do Apps Hub.",
@@ -146,7 +151,8 @@
           "summary": "Apps autorizados podem buscar e gerenciar os cartões, códigos, vales, ingressos e contatos do perfil atual do Apps Hub, incluindo imagens opcionais fornecidas como dados em base64, acompanhamento de uso e preferências de ordenação.",
           "requires": "A API do app Cardbox precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela vem desativada por padrão."
         }
-      ]
+      ],
+      "name": "Carteira de cartões"
     },
     "zh-CN": {
       "short_description": "为每个 Apps Hub 个人资料打造专属卡包，集中收纳会员卡、优惠码、代金券、门票和名片。",
@@ -167,7 +173,8 @@
           "summary": "已授权的应用可以搜索和管理当前 Apps Hub 个人资料中的卡片、优惠码、代金券、门票和联系人，并支持按需以 base64 数据提供图片、跟踪使用情况及设置排序偏好。",
           "requires": "必须在 Apps Hub → 设置 → App API 中启用 Cardbox App API。此功能默认关闭。"
         }
-      ]
+      ],
+      "name": "卡片盒"
     },
     "ru": {
       "short_description": "Личная коллекция карт лояльности, промокодов, подарочных сертификатов, билетов и визиток для каждого профиля Apps Hub.",
@@ -188,7 +195,8 @@
           "summary": "Авторизованные приложения могут искать карты, коды, сертификаты, билеты и контакты текущего профиля Apps Hub и управлять ими, в том числе добавлять изображения в формате base64, отслеживать использование и настраивать сортировку.",
           "requires": "API приложения Cardbox необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он отключён."
         }
-      ]
+      ],
+      "name": "Картотека"
     }
   }
 }

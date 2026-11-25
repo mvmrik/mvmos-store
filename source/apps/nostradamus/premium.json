@@ -11,5 +11,127 @@
       "short": "Understand a post or draft a comment",
       "description": "Use the sparkle menu under a post to explain it, answer one question or suggest a comment. A comment draft fills the reply composer for review and editing before publishing; each profile can choose its language and writing style.\n\nExplanations and questions appear in read-only history and can continue in a saved mvmAI conversation through Start a discussion. Comment drafts are not stored in that history. Each successful request can use credits at the administrator's chosen price; a failed AI request is refunded.\n\nRequires mvmAI with a usable provider and its App API enabled in Apps Hub → Settings → App APIs; that switch is off by default. The administrator enables Nostradamus' AI feature. Without the Premium module, its desktop switch opens the Premium prompt and the public page hides the feature. Ordinary Nostr reading and posting remain available."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Добавя превод със собствения DeepL ключ на всеки потребител и AI помощник, който обяснява публикации, отговаря на въпроси и създава чернови на коментари.",
+      "features": [
+        {
+          "title": "Бутон за превод с DeepL",
+          "short": "Превеждайте всяка публикация",
+          "description": "Читателите могат да преведат всяка публикация на предпочитания си език с едно щракване, като използват собствения си DeepL API ключ, въведен в безплатното приложение DeepL Translator. Редакторът получава същия бутон за превод на чернова преди публикуването ѝ. Необходими са приложението DeepL Translator и DeepL API ключ от всеки потребител; собственикът на сървъра само включва интеграцията."
+        },
+        {
+          "title": "Попитайте AI за публикация",
+          "short": "Разберете публикация или създайте чернова на коментар",
+          "description": "Използвайте менюто с иконата с искри под публикация, за да получите обяснение, отговор на един въпрос или предложение за коментар. Черновата на коментара се поставя в редактора за отговор за преглед и редактиране преди публикуване; всеки профил може да избере езика и стила си на писане.\n\nОбясненията и въпросите се показват в история само за четене и могат да бъдат продължени в запазен разговор в mvmAI чрез „Започване на дискусия“. Черновите на коментари не се съхраняват в тази история. Всяка успешна заявка може да изразходва кредити по цена, избрана от администратора; при неуспешна AI заявка кредитите се възстановяват.\n\nНеобходими са mvmAI с работещ доставчик и активиран негов API за приложения в Apps Hub → Настройки → API за приложения; този превключвател е изключен по подразбиране. Администраторът включва AI функцията на Nostradamus. Без модула Premium превключвателят ѝ на работния плот отваря подкана за Premium, а публичната страница скрива функцията. Обичайното четене и публикуване в Nostr остават достъпни."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Ergänzt Übersetzungen mit dem eigenen DeepL-Schlüssel jedes Nutzers und einen KI-Assistenten, der Beiträge erklärt, Fragen beantwortet und Kommentare entwirft.",
+      "features": [
+        {
+          "title": "DeepL-Schaltfläche zum Übersetzen",
+          "short": "Jeden Beitrag übersetzen",
+          "description": "Leser können jeden Beitrag mit einem Klick in ihre bevorzugte Sprache übersetzen und dabei ihren eigenen DeepL-API-Schlüssel verwenden, den sie in der kostenlosen App DeepL Translator eingetragen haben. Der Beitragseditor erhält dieselbe Schaltfläche, um einen Entwurf vor der Veröffentlichung zu übersetzen. Erfordert die App DeepL Translator und einen DeepL-API-Schlüssel von jedem Nutzer; der Serverbetreiber aktiviert lediglich die Integration."
+        },
+        {
+          "title": "KI zu einem Beitrag fragen",
+          "short": "Einen Beitrag verstehen oder einen Kommentar entwerfen",
+          "description": "Nutzen Sie das Funkelmenü unter einem Beitrag, um ihn erklären zu lassen, eine Frage beantworten zu lassen oder einen Kommentarvorschlag zu erhalten. Ein Kommentarentwurf wird in den Antworteditor eingefügt, damit Sie ihn vor der Veröffentlichung prüfen und bearbeiten können. Für jedes Profil lassen sich Sprache und Schreibstil auswählen.\n\nErklärungen und Fragen erscheinen in einem schreibgeschützten Verlauf und können über „Diskussion starten“ in einer gespeicherten mvmAI-Unterhaltung fortgesetzt werden. Kommentarentwürfe werden in diesem Verlauf nicht gespeichert. Jede erfolgreiche Anfrage kann Credits zu dem vom Administrator festgelegten Preis verbrauchen; bei einer fehlgeschlagenen KI-Anfrage werden die Credits erstattet.\n\nErfordert mvmAI mit einem nutzbaren Anbieter und aktivierter App-API unter Apps Hub → Einstellungen → App-APIs; dieser Schalter ist standardmäßig deaktiviert. Der Administrator aktiviert die KI-Funktion von Nostradamus. Ohne das Premium-Modul öffnet der zugehörige Schalter auf dem Desktop den Premium-Hinweis, und auf der öffentlichen Seite wird die Funktion ausgeblendet. Das normale Lesen und Veröffentlichen auf Nostr bleibt verfügbar."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Añade traducción mediante la clave de DeepL propia de cada usuario y un asistente de IA que explica publicaciones, responde preguntas y redacta comentarios.",
+      "features": [
+        {
+          "title": "Botón de traducción con DeepL",
+          "short": "Traduce cualquier publicación",
+          "description": "Los lectores pueden traducir cualquier publicación a su idioma preferido con un clic, utilizando su propia clave API de DeepL introducida en la aplicación gratuita DeepL Translator. El editor incluye el mismo botón para traducir un borrador antes de publicarlo. Requiere la aplicación DeepL Translator y una clave API de DeepL de cada usuario; el propietario del servidor solo activa la integración."
+        },
+        {
+          "title": "Pregunta a la IA sobre una publicación",
+          "short": "Comprende una publicación o redacta un comentario",
+          "description": "Utiliza el menú con el icono de destellos situado debajo de una publicación para obtener una explicación, responder una pregunta o sugerir un comentario. El borrador del comentario se inserta en el editor de respuestas para revisarlo y editarlo antes de publicarlo; cada perfil puede elegir su idioma y estilo de escritura.\n\nLas explicaciones y las preguntas aparecen en un historial de solo lectura y pueden continuar en una conversación guardada de mvmAI mediante Iniciar una conversación. Los borradores de comentarios no se almacenan en ese historial. Cada solicitud completada correctamente puede consumir créditos al precio elegido por el administrador; si una solicitud a la IA falla, se reembolsan los créditos.\n\nRequiere mvmAI con un proveedor disponible para su uso y su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones; ese interruptor está desactivado de forma predeterminada. El administrador activa la función de IA de Nostradamus. Sin el módulo Premium, su interruptor en el escritorio abre el aviso de Premium y la página pública oculta la función. La lectura y la publicación habituales en Nostr siguen disponibles."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Ajoute la traduction avec la clé DeepL propre à chaque utilisateur et un assistant IA qui explique les publications, répond aux questions et rédige des brouillons de commentaires.",
+      "features": [
+        {
+          "title": "Bouton de traduction DeepL",
+          "short": "Traduisez n’importe quelle publication",
+          "description": "Les lecteurs peuvent traduire n’importe quelle publication dans leur langue préférée en un clic, à l’aide de leur propre clé API DeepL saisie dans l’application gratuite Traducteur DeepL. L’éditeur dispose du même bouton pour traduire un brouillon avant sa publication. Nécessite l’application Traducteur DeepL et une clé API DeepL pour chaque utilisateur ; le propriétaire du serveur se contente d’activer l’intégration."
+        },
+        {
+          "title": "Interroger l’IA sur une publication",
+          "short": "Comprendre une publication ou préparer un commentaire",
+          "description": "Utilisez le menu à l’icône scintillante sous une publication pour obtenir une explication, une réponse à une question ou une suggestion de commentaire. Le brouillon de commentaire est inséré dans l’éditeur de réponse pour être relu et modifié avant publication ; chaque profil peut choisir sa langue et son style de rédaction.\n\nLes explications et les questions apparaissent dans un historique en lecture seule et peuvent être poursuivies dans une conversation mvmAI enregistrée via Démarrer une discussion. Les brouillons de commentaires ne sont pas conservés dans cet historique. Chaque demande aboutie peut consommer des crédits au tarif choisi par l’administrateur ; les crédits sont remboursés si la demande à l’IA échoue.\n\nNécessite mvmAI avec un fournisseur utilisable et son API d’application activée dans Apps Hub → Paramètres → API des applications ; cette option est désactivée par défaut. L’administrateur active la fonction IA de Nostradamus. Sans le module Premium, son commutateur sur le bureau ouvre l’invite Premium et la page publique masque la fonction. La consultation et la publication ordinaires sur Nostr restent disponibles."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "各ユーザー自身のDeepLキーを使った翻訳機能と、投稿の解説、質問への回答、コメントの下書き作成を行うAIアシスタントを追加します。",
+      "features": [
+        {
+          "title": "DeepL翻訳ボタン",
+          "short": "あらゆる投稿を翻訳",
+          "description": "読者は、無料のDeepL Translatorアプリに登録した自分専用のDeepL APIキーを使い、どの投稿でもワンクリックで希望する言語に翻訳できます。投稿エディターにも同じボタンが表示され、公開前に下書きを翻訳できます。DeepL Translatorアプリと各ユーザー自身のDeepL APIキーが必要です。サーバー所有者は連携を有効にするだけです。"
+        },
+        {
+          "title": "投稿についてAIに質問",
+          "short": "投稿を理解する、コメントを下書きする",
+          "description": "投稿の下にあるきらめきアイコンのメニューから、投稿の解説、1つの質問への回答、コメントの提案を依頼できます。コメントの下書きは返信エディターに入力され、公開前に確認・編集できます。言語と文体はプロフィールごとに選択できます。\n\n解説と質問は読み取り専用の履歴に表示され、「ディスカッションを開始」から保存済みのmvmAI会話として続けられます。コメントの下書きは、この履歴には保存されません。リクエストが成功するたびに、管理者が設定した料金のクレジットが消費される場合があります。AIリクエストが失敗した場合は返還されます。\n\n利用可能なプロバイダーを設定したmvmAIが必要で、Apps Hub → 設定 → アプリAPIでそのアプリAPIを有効にする必要があります。この設定は初期状態では無効です。NostradamusのAI機能は管理者が有効にします。Premiumモジュールがない場合、デスクトップの切り替えスイッチを操作するとPremiumの案内が開き、公開ページではこの機能が非表示になります。通常のNostrの閲覧と投稿は引き続き利用できます。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Adiciona tradução com a chave do DeepL de cada usuário e um assistente de IA que explica publicações, responde a perguntas e cria rascunhos de comentários.",
+      "features": [
+        {
+          "title": "Botão de tradução do DeepL",
+          "short": "Traduza qualquer publicação",
+          "description": "Os leitores podem traduzir qualquer publicação para seu idioma preferido com um clique, usando sua própria chave de API do DeepL inserida no aplicativo gratuito DeepL Translator. O editor recebe o mesmo botão para traduzir um rascunho antes de publicá-lo. Requer o aplicativo DeepL Translator e uma chave de API do DeepL de cada usuário; o proprietário do servidor apenas ativa a integração."
+        },
+        {
+          "title": "Pergunte à IA sobre uma publicação",
+          "short": "Entenda uma publicação ou crie um rascunho de comentário",
+          "description": "Use o menu com o ícone de brilho abaixo de uma publicação para obter uma explicação, responder a uma pergunta ou sugerir um comentário. O rascunho do comentário preenche o editor de respostas para revisão e edição antes da publicação; cada perfil pode escolher seu idioma e estilo de escrita.\n\nAs explicações e perguntas aparecem em um histórico somente leitura e podem continuar em uma conversa salva do mvmAI por meio de Iniciar uma discussão. Os rascunhos de comentários não são armazenados nesse histórico. Cada solicitação bem-sucedida pode consumir créditos pelo preço escolhido pelo administrador; se uma solicitação à IA falhar, os créditos são reembolsados.\n\nRequer o mvmAI com um provedor disponível para uso e sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos; essa opção fica desativada por padrão. O administrador ativa o recurso de IA do Nostradamus. Sem o módulo Premium, o controle na área de trabalho abre o aviso do Premium, e a página pública oculta o recurso. A leitura e a publicação comuns no Nostr continuam disponíveis."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Добавляет перевод с использованием собственного ключа DeepL каждого пользователя и ИИ-помощника, который объясняет публикации, отвечает на вопросы и готовит черновики комментариев.",
+      "features": [
+        {
+          "title": "Кнопка перевода DeepL",
+          "short": "Перевод любой публикации",
+          "description": "Читатели могут одним нажатием переводить любую публикацию на предпочитаемый язык, используя собственный API-ключ DeepL, указанный в бесплатном приложении DeepL Translator. Такая же кнопка появляется в редакторе для перевода черновика перед публикацией. Требуются приложение DeepL Translator и API-ключ DeepL у каждого пользователя; владелец сервера только включает интеграцию."
+        },
+        {
+          "title": "Вопрос к ИИ о публикации",
+          "short": "Объяснение публикации или черновик комментария",
+          "description": "Откройте меню со значком искр под публикацией, чтобы получить её объяснение, ответ на один вопрос или предложенный комментарий. Черновик комментария подставляется в редактор ответа для проверки и редактирования перед публикацией; для каждого профиля можно выбрать язык и стиль текста.\n\nОбъяснения и вопросы появляются в истории, доступной только для чтения, и их можно продолжить в сохранённом диалоге mvmAI через действие «Начать обсуждение». Черновики комментариев в этой истории не сохраняются. За каждый успешный запрос могут списываться кредиты по цене, установленной администратором; при неудачном запросе к ИИ кредиты возвращаются.\n\nТребуется mvmAI с доступным для работы провайдером и API приложения, включённым в Apps Hub → Настройки → API приложений; по умолчанию этот переключатель выключен. Функцию ИИ в Nostradamus включает администратор. Без модуля Premium её переключатель в приложении на рабочем столе открывает предложение подключить Premium, а на публичной странице функция скрыта. Обычное чтение и публикация в Nostr остаются доступны."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "增加使用每位用户自己的 DeepL 密钥进行翻译的功能，以及可解释帖子、回答问题和起草评论的 AI 助手。",
+      "features": [
+        {
+          "title": "DeepL 翻译按钮",
+          "short": "翻译任意帖子",
+          "description": "读者可以一键将任意帖子翻译成偏好的语言，使用的是自己在免费 DeepL Translator 应用中填写的 DeepL API 密钥。编辑器也提供相同的按钮，可在发布前翻译草稿。需要安装 DeepL Translator 应用，且每位用户都需提供自己的 DeepL API 密钥；服务器所有者只负责开启集成。"
+        },
+        {
+          "title": "向 AI 询问帖子内容",
+          "short": "理解帖子或起草评论",
+          "description": "使用帖子下方的星光菜单，请 AI 解释帖子、回答一个问题或建议评论。评论草稿会填入回复编辑器，供发布前审阅和编辑；每个个人资料都可以选择自己的语言和写作风格。\n\n解释和问答会显示在只读历史记录中，并可通过“开始讨论”转入已保存的 mvmAI 对话继续交流。评论草稿不会存储在该历史记录中。每次成功的请求都可能按管理员设定的价格消耗积分；AI 请求失败时会退还积分。\n\n需要为 mvmAI 配置可用的提供商，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API；该开关默认关闭。管理员负责启用 Nostradamus 的 AI 功能。未安装 Premium 模块时，桌面中的功能开关会打开 Premium 提示，公开页面则会隐藏该功能。普通的 Nostr 阅读和发帖功能仍然可用。"
+        }
+      ]
+    }
+  }
 }

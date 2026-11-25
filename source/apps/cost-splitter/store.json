@@ -35,7 +35,8 @@
       ],
       "requirements": [
         "Ein Mailjet- oder Brevo-Konto und ein API-Schlüssel, wenn du die automatischen monatlichen E-Mails nutzen möchtest. Alle anderen Funktionen sind auch ohne diese verfügbar."
-      ]
+      ],
+      "name": "Kostenteiler"
     },
     "bg": {
       "short_description": "Разпределяйте периодични разходи между участниците. Следете салдата, записвайте плащания и изпращайте автоматично месечни обобщения по имейл.",
@@ -55,7 +56,8 @@
       ],
       "requirements": [
         "Акаунт в Mailjet или Brevo и API ключ, ако искате автоматични месечни имейли. Всичко останало работи и без тях."
-      ]
+      ],
+      "name": "Разделяне на разходи"
     },
     "fr": {
       "short_description": "Répartissez les frais récurrents entre les membres. Suivez les soldes, enregistrez les paiements et envoyez automatiquement des récapitulatifs mensuels par e-mail.",
@@ -75,7 +77,8 @@
       ],
       "requirements": [
         "Un compte Mailjet ou Brevo et une clé API sont nécessaires pour les e-mails mensuels automatiques. Toutes les autres fonctionnalités sont disponibles sans cela."
-      ]
+      ],
+      "name": "Partage des dépenses"
     },
     "es": {
       "short_description": "Reparte los gastos recurrentes entre los miembros. Lleva el control de los saldos, registra pagos y envía resúmenes mensuales por correo electrónico automáticamente.",
@@ -95,7 +98,8 @@
       ],
       "requirements": [
         "Una cuenta de Mailjet o Brevo y una clave de API si quieres enviar los correos mensuales automáticos. El resto de las funciones no las necesitan."
-      ]
+      ],
+      "name": "Divisor de gastos"
     },
     "ru": {
       "short_description": "Делите регулярные расходы между участниками. Отслеживайте баланс, отмечайте платежи и автоматически отправляйте ежемесячные сводки по электронной почте.",
@@ -115,7 +119,8 @@
       ],
       "requirements": [
         "Для автоматической ежемесячной рассылки нужны учётная запись Mailjet или Brevo и ключ API. Все остальные функции работают и без них."
-      ]
+      ],
+      "name": "Разделение расходов"
     },
     "ja": {
       "short_description": "毎月の費用をメンバーで分担。残高の確認、入金の記録、月次サマリーメールの自動送信まで、まとめて管理できます。",
@@ -135,7 +140,8 @@
       ],
       "requirements": [
         "月次メールの自動送信を利用するには、MailjetまたはBrevoのアカウントとAPIキーが必要です。それ以外の機能は、アカウントやAPIキーがなくても利用できます。"
-      ]
+      ],
+      "name": "割り勘"
     },
     "pt-BR": {
       "short_description": "Divida custos recorrentes entre os participantes. Acompanhe saldos, registre pagamentos e envie resumos mensais por e-mail automaticamente.",
@@ -155,7 +161,8 @@
       ],
       "requirements": [
         "Uma conta no Mailjet ou no Brevo e uma chave de API, caso queira os e-mails mensais automáticos. Todos os outros recursos funcionam sem isso."
-      ]
+      ],
+      "name": "Divisor de despesas"
     },
     "zh-CN": {
       "short_description": "与成员分摊定期费用。跟踪余额、记录付款，并自动发送每月邮件汇总。",
@@ -175,7 +182,8 @@
       ],
       "requirements": [
         "如需自动发送每月邮件，需要 Mailjet 或 Brevo 账户及 API 密钥。其他所有功能均无需这些配置即可使用。"
-      ]
+      ],
+      "name": "费用分摊"
     }
   }
 }

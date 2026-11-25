@@ -11,5 +11,127 @@
       "short": "Destroy a share the moment it expires",
       "description": "Choose what happens when a share runs out of time. Without a subscription an expired share is locked but kept, so you can extend it later. With one you can have it deleted instead — the encrypted content is destroyed on the next scheduler tick and no link brings it back."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "По-прецизен контрол върху срока на валидност на споделянето и броя на отварянията му.",
+      "features": [
+        {
+          "title": "Ограничения на отварянията",
+          "short": "Спрете достъпа до споделяне след определен брой отваряния",
+          "description": "Задайте колко пъти може да бъде отворено споделянето. Всяко споделяне брои отварянията си и без това, но с абонамент броят се превръща в ограничение: щом бъде достигнат, връзката спира да работи, независимо колко време остава до изтичането ѝ. Полезно за нещо, предназначено за един човек, за еднократно отваряне."
+        },
+        {
+          "title": "Автоматично изтриване",
+          "short": "Унищожете споделянето веднага щом срокът му изтече",
+          "description": "Изберете какво да се случва, когато срокът на споделянето изтече. Без абонамент изтеклото споделяне се заключва, но се запазва, за да можете да удължите срока му по-късно. С абонамент можете вместо това да го изтриете — шифрованото съдържание се унищожава при следващото изпълнение на планировчика и никоя връзка не може да го възстанови."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Mehr Kontrolle darüber, wie lange eine Freigabe gültig ist und wie oft sie geöffnet werden kann.",
+      "features": [
+        {
+          "title": "Aufruflimits",
+          "short": "Deaktiviere eine Freigabe nach einer festgelegten Anzahl von Aufrufen",
+          "description": "Lege fest, wie oft eine Freigabe geöffnet werden darf. Jede Freigabe zählt ihre Aufrufe ohnehin, doch mit einem Abonnement wird daraus ein Limit: Sobald es erreicht ist, funktioniert der Link nicht mehr, unabhängig von der verbleibenden Gültigkeitsdauer. Praktisch für Inhalte, die für eine Person und einen einmaligen Aufruf gedacht sind."
+        },
+        {
+          "title": "Automatische Löschung",
+          "short": "Vernichte eine Freigabe, sobald sie abläuft",
+          "description": "Wähle, was passiert, wenn die Gültigkeitsdauer einer Freigabe endet. Ohne Abonnement wird eine abgelaufene Freigabe gesperrt, bleibt aber erhalten, damit du sie später verlängern kannst. Mit einem Abonnement kannst du sie stattdessen löschen lassen – die verschlüsselten Inhalte werden beim nächsten Durchlauf der Aufgabenplanung vernichtet, und kein Link kann sie zurückbringen."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Un contrôle plus précis de la durée de validité d’un partage et du nombre de fois où il peut être ouvert.",
+      "features": [
+        {
+          "title": "Limites d’ouverture",
+          "short": "Désactivez un partage après un nombre défini d’ouvertures",
+          "description": "Définissez le nombre de fois où un partage peut être ouvert. Chaque partage comptabilise ses ouvertures dans tous les cas, mais avec un abonnement, ce compteur devient une limite : dès qu’elle est atteinte, le lien cesse de fonctionner, quelle que soit la durée de validité restante. Utile pour un contenu destiné à une seule personne, à ouvrir une seule fois."
+        },
+        {
+          "title": "Suppression automatique",
+          "short": "Détruisez un partage dès son expiration",
+          "description": "Choisissez ce qui se passe lorsqu’un partage arrive à expiration. Sans abonnement, un partage expiré est verrouillé mais conservé, afin que vous puissiez le prolonger ultérieurement. Avec un abonnement, vous pouvez choisir de le supprimer : le contenu chiffré est détruit à la prochaine exécution du planificateur et aucun lien ne permet de le récupérer."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Mayor control sobre la duración de un recurso compartido y el número de veces que puede abrirse.",
+      "features": [
+        {
+          "title": "Límites de aperturas",
+          "short": "Desactiva un recurso compartido tras un número determinado de aperturas",
+          "description": "Define cuántas veces puede abrirse un recurso compartido. Todos los recursos compartidos cuentan sus aperturas, pero con una suscripción ese recuento se convierte en un límite: una vez alcanzado, el enlace deja de funcionar, sea cual sea el tiempo de validez restante. Útil para contenido destinado a una sola persona y para una única apertura."
+        },
+        {
+          "title": "Eliminación automática",
+          "short": "Destruye un recurso compartido en cuanto caduque",
+          "description": "Elige qué ocurre cuando se agota el tiempo de un recurso compartido. Sin una suscripción, el recurso caducado se bloquea, pero se conserva para que puedas ampliar su vigencia más adelante. Con una suscripción puedes hacer que se elimine: el contenido cifrado se destruye en la siguiente ejecución del programador y ningún enlace permite recuperarlo."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "共有の有効期間と開ける回数を、より細かく管理できます。",
+      "features": [
+        {
+          "title": "閲覧回数の制限",
+          "short": "設定した回数に達したら共有を停止",
+          "description": "共有を開ける回数を設定できます。サブスクリプションの有無にかかわらず、すべての共有で開かれた回数が記録されますが、サブスクリプションがある場合は、その回数を上限として設定できます。上限に達すると、有効期間が残っていてもリンクは使えなくなります。1人に一度だけ見せたい内容に便利です。"
+        },
+        {
+          "title": "自動削除",
+          "short": "有効期限が切れた時点で共有を破棄",
+          "description": "共有の有効期限が切れたときの動作を選択できます。サブスクリプションがない場合、期限切れの共有はロックされた状態で保持されるため、後から期限を延長できます。サブスクリプションがある場合は、代わりに削除するよう設定できます。暗号化されたコンテンツは次のスケジューラー実行時に破棄され、どのリンクからも復元できなくなります。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Mais controle sobre o prazo de validade de um compartilhamento e quantas vezes ele pode ser aberto.",
+      "features": [
+        {
+          "title": "Limites de visualização",
+          "short": "Interrompa um compartilhamento após um número definido de aberturas",
+          "description": "Defina quantas vezes um compartilhamento pode ser aberto. Todos os compartilhamentos contabilizam suas aberturas de qualquer forma, mas, com uma assinatura, essa contagem passa a ser um limite: quando ele é atingido, o link deixa de funcionar, independentemente do tempo restante de validade. Útil para algo destinado a uma única pessoa, uma única vez."
+        },
+        {
+          "title": "Exclusão automática",
+          "short": "Destrua um compartilhamento assim que ele expirar",
+          "description": "Escolha o que acontece quando o prazo de um compartilhamento termina. Sem uma assinatura, um compartilhamento expirado fica bloqueado, mas é mantido, para que você possa prorrogar sua validade depois. Com uma assinatura, você pode optar pela exclusão — o conteúdo criptografado é destruído na próxima execução do agendador, e nenhum link poderá recuperá-lo."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Более точное управление сроком действия публикации и количеством её открытий.",
+      "features": [
+        {
+          "title": "Ограничение просмотров",
+          "short": "Закрывайте доступ к публикации после заданного количества открытий",
+          "description": "Задайте, сколько раз можно открыть публикацию. Количество открытий подсчитывается для каждой публикации в любом случае, но с подпиской оно становится ограничением: как только предел достигнут, ссылка перестаёт работать независимо от оставшегося срока действия. Удобно для материалов, предназначенных одному человеку для однократного открытия."
+        },
+        {
+          "title": "Автоматическое удаление",
+          "short": "Уничтожайте публикацию по истечении срока действия",
+          "description": "Выберите, что произойдёт по истечении срока действия публикации. Без подписки публикация блокируется, но сохраняется, чтобы позже её можно было продлить. С подпиской вместо этого можно настроить удаление: зашифрованное содержимое будет уничтожено при следующем запуске планировщика, и ни одна ссылка уже не сможет его вернуть."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "更精细地控制分享的有效期和可打开次数。",
+      "features": [
+        {
+          "title": "查看次数限制",
+          "short": "达到设定的打开次数后停止分享",
+          "description": "设置分享可被打开的次数。所有分享都会统计打开次数，但订阅后可将该次数设为限制：一旦达到上限，无论剩余有效期还有多久，链接都会失效。适合仅供一人查看一次的内容。"
+        },
+        {
+          "title": "自动删除",
+          "short": "分享过期后立即销毁",
+          "description": "选择分享有效期结束后的处理方式。未订阅时，过期分享会被锁定但仍保留，方便以后延长有效期。订阅后，你可以选择将其删除——加密内容会在下一次调度运行时销毁，任何链接都无法将其恢复。"
+        }
+      ]
+    }
+  }
 }

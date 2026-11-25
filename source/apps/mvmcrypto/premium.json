@@ -6,5 +6,87 @@
       "short": "Add gold, property, or anything else as a manual ledger",
       "description": "Create an asset for anything that isn't a supported network — gold, a flat, a business, savings held elsewhere — and log its value as a running ledger of signed dollar amounts instead of one number you overwrite. Every deposit or withdrawal is its own transaction, each one editable or removable later, and the asset's balance is always the sum of its history. It shows up in the same Portfolio list and counts toward the same total, right alongside Bitcoin and every other network."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Проследявайте всичко редом с реалния си криптопортфейл.",
+      "features": [
+        {
+          "title": "Персонализирани активи",
+          "short": "Добавяйте злато, имоти или всичко друго чрез ръчно воден регистър",
+          "description": "Създайте актив за всичко извън поддържаните мрежи — злато, апартамент, бизнес, спестявания на друго място — и записвайте стойността му в текущ регистър на положителни и отрицателни суми в долари вместо с едно число, което презаписвате. Всяко внасяне или теглене е отделна транзакция, която по-късно може да бъде редактирана или премахната, а балансът на актива винаги е сборът от неговата история. Той се показва в същия списък „Портфейл“ и се включва в същата обща стойност, редом с Bitcoin и всяка друга мрежа."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Erfassen Sie beliebige Werte neben Ihrem tatsächlichen Krypto-Portfolio.",
+      "features": [
+        {
+          "title": "Benutzerdefinierte Vermögenswerte",
+          "short": "Gold, Immobilien oder beliebige andere Werte in einem manuellen Transaktionsbuch hinzufügen",
+          "description": "Erstellen Sie einen Vermögenswert für alles außerhalb der unterstützten Netzwerke — Gold, eine Wohnung, ein Unternehmen oder andernorts angelegte Ersparnisse — und erfassen Sie seinen Wert als fortlaufendes Transaktionsbuch mit positiven und negativen Dollarbeträgen statt als einzelne Zahl, die Sie überschreiben. Jede Einzahlung oder Auszahlung ist eine eigene Transaktion, die später einzeln bearbeitet oder entfernt werden kann, und der Saldo des Vermögenswerts ist immer die Summe seines Verlaufs. Er erscheint in derselben Portfolioliste und fließt in denselben Gesamtwert ein, direkt neben Bitcoin und allen anderen Netzwerken."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Haz un seguimiento de cualquier activo junto a tu cartera real de criptomonedas.",
+      "features": [
+        {
+          "title": "Activos personalizados",
+          "short": "Añade oro, inmuebles o cualquier otro activo mediante un registro manual",
+          "description": "Crea un activo para cualquier elemento ajeno a las redes compatibles —oro, un piso, un negocio, ahorros depositados en otro lugar— y registra su valor mediante un registro continuo de importes positivos o negativos en dólares, en lugar de una sola cifra que se sobrescribe. Cada ingreso o retirada constituye una transacción independiente que se puede editar o eliminar más adelante, y el saldo del activo es siempre la suma de su historial. Aparece en la misma lista de Cartera y se incluye en el mismo total, junto a Bitcoin y todas las demás redes."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Suivez tous vos actifs aux côtés de votre portefeuille de cryptomonnaies réel.",
+      "features": [
+        {
+          "title": "Actifs personnalisés",
+          "short": "Ajoutez de l’or, des biens immobiliers ou tout autre actif sous la forme d’un registre manuel",
+          "description": "Créez un actif pour tout ce qui ne relève pas d’un réseau pris en charge — or, appartement, entreprise, épargne détenue ailleurs — et consignez sa valeur dans un registre continu de montants positifs ou négatifs en dollars, plutôt que dans un montant unique que vous remplacez. Chaque dépôt ou retrait constitue une transaction distincte, modifiable ou supprimable ultérieurement, et le solde de l’actif correspond toujours à la somme de son historique. Il apparaît dans la même liste du portefeuille et est comptabilisé dans le même total, aux côtés de Bitcoin et de tous les autres réseaux."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "実際の暗号資産ポートフォリオと並べて、あらゆる資産を追跡できます。",
+      "features": [
+        {
+          "title": "カスタム資産",
+          "short": "金、不動産、その他の資産を手動の台帳として追加",
+          "description": "金、マンション、事業、別の場所に預けた貯蓄など、対応ネットワークに属さないあらゆるものを資産として作成し、その価値を1つの数値で上書きするのではなく、正負の符号付きドル金額を積み重ねる台帳として記録できます。入金や出金はそれぞれ個別の取引となり、後から編集や削除ができます。資産の残高は、常に履歴の合計額になります。Bitcoinやその他すべてのネットワークと並んで同じポートフォリオ一覧に表示され、同じ合計額に算入されます。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Acompanhe qualquer ativo junto com seu portfólio real de criptomoedas.",
+      "features": [
+        {
+          "title": "Ativos personalizados",
+          "short": "Adicione ouro, imóveis ou qualquer outro bem como um registro manual",
+          "description": "Crie um ativo para qualquer coisa que não seja uma rede compatível — ouro, um apartamento, uma empresa, economias mantidas em outro lugar — e registre seu valor como um histórico contínuo de valores positivos e negativos em dólares, em vez de um único número que você substitui. Cada depósito ou retirada é uma transação própria, que pode ser editada ou removida depois, e o saldo do ativo é sempre a soma de seu histórico. Ele aparece na mesma lista do Portfólio e entra no mesmo total, ao lado do Bitcoin e de todas as outras redes."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Отслеживайте любые активы вместе со своим реальным криптовалютным портфелем.",
+      "features": [
+        {
+          "title": "Пользовательские активы",
+          "short": "Добавляйте золото, недвижимость и любые другие активы с ручным учётом операций",
+          "description": "Создайте актив для всего, что не относится к поддерживаемым сетям, — золота, квартиры, бизнеса, сбережений в других местах — и учитывайте его стоимость в журнале операций с положительными и отрицательными суммами в долларах вместо одного перезаписываемого числа. Каждое пополнение или снятие — отдельная операция, которую впоследствии можно изменить или удалить, а баланс актива всегда равен сумме всех операций в его истории. Он отображается в том же списке «Портфель» и учитывается в общей стоимости наряду с Bitcoin и всеми остальными сетями."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "在追踪实际加密货币投资组合的同时，追踪其他任何资产。",
+      "features": [
+        {
+          "title": "自定义资产",
+          "short": "以手动账本形式添加黄金、房产或其他任何资产",
+          "description": "为受支持网络之外的任何资产创建条目——黄金、公寓、企业、存放在其他地方的储蓄——并通过持续记录正负美元金额的账本记录其价值，而非反复覆盖一个数字。每次存入或取出都作为独立交易记录，之后均可编辑或删除，资产余额始终等于其历史记录之和。它会与 Bitcoin 及其他所有网络的资产一同显示在同一投资组合列表中，并计入同一总额。"
+        }
+      ]
+    }
+  }
 }

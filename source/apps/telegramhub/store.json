@@ -22,5 +22,199 @@
       "summary": "Every notification an app creates through mvmOS for an Apps Hub profile is delivered to that profile's Telegram bot. The app needs no changes.",
       "requires": "Telegram Hub installed, a public HTTPS address set by the administrator, and a bot connected by the profile."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Jedes Apps Hub-Profil verbindet seine eigenen Telegram-Bots: einen Apps Hub-Bot mit Benachrichtigungen aus allen Apps, Bots für einzelne Apps und Bots mit eigenen Menüs.",
+      "tagline": "Deine mvmOS-Benachrichtigungen, Apps und eigenen Schaltflächenmenüs in deinem eigenen Telegram-Bot.",
+      "description": "Mit Telegram Hub kann jedes Apps Hub-Profil eigene Telegram-Bots verbinden. Du erstellst einen Bot mit @BotFather, fügst sein Token auf der Telegram Hub-Seite ein und drückst in Telegram auf „Start“. Von da an arbeitet der Bot nur für dich.\n\nEs gibt drei Arten von Bots. Der Apps Hub-Bot öffnet Apps Hub als Telegram Mini App mit automatischer Anmeldung ohne Anmeldebildschirm und übermittelt die Benachrichtigungen aller deiner Apps als gewöhnliche Telegram-Nachrichten in deiner Profilsprache. Apps, von denen du nichts hören möchtest, kannst du deaktivieren. Ein App-Bot ist einer einzelnen App zugeordnet: Er öffnet nur diese App und übermittelt nur deren Benachrichtigungen. Ein Bot mit eigenem Menü bietet dir ein Menü aus Schaltflächen, das du selbst zusammenstellst.\n\nKeine App benötigt Telegram-Code. Telegram Hub greift auf das gemeinsame Benachrichtigungssystem zu, sodass jede App, die dich über mvmOS benachrichtigt, deinen Bot automatisch erreicht.",
+      "capabilities": [
+        "Jedes Profil verbindet seine eigenen Bots. Der Serveradministrator legt lediglich die öffentliche HTTPS-Adresse fest.",
+        "Der Apps Hub-Bot übermittelt die Benachrichtigungen jeder App in der Profilsprache und öffnet Apps Hub als Mini App mit automatischer Anmeldung.",
+        "Deaktiviere die Benachrichtigungen einzelner Apps über eine einklappbare Liste auf der Telegram Hub-Seite.",
+        "Ein App-Bot öffnet eine einzelne App und übermittelt nur deren Benachrichtigungen.",
+        "Ein Bot ist privat: Er ist mit dem einen Telegram-Chat gekoppelt, in dem „Start“ gedrückt wurde, und sein Token wird verschlüsselt gespeichert.",
+        "Funktioniert mit jeder App, ohne dass die App Telegram-Code benötigt."
+      ],
+      "requirements": [
+        "Ein Telegram-Bot-Token von @BotFather für jeden Bot.",
+        "Eine öffentliche HTTPS-Adresse für diese mvmOS-Installation – Telegram stellt keine Webhooks über unverschlüsseltes HTTP zu."
+      ],
+      "integrations": [
+        {
+          "summary": "Jede Benachrichtigung, die eine App über mvmOS für ein Apps Hub-Profil erstellt, wird an den Telegram-Bot dieses Profils übermittelt. Die App benötigt dafür keine Änderungen.",
+          "requires": "Telegram Hub muss installiert sein, der Administrator muss eine öffentliche HTTPS-Adresse festgelegt haben und das Profil muss einen Bot verbunden haben."
+        }
+      ],
+      "name": "Telegram-Hub"
+    },
+    "bg": {
+      "short_description": "Всеки профил в Apps Hub свързва собствени ботове в Telegram: бот за Apps Hub с известия от всички приложения, ботове за отделни приложения и ботове с персонализирано меню.",
+      "tagline": "Вашите известия от mvmOS, приложения и собствени менюта с бутони във ваш собствен бот в Telegram.",
+      "description": "Центърът за Telegram позволява на всеки профил в Apps Hub да свързва собствени ботове в Telegram. Създавате бот чрез @BotFather, поставяте токена му на страницата на Центъра за Telegram, натискате „Старт“ в Telegram и от този момент ботът работи само за вас.\n\nИма три вида ботове. Ботът за Apps Hub отваря Apps Hub като миниприложение в Telegram с автоматично влизане, без екран за вход, и доставя известията от всичките ви приложения като обикновени съобщения в Telegram на езика на профила ви; можете да изключите приложенията, от които не желаете известия. Ботът за приложение е предназначен за едно приложение: отваря само него и доставя само неговите известия. Ботът с персонализирано меню ви предоставя меню с бутони, което създавате сами.\n\nНито едно приложение не се нуждае от код за Telegram. Центърът за Telegram следи общата система за известия, така че всяко приложение, което ви уведомява чрез mvmOS, автоматично изпраща известия и до бота ви.",
+      "capabilities": [
+        "Всеки профил свързва собствени ботове; администраторът на сървъра задава само публичния HTTPS адрес.",
+        "Ботът за Apps Hub доставя известията от всяко приложение на езика на профила и отваря Apps Hub като миниприложение с автоматично влизане.",
+        "Изключвайте известията от отделни приложения чрез свиваем списък на страницата на Центъра за Telegram.",
+        "Ботът за приложение отваря едно приложение и доставя само неговите известия.",
+        "Ботът е личен: свързва се само с чата в Telegram, в който е натиснат „Старт“, а токенът му се съхранява шифрован.",
+        "Работи с всяко приложение, без в него да е необходим код за Telegram."
+      ],
+      "requirements": [
+        "Токен за бот в Telegram от @BotFather за всеки бот.",
+        "Публичен HTTPS адрес за тази инсталация на mvmOS — Telegram не изпраща уебхукове по обикновен HTTP."
+      ],
+      "integrations": [
+        {
+          "summary": "Всяко известие, което приложение създава чрез mvmOS за профил в Apps Hub, се доставя до бота в Telegram на този профил. Не са необходими промени в приложението.",
+          "requires": "Инсталиран Център за Telegram, публичен HTTPS адрес, зададен от администратора, и бот, свързан от профила."
+        }
+      ],
+      "name": "Телеграм хъб"
+    },
+    "es": {
+      "short_description": "Cada perfil de Apps Hub conecta sus propios bots de Telegram: un bot de Apps Hub con notificaciones de todas las aplicaciones, bots para una sola aplicación y bots con menús personalizados.",
+      "tagline": "Tus notificaciones de mvmOS, tus aplicaciones y tus propios menús de botones en tu propio bot de Telegram.",
+      "description": "Telegram Hub permite que cada perfil de Apps Hub conecte sus propios bots de Telegram. Crea un bot con @BotFather, pega su token en la página de Telegram Hub, pulsa Iniciar en Telegram y, a partir de ese momento, el bot funcionará solo para ti.\n\nHay tres tipos de bot. El bot de Apps Hub abre Apps Hub como una miniaplicación de Telegram, con la sesión iniciada y sin pantalla de acceso, y entrega las notificaciones de todas tus aplicaciones como mensajes normales de Telegram en el idioma de tu perfil; puedes desactivar las aplicaciones de las que no quieras recibir avisos. Un bot de aplicación está dedicado a una sola aplicación: abre únicamente esa aplicación y entrega solo sus notificaciones. Un bot con menú personalizado te ofrece un menú de botones que tú mismo creas.\n\nNinguna aplicación necesita código para Telegram. Telegram Hub recibe los avisos del sistema compartido de notificaciones, por lo que cualquier aplicación que te envíe notificaciones a través de mvmOS llega a tu bot automáticamente.",
+      "capabilities": [
+        "Cada perfil conecta sus propios bots; el administrador del servidor solo configura la dirección HTTPS pública.",
+        "El bot de Apps Hub entrega las notificaciones de todas las aplicaciones, redactadas en el idioma del perfil, y abre Apps Hub como una miniaplicación con inicio de sesión automático.",
+        "Desactiva las notificaciones de aplicaciones concretas desde una lista plegable en la página de Telegram Hub.",
+        "Un bot de aplicación abre una sola aplicación y entrega únicamente sus notificaciones.",
+        "Cada bot es privado: está vinculado al único chat de Telegram en el que se pulsó Iniciar y su token se almacena cifrado.",
+        "Funciona con cualquier aplicación, sin necesidad de incluir código para Telegram en ella."
+      ],
+      "requirements": [
+        "Un token de bot de Telegram obtenido de @BotFather para cada bot.",
+        "Una dirección HTTPS pública para esta instalación de mvmOS: Telegram no entrega webhooks a través de HTTP sin cifrar."
+      ],
+      "integrations": [
+        {
+          "summary": "Todas las notificaciones que una aplicación crea a través de mvmOS para un perfil de Apps Hub se entregan al bot de Telegram de ese perfil. La aplicación no necesita cambios.",
+          "requires": "Telegram Hub instalado, una dirección HTTPS pública configurada por el administrador y un bot conectado por el perfil."
+        }
+      ],
+      "name": "Centro de Telegram"
+    },
+    "fr": {
+      "short_description": "Chaque profil Apps Hub connecte ses propres bots Telegram : un bot Apps Hub avec les notifications de toutes les applications, des bots dédiés à une application et des bots à menu personnalisé.",
+      "tagline": "Vos notifications mvmOS, vos applications et vos propres menus à boutons dans votre bot Telegram.",
+      "description": "Telegram Hub permet à chaque profil Apps Hub de connecter ses propres bots Telegram. Créez un bot avec @BotFather, collez son jeton sur la page de Telegram Hub, appuyez sur Démarrer dans Telegram : dès lors, le bot fonctionne uniquement pour vous.\n\nIl existe trois types de bots. Le bot Apps Hub ouvre Apps Hub sous forme de Telegram Mini App, avec une connexion automatique sans écran d'identification, et transmet les notifications de toutes vos applications sous forme de messages Telegram ordinaires dans la langue de votre profil ; vous pouvez désactiver les applications dont vous ne souhaitez pas recevoir de notifications. Un bot d'application est dédié à une seule application : il ouvre uniquement celle-ci et ne transmet que ses notifications. Un bot à menu personnalisé vous propose un menu de boutons que vous créez vous-même.\n\nAucune application n'a besoin de code spécifique à Telegram. Telegram Hub écoute le système de notifications partagé : toute application qui vous envoie des notifications via mvmOS les transmet donc automatiquement à votre bot.",
+      "capabilities": [
+        "Chaque profil connecte ses propres bots ; l'administrateur du serveur définit uniquement l'adresse HTTPS publique.",
+        "Le bot Apps Hub transmet les notifications de chaque application dans la langue du profil et ouvre Apps Hub sous forme de Mini App avec connexion automatique.",
+        "Désactivez les notifications de certaines applications depuis une liste repliable sur la page de Telegram Hub.",
+        "Un bot d'application ouvre une seule application et transmet uniquement ses notifications.",
+        "Un bot est privé : il est associé à l'unique conversation Telegram dans laquelle Démarrer a été activé, et son jeton est stocké sous forme chiffrée.",
+        "Fonctionne avec toutes les applications, sans code spécifique à Telegram dans l'application."
+      ],
+      "requirements": [
+        "Un jeton de bot Telegram fourni par @BotFather pour chaque bot.",
+        "Une adresse HTTPS publique pour cette installation de mvmOS : Telegram ne transmet pas les webhooks en HTTP non chiffré."
+      ],
+      "integrations": [
+        {
+          "summary": "Chaque notification créée par une application via mvmOS pour un profil Apps Hub est transmise au bot Telegram de ce profil. L'application ne nécessite aucune modification.",
+          "requires": "Telegram Hub installé, une adresse HTTPS publique définie par l'administrateur et un bot connecté par le profil."
+        }
+      ],
+      "name": "Hub Telegram"
+    },
+    "ja": {
+      "short_description": "各Apps Hubプロフィールに専用のTelegramボットを接続できます。すべてのアプリの通知を届けるApps Hubボット、1つのアプリ専用のボット、カスタムメニューボットを利用できます。",
+      "tagline": "mvmOSの通知、アプリ、自作のボタンメニューを、自分専用のTelegramボットで。",
+      "description": "Telegram Hubでは、各Apps Hubプロフィールに自分専用のTelegramボットを接続できます。@BotFatherでボットを作成し、そのトークンをTelegram Hubのページに貼り付けて、Telegramで「開始」を押すと、そのボットは自分だけのために動作するようになります。\n\nボットには3種類あります。Apps Hubボットは、ログイン画面を経由せずにログイン済みのApps HubをTelegram Mini Appとして開き、すべてのアプリの通知を、プロフィールの言語で通常のTelegramメッセージとして届けます。通知が不要なアプリはオフにできます。アプリボットは1つのアプリ専用で、そのアプリだけを開き、そのアプリの通知だけを届けます。カスタムメニューボットでは、自分で作ったボタンメニューを利用できます。\n\nどのアプリにもTelegram用のコードは必要ありません。Telegram Hubは共通の通知システムを監視するため、mvmOSを通じて通知するすべてのアプリから、自動的にボットへ通知が届きます。",
+      "capabilities": [
+        "各プロフィールに専用のボットを接続できます。サーバー管理者が設定するのは、公開HTTPSアドレスだけです。",
+        "Apps Hubボットは、すべてのアプリの通知をプロフィールの言語で届け、自動ログイン付きのMini AppとしてApps Hubを開きます。",
+        "Telegram Hubページの折りたたみ可能な一覧から、アプリごとに通知をオフにできます。",
+        "アプリボットは1つのアプリだけを開き、そのアプリの通知だけを届けます。",
+        "ボットは非公開です。「開始」を押した1つのTelegramチャットに紐付けられ、トークンは暗号化して保存されます。",
+        "アプリ内にTelegram用のコードを追加せず、どのアプリでも利用できます。"
+      ],
+      "requirements": [
+        "各ボット用に@BotFatherから取得したTelegramボットトークン。",
+        "このmvmOS環境の公開HTTPSアドレス。Telegramは通常のHTTP経由ではWebhookを配信しません。"
+      ],
+      "integrations": [
+        {
+          "summary": "アプリがmvmOSを通じてApps Hubプロフィール宛てに作成するすべての通知が、そのプロフィールのTelegramボットに配信されます。アプリの変更は不要です。",
+          "requires": "Telegram Hubがインストールされ、管理者が公開HTTPSアドレスを設定し、プロフィールにボットが接続されていること。"
+        }
+      ],
+      "name": "Telegram ハブ"
+    },
+    "pt-BR": {
+      "short_description": "Cada perfil do Apps Hub conecta seus próprios bots do Telegram: um bot do Apps Hub com notificações de todos os aplicativos, bots para um único aplicativo e bots com menus personalizados.",
+      "tagline": "Suas notificações do mvmOS, aplicativos e menus de botões personalizados no seu próprio bot do Telegram.",
+      "description": "A Central do Telegram permite que cada perfil do Apps Hub conecte seus próprios bots do Telegram. Você cria um bot com o @BotFather, cola o token dele na página da Central do Telegram, pressiona Iniciar no Telegram e, a partir daí, o bot funciona somente para você.\n\nHá três tipos de bot. O bot do Apps Hub abre o Apps Hub como um Mini App do Telegram, com acesso automático, sem tela de login, e entrega as notificações de todos os seus aplicativos como mensagens comuns do Telegram no idioma do seu perfil; você pode desativar os aplicativos dos quais não quer receber notificações. Um bot de aplicativo é dedicado a um único aplicativo: abre apenas esse aplicativo e traz somente as notificações dele. Um bot com menu personalizado oferece um menu de botões que você mesmo cria.\n\nNenhum aplicativo precisa de código do Telegram. A Central do Telegram monitora o sistema compartilhado de notificações, então todo aplicativo que envia notificações pelo mvmOS chega automaticamente ao seu bot.",
+      "capabilities": [
+        "Cada perfil conecta seus próprios bots; o administrador do servidor define apenas o endereço HTTPS público.",
+        "O bot do Apps Hub entrega as notificações de todos os aplicativos no idioma do perfil e abre o Apps Hub como um Mini App com acesso automático.",
+        "Desative as notificações de aplicativos individuais em uma lista recolhível na página da Central do Telegram.",
+        "Um bot de aplicativo abre um único aplicativo e traz somente as notificações dele.",
+        "O bot é privado: fica vinculado à única conversa do Telegram em que Iniciar foi pressionado, e seu token é armazenado de forma criptografada.",
+        "Funciona com qualquer aplicativo, sem código do Telegram dentro dele."
+      ],
+      "requirements": [
+        "Um token de bot do Telegram obtido com o @BotFather para cada bot.",
+        "Um endereço HTTPS público para esta instalação do mvmOS — o Telegram não entrega webhooks por HTTP sem criptografia."
+      ],
+      "integrations": [
+        {
+          "summary": "Toda notificação que um aplicativo cria pelo mvmOS para um perfil do Apps Hub é entregue ao bot do Telegram desse perfil. O aplicativo não precisa de alterações.",
+          "requires": "Central do Telegram instalada, um endereço HTTPS público definido pelo administrador e um bot conectado pelo perfil."
+        }
+      ],
+      "name": "Central do Telegram"
+    },
+    "ru": {
+      "short_description": "Каждый профиль Apps Hub подключает собственных ботов Telegram: бота Apps Hub с уведомлениями от всех приложений, ботов для отдельных приложений и ботов с собственным меню.",
+      "tagline": "Уведомления mvmOS, приложения и собственные меню с кнопками в вашем боте Telegram.",
+      "description": "Telegram Hub позволяет каждому профилю Apps Hub подключать собственных ботов Telegram. Создайте бота через @BotFather, вставьте его токен на странице Telegram Hub, нажмите «Запустить» в Telegram, и с этого момента бот будет работать только для вас.\n\nЕсть три вида ботов. Бот Apps Hub открывает Apps Hub как мини-приложение Telegram с автоматическим входом без экрана авторизации и доставляет уведомления всех ваших приложений в виде обычных сообщений Telegram на языке профиля; уведомления ненужных приложений можно отключить. Бот приложения предназначен для одного приложения: он открывает только его и присылает только его уведомления. Бот с собственным меню предоставляет меню из кнопок, которые вы создаёте сами.\n\nПриложениям не нужен код для работы с Telegram. Telegram Hub отслеживает общую систему уведомлений, поэтому каждое приложение, отправляющее вам уведомления через mvmOS, автоматически доставляет их вашему боту.",
+      "capabilities": [
+        "Каждый профиль подключает собственных ботов; администратор сервера задаёт только общедоступный HTTPS-адрес.",
+        "Бот Apps Hub доставляет уведомления всех приложений на языке профиля и открывает Apps Hub как мини-приложение с автоматическим входом.",
+        "Отключение уведомлений отдельных приложений в сворачиваемом списке на странице Telegram Hub.",
+        "Бот приложения открывает одно приложение и присылает только его уведомления.",
+        "Бот доступен только вам: он привязан к единственному чату Telegram, в котором нажали «Запустить», а его токен хранится в зашифрованном виде.",
+        "Работает с любым приложением без добавления в него кода для Telegram."
+      ],
+      "requirements": [
+        "Токен бота Telegram от @BotFather для каждого бота.",
+        "Общедоступный HTTPS-адрес этой установки mvmOS: Telegram не доставляет вебхуки по обычному HTTP."
+      ],
+      "integrations": [
+        {
+          "summary": "Каждое уведомление, которое приложение создаёт через mvmOS для профиля Apps Hub, доставляется боту Telegram этого профиля. Изменять приложение не требуется.",
+          "requires": "Установленный Telegram Hub, общедоступный HTTPS-адрес, заданный администратором, и бот, подключённый в профиле."
+        }
+      ],
+      "name": "Телеграм-хаб"
+    },
+    "zh-CN": {
+      "short_description": "每个 Apps Hub 个人资料都可以连接自己的 Telegram 机器人：接收所有应用通知的 Apps Hub 机器人、专用于单个应用的机器人，以及自定义菜单机器人。",
+      "tagline": "通过你自己的 Telegram 机器人，接收 mvmOS 通知、使用应用和自定义按钮菜单。",
+      "description": "Telegram 中心让每个 Apps Hub 个人资料都能连接自己的 Telegram 机器人。通过 @BotFather 创建机器人，将其令牌粘贴到 Telegram 中心页面，然后在 Telegram 中点击“开始”，此后该机器人便只为你服务。\n\n机器人分为三类。Apps Hub 机器人以 Telegram Mini App 的形式打开 Apps Hub，无需登录界面即可自动登录，并以个人资料所用语言，将所有应用的通知作为普通 Telegram 消息发送给你；你可以关闭不想接收的应用通知。应用机器人专用于某一个应用：仅打开该应用，也仅接收其通知。自定义菜单机器人则提供由你自行构建的按钮菜单。\n\n应用无需包含任何 Telegram 代码。Telegram 中心监听共享通知系统，因此所有通过 mvmOS 向你发送通知的应用，都会自动将通知送达你的机器人。",
+      "capabilities": [
+        "每个个人资料连接自己的机器人；服务器管理员只需设置公开 HTTPS 地址。",
+        "Apps Hub 机器人以个人资料所用语言发送各应用的通知，并以 Mini App 的形式打开 Apps Hub，自动完成登录。",
+        "在 Telegram 中心页面的可折叠列表中，可关闭个别应用的通知。",
+        "应用机器人打开单个应用，并仅发送该应用的通知。",
+        "机器人为私人专用：仅与点击过“开始”的那个 Telegram 聊天配对，令牌以加密形式存储。",
+        "适用于任何应用，应用内部无需包含 Telegram 代码。"
+      ],
+      "requirements": [
+        "每个机器人都需要一个从 @BotFather 获取的 Telegram 机器人令牌。",
+        "此 mvmOS 实例需要一个公开 HTTPS 地址——Telegram 不会通过普通 HTTP 发送 webhook。"
+      ],
+      "integrations": [
+        {
+          "summary": "应用通过 mvmOS 为某个 Apps Hub 个人资料创建的每条通知，都会发送到该个人资料的 Telegram 机器人。应用无需做任何修改。",
+          "requires": "需安装 Telegram 中心，由管理员设置公开 HTTPS 地址，并由个人资料连接机器人。"
+        }
+      ],
+      "name": "Telegram 中心"
+    }
+  }
 }

@@ -45,7 +45,8 @@
           "summary": "Calendar предоставя API за взаимодействие между приложения: други приложения могат да извеждат списък със събитията ви за даден период, да добавят събития с определен час, целодневни или повтарящи се събития, да ги редактират или изтриват и да ги отбелязват като изпълнени — винаги само в собствения ви календар.",
           "requires": "API на приложението Calendar трябва да бъде включен от Apps Hub → Настройки → API на приложенията. По подразбиране е изключен."
         }
-      ]
+      ],
+      "name": "Календар"
     },
     "pt-BR": {
       "short_description": "Calendário com eventos e lembretes, além de uma página pública na web para contas do Apps Hub.",
@@ -68,7 +69,8 @@
           "summary": "O Calendar disponibiliza uma API de comunicação entre apps: outros apps podem listar seus eventos de um período, adicionar eventos com horário definido, de dia inteiro ou recorrentes, editá-los, excluí-los e marcá-los como concluídos, sempre apenas no seu próprio calendário.",
           "requires": "A API do app Calendar precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela vem desativada por padrão."
         }
-      ]
+      ],
+      "name": "Calendário"
     },
     "de": {
       "short_description": "Kalender mit Terminen und Erinnerungen sowie einer öffentlichen Webseite für Apps Hub-Konten.",
@@ -91,7 +93,8 @@
           "summary": "Calendar bietet eine API für die Kommunikation zwischen Apps: Andere Apps können deine Termine für einen bestimmten Zeitraum auflisten, Termine mit fester Uhrzeit, ganztägige oder wiederkehrende Termine hinzufügen, sie bearbeiten oder löschen und als erledigt markieren – immer nur in deinem eigenen Kalender.",
           "requires": "Die Calendar-App-API muss unter Apps Hub → Einstellungen → App-APIs aktiviert werden. Sie ist standardmäßig deaktiviert."
         }
-      ]
+      ],
+      "name": "Kalender"
     },
     "zh-CN": {
       "short_description": "支持日程和提醒的日历，并为 Apps Hub 账户提供公开网页。",
@@ -114,7 +117,8 @@
           "summary": "Calendar 提供应用间 API：其他应用可以列出指定时段内的日程，添加指定时间、全天或重复日程，编辑或删除日程，以及将其标记为已完成；所有操作始终仅限于你自己的日历。",
           "requires": "需在 Apps Hub → 设置 → 应用 API 中开启 Calendar 应用 API。此功能默认关闭。"
         }
-      ]
+      ],
+      "name": "日历"
     },
     "ja": {
       "short_description": "予定やリマインダーを管理でき、Apps Hubアカウント用の公開ウェブページでも使えるカレンダー。",
@@ -137,7 +141,8 @@
           "summary": "Calendarはアプリ間連携用のAPIを提供しています。他のアプリから、指定期間の予定の一覧取得、時間指定・終日・繰り返しの予定の追加、編集、削除、完了済みへの変更ができます。いずれの操作も、自分のカレンダー内に限られます。",
           "requires": "Apps Hub → 設定 → アプリAPIで、CalendarのアプリAPIを有効にする必要があります。初期設定では無効になっています。"
         }
-      ]
+      ],
+      "name": "カレンダー"
     },
     "ru": {
       "short_description": "Календарь с событиями и напоминаниями, а также общедоступной веб-страницей для учётных записей Apps Hub.",
@@ -160,7 +165,8 @@
           "summary": "Calendar предоставляет API для взаимодействия между приложениями: другие приложения могут получать список ваших событий за определённый период, добавлять события на определённое время, на весь день или с повторением, изменять и удалять их, а также отмечать как выполненные — всегда только в вашем календаре.",
           "requires": "API приложения Calendar необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он отключён."
         }
-      ]
+      ],
+      "name": "Календарь"
     },
     "fr": {
       "short_description": "Un calendrier avec événements et rappels, et une page web publique pour les comptes Apps Hub.",
@@ -183,7 +189,8 @@
           "summary": "Calendar propose une API de communication entre applications : d’autres applications peuvent lister vos événements sur une période donnée, ajouter des événements à horaire précis, sur toute la journée ou récurrents, les modifier ou les supprimer et les marquer comme terminés, toujours et uniquement dans votre propre calendrier.",
           "requires": "L’API de l’application Calendar doit être activée dans Apps Hub → Paramètres → API des applications. Elle est désactivée par défaut."
         }
-      ]
+      ],
+      "name": "Calendrier"
     },
     "es": {
       "short_description": "Calendario con eventos y recordatorios, y una página web pública para cuentas de Apps Hub.",
@@ -206,7 +213,8 @@
           "summary": "Calendar ofrece una API de comunicación entre aplicaciones: otras aplicaciones pueden consultar tus eventos de un periodo, añadir eventos con hora concreta, de todo el día o recurrentes, editarlos o eliminarlos y marcarlos como completados, siempre dentro de tu propio calendario.",
           "requires": "La API de la aplicación Calendar debe activarse en Apps Hub → Ajustes → API de aplicaciones. Está desactivada de forma predeterminada."
         }
-      ]
+      ],
+      "name": "Calendario"
     }
   }
 }

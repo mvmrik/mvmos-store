@@ -213,6 +213,9 @@
             '<button type="button" class="s-btn e-ai" style="margin-left:auto" title="' + esc(t('rmm_ai_fill_hint')) + '">✨ ' + esc(t('rmm_ai_fill')) + '</button>' +
             '<label style="display:flex;gap:6px;align-items:center;font-size:.85rem"><input class="e-ret" type="checkbox"' + (cur.retired ? ' checked' : '') + '>' + esc(t('rmm_hide')) + '</label></div>' +
             '<label style="display:flex;gap:6px;align-items:center;font-size:.85rem"><input class="e-changeable" type="checkbox"' + (cur.changeable ? ' checked' : '') + '>' + esc(t('rmm_changeable')) + '</label>' +
+            '<div class="e-ai-panel" style="display:none;border:1px solid var(--border);border-radius:8px;padding:10px">' +
+            '<label style="display:flex;flex-direction:column;gap:5px;font-size:.85rem">' + esc(t('rmm_ai_instruction')) + '<textarea class="e-ai-instruction" rows="3" maxlength="4000" placeholder="' + esc(t('rmm_ai_instruction_ph')) + '" style="width:100%;resize:vertical"></textarea></label>' +
+            '<div style="display:flex;gap:8px;margin-top:8px"><button type="button" class="s-btn e-ai-run">✨ ' + esc(t('rmm_ai_fill')) + '</button><button type="button" class="s-btn e-ai-close" style="background:var(--surface2);color:var(--text)">' + esc(t('rmm_cancel')) + '</button></div></div>' +
             '<div class="e-notes" style="display:none;border:1px solid var(--border);border-radius:8px;padding:8px 10px;font-size:.85rem"></div>' +
             '<div class="e-tabs" style="display:flex;gap:4px;flex-wrap:wrap"></div>' +
             '<div class="e-text" style="display:flex;flex-direction:column;gap:8px"></div>' +
@@ -248,7 +251,9 @@
             body.querySelectorAll('.e-tab').forEach(b => b.onclick = () => { keep(); lang = b.dataset.l; paint(); });
           };
           paint();
-          $('.e-ai').onclick = async ev => {
+          $('.e-ai').onclick = () => { $('.e-ai-panel').style.display = ''; $('.e-ai-instruction').focus(); };
+          $('.e-ai-close').onclick = () => { $('.e-ai-panel').style.display = 'none'; };
+          $('.e-ai-run').onclick = async ev => {
             keep();
             const aib = ev.currentTarget, notes = $('.e-notes'), err = $('.e-err');
             const dcs = () => Object.fromEntries(Array.from(body.querySelectorAll('.e-dc')).filter(i => i.value !== '').map(i => [i.dataset.c, Math.max(1, Math.min(20, parseInt(i.value, 10) || 1))]));
@@ -259,6 +264,7 @@
             try {
               const r = await AI.job('/ai/fill', {
                 lang: AI.uiLang(d.langs),
+                instruction: $('.e-ai-instruction').value.trim(),
                 question: { changeable: $('.e-changeable').checked, c: $('.e-cat').value, d: parseInt($('.e-d').value, 10) || 0, k: vals('.e-k'), s: vals('.e-s'), dc: dcs(), texts: Object.fromEntries(d.langs.map(l => [l, { q: texts[l].q, a: texts[l].a }])) },
               }, p => { notes.textContent = t('rmm_ai_working') + (p ? ' ' + p : ''); }, () => alive && body.isConnected);
               if (!r) return;

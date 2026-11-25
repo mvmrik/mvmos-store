@@ -18,7 +18,7 @@ import os
 import sys
 
 from fastapi import APIRouter, Depends, HTTPException, Request
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 
@@ -166,6 +166,7 @@ class Draft(BaseModel):
 class FillBody(BaseModel):
     lang: str = "en"                      # language of the notes
     question: Draft
+    instruction: str = Field(default="", max_length=4000)
 
 
 class SuggestBody(BaseModel):
@@ -182,6 +183,10 @@ class FinishBody(BaseModel):
 
 
 class ImportText(BaseModel):
+    text: str
+
+
+class RepairImport(BaseModel):
     text: str
 
 
@@ -229,7 +234,7 @@ def ai_job(jid: str):
 def ai_fill(request: Request, body: FillBody):
     user, head = _ready(request), bank.header()
     raw, ui = _as_raw(body.question), _ui(body.lang)
-    return {"job": ai.start_job(lambda job: ai.fill(head, LANGS, user, raw, ui))}
+    return {"job": ai.start_job(lambda job: ai.fill(head, LANGS, user, raw, ui, body.instruction.strip()))}
 
 
 @desktop_router.post("/ai/suggest", dependencies=[Depends(_admin)])
@@ -276,6 +281,16 @@ def import_parse(body: ImportText):
         return {"items": ai.parse_import(bank.header(), LANGS, body.text[:600000], bank)}
     except Exception:
         raise HTTPException(400, "bad_import")
+
+
+@desktop_router.post("/import/repair", dependencies=[Depends(_admin)])
+def import_repair(request: Request, body: RepairImport):
+    if not body.text.strip():
+        raise HTTPException(400, "empty")
+    if len(body.text) > 80000:
+        raise HTTPException(400, "repair_too_long")
+    user, head = _ready(request), bank.header()
+    return {"job": ai.start_job(lambda job: ai.repair_import(head, LANGS, user, body.text, job, bank))}
 
 
 @desktop_router.post("/import/add", dependencies=[Depends(_admin)])

@@ -6,5 +6,87 @@
       "short": "Get the subtitles inside a film as separate .srt files without downloading the film",
       "description": "When a torrent finishes, qBit Dashboard reads the video files on the server and saves the text subtitles built into MKV and MP4 videos next to the video as Name.xx.srt, so players and translation tools can use them without reading the whole film. You list languages in order of preference; the first one that exists is saved and the next ones are tried only when it is missing. You can extract for every new file or only for the torrents and files you choose: a switch when adding a torrent sets it for that torrent, and each video in the Files list has its own toggle that shows whether the subtitles were saved, were already there or were not found. Nothing has to be installed on the server."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Автоматично запазва вградените субтитри от изтеглените ви видеоклипове до тях на сървъра, където се намира филмът.",
+      "features": [
+        {
+          "title": "Извличане на субтитри след изтегляне",
+          "short": "Получавайте вградените във филма субтитри като отделни .srt файлове, без да изтегляте филма",
+          "description": "Когато торентът завърши, qBit Dashboard прочита видеофайловете на сървъра и запазва текстовите субтитри, вградени във видеоклипове MKV и MP4, до видеото като Name.xx.srt, така че плейърите и инструментите за превод да могат да ги използват, без да четат целия филм. Посочвате езиците по ред на предпочитание; запазва се първият наличен, а следващите се проверяват само ако той липсва. Можете да извличате субтитри за всеки нов файл или само за избраните от вас торенти и файлове: превключвател при добавяне на торент задава настройката за него, а всяко видео в списъка Файлове има собствен превключвател, който показва дали субтитрите са запазени, вече са били налични или не са намерени. Не е необходимо да се инсталира нищо на сървъра."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Speichert die in deinen heruntergeladenen Videos enthaltenen Untertitel automatisch neben den Videos auf dem Server, auf dem der Film liegt.",
+      "features": [
+        {
+          "title": "Untertitel nach dem Download extrahieren",
+          "short": "Erhalte die im Film enthaltenen Untertitel als separate .srt-Dateien, ohne den Film herunterzuladen",
+          "description": "Wenn ein Torrent abgeschlossen ist, liest qBit Dashboard die Videodateien auf dem Server und speichert die in MKV- und MP4-Videos enthaltenen Textuntertitel neben dem Video als Name.xx.srt. So können Player und Übersetzungswerkzeuge sie verwenden, ohne den gesamten Film zu lesen. Du listest Sprachen in der gewünschten Reihenfolge auf; die erste vorhandene Sprache wird gespeichert, und die folgenden werden nur versucht, wenn sie fehlt. Du kannst Untertitel aus jeder neuen Datei extrahieren lassen oder nur aus den von dir gewählten Torrents und Dateien: Ein Schalter beim Hinzufügen eines Torrents legt dies für diesen Torrent fest, und jedes Video in der Dateiliste hat einen eigenen Schalter, der anzeigt, ob die Untertitel gespeichert wurden, bereits vorhanden waren oder nicht gefunden wurden. Auf dem Server muss nichts installiert werden."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Enregistre automatiquement les sous-titres intégrés à vos vidéos téléchargées à côté de celles-ci, sur le serveur où se trouve le film.",
+      "features": [
+        {
+          "title": "Extraction des sous-titres après le téléchargement",
+          "short": "Récupérez les sous-titres intégrés à un film sous forme de fichiers .srt distincts sans télécharger le film",
+          "description": "Lorsqu’un torrent se termine, qBit Dashboard lit les fichiers vidéo sur le serveur et enregistre les sous-titres textuels intégrés aux vidéos MKV et MP4 à côté de la vidéo sous le nom Name.xx.srt, afin que les lecteurs et les outils de traduction puissent les utiliser sans lire le film entier. Vous indiquez les langues par ordre de préférence ; la première disponible est enregistrée et les suivantes ne sont essayées que si elle est absente. Vous pouvez effectuer l’extraction pour chaque nouveau fichier ou uniquement pour les torrents et fichiers de votre choix : une option lors de l’ajout d’un torrent l’active pour ce torrent, et chaque vidéo de la liste Fichiers dispose de sa propre option indiquant si les sous-titres ont été enregistrés, étaient déjà présents ou n’ont pas été trouvés. Aucune installation n’est nécessaire sur le serveur."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Guarda automáticamente los subtítulos integrados en los vídeos descargados junto a ellos, en el servidor donde está la película.",
+      "features": [
+        {
+          "title": "Extracción de subtítulos tras la descarga",
+          "short": "Obtén los subtítulos de una película como archivos .srt independientes sin descargar la película",
+          "description": "Cuando termina un torrent, qBit Dashboard lee los archivos de vídeo del servidor y guarda los subtítulos de texto integrados en vídeos MKV y MP4 junto al vídeo como Name.xx.srt, para que los reproductores y las herramientas de traducción puedan utilizarlos sin leer toda la película. Indica los idiomas por orden de preferencia; se guarda el primero que esté disponible y solo se prueban los siguientes si falta. Puedes extraerlos de cada archivo nuevo o solo de los torrents y archivos que elijas: un interruptor al añadir un torrent activa la extracción para ese torrent, y cada vídeo de la lista Archivos tiene su propio interruptor, que muestra si los subtítulos se han guardado, ya estaban presentes o no se han encontrado. No es necesario instalar nada en el servidor."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "ダウンロードした動画に埋め込まれた字幕を、動画があるサーバー上で自動的に動画と同じ場所へ保存します。",
+      "features": [
+        {
+          "title": "ダウンロード後の字幕抽出",
+          "short": "映画をダウンロードせずに、埋め込み字幕を個別の.srtファイルとして取得",
+          "description": "トレントが完了すると、qBit Dashboardはサーバー上の動画ファイルを読み取り、MKVやMP4動画に埋め込まれたテキスト字幕をName.xx.srtという名前で動画と同じ場所に保存します。これにより、プレーヤーや翻訳ツールは映画全体を読み込まずに字幕を利用できます。言語を優先順に指定すると、存在する最初の言語が保存され、その言語がない場合にのみ次の言語が試されます。新しいファイルすべてを対象に抽出することも、選択したトレントやファイルだけを対象にすることもできます。トレント追加時のスイッチでそのトレントの設定を行えます。また、ファイル一覧の各動画には個別の切り替えがあり、字幕が保存されたか、すでに存在していたか、見つからなかったかを確認できます。サーバーに何かをインストールする必要はありません。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Salva automaticamente as legendas embutidas nos vídeos baixados ao lado deles, no servidor onde o filme está.",
+      "features": [
+        {
+          "title": "Extração de legendas após o download",
+          "short": "Obtenha as legendas embutidas em um filme como arquivos .srt separados sem baixar o filme",
+          "description": "Quando um torrent é concluído, qBit Dashboard lê os arquivos de vídeo no servidor e salva as legendas de texto embutidas em vídeos MKV e MP4 ao lado do vídeo como Name.xx.srt, para que reprodutores e ferramentas de tradução possam usá-las sem ler o filme inteiro. Você lista os idiomas em ordem de preferência; o primeiro disponível é salvo e os seguintes só são tentados quando ele não é encontrado. Você pode extrair as legendas de todos os arquivos novos ou apenas dos torrents e arquivos que escolher: uma opção ao adicionar um torrent define isso para aquele torrent, e cada vídeo na lista de Arquivos tem seu próprio controle, que mostra se as legendas foram salvas, já estavam presentes ou não foram encontradas. Não é necessário instalar nada no servidor."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Автоматически сохраняет встроенные субтитры скачанных видео рядом с ними, на сервере, где находится фильм.",
+      "features": [
+        {
+          "title": "Извлечение субтитров после скачивания",
+          "short": "Получайте встроенные субтитры фильма в виде отдельных файлов .srt без скачивания фильма",
+          "description": "Когда скачивание торрента завершается, qBit Dashboard считывает видеофайлы на сервере и сохраняет текстовые субтитры, встроенные в видео MKV и MP4, рядом с видео в виде Name.xx.srt, чтобы проигрыватели и инструменты перевода могли использовать их без чтения всего фильма. Вы указываете языки в порядке предпочтения; сохраняется первый доступный, а следующие проверяются только при его отсутствии. Извлечение можно включить для каждого нового файла или только для выбранных торрентов и файлов: переключатель при добавлении торрента задаёт настройку для этого торрента, а у каждого видео в списке «Файлы» есть собственный переключатель, показывающий, были ли субтитры сохранены, уже существовали или не найдены. Ничего устанавливать на сервер не требуется."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "在影片所在的服务器上，自动将已下载视频的内嵌字幕保存到视频旁。",
+      "features": [
+        {
+          "title": "下载后提取字幕",
+          "short": "无需下载影片，即可将片内字幕提取为独立的 .srt 文件",
+          "description": "种子下载完成后，qBit Dashboard 会读取服务器上的视频文件，将 MKV 和 MP4 视频内嵌的文本字幕以 Name.xx.srt 的形式保存在视频旁，供播放器和翻译工具使用，无需读取整部影片。您可以按偏好顺序列出语言；应用会保存其中首个可用语言的字幕，仅在缺失时才尝试后续语言。您可以为每个新文件提取字幕，也可以仅对选定的种子和文件提取：添加种子时可通过开关为该种子设置此功能，“文件”列表中的每个视频也有独立开关，并显示字幕已保存、已存在或未找到的状态。服务器上无需安装任何组件。"
+        }
+      ]
+    }
+  }
 }

@@ -37,5 +37,287 @@
       "summary": "When a profile switches it on in Hydration, the daily water, caffeine, alcohol, energy, sugar and protein totals are sent to Health, where they get charts and statistics next to weight and blood pressure. It is off by default, and without Health Hydration works exactly as before. Each day’s water goal is sent too, so Health charts use the goal that day actually had.",
       "requires": "Health installed and its App API enabled in Apps Hub → Settings → App APIs. The App API is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Protokolliere, was du im Laufe des Tages trinkst. Bei jedem Getränk zählt nur der tatsächliche Wasseranteil; auch Koffein und Alkohol werden erfasst. Mit vordefinierten und eigenen Getränken sowie einer öffentlichen Webseite.",
+      "tagline": "Protokolliere deine Getränke und sieh, wie viel Wasser du heute wirklich aufgenommen hast.",
+      "description": "Hydration ist ein einfaches Trinktagebuch. Tippe auf ein Getränk, dann auf eine Portionsgröße, und schon steht es auf der heutigen Liste. Bei jedem Getränk zählt nur der Anteil, der tatsächlich Wasser ist. So tragen ein Kaffee, ein Bier und ein Glas Saft jeweils mit ihrem tatsächlichen Wassergehalt zu deinem Tagesziel bei. Koffein, Alkohol, Energie, Zucker und Eiweiß werden daneben ebenfalls aufsummiert.\n\nDie App enthält vordefinierte Getränke wie Wasser, Kaffee, Tee, Milch, Saft, Erfrischungsgetränke, Bier und Wein mit jeweils üblichen Portionsgrößen. Weitere Einträge wie Kräutertee, Kakao, Proteinshake, Kefir, Ayran, Pflanzendrink, Smoothie, Kokoswasser, Sportgetränk und Cider sowie nach Gewicht erfasste Suppen, Joghurt und Obst lassen sich in den Einstellungen einblenden. Die Werte sind allgemeine Durchschnittswerte pro 100 ml. Weichen die Angaben auf dem Etikett eines Getränks davon ab, kannst du es nur für dein Konto bearbeiten oder als eigenes Getränk hinzufügen. Auf der separaten Einstellungsseite verwaltest du die Getränkeliste: Du kannst Werte und Portionsgrößen ändern, eigene Getränke hinzufügen und beliebige Getränke ein- oder ausblenden. Auf dem Hauptbildschirm erscheinen nur die eingeblendeten Getränke, die zuletzt verwendeten zuerst. Die Portionsgrößen unter einem Getränk sind genauso sortiert.\n\nLege dein Tagesziel fest und wähle zwischen Millilitern und US-Flüssigunzen. Jeder Eintrag behält die Werte, mit denen er erfasst wurde. Wenn du ein Getränk später bearbeitest, ändern sich vergangene Tage daher nicht. Deine Änderungen an vordefinierten Getränken bleiben auch nach App-Updates erhalten. Blättere durch vergangene Kalendermonate mit Tagesbalken, die nach Getränk eingefärbt sind. Jeder abgeschlossene Tag behält sein eigenes Ziel, wenn du das aktuelle Ziel änderst. Wähle Mitternacht oder eine Uhrzeit bis 08:00 als Tagesende. Später in der Nacht erfasste Getränke zählen dann zum Vortag, während bestehende Einträge ihr Datum behalten. Wähle Farben für jedes Getränk und ein Emoji für deine eigenen Getränke. Tippe auf die beiden Fortschrittsringe, um die Gesamtmengen nach Getränk und die relativen Gewichtsanteile von Wasser, Koffein, Alkohol, Zucker und Eiweiß zu sehen. Uhrzeiten und Datumsangaben richten sich nach deinen Regionseinstellungen. Über dein Apps Hub-Profil steht dir dasselbe Tagebuch sowohl auf dem Desktop als auch auf der öffentlichen Seite auf deinem Smartphone zur Verfügung.\n\nMit Premium lässt sich in den Desktop-Einstellungen eine Budget-Belohnung aktivieren. Jedes Apps Hub-Profil wählt dann einen Betrag und eine Budget-Kategorie, der dieser gutgeschrieben wird, sowie optional eine weitere Kategorie, aus der er entnommen wird. Sobald das Tagesziel erreicht ist, wird der Betrag einmal für diesen Tag gutgeschrieben, das Profil wird benachrichtigt und die Gutschrift erscheint in Budget.\n\nWenn die App Health installiert ist, kann jedes Profil außerdem seine täglichen Mengen an Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß an Health senden, um dort Diagramme und Statistiken zu sehen.\n\nWasser aus anderen Apps\nJedes Profil kann festlegen, ob Wasser berücksichtigt werden soll, das andere Apps an Health senden. Die Tagesansicht zeigt die Namen der beitragenden Apps und die jeweiligen Wassermengen. Dieses Wasser fließt in den Zielring und den aktuellen Fortschritt ein, ohne Hydration doppelt zu zählen. Die App-API von Health muss aktiviert sein. Diese Verbindung bleibt deaktiviert, bis das Profil sie auswählt.\n\nBudget-Zielkategorien\nDie optionale Premium-Belohnung kann den gewählten Betrag in voller Höhe mehreren Budget-Kategorien gutschreiben. Für jedes Ziel kann optional eine Quellkategorie zur Finanzierung festgelegt werden. Bestehende Einstellungen mit einer einzelnen Kategorie bleiben erhalten.",
+      "capabilities": [
+        "Vordefinierte Getränke: Wasser, Kaffee, Espresso, schwarzer und grüner Tee, Milch, Saft, Erfrischungsgetränke, Energydrinks, Bier, Wein und Spirituosen mit jeweils üblichen Portionsgrößen. Zusätzlich lassen sich Kräutertee, Kakao, Proteinshake, Kefir, Ayran, Pflanzendrink, Smoothie, Kokoswasser, Sportgetränk, Cider, Suppe, Joghurt und Obst in den Einstellungen einblenden.",
+        "Wasser wird für jedes Getränk anhand seines eigenen prozentualen Wasseranteils berechnet, nicht anhand des gesamten Volumens.",
+        "Tägliche Gesamtmengen an Koffein, Alkohol, Energie, Zucker und Eiweiß anhand der Werte pro 100 ml, die für jedes Getränk hinterlegt werden können.",
+        "Einstellungsseite mit der Getränkeliste: Werte und Portionsgrößen bearbeiten, eigene Getränke hinzufügen, Standardwerte wiederherstellen und beliebige Getränke ein- oder ausblenden.",
+        "Hauptbildschirm mit ausschließlich eingeblendeten Getränken, die zuletzt verwendeten zuerst. Die Portionsgrößen des ausgewählten Getränks sind ebenfalls nach letzter Verwendung sortiert.",
+        "Ein Feld für frei wählbare Mengen und Portionsgrößen in Millilitern oder US-Flüssigunzen.",
+        "Zwei Fortschrittsringe für das Wasserziel und die Getränkezusammensetzung, eine detaillierte Aufschlüsselung und ein Verlauf nach Kalendermonaten, der nach Getränk eingefärbt ist.",
+        "Beliebige Einträge bearbeiten oder löschen und vergangene Tage durchsehen.",
+        "Öffentliche Webseite für dein Apps Hub-Konto.",
+        "Externe API: Skripte, Kurzbefehle und andere Apps können Getränke anhand ihres Namens in jeder Sprache protokollieren, Tage und Verlauf einschließlich des heute erreichten Zielprozentsatzes abrufen, Getränke und Portionsgrößen nach letzter Verwendung auflisten sowie Getränke, Portionsgrößen und deren Sichtbarkeit verwalten, sobald du dies in den Einstellungen erlaubst.",
+        "Premium: eine Budget-Belohnung für das Erreichen des Tagesziels, die einmal täglich einer Kategorie deiner Wahl gutgeschrieben und optional einer anderen entnommen wird.",
+        "Optional: tägliche Mengen an Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß pro Profil an die App Health senden.",
+        "Ein eigener Name für jedes vordefinierte Getränk; ohne eigenen Namen wird der Standardname in deiner Sprache angezeigt.",
+        "Farben für jedes Getränk und Emoji-Symbole für eigene Getränke.",
+        "Ein einstellbares Tagesende und die Beibehaltung früherer Ziele für abgeschlossene Tage.",
+        "Berücksichtigt optional Wasser aus anderen Apps über Health im heutigen Fortschritt, mit einer Aufschlüsselung nach Quell-App.",
+        "Premium-Belohnungen können mehreren Budget-Kategorien gutgeschrieben werden, optional mit einer Kategorie zur Finanzierung."
+      ],
+      "integrations": [
+        {
+          "summary": "Mit Premium und aktivierter Integration in den Einstellungen kann jedes Profil einen Betrag, eine Kategorie für die Gutschrift und optional eine Kategorie für die Entnahme wählen. Sobald das tägliche Wasserziel erreicht ist, wird der Betrag einmal für diesen Tag in Budget gutgeschrieben und das Profil benachrichtigt. Ohne Budget oder bei deaktivierter Integration funktioniert Hydration genauso wie zuvor, ohne Belohnung.",
+          "requires": "Premium, eine installierte Budget-App und deren aktivierte App-API unter Apps Hub → Einstellungen → App-APIs. Der Schalter ist standardmäßig ausgeschaltet."
+        },
+        {
+          "summary": "Wenn ein Profil die Funktion in Hydration aktiviert, werden die täglichen Gesamtmengen an Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß an Health gesendet. Dort erscheinen sie neben Gewicht und Blutdruck in Diagrammen und Statistiken. Die Funktion ist standardmäßig deaktiviert. Ohne Health funktioniert Hydration genauso wie zuvor. Auch das Wasserziel jedes Tages wird übertragen, damit die Diagramme in Health das tatsächlich für diesen Tag geltende Ziel verwenden.",
+          "requires": "Eine installierte Health-App und deren aktivierte App-API unter Apps Hub → Einstellungen → App-APIs. Die App-API ist standardmäßig deaktiviert."
+        }
+      ],
+      "name": "Flüssigkeitszufuhr"
+    },
+    "bg": {
+      "short_description": "Записвайте какво пиете през деня. За всяка напитка се отчита само съдържащата се в нея вода, както и кофеинът и алкохолът. Имате готови напитки, можете да добавяте свои и разполагате с публична уеб страница.",
+      "tagline": "Записвайте напитките си и вижте колко вода действително сте приели днес.",
+      "description": "Hydration е лесен за използване дневник на напитките. Докоснете напитка, изберете порция с още едно докосване и тя вече е в днешния списък. За всяка напитка се отчита само частта, която действително е вода, така че кафето, бирата и чашата сок допринасят към дневната ви цел с точното количество, а съдържащите се в тях кофеин, алкохол, енергийна стойност, захар и протеини се сумират и показват до него.\n\nПриложението предлага готови напитки като вода, кафе, чай, мляко, сок, безалкохолна напитка, бира и вино, всяка със стандартни порции, както и допълнителни варианти като билков чай, какао, протеинов шейк, кефир, айрян, растително мляко, смути, кокосова вода, спортна напитка и сайдер, а също супа, кисело мляко и плодове, които се отчитат по тегло и могат да бъдат показани от Настройки. Стойностите им са общи средни стойности за 100 мл, така че ако етикетът на дадена напитка посочва други данни, можете да я редактирате само за своя акаунт или да я добавите като собствена напитка. В отделната страница Настройки управлявате списъка с напитки: променяте стойностите и порциите им, добавяте свои и показвате или скривате всяка напитка. Основният екран съдържа само напитките, избрани за показване, като последно използваните са най-отгоре, а порциите под всяка напитка са подредени по същия начин.\n\nЗадайте дневната си цел и изберете милилитри или американски течни унции. Всеки запис запазва стойностите, с които е създаден, така че последващото редактиране на напитка никога не променя минали дни, а промените ви по готовите напитки се запазват при актуализиране на приложението. Преглеждайте минали календарни месеци с дневни стълбове, оцветени според напитката. Всеки приключил ден запазва собствената си цел, когато промените текущата. Изберете полунощ или час до 08:00 за край на деня; напитките, приети в късните нощни часове, се отчитат към предишния ден, а съществуващите записи запазват датата си. Изберете цветове за всяка напитка и емоджи за собствените си напитки. Докоснете двата пръстена за напредъка, за да видите общите количества по напитка и относителните дялове на водата, кофеина, алкохола, захарта и протеините. Часовете и датите се показват според регионалните ви настройки, а един и същ дневник е достъпен чрез профила ви в Apps Hub както в настолното приложение, така и на публичната страница на телефона ви.\n\nС Premium можете да включите награда в Budget от Настройки в настолното приложение. След това всеки профил в Apps Hub избира сума и категория в Budget, в която тя да се добавя, а по желание и друга категория, от която да се взема. В момента на достигане на дневната цел сумата се начислява веднъж за съответния ден, профилът получава известие и сумата се появява в Budget.\n\nПри инсталирано приложение Health всеки профил може също да изпраща към Health дневните си количества вода, кофеин, алкохол, енергийна стойност, захар и протеини, за да вижда графики и статистика там.\n\nВода от други приложения\nВсеки профил може да избере да включва водата, изпратена към Health от други приложения. Дневният изглед показва имената на приложенията източници и количествата вода и включва тази вода в пръстена за целта и текущия напредък, без да отчита данните от Hydration два пъти. App API на Health трябва да е активиран; тази връзка е изключена, докато профилът не я избере.\n\nКатегории за получаване на наградата в Budget\nНезадължителната награда с Premium може да начислява пълната избрана сума в няколко категории в Budget, като по желание всяка от тях се финансира от категория източник. Съществуващите настройки за една категория се запазват.",
+      "capabilities": [
+        "Готови напитки: вода, кафе, еспресо, черен и зелен чай, мляко, сок, безалкохолна напитка, енергийна напитка, бира, вино и спиртни напитки, всяка със стандартни порции, както и билков чай, какао, протеинов шейк, кефир, айрян, растително мляко, смути, кокосова вода, спортна напитка, сайдер, супа, кисело мляко и плодове, които могат да бъдат показани от Настройки.",
+        "Водата във всяка напитка се отчита според нейното процентно съдържание на вода, а не според целия ѝ обем.",
+        "Дневни общи количества кофеин, алкохол, енергийна стойност, захар и протеини въз основа на стойностите за 100 мл, които могат да се задават за всяка напитка.",
+        "Страница Настройки със списъка с напитки: редактирайте стойности и порции, добавяйте свои напитки, възстановявайте настройките по подразбиране и показвайте или скривайте всяка напитка.",
+        "Основен екран само с напитките, избрани за показване, като последно използваните са най-отгоре, а порциите на избраната напитка са подредени според последното им използване.",
+        "Поле за свободно въвеждане на количество и порции в милилитри или американски течни унции.",
+        "Два пръстена за напредъка, показващи водата спрямо целта и състава на напитките, подробна разбивка и история по календарни месеци с цветове според напитката.",
+        "Редактирайте или изтривайте всеки запис и преглеждайте предишни дни.",
+        "Публична уеб страница за акаунта ви в Apps Hub.",
+        "Външен API: скриптове, Shortcuts и други приложения могат да записват напитка по името ѝ на всеки език, да извличат данни за дни и история с днешния процент на изпълнение на целта, да показват списъци с напитки и порции с последно използваните най-отгоре и да управляват напитки, порции и видимост, след като разрешите това в Настройки.",
+        "Premium: награда в Budget за достигане на дневната цел, начислявана веднъж дневно в избрана от вас категория, като по желание сумата се взема от друга категория.",
+        "По желание: изпращане на дневните количества вода, кофеин, алкохол, енергийна стойност, захар и протеини към приложението Health за всеки профил поотделно.",
+        "Собствено име за всяка готова напитка; ако не зададете такова, се показва стандартното ѝ име на вашия език.",
+        "Цветове за всяка напитка и емоджи икони за персонализираните напитки.",
+        "Настройка за края на деня и запазване на предишните цели за приключилите дни.",
+        "По желание включва водата от други приложения в Health в днешния напредък с разбивка по приложение източник.",
+        "Наградите с Premium могат да се начисляват в няколко категории в Budget с незадължителна категория за финансиране."
+      ],
+      "integrations": [
+        {
+          "summary": "С Premium и включена интеграция в Настройки всеки профил може да избере сума, категория, в която тя да се добавя, и по желание категория, от която да се взема. При достигане на дневната цел за вода сумата се начислява в Budget веднъж за съответния ден и профилът получава известие. Без Budget или при изключена интеграция Hydration работи точно както преди, без награда.",
+          "requires": "Premium, инсталирано приложение Budget и активиран негов App API в Apps Hub → Настройки → App APIs. Превключвателят е изключен по подразбиране."
+        },
+        {
+          "summary": "Когато даден профил включи интеграцията в Hydration, дневните общи количества вода, кофеин, алкохол, енергийна стойност, захар и протеини се изпращат към Health, където се показват в графики и статистика заедно с теглото и кръвното налягане. Интеграцията е изключена по подразбиране, а без Health приложението Hydration работи точно както преди. Изпраща се и целта за вода за всеки ден, така че графиките в Health използват действителната цел за съответния ден.",
+          "requires": "Инсталирано приложение Health и активиран негов App API в Apps Hub → Настройки → App APIs. App API е изключен по подразбиране."
+        }
+      ],
+      "name": "Хидратация"
+    },
+    "fr": {
+      "short_description": "Consignez vos boissons tout au long de la journée. Chaque boisson est comptabilisée selon sa teneur réelle en eau, avec un suivi de la caféine et de l’alcool, des boissons prédéfinies ou personnalisées, et une page web publique.",
+      "tagline": "Consignez vos boissons et découvrez la quantité d’eau réellement consommée aujourd’hui.",
+      "description": "Hydration est un journal de boissons simple à utiliser. Touchez une boisson, puis une portion : elle est ajoutée à la liste du jour. Pour chaque boisson, seule la part réellement constituée d’eau est comptabilisée. Un café, une bière ou un verre de jus contribue ainsi à votre objectif quotidien à hauteur de sa teneur en eau, tandis que la caféine, l’alcool, l’énergie, le sucre et les protéines qu’il contient sont totalisés à côté.\n\nL’application propose des boissons prédéfinies comme l’eau, le café, le thé, le lait, le jus, les sodas, la bière et le vin, chacune avec des portions standard. D’autres, comme la tisane, le cacao, la boisson protéinée, le kéfir, l’ayran, la boisson végétale, le smoothie, l’eau de coco, la boisson pour sportifs et le cidre, ainsi que la soupe, le yaourt et les fruits, comptabilisés au poids, peuvent être affichés depuis les Paramètres. Leurs valeurs sont des moyennes génériques pour 100 ml. Si l’étiquette d’une boisson indique d’autres valeurs, vous pouvez les modifier uniquement pour votre compte ou ajouter votre propre boisson. Dans la page dédiée des Paramètres, vous gérez la liste des boissons : modifiez leurs valeurs et leurs portions, ajoutez vos propres boissons et affichez ou masquez n’importe quelle boisson. L’écran principal présente uniquement les boissons visibles, en commençant par les plus récemment utilisées, et les portions de chaque boisson sont classées de la même manière.\n\nDéfinissez votre objectif quotidien et choisissez les millilitres ou les onces liquides américaines. Chaque entrée conserve les valeurs utilisées lors de son enregistrement : modifier une boisson par la suite ne change donc jamais les jours passés, et vos modifications des boissons prédéfinies sont conservées lors des mises à jour de l’application. Consultez les mois précédents dans le calendrier, avec des barres quotidiennes colorées par boisson. Chaque journée terminée conserve son propre objectif lorsque vous modifiez l’objectif actuel. Choisissez minuit ou une heure jusqu’à 08:00 comme fin de journée : les boissons consommées plus tard dans la nuit sont comptabilisées pour la veille, tandis que les entrées existantes conservent leur date. Choisissez une couleur pour chaque boisson et un emoji pour vos boissons personnalisées. Touchez les deux anneaux de progression pour voir les totaux par boisson et les proportions d’eau, de caféine, d’alcool, de sucre et de protéines. Les heures et les dates suivent vos paramètres régionaux, et le même journal accompagne votre profil Apps Hub entre l’application de bureau et la page publique sur votre téléphone.\n\nAvec Premium, une récompense Budget peut être activée dans les Paramètres de l’application de bureau. Chaque profil Apps Hub choisit alors un montant et une catégorie Budget à créditer, ainsi qu’une éventuelle autre catégorie à débiter. Dès que l’objectif quotidien est atteint, le montant est versé une seule fois pour cette journée, le profil en est informé et le versement apparaît dans Budget.\n\nSi l’application Health est installée, chaque profil peut également lui envoyer ses totaux quotidiens d’eau, de caféine, d’alcool, d’énergie, de sucre et de protéines pour y consulter des graphiques et des statistiques.\n\nEau provenant d’autres applications\nChaque profil peut choisir d’inclure l’eau transmise à Health par d’autres applications. La vue quotidienne affiche le nom des applications concernées et les quantités d’eau correspondantes, et intègre cette eau à l’anneau d’objectif et à la progression actuelle sans compter deux fois les données de Hydration. L’API de l’application Health doit être activée ; cette connexion reste désactivée tant que le profil ne l’a pas choisie.\n\nCatégories de destination dans Budget\nLa récompense Premium facultative peut verser la totalité du montant choisi dans plusieurs catégories Budget, avec une source facultative pour financer chaque destination. Les paramètres existants pour une seule catégorie sont conservés.",
+      "capabilities": [
+        "Boissons prédéfinies : eau, café, expresso, thé noir et thé vert, lait, jus, soda, boisson énergisante, bière, vin et spiritueux, chacun avec des portions standard, ainsi que tisane, cacao, boisson protéinée, kéfir, ayran, boisson végétale, smoothie, eau de coco, boisson pour sportifs, cidre, soupe, yaourt et fruits, qui peuvent être affichés dans les Paramètres.",
+        "Eau comptabilisée pour chaque boisson selon son propre pourcentage d’eau, et non selon son volume total.",
+        "Totaux quotidiens de caféine, d’alcool, d’énergie, de sucre et de protéines, calculés à partir des valeurs pour 100 ml que chaque boisson peut avoir.",
+        "Page Paramètres avec la liste des boissons : modifiez les valeurs et les portions, ajoutez vos propres boissons, rétablissez les valeurs par défaut et affichez ou masquez n’importe quelle boisson.",
+        "Écran principal présentant uniquement les boissons visibles, en commençant par les plus récemment utilisées, avec les portions de la boisson choisie classées selon leur dernière utilisation.",
+        "Champ de saisie libre de la quantité et portions en millilitres ou en onces liquides américaines.",
+        "Deux anneaux de progression pour suivre l’eau consommée par rapport à votre objectif et la composition des boissons, une répartition détaillée et un historique par mois civil coloré par boisson.",
+        "Modifiez ou supprimez n’importe quelle entrée et consultez les jours précédents.",
+        "Page web publique pour votre compte Apps Hub.",
+        "API externe : les scripts, Shortcuts et d’autres applications peuvent enregistrer une boisson par son nom dans n’importe quelle langue, consulter les journées et l’historique avec le pourcentage de l’objectif atteint aujourd’hui, lister les boissons et les portions en commençant par les plus récemment utilisées, et gérer les boissons, les portions et leur visibilité, une fois que vous l’avez autorisé dans les Paramètres.",
+        "Premium : une récompense Budget lorsque l’objectif quotidien est atteint, versée une fois par jour dans la catégorie de votre choix et éventuellement prélevée dans une autre.",
+        "Facultatif : envoyez les totaux quotidiens d’eau, de caféine, d’alcool, d’énergie, de sucre et de protéines à l’application Health, pour chaque profil.",
+        "Donnez le nom de votre choix à toute boisson prédéfinie ; à défaut, son nom standard s’affiche dans votre langue.",
+        "Couleurs pour chaque boisson et icônes emoji pour les boissons personnalisées.",
+        "Heure de fin de journée configurable et objectifs historiques conservés pour les journées terminées.",
+        "Possibilité d’inclure l’eau transmise à Health par d’autres applications dans la progression du jour, avec une répartition par application source.",
+        "Les récompenses Premium peuvent être versées dans plusieurs catégories Budget, avec une catégorie de financement facultative."
+      ],
+      "integrations": [
+        {
+          "summary": "Avec Premium et l’intégration activée dans les Paramètres, chaque profil peut choisir un montant, une catégorie à créditer et, éventuellement, une catégorie à débiter. Lorsque l’objectif quotidien d’eau est atteint, le montant est versé dans Budget une seule fois pour cette journée, et le profil en est informé. Sans Budget, ou si l’intégration est désactivée, Hydration fonctionne exactement comme avant, sans récompense.",
+          "requires": "Premium, Budget installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut."
+        },
+        {
+          "summary": "Lorsqu’un profil active cette option dans Hydration, les totaux quotidiens d’eau, de caféine, d’alcool, d’énergie, de sucre et de protéines sont envoyés à Health, où ils sont présentés sous forme de graphiques et de statistiques à côté du poids et de la tension artérielle. L’option est désactivée par défaut et, sans Health, Hydration fonctionne exactement comme avant. L’objectif d’eau de chaque journée est également envoyé, afin que les graphiques de Health utilisent l’objectif réellement défini pour cette journée.",
+          "requires": "Health installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. L’API de l’application est désactivée par défaut."
+        }
+      ],
+      "name": "Hydratation"
+    },
+    "pt-BR": {
+      "short_description": "Registre o que você bebe ao longo do dia. Cada bebida contabiliza apenas seu próprio teor de água e também registra cafeína e álcool, com bebidas predefinidas e personalizadas, além de uma página web pública.",
+      "tagline": "Registre suas bebidas e veja quanta água você realmente consumiu hoje.",
+      "description": "Hydration é um diário simples de bebidas. Toque em uma bebida, toque em uma porção e ela já estará na lista de hoje. Cada bebida contabiliza apenas a parte que é realmente água, para que um café, uma cerveja e um copo de suco contribuam na medida certa para sua meta diária. A cafeína, o álcool, a energia, o açúcar e a proteína dessas bebidas são somados ao lado.\n\nO aplicativo vem com bebidas predefinidas, como água, café, chá, leite, suco, refrigerante, cerveja e vinho, cada uma com porções padrão, além de outras opções, como chá de ervas, cacau, shake de proteína, kefir, ayran, leite vegetal, smoothie, água de coco, bebida esportiva e sidra, bem como sopa, iogurte e frutas contabilizados por peso, que podem ser exibidos nas Configurações. Os valores são médias genéricas por 100 ml, então, se o rótulo de uma bebida indicar valores diferentes, você pode editá-los apenas para sua conta ou adicionar uma bebida personalizada. Em Configurações, uma página própria, você gerencia a lista de bebidas: altera valores e porções, adiciona suas próprias bebidas e exibe ou oculta qualquer bebida. A tela principal lista apenas as bebidas visíveis, começando pelas usadas mais recentemente, e as porções de cada bebida seguem a mesma ordem.\n\nDefina sua meta diária e escolha entre mililitros e onças fluidas dos EUA. Cada registro mantém os valores usados no momento em que foi feito, então editar uma bebida depois nunca altera os dias anteriores, e suas alterações nas bebidas predefinidas são mantidas quando o aplicativo é atualizado. Consulte os meses anteriores no calendário, com barras diárias coloridas por bebida. Cada dia concluído mantém sua própria meta quando você altera a meta atual. Escolha meia-noite ou um horário até 08:00 como encerramento do dia; as bebidas consumidas na madrugada contam para o dia anterior, enquanto os registros existentes mantêm suas datas. Escolha cores para todas as bebidas e um emoji para suas bebidas personalizadas. Toque nos dois anéis de progresso para ver os totais por bebida e as proporções de água, cafeína, álcool, açúcar e proteína. As horas e datas seguem suas configurações regionais, e o mesmo diário acompanha seu perfil do Apps Hub entre o computador e a página pública no celular.\n\nCom Premium, uma recompensa do Budget pode ser ativada nas Configurações do aplicativo para computador. Cada perfil do Apps Hub pode então escolher um valor e uma categoria do Budget para recebê-lo e, opcionalmente, outra categoria de onde retirá-lo. No momento em que a meta diária é atingida, o valor é pago uma única vez naquele dia, o perfil é notificado e o pagamento aparece no Budget.\n\nCom o aplicativo Health instalado, cada perfil também pode enviar seus totais diários de água, cafeína, álcool, energia, açúcar e proteína para o Health para ver gráficos e estatísticas por lá.\n\nÁgua de outros aplicativos\nCada perfil pode optar por incluir a água enviada ao Health por outros aplicativos. A visualização diária mostra os nomes dos aplicativos que contribuíram e as quantidades de água, e inclui essa água no anel da meta e no progresso atual sem contabilizar o Hydration duas vezes. A API de aplicativo do Health precisa estar ativada; essa conexão permanece desativada até que o perfil opte por usá-la.\n\nDestinos do Budget\nA recompensa opcional do Premium pode pagar o valor integral escolhido em várias categorias do Budget, com uma origem opcional para financiar cada destino. As configurações existentes de categoria única são mantidas.",
+      "capabilities": [
+        "Bebidas predefinidas: água, café, café expresso, chá preto e verde, leite, suco, refrigerante, energético, cerveja, vinho e destilados, cada uma com porções padrão, além de chá de ervas, cacau, shake de proteína, kefir, ayran, leite vegetal, smoothie, água de coco, bebida esportiva, sidra, sopa, iogurte e frutas que podem ser exibidos nas Configurações.",
+        "Água contabilizada por bebida com base no seu próprio percentual de água, em vez do volume total.",
+        "Totais diários de cafeína, álcool, energia, açúcar e proteína, calculados a partir dos valores por 100 ml que cada bebida pode ter.",
+        "Página de Configurações com a lista de bebidas: edite valores e porções, adicione suas próprias bebidas, restaure os padrões e exiba ou oculte qualquer bebida.",
+        "Tela principal apenas com as bebidas visíveis, começando pelas usadas mais recentemente, e as porções da bebida escolhida ordenadas pelo último uso.",
+        "Campo para inserir uma quantidade livre e porções em mililitros ou onças fluidas dos EUA.",
+        "Dois anéis de progresso para a água consumida em relação à meta e a composição das bebidas, um detalhamento e um histórico por mês do calendário colorido por bebida.",
+        "Edite ou exclua qualquer registro e consulte os dias anteriores.",
+        "Página web pública para sua conta do Apps Hub.",
+        "API externa: scripts, Shortcuts e outros aplicativos podem registrar uma bebida pelo nome em qualquer idioma, consultar dias e histórico com o percentual da meta de hoje, listar bebidas e porções começando pelas usadas mais recentemente e gerenciar bebidas, porções e visibilidade, depois que você permitir nas Configurações.",
+        "Premium: uma recompensa do Budget por atingir a meta diária, paga uma vez por dia em uma categoria à sua escolha, opcionalmente retirada de outra.",
+        "Opcional: envie os totais diários de água, cafeína, álcool, energia, açúcar e proteína ao aplicativo Health, por perfil.",
+        "Nome personalizado para qualquer bebida predefinida; sem um nome personalizado, ela exibe o nome padrão no seu idioma.",
+        "Cores para todas as bebidas e ícones de emoji para bebidas personalizadas.",
+        "Horário de encerramento do dia configurável e metas históricas preservadas para os dias concluídos.",
+        "Inclui opcionalmente a água de outros aplicativos registrada no Health no progresso de hoje, com detalhamento por aplicativo de origem.",
+        "As recompensas do Premium podem ser destinadas a várias categorias do Budget, com uma categoria de origem opcional."
+      ],
+      "integrations": [
+        {
+          "summary": "Com Premium e a integração ativada nas Configurações, cada perfil pode escolher um valor, uma categoria para recebê-lo e, opcionalmente, uma categoria de onde retirá-lo. Ao atingir a meta diária de água, o valor é pago no Budget uma única vez naquele dia, e o perfil é notificado. Sem o Budget, ou com a integração desativada, o Hydration funciona exatamente como antes, sem recompensa.",
+          "requires": "Premium, Budget instalado e a API de aplicativo dele ativada em Apps Hub → Configurações → APIs de aplicativos. A opção vem desativada por padrão."
+        },
+        {
+          "summary": "Quando um perfil ativa a integração no Hydration, os totais diários de água, cafeína, álcool, energia, açúcar e proteína são enviados ao Health, onde ganham gráficos e estatísticas ao lado do peso e da pressão arterial. A integração vem desativada por padrão e, sem o Health, o Hydration funciona exatamente como antes. A meta de água de cada dia também é enviada, para que os gráficos do Health usem a meta que realmente estava definida naquele dia.",
+          "requires": "Health instalado e a API de aplicativo dele ativada em Apps Hub → Configurações → APIs de aplicativos. A API de aplicativo vem desativada por padrão."
+        }
+      ],
+      "name": "Hidratação"
+    },
+    "es": {
+      "short_description": "Registra lo que bebes a lo largo del día. Cada bebida aporta solo el agua que contiene y también permite llevar un control de la cafeína y el alcohol, con bebidas predefinidas y propias, además de una página web pública.",
+      "tagline": "Registra tus bebidas y descubre cuánta agua has tomado realmente hoy.",
+      "description": "Hydration es un sencillo diario de bebidas. Toca una bebida, elige una ración y se añadirá a la lista de hoy. Cada bebida aporta únicamente la proporción que realmente es agua, de modo que un café, una cerveza y un vaso de zumo contribuyen lo que les corresponde a tu objetivo diario, y la cafeína, el alcohol, la energía, el azúcar y las proteínas que contienen se suman junto a ese dato.\n\nLa aplicación incluye bebidas predefinidas como agua, café, té, leche, zumo, refrescos, cerveza y vino, cada una con raciones estándar, y otras como infusiones, cacao, batidos de proteínas, kéfir, ayran, bebidas vegetales, batidos de frutas, agua de coco, bebidas deportivas y sidra, además de sopa, yogur y fruta, que se contabilizan por peso y se pueden mostrar desde Ajustes. Sus valores son promedios genéricos por cada 100 ml, por lo que, si la etiqueta de una bebida indica otros valores, puedes editarlos solo para tu cuenta o añadirla como bebida propia. En Ajustes, una página independiente, puedes gestionar la lista de bebidas: cambiar sus valores y raciones, añadir las tuyas y mostrar u ocultar cualquier bebida. La pantalla principal solo muestra las bebidas visibles, con las utilizadas más recientemente en primer lugar, y las raciones de cada bebida siguen el mismo orden.\n\nEstablece tu objetivo diario y elige entre mililitros y onzas líquidas estadounidenses. Cada registro conserva los valores con los que se guardó, por lo que editar una bebida más adelante nunca modifica los días anteriores, y los cambios que hagas en las bebidas predefinidas se conservan al actualizar la aplicación. Consulta meses anteriores del calendario, con barras diarias coloreadas por bebida. Cada día completado conserva su propio objetivo cuando cambias el objetivo actual. Elige la medianoche o una hora hasta las 08:00 como cierre del día; las bebidas de madrugada se contabilizan en el día anterior, mientras que los registros existentes conservan su fecha. Elige colores para cada bebida y un emoji para tus bebidas propias. Toca los dos anillos de progreso para ver los totales por bebida y las proporciones relativas de agua, cafeína, alcohol, azúcar y proteínas. Las horas y las fechas siguen tu configuración regional, y el mismo diario te acompaña con tu perfil de Apps Hub entre el escritorio y la página pública en tu teléfono.\n\nCon Premium, puedes activar una recompensa de Budget en los Ajustes de la aplicación de escritorio. Después, cada perfil de Apps Hub elige un importe y una categoría de Budget a la que añadirlo y, opcionalmente, otra categoría de la que descontarlo. En cuanto se alcanza el objetivo diario, el importe se abona una sola vez para ese día, se notifica al perfil y aparece en Budget.\n\nCon la aplicación Health instalada, cada perfil también puede enviar sus totales diarios de agua, cafeína, alcohol, energía, azúcar y proteínas a Health para ver gráficos y estadísticas allí.\n\nAgua de otras aplicaciones\nCada perfil puede elegir si desea incluir el agua que otras aplicaciones envían a Health. La vista diaria muestra los nombres de las aplicaciones que aportan datos y sus cantidades de agua, e incluye esa agua en el anillo del objetivo y en el progreso actual sin contabilizar dos veces los datos de Hydration. La App API de Health debe estar activada; esta conexión permanece desactivada hasta que el perfil la elige.\n\nDestinos de Budget\nLa recompensa opcional de Premium permite abonar el importe íntegro elegido en varias categorías de Budget, con un origen opcional que financie cada destino. Se conserva la configuración existente de una sola categoría.",
+      "capabilities": [
+        "Bebidas predefinidas: agua, café, espresso, té negro y verde, leche, zumo, refrescos, bebidas energéticas, cerveza, vino y bebidas espirituosas, cada una con raciones estándar, además de infusiones, cacao, batidos de proteínas, kéfir, ayran, bebidas vegetales, batidos de frutas, agua de coco, bebidas deportivas, sidra, sopa, yogur y fruta que se pueden mostrar desde Ajustes.",
+        "El agua de cada bebida se contabiliza según su propio porcentaje de agua, en lugar de su volumen total.",
+        "Totales diarios de cafeína, alcohol, energía, azúcar y proteínas, calculados a partir de los valores por cada 100 ml que puede tener cada bebida.",
+        "Página de Ajustes con la lista de bebidas: edita valores y raciones, añade tus propias bebidas, restablece los valores predeterminados y muestra u oculta cualquier bebida.",
+        "Pantalla principal con solo las bebidas visibles, con las utilizadas más recientemente en primer lugar, y las raciones de la bebida elegida ordenadas por su último uso.",
+        "Un campo de cantidad libre y raciones en mililitros u onzas líquidas estadounidenses.",
+        "Dos anillos de progreso para el agua que llevas respecto a tu objetivo y la composición de las bebidas, un desglose detallado y un historial por meses del calendario con colores por bebida.",
+        "Edita o elimina cualquier registro y consulta días anteriores.",
+        "Página web pública para tu cuenta de Apps Hub.",
+        "API externa: los scripts, Shortcuts y otras aplicaciones pueden registrar una bebida por su nombre en cualquier idioma, consultar días y el historial con el porcentaje del objetivo alcanzado hoy, enumerar bebidas y raciones con las utilizadas más recientemente en primer lugar, y gestionar bebidas, raciones y su visibilidad, una vez que lo permitas en Ajustes.",
+        "Premium: una recompensa de Budget por alcanzar el objetivo diario, abonada una vez al día en la categoría que elijas y, opcionalmente, descontada de otra.",
+        "Opcional: envía los totales diarios de agua, cafeína, alcohol, energía, azúcar y proteínas a la aplicación Health, por perfil.",
+        "Un nombre propio para cualquier bebida predefinida; si no le asignas uno, se muestra su nombre estándar en tu idioma.",
+        "Colores para cada bebida e iconos de emoji para las bebidas personalizadas.",
+        "Una hora de cierre del día configurable y objetivos históricos que se conservan para los días completados.",
+        "Incluye opcionalmente el agua de otras aplicaciones recibida en Health en el progreso de hoy, con un desglose por aplicación de origen.",
+        "Las recompensas de Premium pueden destinarse a varias categorías de Budget, con una categoría de financiación opcional."
+      ],
+      "integrations": [
+        {
+          "summary": "Con Premium y la integración activada en Ajustes, cada perfil puede elegir un importe, una categoría a la que añadirlo y, opcionalmente, una categoría de la que descontarlo. Al alcanzar el objetivo diario de agua, el importe se abona en Budget una sola vez para ese día y se notifica al perfil. Sin Budget, o con la integración desactivada, Hydration funciona exactamente igual que antes, sin recompensa.",
+          "requires": "Premium, Budget instalado y su App API activada en Apps Hub → Ajustes → API de aplicaciones. El interruptor está desactivado de forma predeterminada."
+        },
+        {
+          "summary": "Cuando un perfil activa esta opción en Hydration, los totales diarios de agua, cafeína, alcohol, energía, azúcar y proteínas se envían a Health, donde se muestran en gráficos y estadísticas junto al peso y la presión arterial. Está desactivada de forma predeterminada y, sin Health, Hydration funciona exactamente igual que antes. También se envía el objetivo de agua de cada día, para que los gráficos de Health utilicen el objetivo que realmente tenía ese día.",
+          "requires": "Health instalado y su App API activada en Apps Hub → Ajustes → API de aplicaciones. La App API está desactivada de forma predeterminada."
+        }
+      ],
+      "name": "Hidratación"
+    },
+    "ja": {
+      "short_description": "一日を通して飲んだものを記録。飲み物ごとに実際の水分量だけを集計し、カフェインやアルコールも記録できます。登録済みの飲み物も自分で追加した飲み物も使え、公開ウェブページにも対応しています。",
+      "tagline": "飲んだものを記録して、今日実際に摂れた水分量を確認。",
+      "description": "Hydrationは、飲んだものを手軽に記録できるアプリです。飲み物をタップし、飲む量をタップするだけで、今日の一覧に追加されます。飲み物に実際に含まれる水分だけを集計するので、コーヒーもビールもジュースも、それぞれに含まれる水分量が一日の目標に加算されます。あわせて、カフェイン、アルコール、エネルギー、糖類、たんぱく質も集計されます。\n\n水、コーヒー、お茶、牛乳、ジュース、清涼飲料、ビール、ワインなどの飲み物が、それぞれ標準的な量とともにあらかじめ登録されています。さらに、ハーブティー、ココア、プロテインシェイク、ケフィア、アイラン、植物性ミルク、スムージー、ココナッツウォーター、スポーツドリンク、シードルのほか、重量で計算するスープ、ヨーグルト、果物もあり、設定で表示できます。登録値は100 mlあたりの一般的な平均値です。商品のラベルに異なる値が記載されている場合は、自分のアカウントに限って値を編集するか、自分の飲み物として追加できます。独立した設定ページでは、飲み物の一覧を管理し、値や飲む量の変更、自分の飲み物の追加、各飲み物の表示・非表示の切り替えができます。メイン画面には表示対象の飲み物だけが最近使った順に並び、各飲み物の下にある量の選択肢も同じ順序で並びます。\n\n一日の目標を設定し、単位をミリリットルまたは米液量オンスから選べます。各記録には記録時の値が保持されるため、後から飲み物を編集しても過去の日の記録は変わりません。また、登録済みの飲み物に加えた変更は、アプリの更新後も保持されます。月ごとのカレンダーで履歴を振り返ることができ、日ごとの棒グラフは飲み物別に色分けされます。現在の目標を変更しても、すでに終了した日にはその日の目標が保持されます。一日の終了時刻は、午前0時から08:00までの時刻を選べます。深夜に飲んだものは前日分に算入されますが、既存の記録の日付は変わりません。飲み物ごとに色を選び、自分で追加した飲み物には絵文字も設定できます。2つの進捗リングをタップすると、飲み物別の合計と、水分、カフェイン、アルコール、糖類、たんぱく質の重量比を確認できます。日時の表示は地域設定に従います。同じ記録をApps Hubのプロフィールで共有できるため、デスクトップでもスマートフォンの公開ページでも利用できます。\n\nPremiumでは、デスクトップの設定でBudget報酬を有効にできます。有効にすると、各Apps Hubプロフィールで金額と加算先のBudgetカテゴリーを選び、必要に応じて差し引き元のカテゴリーも指定できます。一日の目標を達成した時点で、その日につき一度だけ指定した金額が支払われ、プロフィールに通知され、Budgetにも反映されます。\n\nHealthアプリがインストールされていれば、各プロフィールから一日分の水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質をHealthに送り、グラフや統計を確認することもできます。\n\nほかのアプリからの水分量\n各プロフィールで、ほかのアプリからHealthに送られた水分量を含めるかどうかを選べます。日別画面には、データの提供元アプリ名と水分量が表示されます。その水分量は目標リングと現在の進捗に含まれ、Hydrationの記録が二重に集計されることはありません。HealthのApp APIを有効にする必要があります。この連携は、プロフィールで選択するまで無効です。\n\nBudgetの加算先\n任意で利用できるPremium報酬では、選択した金額の全額を複数のBudgetカテゴリーそれぞれに支払えます。必要に応じて、各加算先への支払いに使う差し引き元も指定できます。既存の単一カテゴリーの設定は保持されます。",
+      "capabilities": [
+        "登録済みの飲み物：水、コーヒー、エスプレッソ、紅茶、緑茶、牛乳、ジュース、清涼飲料、エナジードリンク、ビール、ワイン、蒸留酒が、それぞれ標準的な量とともに用意されています。さらに、ハーブティー、ココア、プロテインシェイク、ケフィア、アイラン、植物性ミルク、スムージー、ココナッツウォーター、スポーツドリンク、シードル、スープ、ヨーグルト、果物も設定で表示できます。",
+        "飲み物の全量ではなく、それぞれの水分含有率に基づいて水分量を集計します。",
+        "各飲み物に設定できる100 mlあたりの値から、一日分のカフェイン、アルコール、エネルギー、糖類、たんぱく質の合計を算出します。",
+        "設定ページの飲み物一覧で、値や飲む量の編集、自分の飲み物の追加、初期値への復元、各飲み物の表示・非表示の切り替えができます。",
+        "メイン画面には表示対象の飲み物だけが最近使った順に並び、選択した飲み物の量の選択肢も最後に使った順に並びます。",
+        "量を自由に入力できる欄と、ミリリットルまたは米液量オンス単位の量の選択肢を用意しています。",
+        "目標に対する水分量と飲み物の成分構成を示す2つの進捗リング、詳しい内訳、飲み物別に色分けされた月ごとの履歴を確認できます。",
+        "どの記録も編集・削除でき、過去の日の記録も閲覧できます。",
+        "Apps Hubアカウント用の公開ウェブページ。",
+        "外部API：設定で許可すると、スクリプト、ショートカット、ほかのアプリから、任意の言語の飲み物名で飲んだものを記録できます。また、今日の目標達成率を含む日別データや履歴の取得、飲み物と量の選択肢の最近使った順での一覧表示、飲み物・量の選択肢・表示状態の管理もできます。",
+        "Premium：一日の目標を達成すると、選択したカテゴリーに一日一度、Budget報酬が支払われます。必要に応じて、別のカテゴリーから差し引くこともできます。",
+        "任意で、プロフィールごとに一日分の水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質をHealthアプリに送れます。",
+        "登録済みの飲み物には自由に名前を付けられます。名前を指定しない場合は、使用言語の標準名が表示されます。",
+        "すべての飲み物に色を設定でき、自分で追加した飲み物には絵文字アイコンも設定できます。",
+        "一日の終了時刻を設定でき、すでに終了した日には当時の目標が保持されます。",
+        "任意で、Healthにあるほかのアプリの水分量を今日の進捗に含め、提供元アプリ別の内訳も確認できます。",
+        "Premium報酬は複数のBudgetカテゴリーを加算先にでき、必要に応じて支払い元のカテゴリーも指定できます。"
+      ],
+      "integrations": [
+        {
+          "summary": "Premiumを利用し、設定で連携を有効にすると、各プロフィールで金額と加算先のカテゴリーを選び、必要に応じて差し引き元のカテゴリーも指定できます。一日の水分目標を達成すると、その日につき一度だけ指定した金額がBudgetに支払われ、プロフィールに通知されます。Budgetがない場合や連携が無効の場合も、Hydrationは報酬なしで従来どおり動作します。",
+          "requires": "Premium、Budgetのインストール、およびApps Hub → 設定 → App APIでBudgetのApp APIを有効にすることが必要です。連携のスイッチは初期状態ではオフです。"
+        },
+        {
+          "summary": "プロフィールでHydrationの連携を有効にすると、一日分の水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質の合計がHealthに送られ、体重や血圧と並べてグラフや統計を確認できます。初期状態では無効で、HealthがなくてもHydrationは従来どおり動作します。各日の水分目標も送られるため、Healthのグラフには、その日に実際に設定されていた目標が使われます。",
+          "requires": "Healthのインストールと、Apps Hub → 設定 → App APIでHealthのApp APIを有効にすることが必要です。App APIは初期状態では無効です。"
+        }
+      ],
+      "name": "水分補給"
+    },
+    "zh-CN": {
+      "short_description": "记录全天饮用的饮品。每种饮品仅按自身含水量计入饮水量，同时追踪咖啡因和酒精摄入；支持预设饮品和自定义饮品，并提供公开网页。",
+      "tagline": "记录饮品，了解今天实际摄入了多少水。",
+      "description": "Hydration 是一款简单的饮品记录应用。点选饮品，再点选份量，即可添加到今天的记录中。每种饮品仅将实际含有的水分计入饮水量，因此一杯咖啡、一杯啤酒和一杯果汁都会按各自的含水量计入每日目标，同时在旁边汇总其中的咖啡因、酒精、能量、糖和蛋白质。\n\n应用内置水、咖啡、茶、牛奶、果汁、汽水、啤酒和葡萄酒等预设饮品，每种都提供标准份量；还提供花草茶、可可、蛋白奶昔、开菲尔、艾兰酸奶饮、植物奶、思慕雪、椰子水、运动饮料和苹果酒，以及按重量计算的汤、酸奶和水果，可在设置中选择显示。这些饮品的数值采用每 100 毫升的通用平均值。如果某款饮品标签上的数值不同，可以修改其数值，修改仅对你的账户生效，也可以将其添加为自定义饮品。在独立的设置页面中，你可以管理饮品列表：修改数值和份量、添加自定义饮品，以及显示或隐藏任意饮品。主界面仅列出设为显示的饮品，最近使用的排在最前面；饮品下的份量也按相同方式排序。\n\n设置每日目标，并选择使用毫升或美制液量盎司。每条记录都会保留记录时的数值，因此日后修改饮品不会改变以往日期的数据；应用更新后，你对预设饮品所做的修改也会保留。你可以按日历月份回顾记录，每天的条形图按饮品着色。更改当前目标时，已结束的每一天仍会保留各自的目标。你可以将午夜或最晚 08:00 之间的某个整点设为一天的结束时间；深夜饮用的饮品会计入前一天，现有记录的日期则保持不变。你可以为每种饮品选择颜色，并为自定义饮品选择表情符号。点按两个进度环，可查看按饮品汇总的总量，以及水、咖啡因、酒精、糖和蛋白质的相对占比。时间和日期遵循你的地区设置，同一份饮品记录会随你的 Apps Hub 个人资料在桌面端和手机上的公开页面之间同步。\n\n使用 Premium 后，可以在桌面端设置中启用 Budget 奖励。随后，每个 Apps Hub 个人资料都可以选择奖励金额和接收奖励的 Budget 类别，还可以选择从另一个类别扣除该金额。达到每日目标时，当天的奖励会立即发放一次，系统会向该个人资料发送通知，并在 Budget 中显示。\n\n安装 Health 应用后，每个个人资料还可以将每日的饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量发送到 Health，在其中查看图表和统计数据。\n\n来自其他应用的饮水量\n每个个人资料都可以选择计入其他应用发送到 Health 的饮水量。每日视图会显示提供数据的应用名称和饮水量，并将这些水量计入目标环和当前进度，同时避免重复计算 Hydration 的数据。必须启用 Health 的应用 API；此连接默认关闭，需由个人资料主动选择启用。\n\nBudget 奖励去向\n可选的 Premium 奖励可以向多个 Budget 类别分别发放所选的全额奖励，并可选择一个来源类别为每个接收类别提供资金。现有的单类别设置会予以保留。",
+      "capabilities": [
+        "预设饮品：水、咖啡、浓缩咖啡、红茶和绿茶、牛奶、果汁、汽水、能量饮料、啤酒、葡萄酒和烈酒，每种都提供标准份量；另有花草茶、可可、蛋白奶昔、开菲尔、艾兰酸奶饮、植物奶、思慕雪、椰子水、运动饮料、苹果酒、汤、酸奶和水果，可在设置中选择显示。",
+        "每种饮品按自身的含水百分比计算饮水量，而非按全部容量计算。",
+        "根据每种饮品可设置的每 100 毫升数值，汇总每日的咖啡因、酒精、能量、糖和蛋白质摄入量。",
+        "设置页面提供饮品列表，可修改数值和份量、添加自定义饮品、恢复默认设置，以及显示或隐藏任意饮品。",
+        "主界面仅显示设为显示的饮品，最近使用的排在最前面；所选饮品的份量也按最近使用时间排序。",
+        "支持自由输入用量，并提供以毫升或美制液量盎司为单位的份量。",
+        "两个进度环分别显示饮水目标进度和饮品成分，另有详细明细，以及按饮品着色的月历历史记录。",
+        "可编辑或删除任意记录，并浏览以往日期的数据。",
+        "为你的 Apps Hub 账户提供公开网页。",
+        "外部 API：在设置中授权后，脚本、快捷指令和其他应用可以通过任意语言的饮品名称记录饮品，读取每日数据及历史记录（含今日目标完成百分比），按最近使用优先的顺序列出饮品和份量，并管理饮品、份量及显示状态。",
+        "Premium：达到每日目标后可获得 Budget 奖励，每天向你选择的类别发放一次，也可选择从另一个类别扣除。",
+        "可选功能：每个个人资料可将每日的饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量发送到 Health 应用。",
+        "可为任意预设饮品自定义名称；未自定义时，会以你的语言显示其标准名称。",
+        "可为每种饮品设置颜色，并为自定义饮品设置表情符号图标。",
+        "可设置一天的结束时间，并为已结束的日期保留当时的目标。",
+        "可选择将 Health 中来自其他应用的饮水量计入今日进度，并按来源应用显示明细。",
+        "Premium 奖励可发放到多个 Budget 类别，并可选择用于提供资金的类别。"
+      ],
+      "integrations": [
+        {
+          "summary": "使用 Premium 并在设置中启用集成后，每个个人资料都可以选择奖励金额、接收奖励的类别，还可以选择从哪个类别扣除该金额。达到每日饮水目标后，当天的奖励会向 Budget 发放一次，并向该个人资料发送通知。未安装 Budget 或未启用集成时，Hydration 的使用方式与之前完全相同，只是不提供奖励。",
+          "requires": "需要 Premium，已安装 Budget，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭。"
+        },
+        {
+          "summary": "个人资料在 Hydration 中启用此功能后，每日的饮水量、咖啡因、酒精、能量、糖和蛋白质摄入总量会发送到 Health，并在其中与体重和血压一起显示图表及统计数据。此功能默认关闭；未安装 Health 时，Hydration 的使用方式与之前完全相同。每天的饮水目标也会一并发送，因此 Health 图表会使用当天实际设定的目标。",
+          "requires": "需要已安装 Health，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。应用 API 默认关闭。"
+        }
+      ],
+      "name": "补水"
+    },
+    "ru": {
+      "short_description": "Записывайте всё, что пьёте в течение дня. Для каждого напитка учитывается только содержащаяся в нём вода, а также кофеин и алкоголь. Есть готовые напитки, возможность добавлять свои и общедоступная веб-страница.",
+      "tagline": "Записывайте напитки и узнавайте, сколько воды вы на самом деле получили за день.",
+      "description": "Hydration — простой дневник напитков. Нажмите на напиток, выберите порцию — и запись появится в списке за сегодня. Для каждого напитка учитывается только та его часть, которая действительно является водой: кофе, пиво и сок вносят свой вклад в достижение дневной цели в соответствии с содержанием воды. Рядом суммируются содержащиеся в них кофеин, алкоголь, калории, сахар и белок.\n\nВ приложении есть готовые напитки: вода, кофе, чай, молоко, сок, газированный напиток, пиво и вино — у каждого есть стандартные порции. В настройках можно также включить травяной чай, какао, протеиновый коктейль, кефир, айран, растительное молоко, смузи, кокосовую воду, спортивный напиток и сидр, а также суп, йогурт и фрукты, которые учитываются по весу. Для них используются усреднённые значения на 100 мл. Если на этикетке напитка указаны другие данные, их можно изменить только для своего аккаунта или добавить собственный напиток. На отдельной странице настроек можно управлять списком напитков: менять значения и порции, добавлять свои напитки, показывать или скрывать любой напиток. На главном экране перечислены только видимые напитки, причём недавно использованные идут первыми. Порции под напитком упорядочены так же.\n\nЗадайте дневную цель и выберите миллилитры или жидкие унции США. В каждой записи сохраняются значения на момент её добавления, поэтому последующее редактирование напитка не меняет данные за прошлые дни, а ваши изменения готовых напитков сохраняются при обновлении приложения. Просматривайте историю по календарным месяцам: столбцы за каждый день разделены по цветам напитков. При изменении текущей цели для каждого завершённого дня сохраняется его собственная цель. Выберите время окончания дня: полночь или любой час до 08:00. Напитки, выпитые после полуночи до выбранного времени, будут относиться к предыдущему дню, а даты существующих записей останутся прежними. Выберите цвет для каждого напитка и эмодзи для собственных напитков. Нажмите на два кольца прогресса, чтобы увидеть итоги по напиткам и соотношение воды, кофеина, алкоголя, сахара и белка по массе. Время и даты отображаются в соответствии с региональными настройками, а один и тот же дневник доступен в вашем профиле Apps Hub и на компьютере, и на общедоступной странице на телефоне.\n\nС Premium в настройках приложения на компьютере можно включить вознаграждение в Budget. После этого в каждом профиле Apps Hub можно выбрать сумму и категорию Budget для её зачисления, а при желании — ещё и категорию для списания. Как только дневная цель достигнута, сумма выплачивается один раз за этот день, в профиле появляется уведомление, а выплата отображается в Budget.\n\nЕсли установлено приложение Health, из каждого профиля также можно отправлять в Health суточные показатели воды, кофеина, алкоголя, калорий, сахара и белка, чтобы просматривать там графики и статистику.\n\nВода из других приложений\nВ каждом профиле можно включить учёт воды, переданной в Health другими приложениями. В представлении за день отображаются названия этих приложений и количество воды от каждого из них. Эта вода учитывается в кольце цели и текущем прогрессе, а данные Hydration не дублируются. Для этого должен быть включён App API приложения Health; подключение отключено, пока его не включат в профиле.\n\nКатегории зачисления в Budget\nНеобязательное вознаграждение Premium можно зачислять в полном выбранном размере в несколько категорий Budget, при желании указав источник средств для каждой из них. Существующие настройки с одной категорией сохраняются.",
+      "capabilities": [
+        "Готовые напитки: вода, кофе, эспрессо, чёрный и зелёный чай, молоко, сок, газированный напиток, энергетический напиток, пиво, вино и крепкие алкогольные напитки — у каждого есть стандартные порции. В настройках также можно включить травяной чай, какао, протеиновый коктейль, кефир, айран, растительное молоко, смузи, кокосовую воду, спортивный напиток, сидр, суп, йогурт и фрукты.",
+        "Количество воды рассчитывается по её процентному содержанию в каждом напитке, а не по полному объёму.",
+        "Суточные итоги по кофеину, алкоголю, калориям, сахару и белку рассчитываются на основе значений на 100 мл, которые можно задать для каждого напитка.",
+        "Страница настроек со списком напитков: меняйте значения и порции, добавляйте свои напитки, восстанавливайте настройки по умолчанию, показывайте или скрывайте любой напиток.",
+        "На главном экране отображаются только видимые напитки, начиная с недавно использованных, а порции выбранного напитка упорядочены по времени последнего использования.",
+        "Поле для произвольного количества и порции в миллилитрах или жидких унциях США.",
+        "Два кольца прогресса: количество воды относительно цели и состав напитков, подробная разбивка и история по календарным месяцам с цветами напитков.",
+        "Редактирование и удаление любой записи, просмотр предыдущих дней.",
+        "Общедоступная веб-страница для вашего аккаунта Apps Hub.",
+        "Внешний API: после разрешения в настройках скрипты, Shortcuts и другие приложения могут записывать напиток по его названию на любом языке, читать данные за отдельные дни и историю с сегодняшним процентом достижения цели, получать списки напитков и порций, начиная с недавно использованных, а также управлять напитками, порциями и их видимостью.",
+        "Premium: вознаграждение в Budget за достижение дневной цели, которое выплачивается раз в день в выбранную категорию и при желании списывается из другой.",
+        "Дополнительно: отправка суточных показателей воды, кофеина, алкоголя, калорий, сахара и белка в приложение Health отдельно для каждого профиля.",
+        "Собственное название для любого готового напитка; если оно не задано, отображается стандартное название на вашем языке.",
+        "Цвета для каждого напитка и значки эмодзи для собственных напитков.",
+        "Настраиваемое время окончания дня и сохранение прежних целей для завершённых дней.",
+        "Возможность учитывать в сегодняшнем прогрессе воду из других приложений, переданную в Health, с разбивкой по приложениям-источникам.",
+        "Вознаграждения Premium можно направлять в несколько категорий Budget, при желании указав категорию для списания средств."
+      ],
+      "integrations": [
+        {
+          "summary": "При наличии Premium и включённой интеграции в настройках в каждом профиле можно выбрать сумму, категорию для зачисления и, при желании, категорию для списания. При достижении дневной цели по воде сумма зачисляется в Budget один раз за этот день, а в профиле появляется уведомление. Если Budget не установлен или интеграция отключена, Hydration работает как прежде, без вознаграждения.",
+          "requires": "Требуются Premium, установленное приложение Budget и включённый App API для него в Apps Hub → Настройки → API приложений. Переключатель по умолчанию выключен."
+        },
+        {
+          "summary": "Если включить эту функцию в профиле Hydration, суточные итоги по воде, кофеину, алкоголю, калориям, сахару и белку отправляются в Health, где для них доступны графики и статистика наряду с весом и артериальным давлением. По умолчанию функция отключена, а без Health приложение Hydration работает как прежде. Цель по воде для каждого дня тоже передаётся, поэтому графики Health используют ту цель, которая действовала в этот день.",
+          "requires": "Требуются установленное приложение Health и включённый App API для него в Apps Hub → Настройки → API приложений. App API по умолчанию отключён."
+        }
+      ],
+      "name": "Водный баланс"
+    }
+  }
 }

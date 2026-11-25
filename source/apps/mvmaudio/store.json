@@ -22,5 +22,231 @@
   "requirements": [
     "mvmOS 1.22.0 or later.",
     "A browser that supports the audio formats in your library."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Вашата музика, колекции от аудиокниги и онлайн радио, с индивидуален напредък в слушането и споделени плейлисти.",
+      "tagline": "Едно място за музика, аудиокниги и радио на живо.",
+      "description": "mvmAudio обединява музика, аудиокниги с глави и HTTPS радио на работния плот на mvmOS и на адаптивна страница в Apps Hub. Всеки слушател има собствен напредък, любими, отметки и плейлисти.\n\nПапки на библиотеката\nДобавете папка от този сървър или свързана папка, споделена от друга mvmOS. Аудиофайловете остават на мястото си: подпапките се превръщат в албуми или книги, файловете следват естествения ред на главите, а при сканиране се прочитат таговете и обложките. Обновявайте ръчно или задайте интервал за сканиране; премахването на източник не засяга оригиналните му файлове.\n\nСлушане\nПускайте или поставяйте на пауза от обложката, отваряйте разширения плейър и управлявайте опашката. Скоростта, таймерите за заспиване, разбъркването, повторението и управлението на главите остават достъпни, докато разглеждате. Отваряйте аудиофайлове от Файловия мениджър в същия плейър, без да ги добавяте в библиотеката.\n\nЛични библиотеки\nПлейлистите могат да съчетават елементи от библиотеката и да се споделят с избрани профили. Premium позволява по желание да се включи качване на лични файлове с лимити, зададени от администратора; по подразбиране това качване е изключено.",
+      "capabilities": [
+        "Отделни библиотеки за музика, аудиокниги и радио с търсене и филтри по жанр.",
+        "Обща библиотека и публични плейлисти, управлявани от администратора.",
+        "Индивидуални глава, позиция, процент на прослушване и оставащо време за всеки слушател.",
+        "Скорост на възпроизвеждане, отметки, таймер за заспиване, разбъркване, повторение и опашка.",
+        "Лични любими, история на слушането и плейлисти, споделени с избрани профили в Apps Hub.",
+        "Превъртане и поточно възпроизвеждане на частни аудиофайлове с удостоверяване на достъпа.",
+        "Мобилен интерфейс и контроли чрез Media Session за поддържаните браузъри.",
+        "Вграден анализ на аудиофайлове без FFmpeg, системни пакети или допълнителни стъпки за инсталиране.",
+        "Автоматично прочитане на вградените метаданни и обложки без промяна на оригиналните аудиофайлове.",
+        "Търсене в MusicBrainz и Open Library директно от вашата инсталация, преглед на съвпаденията и прилагане на избрани полета.",
+        "Ръчно качване на обложки, посочване на източници и редактиране на метаданните за всяко заглавие без API ключове.",
+        "Бързо пускане и пауза от обложките в библиотеката, разширен плейър и интерактивна опашка с контроли за следващо възпроизвеждане, добавяне, пренареждане, премахване, изчистване, разбъркване и повторение.",
+        "Папки на библиотеката на този сървър или на друга mvmOS, с ръчно или планирано сканиране и без копиране на аудиофайловете.",
+        "Естествена подредба на главите, автоматично прочитане на тагове и обложки и премахване на записите за файлове, които вече не съществуват.",
+        "Качване на файлове или папки в избрано местоположение в библиотеката чрез общия инструмент за качване.",
+        "Отваряне на аудиофайлове директно от Файловия мениджър без импортиране в библиотеката."
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 или по-нова версия.",
+        "Браузър, който поддържа аудиоформатите във вашата библиотека."
+      ],
+      "name": "mvmAudio"
+    },
+    "de": {
+      "short_description": "Ihre Musik, Hörbuchsammlungen und Ihr Online-Radio, mit persönlichem Hörfortschritt und geteilten Wiedergabelisten.",
+      "tagline": "Ein Zuhause für Musik, Hörbücher und Live-Radio.",
+      "description": "mvmAudio bringt Musik, Hörbücher mit Kapiteln und HTTPS-Radio auf den mvmOS-Desktop und eine responsive Apps Hub-Seite. Jeder Hörer hat einen eigenen Fortschritt, eigene Favoriten, Lesezeichen und Wiedergabelisten.\n\nBibliotheksordner\nFügen Sie einen Ordner von diesem Server oder einen verbundenen Ordner hinzu, den ein anderes mvmOS freigegeben hat. Die Audiodateien bleiben an ihrem Speicherort: Unterordner werden zu Alben oder Büchern, Dateien folgen der natürlichen Kapitelreihenfolge und bei Suchläufen werden Tags und Cover eingelesen. Aktualisieren Sie die Bibliothek manuell oder legen Sie ein Suchintervall fest; beim Entfernen einer Quelle bleiben deren Originaldateien unberührt.\n\nWiedergabe\nStarten oder pausieren Sie die Wiedergabe direkt über ein Cover, öffnen Sie den erweiterten Player und verwalten Sie die Warteschlange. Geschwindigkeit, Einschlaftimer, Zufallswiedergabe, Wiederholung und Kapitelsteuerung bleiben beim Durchsuchen verfügbar. Öffnen Sie eine Audiodatei aus dem Dateimanager im selben Player, ohne sie der Bibliothek hinzuzufügen.\n\nPersönliche Bibliotheken\nWiedergabelisten können Bibliothekseinträge kombinieren und mit ausgewählten Profilen geteilt werden. Premium ermöglicht auf Wunsch persönliche Uploads mit vom Administrator festgelegten Speicherkontingenten; diese Uploads sind standardmäßig deaktiviert.",
+      "capabilities": [
+        "Getrennte Bibliotheken für Musik, Hörbücher und Radio mit Suche und Genrefiltern.",
+        "Vom Administrator verwaltete gemeinsame Bibliothek und öffentliche Wiedergabelisten.",
+        "Individuelle Speicherung von Kapitel, Position, Prozentfortschritt und verbleibender Zeit für jeden Hörer.",
+        "Wiedergabegeschwindigkeit, Lesezeichen, Einschlaftimer, Zufallswiedergabe, Wiederholung und Warteschlange.",
+        "Persönliche Favoriten, Hörverlauf und mit ausgewählten Apps Hub-Profilen geteilte Wiedergabelisten.",
+        "Authentifiziertes Springen zu Wiedergabepositionen und Streaming privater Audiodateien.",
+        "Mobile Benutzeroberfläche und Media Session-Steuerung für unterstützte Browser.",
+        "Integrierte Audioanalyse ohne FFmpeg, Systempakete oder zusätzliche Installationsschritte.",
+        "Automatisches Einlesen eingebetteter Metadaten und Cover, ohne die ursprünglichen Audiodateien zu verändern.",
+        "MusicBrainz und Open Library direkt aus Ihrer Installation durchsuchen, Treffer in der Vorschau ansehen und ausgewählte Felder übernehmen.",
+        "Manueller Cover-Upload, Quellenangaben und Bearbeitung der Metadaten einzelner Titel, ohne API-Schlüssel.",
+        "Schnelles Starten und Pausieren über die Cover in der Bibliothek, ein erweiterter Player und eine aktuelle Warteschlange mit Funktionen zum Als-Nächstes-Abspielen, Hinzufügen, Umsortieren, Entfernen, Leeren, zufälligen Abspielen und Wiederholen.",
+        "Bibliotheksordner auf diesem Server oder einem anderen mvmOS, mit manuellen oder geplanten Suchläufen und ohne Kopieren der Audiodateien.",
+        "Natürliche Kapitelreihenfolge, automatisches Einlesen von Tags und Covern sowie Entfernen von Einträgen für nicht mehr vorhandene Dateien.",
+        "Dateien oder Ordner über die gemeinsame Upload-Funktion an einen ausgewählten Speicherort in der Bibliothek hochladen.",
+        "Audiodateien direkt aus dem Dateimanager öffnen, ohne sie in die Bibliothek zu importieren."
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 oder neuer.",
+        "Ein Browser, der die Audioformate Ihrer Bibliothek unterstützt."
+      ],
+      "name": "mvmAudio"
+    },
+    "es": {
+      "short_description": "Tu música, tu colección de audiolibros y la radio por internet, con progreso de escucha personal y listas de reproducción compartidas.",
+      "tagline": "Un solo lugar para música, audiolibros y radio en directo.",
+      "description": "mvmAudio reúne música, audiolibros organizados por capítulos y radio por HTTPS en el escritorio de mvmOS y en una página de Apps Hub adaptable a distintos dispositivos. Cada oyente conserva su propio progreso, favoritos, marcadores y listas de reproducción.\n\nCarpetas de la biblioteca\nAñade una carpeta de este servidor o una carpeta conectada compartida por otro mvmOS. El audio permanece en su ubicación: las subcarpetas se convierten en álbumes o libros, los archivos siguen el orden natural de los capítulos y los análisis leen las etiquetas y las carátulas. Actualiza manualmente o establece un intervalo de análisis; al eliminar una fuente, sus archivos originales se conservan intactos.\n\nEscucha\nInicia o pausa la reproducción desde una carátula, abre el reproductor ampliado y gestiona la cola. Los controles de velocidad, temporizador de apagado, reproducción aleatoria, repetición y capítulos siguen disponibles mientras navegas. Abre un archivo de audio desde el Gestor de archivos en el mismo reproductor sin añadirlo a la biblioteca.\n\nBibliotecas personales\nLas listas de reproducción pueden combinar elementos de la biblioteca y compartirse con perfiles seleccionados. Premium permite habilitar opcionalmente las subidas personales con límites establecidos por el administrador; estas subidas están desactivadas de forma predeterminada.",
+      "capabilities": [
+        "Bibliotecas independientes de música, audiolibros y radio con búsqueda y filtros por género.",
+        "Biblioteca común y listas de reproducción públicas gestionadas por el administrador.",
+        "Capítulo, posición, porcentaje y tiempo restante independientes para cada oyente.",
+        "Velocidad de reproducción, marcadores, temporizador de apagado, reproducción aleatoria, repetición y cola.",
+        "Favoritos personales, historial de escucha y listas de reproducción compartidas con perfiles seleccionados de Apps Hub.",
+        "Desplazamiento por el audio y reproducción en streaming de archivos de audio privados con autenticación.",
+        "Interfaz para móviles y controles de Media Session en navegadores compatibles.",
+        "Inspección de audio integrada, sin FFmpeg, paquetes del sistema ni pasos de instalación adicionales.",
+        "Lectura automática de metadatos y carátulas integrados sin modificar el audio original.",
+        "Busca en MusicBrainz y Open Library directamente desde tu instalación, previsualiza las coincidencias y aplica los campos seleccionados.",
+        "Subida manual de carátulas, atribución de fuentes y edición de metadatos por título, sin claves de API.",
+        "Reproducción y pausa rápidas desde las carátulas de la biblioteca, un reproductor ampliado y una cola en tiempo real con controles para reproducir a continuación, añadir, reordenar, eliminar, vaciar, reproducir aleatoriamente y repetir.",
+        "Carpetas de biblioteca en este servidor o en otro mvmOS, con análisis manuales o programados y sin copiar el audio.",
+        "Orden natural de los capítulos, lectura automática de etiquetas y carátulas, y eliminación de los registros de archivos que ya no están presentes.",
+        "Sube archivos o carpetas a una ubicación elegida de la biblioteca mediante la herramienta de subida compartida.",
+        "Abre archivos de audio directamente desde el Gestor de archivos sin importarlos a la biblioteca."
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 o posterior.",
+        "Un navegador compatible con los formatos de audio de tu biblioteca."
+      ],
+      "name": "mvmAudio"
+    },
+    "fr": {
+      "short_description": "Votre musique, vos livres audio et vos radios en ligne, avec une progression d’écoute personnelle et des listes de lecture partagées.",
+      "tagline": "Un seul espace pour la musique, les livres audio et la radio en direct.",
+      "description": "mvmAudio réunit musique, livres audio organisés en chapitres et radios HTTPS sur le bureau mvmOS et sur une page Apps Hub adaptative. Chaque auditeur dispose de sa propre progression, de ses favoris, de ses signets et de ses listes de lecture.\n\nDossiers de la bibliothèque\nAjoutez un dossier de ce serveur ou un dossier connecté partagé par un autre mvmOS. Les fichiers audio restent à leur emplacement : les sous-dossiers deviennent des albums ou des livres, les fichiers suivent l’ordre naturel des chapitres, et les analyses lisent les métadonnées et les pochettes. Actualisez manuellement ou définissez un intervalle d’analyse ; la suppression d’une source ne touche pas à ses fichiers d’origine.\n\nÉcoute\nLancez ou mettez en pause la lecture depuis une pochette, ouvrez le lecteur étendu et gérez la file d’attente. La vitesse, les minuteurs de mise en veille, la lecture aléatoire, la répétition et les commandes de chapitre restent accessibles pendant la navigation. Ouvrez un fichier audio depuis le Gestionnaire de fichiers dans le même lecteur sans l’ajouter à la bibliothèque.\n\nBibliothèques personnelles\nLes listes de lecture peuvent combiner des éléments de la bibliothèque et être partagées avec des profils sélectionnés. Premium permet d’activer les téléversements personnels avec des quotas définis par l’administrateur ; ces téléversements sont désactivés par défaut.",
+      "capabilities": [
+        "Bibliothèques distinctes pour la musique, les livres audio et la radio, avec recherche et filtres par genre.",
+        "Bibliothèque commune et listes de lecture publiques gérées par l’administrateur.",
+        "Chapitre, position, pourcentage et temps restant propres à chaque auditeur.",
+        "Vitesse de lecture, signets, minuteur de mise en veille, lecture aléatoire, répétition et file d’attente.",
+        "Favoris personnels, historique d’écoute et listes de lecture partagées avec des profils Apps Hub sélectionnés.",
+        "Déplacement dans la lecture et diffusion en continu des fichiers audio privés avec authentification.",
+        "Interface mobile et commandes Media Session pour les navigateurs compatibles.",
+        "Analyse audio intégrée, sans FFmpeg, paquets système ni étapes d’installation supplémentaires.",
+        "Lecture automatique des métadonnées et des pochettes intégrées sans modifier les fichiers audio d’origine.",
+        "Recherche dans MusicBrainz et Open Library directement depuis votre installation, aperçu des correspondances et application des champs sélectionnés.",
+        "Téléversement manuel de pochettes, attribution des sources et modification des métadonnées par titre, sans clé API.",
+        "Lecture et pause rapides depuis les pochettes de la bibliothèque, lecteur étendu et file d’attente dynamique avec commandes pour lire ensuite, ajouter, réorganiser, retirer, vider, lire aléatoirement et répéter.",
+        "Dossiers de bibliothèque sur ce serveur ou un autre mvmOS, avec analyses manuelles ou planifiées, sans copie des fichiers audio.",
+        "Classement naturel des chapitres, lecture automatique des métadonnées et des pochettes, et suppression des entrées correspondant aux fichiers qui ne sont plus présents.",
+        "Téléversement de fichiers ou de dossiers vers un emplacement choisi dans la bibliothèque via l’outil de téléversement commun.",
+        "Ouverture de fichiers audio directement depuis le Gestionnaire de fichiers sans les importer dans la bibliothèque."
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 ou version ultérieure.",
+        "Un navigateur prenant en charge les formats audio de votre bibliothèque."
+      ],
+      "name": "mvmAudio"
+    },
+    "ja": {
+      "short_description": "音楽、オーディオブック、オンラインラジオをひとつに。ユーザーごとの再生状況と共有プレイリストに対応。",
+      "tagline": "音楽、オーディオブック、ライブ配信ラジオをひとつの場所で。",
+      "description": "mvmAudioは、音楽、チャプター形式のオーディオブック、HTTPSラジオをmvmOSデスクトップとレスポンシブ対応のApps Hubページで楽しめるアプリです。再生状況、お気に入り、ブックマーク、プレイリストは、リスナーごとに個別に保存されます。\n\nライブラリフォルダー\nこのサーバーのフォルダー、または別のmvmOSから共有された接続済みフォルダーを追加できます。音声ファイルは元の場所に保持されます。サブフォルダーはアルバムやブックとして扱われ、ファイルはチャプターの自然な順序で並び、スキャン時にタグとカバー画像が読み込まれます。手動で更新することも、スキャン間隔を設定することもできます。ソースを削除しても、元のファイルには影響しません。\n\n再生\nカバー画像から再生や一時停止を行い、拡張プレーヤーを開いて再生キューを管理できます。ブラウジング中も、再生速度、スリープタイマー、シャッフル、リピート、チャプター操作を利用できます。ファイルマネージャーから音声ファイルを開き、ライブラリに追加せずに同じプレーヤーで再生することもできます。\n\n個人ライブラリ\nライブラリ内のアイテムを組み合わせてプレイリストを作成し、選択したプロフィールと共有できます。Premiumでは、管理者が設定した容量の範囲内で個人アップロードを任意で有効にできます。個人アップロードはデフォルトでは無効です。",
+      "capabilities": [
+        "音楽、オーディオブック、ラジオそれぞれに独立したライブラリを用意し、検索とジャンルによる絞り込みに対応。",
+        "管理者が管理する共通ライブラリと公開プレイリスト。",
+        "チャプター、再生位置、進捗率、残り時間をリスナーごとに個別に保存。",
+        "再生速度、ブックマーク、スリープタイマー、シャッフル、リピート、再生キュー。",
+        "個人のお気に入り、再生履歴、選択したApps Hubプロフィールと共有できるプレイリスト。",
+        "非公開の音声ファイルのシークとストリーミングに認証を適用。",
+        "モバイル向けインターフェースと、対応ブラウザーでのMedia Sessionコントロール。",
+        "音声解析機能を内蔵し、FFmpeg、システムパッケージ、追加のインストール作業は不要。",
+        "元の音声ファイルを変更せずに、埋め込みメタデータとカバー画像を自動で読み取り。",
+        "お使いの環境からMusicBrainzとOpen Libraryを直接検索し、候補をプレビューして選択した項目を適用。",
+        "APIキーなしで、カバー画像の手動アップロード、出典の記載、タイトルごとのメタデータ編集に対応。",
+        "ライブラリのカバー画像からの簡単な再生・一時停止、拡張プレーヤー、次に再生・追加・並べ替え・削除・全消去・シャッフル・リピートを操作できるリアルタイムの再生キュー。",
+        "このサーバーまたは別のmvmOS上のライブラリフォルダーに対応し、音声ファイルをコピーせずに手動または定期スキャンを実行。",
+        "チャプターを自然な順序で並べ、タグとカバー画像を自動で読み取り、存在しなくなったファイルの登録情報を削除。",
+        "共通アップローダーから、選択したライブラリ内の場所にファイルやフォルダーをアップロード。",
+        "ファイルマネージャーから音声ファイルを直接開き、ライブラリに取り込まずに再生。"
+      ],
+      "requirements": [
+        "mvmOS 1.22.0以降。",
+        "ライブラリ内の音声形式に対応したブラウザー。"
+      ],
+      "name": "mvmAudio"
+    },
+    "pt-BR": {
+      "short_description": "Suas músicas, coleções de audiolivros e rádios online, com progresso de reprodução individual e playlists compartilhadas.",
+      "tagline": "Um só lugar para músicas, audiolivros e rádio ao vivo.",
+      "description": "O mvmAudio reúne músicas, audiolivros organizados em capítulos e rádios via HTTPS no ambiente de trabalho do mvmOS e em uma página responsiva do Apps Hub. Cada ouvinte tem seu próprio progresso, favoritos, marcadores e playlists.\n\nPastas da biblioteca\nAdicione uma pasta deste servidor ou uma pasta conectada compartilhada por outro mvmOS. Os arquivos de áudio permanecem onde estão: as subpastas se tornam álbuns ou livros, os arquivos seguem a ordem natural dos capítulos e as verificações leem tags e capas. Atualize manualmente ou defina um intervalo de verificação; remover uma fonte não altera seus arquivos originais.\n\nReprodução\nInicie ou pause a reprodução pela capa, abra o player expandido e gerencie a fila. Os controles de velocidade, temporizador de desligamento, reprodução aleatória, repetição e capítulos continuam disponíveis durante a navegação. Abra um arquivo de áudio pelo Gerenciador de Arquivos no mesmo player, sem adicioná-lo à biblioteca.\n\nBibliotecas pessoais\nAs playlists podem combinar itens da biblioteca e ser compartilhadas com perfis selecionados. O Premium permite ativar uploads pessoais com limites definidos pelo administrador; esses uploads ficam desativados por padrão.",
+      "capabilities": [
+        "Bibliotecas separadas de músicas, audiolivros e rádios, com busca e filtros por gênero.",
+        "Biblioteca comum e playlists públicas gerenciadas pelo administrador.",
+        "Capítulo, posição, porcentagem e tempo restante independentes para cada ouvinte.",
+        "Velocidade de reprodução, marcadores, temporizador de desligamento, reprodução aleatória, repetição e fila.",
+        "Favoritos pessoais, histórico de reprodução e playlists compartilhadas com perfis selecionados do Apps Hub.",
+        "Navegação e streaming autenticados de arquivos de áudio privados.",
+        "Interface para dispositivos móveis e controles de Media Session em navegadores compatíveis.",
+        "Inspeção de áudio integrada, sem FFmpeg, pacotes do sistema ou etapas adicionais de instalação.",
+        "Leitura automática de metadados e capas incorporados, sem alterar o áudio original.",
+        "Pesquise no MusicBrainz e no Open Library diretamente pela sua instalação, visualize os resultados correspondentes e aplique os campos selecionados.",
+        "Upload manual de capas, atribuição de fontes e edição de metadados por título, sem chaves de API.",
+        "Reprodução e pausa rápidas pelas capas da biblioteca, player expandido e fila atualizada em tempo real, com controles para reproduzir a seguir, adicionar, reordenar, remover, limpar, reproduzir aleatoriamente e repetir.",
+        "Pastas da biblioteca neste servidor ou em outro mvmOS, com verificações manuais ou agendadas e sem copiar os arquivos de áudio.",
+        "Ordenação natural dos capítulos, leitura automática de tags e capas e remoção dos registros de arquivos que não estão mais presentes.",
+        "Faça upload de arquivos ou pastas para um local escolhido da biblioteca usando a ferramenta de upload compartilhada.",
+        "Abra arquivos de áudio diretamente pelo Gerenciador de Arquivos, sem importá-los para a biblioteca."
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 ou posterior.",
+        "Um navegador compatível com os formatos de áudio da sua biblioteca."
+      ],
+      "name": "mvmAudio"
+    },
+    "ru": {
+      "short_description": "Ваша музыка, коллекции аудиокниг и онлайн-радио с индивидуальным прогрессом прослушивания и общими плейлистами.",
+      "tagline": "Единое пространство для музыки, аудиокниг и радио в прямом эфире.",
+      "description": "mvmAudio объединяет музыку, аудиокниги с разбивкой на главы и радио по HTTPS на рабочем столе mvmOS и адаптивной странице Apps Hub. У каждого слушателя свои прогресс прослушивания, избранное, закладки и плейлисты.\n\nПапки медиатеки\nДобавьте папку с этого сервера или подключённую папку, которой поделился другой сервер mvmOS. Аудиофайлы остаются на месте: вложенные папки становятся альбомами или книгами, файлы располагаются в естественном порядке глав, а при сканировании считываются теги и обложки. Обновляйте медиатеку вручную или задайте интервал сканирования; удаление источника не затрагивает исходные файлы.\n\nПрослушивание\nЗапускайте или приостанавливайте воспроизведение прямо с обложки, открывайте расширенный проигрыватель и управляйте очередью. Настройки скорости, таймеры сна, случайный порядок, повтор и управление главами остаются доступны при просмотре медиатеки. Открывайте аудиофайлы из приложения «Файловый менеджер» в том же проигрывателе без добавления в медиатеку.\n\nЛичные медиатеки\nВ плейлисты можно объединять материалы из медиатеки и предоставлять к ним доступ выбранным профилям. Premium позволяет включить загрузку личных файлов с лимитами, установленными администратором; по умолчанию такая загрузка отключена.",
+      "capabilities": [
+        "Отдельные медиатеки музыки, аудиокниг и радио с поиском и фильтрами по жанрам.",
+        "Общая медиатека и публичные плейлисты под управлением администратора.",
+        "Индивидуальное сохранение главы, позиции, процента прослушивания и оставшегося времени для каждого слушателя.",
+        "Скорость воспроизведения, закладки, таймер сна, случайный порядок, повтор и очередь.",
+        "Личное избранное, история прослушивания и плейлисты с доступом для выбранных профилей Apps Hub.",
+        "Перемотка и потоковое воспроизведение приватных аудиофайлов с проверкой подлинности.",
+        "Мобильный интерфейс и элементы управления Media Session в поддерживаемых браузерах.",
+        "Встроенный анализ аудио без FFmpeg, системных пакетов и дополнительных действий по установке.",
+        "Автоматическое чтение встроенных метаданных и обложек без изменения исходных аудиофайлов.",
+        "Поиск в MusicBrainz и Open Library прямо из вашей установки, предварительный просмотр совпадений и применение выбранных полей.",
+        "Ручная загрузка обложек, указание источников и редактирование метаданных отдельных произведений без API-ключей.",
+        "Быстрый запуск и приостановка воспроизведения с обложек в медиатеке, расширенный проигрыватель и интерактивная очередь с возможностью воспроизведения следующим, добавления, изменения порядка, удаления, очистки, случайного порядка и повтора.",
+        "Папки медиатеки на этом сервере или другом сервере mvmOS со сканированием вручную или по расписанию без копирования аудиофайлов.",
+        "Естественный порядок глав, автоматическое чтение тегов и обложек и удаление записей о файлах, которых больше нет.",
+        "Загрузка файлов или папок в выбранное место медиатеки через общий загрузчик.",
+        "Открытие аудиофайлов прямо из приложения «Файловый менеджер» без импорта в медиатеку."
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 или новее.",
+        "Браузер с поддержкой аудиоформатов вашей медиатеки."
+      ],
+      "name": "mvmAudio"
+    },
+    "zh-CN": {
+      "short_description": "集中管理音乐、有声书和在线电台，支持个人收听进度和共享播放列表。",
+      "tagline": "音乐、有声书和直播电台，一处尽享。",
+      "description": "mvmAudio 将音乐、按章节组织的有声书和 HTTPS 电台带到 mvmOS 桌面及自适应布局的 Apps Hub 页面。每位听众都有独立的收听进度、收藏、书签和播放列表。\n\n媒体库文件夹\n添加此服务器上的文件夹，或从另一台 mvmOS 连接的共享文件夹。音频保留在原位置：子文件夹会成为专辑或有声书，文件按自然章节顺序排列，扫描时会读取标签和封面。可手动刷新或设置扫描间隔；移除来源不会影响其原始文件。\n\n收听\n从封面开始或暂停播放，打开展开的播放器并管理播放队列。浏览时仍可使用播放速度、睡眠定时、随机播放、循环播放和章节控制。还可从文件管理器中打开音频文件，使用同一播放器播放，无需将其添加到媒体库。\n\n个人媒体库\n播放列表可组合媒体库中的内容，并与选定的用户档案共享。Premium 可选择启用个人上传，并由管理员设置配额；个人上传默认关闭。",
+      "capabilities": [
+        "独立的音乐、有声书和电台媒体库，支持搜索和流派筛选。",
+        "由管理员管理的公共媒体库和公开播放列表。",
+        "每位听众都有独立的章节、播放位置、进度百分比和剩余时间。",
+        "支持播放速度、书签、睡眠定时、随机播放、循环播放和播放队列。",
+        "个人收藏、收听历史，以及与选定的 Apps Hub 用户档案共享的播放列表。",
+        "对私有音频文件的进度跳转和流式播放进行身份验证。",
+        "提供移动端界面，并在支持的浏览器中提供 Media Session 控制。",
+        "内置音频检测功能，无需 FFmpeg、系统软件包或额外安装步骤。",
+        "自动读取内嵌元数据和封面图片，不更改原始音频。",
+        "直接从您的 mvmOS 实例搜索 MusicBrainz 和 Open Library，预览匹配结果并应用选定字段。",
+        "支持手动上传封面、注明来源及逐项编辑元数据，无需 API 密钥。",
+        "通过媒体库封面快速播放和暂停，提供展开的播放器，以及支持下一首播放、添加、重新排序、移除、清空、随机播放和循环播放的实时队列。",
+        "支持此服务器或另一台 mvmOS 上的媒体库文件夹，可手动或定时扫描，无需复制音频。",
+        "按自然章节顺序排列，自动读取标签和封面，并移除已不存在文件的记录。",
+        "通过共享上传器将文件或文件夹上传到选定的媒体库位置。",
+        "直接从文件管理器打开音频文件，无需将其导入媒体库。"
+      ],
+      "requirements": [
+        "mvmOS 1.22.0 或更高版本。",
+        "支持您媒体库中音频格式的浏览器。"
+      ],
+      "name": "mvmAudio"
+    }
+  }
 }

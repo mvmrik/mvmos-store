@@ -36,5 +36,279 @@
       "summary": "Health exposes an app-to-app API: other apps can record weight, blood pressure and daily totals of water, caffeine, alcohol, energy, sugar and protein for a profile, always marked with the name of the app that sent them, and read the same data back.",
       "requires": "The Health App API has to be switched on in Apps Hub → Settings → App APIs. It is off by default."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Alle deine Gesundheitswerte an einem Ort: Gewicht, Blutdruck, Wasser, Koffein und Alkohol – mit Diagrammen und Statistiken. Trage Werte manuell ein oder erlaube anderen Apps, sie zu übermitteln. Dazu gibt es eine öffentliche Webseite.",
+      "tagline": "Alle deine Gesundheitswerte an einem Ort, mit Diagrammen.",
+      "description": "Health vereint die Werte, die deinen Alltag beschreiben, in einer App – als zentrale Übersicht für deine Gesundheit. Den Anfang machen Gewicht, Blutdruck, Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß sowie Laboruntersuchungen. Die App ist so aufgebaut, dass später weitere Messgrößen hinzukommen können.\n\nJede Messgröße hat eine eigene Seite mit einem Diagramm für die letzten 7, 30 oder 90 Tage oder das ganze Jahr, Statistiken wie Durchschnitt, Tiefstwert, Höchstwert und Veränderung sowie einer Liste der Einträge. Tippe auf einen Punkt im Diagramm, um die Werte dieses Tages anzusehen. Gewicht und Blutdruck erfasst du manuell als einzelne Messungen mit frei wählbarem Datum und Uhrzeit, bei Bedarf mit einer Notiz und beim Blutdruck auch mit Puls. Blutdruckwerte werden außerdem als normal, erhöht oder hoch eingestuft. Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß werden als Tagessummen erfasst. Dabei werden deine eigenen Angaben mit den Werten addiert, die andere Apps übermitteln.\n\nLaboruntersuchungen werden nach Art der Untersuchung geordnet, unabhängig vom Labor. Für jede Untersuchung sind mehrere Namen und Abkürzungen hinterlegt: Ob du nach Hämoglobin, Hb oder HGB suchst, du findest dieselbe Untersuchung. Verwendet dein Labor eine andere Bezeichnung, kannst du sie selbst ergänzen. Jede Untersuchung zeigt einen Code an, den du ändern kannst. Ergebnisse lassen sich in allen gängigen Einheiten eingeben und werden umgerechnet. Zu jedem Ergebnis wird der Referenzbereich aus deinem eigenen Laborbefund gespeichert. Anhand dieses Bereichs wird der Wert als zu niedrig, im Referenzbereich oder zu hoch gekennzeichnet. Du kannst auch eigene Untersuchungen mit einem Namen in jeder Sprache anlegen. Ein als PDF gespeicherter Laborbefund mit auswählbarem Text lässt sich importieren: Die von Health erkannten Ergebnisse werden dir zur Bestätigung vorgelegt, alles Weitere kannst du manuell korrigieren. Die Datei wird in deinem Browser gelesen und niemals hochgeladen. Bereits verwendete Labore stehen in einer Auswahlliste bereit. Laborwerte dienen ausschließlich der Information.\n\nAndere Apps können Daten an Health übermitteln, aber nur mit deiner Erlaubnis: Jede App hat einen eigenen Schalter, der standardmäßig ausgeschaltet ist. Den Anfang macht Hydration mit deinen Tageswerten für Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß. Werte aus einer App werden mit deren Namen angezeigt und können nur dort geändert werden. Deine eigenen manuellen Angaben kannst du selbst bearbeiten oder löschen. Das Gewicht lässt sich in Kilogramm oder Pfund anzeigen, das Volumen in Millilitern oder Unzen. Datum und Uhrzeit richten sich nach deinen Regionseinstellungen. Dieselben Daten stehen auf deiner öffentlichen Apps Hub-Seite zur Verfügung, sodass du auch vom Smartphone aus eine Messung hinzufügen kannst.\n\nDie Übersicht zeigt nur Messgrößen, für die Einträge vorliegen. Tagesdiagramme können Ziele aus einer App anzeigen. Dabei wird das für den jeweiligen Tag gespeicherte Ziel verwendet und gezählt, an wie vielen erfassten Tagen es erreicht wurde. Der Laborkatalog umfasst 89 Untersuchungen mit Namen in allen neun Sprachen. Die Suche zeigt alle Treffer an, und die angegebene Einheit unterscheidet absolute Anzahlen von Prozentwerten. Referenzbereiche stammen ausschließlich aus deinen eigenen Laborergebnissen. Für den nächsten Eintrag wird der zuletzt erfasste Bereich vorgeschlagen. Skripte und mvmAI können über die aktivierte API fehlende Untersuchungen anlegen, abweichende Bezeichnungen aus Befunden speichern sowie Ergebnisse und Messungen bearbeiten oder löschen.\n\nPersönliches Profil und weitere Nährstoffe\nHalte Geschlecht, Geburtsdatum, Blutgruppe, Erkrankungen und Notizen zu Medikamenten in deinem eigenen Profil fest. Das Alter wird aus dem Geburtsdatum berechnet. Daneben werden die zuletzt erfasste Körpergröße und das zuletzt erfasste Gewicht angezeigt. Für die Körpergröße gibt es einen eigenen Messverlauf. Tagesdiagramme unterstützen außerdem Kohlenhydrate, Fett, gesättigte Fettsäuren, Ballaststoffe und Salz. Andere Apps können diese Werte über die aktivierte Health API übermitteln. Integrationen, die du aktivierst, können auf deine Profildaten zugreifen.",
+      "capabilities": [
+        "Gewicht, Blutdruck (mit optionalem Puls), Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß – jeweils mit eigener Seite.",
+        "Laboruntersuchungen mit internationalen Codes, mehreren hinterlegten Namen pro Untersuchung, eigenen zusätzlichen Bezeichnungen, Einheitenumrechnung und dem Referenzbereich aus dem jeweiligen Laborbefund.",
+        "Import von Laborbefunden aus einer PDF-Datei, die in deinem Browser gelesen wird: Erkannte Ergebnisse bestätigst du zuerst, die übrigen kannst du bearbeiten.",
+        "Diagramme für 7, 30 oder 90 Tage oder ein Jahr mit abrufbaren Werten zu jedem Punkt sowie Durchschnitt, Tiefstwert, Höchstwert und Veränderung.",
+        "Blutdruckkategorien mit einer Übersicht über die Verteilung der Messwerte.",
+        "Werte manuell hinzufügen, bearbeiten und löschen, mit frei wählbarem Datum und Uhrzeit.",
+        "Tagessummen führen deine eigenen Angaben mit den von Apps übermittelten Mengen zusammen und zeigen die jeweilige Quelle an.",
+        "Kilogramm oder Pfund, Milliliter oder Unzen.",
+        "Öffentliche Webseite für dein Apps Hub-Konto.",
+        "Externe API: Nach der Aktivierung kannst du Messungen und Laborergebnisse erfassen, bearbeiten und löschen, eigene Untersuchungen und alternative Bezeichnungen anlegen sowie Diagramme und Übersichten abrufen.",
+        "Auf Erweiterung ausgelegt: Neue Messgrößen werden zentral hinzugefügt und stehen in der App und der API zur Verfügung.",
+        "Historische Tagesziele in Diagrammen, die Anzahl der Tage mit erreichtem Ziel und eine Übersicht, die nur erfasste Messgrößen zeigt.",
+        "Persönliches Profil mit Geburtsdatum, Alter, Geschlecht, Blutgruppe, Erkrankungen und Notizen zu Medikamenten.",
+        "Messungen der Körpergröße sowie Anzeige der zuletzt erfassten Körpergröße und des zuletzt erfassten Gewichts im Profil.",
+        "Tageswerte für Kohlenhydrate, Fett, gesättigte Fettsäuren, Ballaststoffe und Salz zusätzlich zu den bisherigen Nährstoffen.",
+        "Funktionen der App API zum Abrufen und Aktualisieren des Profils sowie zum Erfassen der Körpergröße."
+      ],
+      "integrations": [
+        {
+          "summary": "Hydration kann für jedes Profil die Tageswerte für Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß an Health übermitteln. Die Funktion wird für jedes Profil in Hydration aktiviert und ist standardmäßig ausgeschaltet. Danach hält Hydration die letzten 90 Tage aktuell, sobald ein Getränk erfasst, geändert oder gelöscht wird. Das Wasserziel des jeweiligen Tages wird ebenfalls übermittelt.",
+          "requires": "Health muss installiert und die zugehörige App API unter Apps Hub → Einstellungen → App APIs aktiviert sein. Die App API ist standardmäßig ausgeschaltet."
+        },
+        {
+          "summary": "Health stellt eine API für den Datenaustausch zwischen Apps bereit: Andere Apps können für ein Profil Gewicht, Blutdruck und Tagessummen für Wasser, Koffein, Alkohol, Energie, Zucker und Eiweiß erfassen und dieselben Daten wieder abrufen. Die Werte sind stets mit dem Namen der übermittelnden App gekennzeichnet.",
+          "requires": "Die Health App API muss unter Apps Hub → Einstellungen → App APIs eingeschaltet werden. Sie ist standardmäßig ausgeschaltet."
+        }
+      ],
+      "name": "Gesundheit"
+    },
+    "bg": {
+      "short_description": "Всичките ви здравни показатели на едно място: тегло, кръвно налягане, вода, кофеин и алкохол, с графики и статистика. Въвеждайте стойности ръчно или разрешете на други приложения да ги изпращат. Разполагате и с публична уеб страница.",
+      "tagline": "Всичките ви здравни показатели на едно място, с графики.",
+      "description": "Health събира показателите от ежедневието ви в едно приложение — своеобразно табло за вашето здраве. Първоначално включва тегло, кръвно налягане, вода, кофеин, алкохол, енергия, захари и белтъчини, както и лабораторни изследвания, а устройството му позволява по-късно да се добавят още показатели.\n\nВсеки показател има собствена страница с графика за последните 7, 30, 90 дни или за цялата година, статистика със средна, най-ниска и най-висока стойност и промяна, както и списък със записите. Докоснете точка от графиката, за да видите данните за съответния ден. Теглото и кръвното налягане се записват като отделни измервания, които въвеждате ръчно за избрани дата и час, с възможност да добавите бележка и пулс; кръвното налягане се разпределя и в категории за нормални, повишени и високи стойности. Водата, кофеинът, алкохолът, енергията, захарите и белтъчините се отчитат като общи дневни количества, като за всеки ден въведеното от вас се сумира с изпратеното от други приложения.\n\nЛабораторните изследвания се подреждат по вид изследване, а не по лаборатория. Всяко изследване се разпознава по няколко наименования и съкращения, така че при търсене на Хемоглобин, Hb или HGB ще намерите едно и също изследване, а ако вашата лаборатория използва различно наименование, можете да го добавите. За всяко изследване се показва код, който можете да променяте. Резултатите могат да се въвеждат във всички обичайни мерни единици и се преизчисляват, а всеки резултат запазва референтния интервал от вашия лабораторен формуляр и според него се обозначава като нисък, в норма или висок. Можете да създавате и собствени изследвания с наименование на всеки език. Можете да импортирате лабораторен отчет, записан като PDF с избираем текст: резултатите, които Health разпознае, се предлагат за потвърждение, а всичко останало може да се коригира ръчно. Файлът се прочита в браузъра ви и никога не се качва на сървър. Лабораториите, които вече сте използвали, се предлагат в списък. Лабораторните стойности са само за информация.\n\nДруги приложения могат да изпращат данни към Health, но само с ваше разрешение: всяко приложение има собствен превключвател, който по подразбиране е изключен. Първото е Hydration, което изпраща дневните ви количества вода, кофеин, алкохол, енергия, захари и белтъчини. Стойностите, получени от приложение, се показват с неговото име и могат да се променят само в него; въведените от вас количества можете да редактирате или изтривате. Теглото може да се показва в килограми или паундове, а обемът — в милилитри или унции. Датите и часовете следват регионалните ви настройки. Същите данни са достъпни на публичната ви страница в Apps Hub, така че можете да добавите измерване от телефона си.\n\nОбщият преглед показва само показатели, за които има записи. Дневните графики могат да включват цели, зададени от приложение, като използват целта, запазена за всеки ден, и отчитат през колко от дните със записи тя е постигната. Каталогът с лабораторни изследвания включва 89 изследвания с наименования на всичките девет езика; търсенето показва всички съвпадения, а изписаната мерна единица разграничава абсолютния брой от процентните стойности. Референтните интервали се вземат единствено от вашите лабораторни резултати, като за следващия запис се предлага последният въведен интервал. Скриптове и mvmAI могат да създават липсващо изследване, да запаметяват алтернативно наименование от лабораторния формуляр и да редактират или изтриват резултати и измервания чрез активирания API.\n\nЛичен профил и още хранителни вещества\nЗапазете пола, датата на раждане, кръвната група, заболяванията и бележките за приемани лекарства в собствен профил. Възрастта се изчислява от датата на раждане, а до нея се показват последните измервания на ръста и теглото. Ръстът има собствена история на измерванията. Дневните графики поддържат и въглехидрати, мазнини, наситени мазнини, фибри и сол; други приложения могат да изпращат тези стойности чрез активирания API на Health. Данните от профила са достъпни за интеграциите, които активирате.",
+      "capabilities": [
+        "Тегло, кръвно налягане (с възможност за добавяне на пулс), вода, кофеин, алкохол, енергия, захари и белтъчини — всеки показател със собствена страница.",
+        "Лабораторни изследвания с международни кодове, няколко познати наименования за всяко изследване, допълнителни наименования по ваш избор, преобразуване на мерните единици и референтния интервал от всеки лабораторен формуляр.",
+        "Импортиране на лабораторен отчет от PDF, който се прочита в браузъра ви: разпознатите резултати първо се потвърждават, а останалите могат да се редактират.",
+        "Графики за 7, 30, 90 дни или година с преглед на стойността във всяка точка, както и средни, най-ниски и най-високи стойности и промяна.",
+        "Категории на кръвното налягане с обобщение на разпределението на измерванията.",
+        "Ръчно добавяне, редактиране и изтриване на стойности за избрани дата и час.",
+        "Общите дневни количества съчетават въведеното от вас с количествата, изпратени от приложения, и показват източника на всяко от тях.",
+        "Килограми или паундове, милилитри или унции.",
+        "Публична уеб страница за профила ви в Apps Hub.",
+        "Външен API: след активиране позволява записване, редактиране и изтриване на измервания и лабораторни резултати, създаване на собствени изследвания и алтернативни наименования, както и извличане на графики и общи прегледи.",
+        "С възможност за разширяване: новите показатели се добавят на едно място и стават достъпни в приложението и API.",
+        "Дневни цели за минали периоди върху графиките, брой дни с постигната цел и общ преглед само на показателите със записи.",
+        "Личен профил с дата на раждане, възраст, пол, кръвна група, заболявания и бележки за приемани лекарства.",
+        "Измервания на ръста и показване на последните стойности за ръст и тегло в профила.",
+        "Дневни количества въглехидрати, мазнини, наситени мазнини, фибри и сол наред с вече наличните хранителни вещества.",
+        "Функции в API за приложения за четене и актуализиране на профила и записване на ръста."
+      ],
+      "integrations": [
+        {
+          "summary": "Hydration може да изпраща към Health дневните количества вода, кофеин, алкохол, енергия, захари и белтъчини за всеки профил. Функцията се включва отделно за всеки профил в Hydration и по подразбиране е изключена. След включването ѝ Hydration поддържа данните за последните 90 дни актуални при всяко записване, промяна или изтриване на напитка. Включва се и целта за прием на вода за всеки ден.",
+          "requires": "Инсталирано приложение Health и активиран негов API за приложения в Apps Hub → Настройки → API за приложения. API за приложения е изключен по подразбиране."
+        },
+        {
+          "summary": "Health предоставя API за обмен между приложения: други приложения могат да записват за даден профил тегло, кръвно налягане и общи дневни количества вода, кофеин, алкохол, енергия, захари и белтъчини, като данните винаги се обозначават с името на изпратилото ги приложение. Приложенията могат и да прочитат същите данни.",
+          "requires": "API за приложения на Health трябва да бъде включен в Apps Hub → Настройки → API за приложения. По подразбиране е изключен."
+        }
+      ],
+      "name": "Здраве"
+    },
+    "zh-CN": {
+      "short_description": "集中管理体重、血压、饮水量、咖啡因和酒精摄入量等健康数据，并通过图表和统计了解变化。可手动添加数据，也可授权其他应用发送数据，还提供公开网页。",
+      "tagline": "集中管理所有健康数据，通过图表一目了然。",
+      "description": "Health 将反映您日常状况的各项数据汇集到一个应用中，打造健康数据看板。最初支持体重、血压、饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量，以及实验室检验，并采用可扩展设计，方便日后加入更多指标。\n\n每项指标都有独立页面，包含图表、最近 7、30、90 天或全年时间范围选项、平均值、最低值、最高值和变化等统计信息，以及记录列表。点按图表上的数据点即可查看当天的数据。体重和血压按单次测量记录，可手动指定任意日期和时间，并可选填备注和脉搏；血压还会按正常、偏高和高血压范围分类。饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量按每日总量记录，每天都会汇总您手动输入的量和其他应用发送的量。\n\n实验室检验按检验项目管理，而非按实验室管理。每个检验项目都支持多个名称和缩写，因此输入 Hemoglobin、Hb 或 HGB 都能找到同一项目；如果实验室使用了不同的名称，您也可以将其添加为自定义名称。每个项目都会显示一个可修改的代码，结果可使用任何常见单位输入并进行换算，每条结果都会保留您检验单上印列的参考范围，并据此标记为偏低、范围内或偏高。您还可以创建自定义检验项目，并为其设置各语言的名称。保存为含可选中文本的 PDF 格式的检验报告可以导入：Health 识别出的结果会供您确认，其余内容可手动修正；文件在浏览器中读取，绝不会上传。您使用过的实验室会以列表形式供您选择。检验数值仅供参考。\n\n其他应用只有在您授权后才能向 Health 发送数据：每个应用都有独立开关，默认关闭。Hydration 是首个接入的应用，可发送您每天的饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量。来自应用的数据会标注应用名称，且只能在该应用中修改；您手动输入的量则可自行编辑或删除。体重可使用千克或磅显示，容量可使用毫升或盎司显示，日期和时间遵循您的区域设置。同样的数据也会显示在您的 Apps Hub 公开页面上，方便您通过手机添加测量记录。\n\n概览仅显示有记录的指标。每日图表可包含应用提供的目标，使用每天保存的目标值，并统计有记录的天数中达标的天数。实验室检验目录包含 89 个项目，每项均提供全部九种语言的名称；搜索会显示所有匹配项，并通过显示的单位区分绝对计数和百分比。参考范围仅取自您自己的实验室检验结果，下次输入时会提供最近一次记录的参考范围。启用 API 后，脚本和 mvmAI 可通过该 API 创建缺失的检验项目、记住检验单上印列的别名，以及编辑或删除检验结果和测量记录。\n\n个人档案与更多营养素\n在您的个人档案中保存性别、出生日期、血型、健康状况和用药备注。年龄根据出生日期计算，最新的身高和体重测量值也会一并显示。身高有独立的测量历史记录。每日图表还支持碳水化合物、脂肪、饱和脂肪、膳食纤维和盐摄入量；其他应用可通过已启用的 Health API 提供这些数据。您启用的集成功能可以访问个人档案数据。",
+      "capabilities": [
+        "体重、血压（可选填脉搏）、饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量，每项均有独立页面。",
+        "实验室检验支持国际代码、每项检验的多个通用名称、自定义附加名称、单位换算，以及每张检验单上的参考范围。",
+        "导入在浏览器中读取的 PDF 检验报告：先确认识别出的结果，其余内容可编辑。",
+        "提供 7、30、90 天或全年图表，可查看任意数据点的数值，以及平均值、最低值、最高值和变化。",
+        "血压分类及测量值分布概况。",
+        "手动添加、编辑和删除任意日期和时间的数据。",
+        "每日总量汇总您手动输入的量和应用发送的量，并显示各项数据的来源。",
+        "支持千克或磅、毫升或盎司。",
+        "为您的 Apps Hub 账户提供公开网页。",
+        "外部 API：启用后，可记录、编辑和删除测量数据及检验结果，创建自定义检验项目和别名，以及读取图表和概览。",
+        "可扩展设计：在一处添加新指标，即可同时在应用和 API 中使用。",
+        "图表显示历次每日目标、达标天数，概览仅显示有记录的指标。",
+        "个人档案包含出生日期、年龄、性别、血型、健康状况和用药备注。",
+        "记录身高测量数据，并在个人档案中显示最新身高和体重。",
+        "除现有营养素外，还支持每日碳水化合物、脂肪、饱和脂肪、膳食纤维和盐摄入量。",
+        "提供读取和更新个人档案及记录身高的应用 API 功能。"
+      ],
+      "integrations": [
+        {
+          "summary": "Hydration 可将每个个人档案的每日饮水量、咖啡因、酒精、能量、糖和蛋白质摄入量发送到 Health。每个个人档案需在 Hydration 中单独开启此功能，默认关闭；开启后，每当记录、修改或删除饮品时，Hydration 都会同步更新最近 90 天的数据。数据还包含每天的饮水目标。",
+          "requires": "已安装 Health，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。应用 API 默认关闭。"
+        },
+        {
+          "summary": "Health 提供应用间 API：其他应用可为某个个人档案记录体重、血压，以及每日饮水量、咖啡因、酒精、能量、糖和蛋白质摄入总量，所有数据始终标注发送应用的名称，其他应用也可读取这些数据。",
+          "requires": "须在 Apps Hub → 设置 → 应用 API 中开启 Health 应用 API。该功能默认关闭。"
+        }
+      ],
+      "name": "健康"
+    },
+    "fr": {
+      "short_description": "Toutes vos données de santé au même endroit : poids, tension artérielle, eau, caféine et alcool, avec des graphiques et des statistiques. Saisissez vos valeurs à la main ou autorisez d’autres applications à les transmettre, et profitez d’une page web publique.",
+      "tagline": "Toutes vos données de santé au même endroit, avec des graphiques.",
+      "description": "Health rassemble dans une seule application les données qui décrivent votre journée, à la manière d’un tableau de bord de santé. Elle prend d’abord en charge le poids, la tension artérielle, l’eau, la caféine, l’alcool, l’énergie, les sucres et les protéines, ainsi que les analyses de laboratoire, et sa conception permet d’ajouter d’autres indicateurs par la suite.\n\nChaque indicateur dispose de sa propre page avec un graphique couvrant au choix les 7, 30 ou 90 derniers jours ou l’année entière, des statistiques comme la moyenne, le minimum, le maximum et la variation, ainsi que la liste des données enregistrées. Touchez un point du graphique pour consulter les données du jour correspondant. Le poids et la tension artérielle sont des mesures ponctuelles que vous saisissez à la main, à la date et à l’heure de votre choix, avec une note facultative et, pour la tension, le pouls en option ; les valeurs de tension artérielle sont également classées en trois catégories : normale, élevée et hypertension. L’eau, la caféine, l’alcool, l’énergie, les sucres et les protéines sont des totaux quotidiens qui additionnent chaque jour vos propres quantités à celles transmises par d’autres applications.\n\nLes analyses de laboratoire sont classées par type d’analyse, et non par laboratoire. Chaque analyse est associée à plusieurs noms et abréviations : saisir Hemoglobin, Hb ou HGB permet donc de trouver la même analyse, et vous pouvez ajouter un nom personnel si votre laboratoire utilise une autre appellation. Chaque analyse affiche un code que vous pouvez modifier. Les résultats peuvent être saisis dans n’importe quelle unité courante et sont convertis ; chaque résultat conserve l’intervalle de référence imprimé sur votre propre compte rendu de laboratoire, qui détermine s’il est signalé comme inférieur, dans la norme ou supérieur. Vous pouvez aussi créer vos propres analyses avec un nom dans chaque langue. Vous pouvez importer un compte rendu de laboratoire enregistré au format PDF dont le texte est sélectionnable : les résultats reconnus par Health vous sont proposés pour confirmation, et tout le reste peut être corrigé à la main. Le fichier est lu dans votre navigateur et n’est jamais envoyé sur un serveur. Les laboratoires auxquels vous avez déjà eu recours vous sont proposés sous forme de liste. Les valeurs des analyses sont fournies à titre informatif uniquement.\n\nD’autres applications peuvent transmettre leurs données à Health, mais uniquement avec votre autorisation : chacune dispose de son propre interrupteur, désactivé par défaut. Hydration est la première et transmet vos quantités quotidiennes d’eau, de caféine, d’alcool, d’énergie, de sucres et de protéines. Les valeurs provenant d’une application portent son nom et ne peuvent être modifiées que dans cette application ; vous pouvez modifier ou supprimer librement les quantités que vous avez saisies à la main. Le poids peut être affiché en kilogrammes ou en livres et les volumes en millilitres ou en onces ; les dates et les heures suivent vos paramètres régionaux. Les mêmes données figurent sur votre page publique Apps Hub, ce qui vous permet d’ajouter une mesure depuis votre téléphone.\n\nLa vue d’ensemble affiche uniquement les indicateurs pour lesquels des données ont été enregistrées. Les graphiques quotidiens peuvent inclure des objectifs fournis par une application : ils utilisent l’objectif enregistré pour chaque jour et comptent le nombre de jours avec des données où cet objectif a été atteint. Le catalogue des analyses de laboratoire comprend 89 analyses dont les noms sont disponibles dans les neuf langues ; la recherche affiche toutes les correspondances, et l’unité indiquée permet de distinguer les valeurs absolues des pourcentages. Les intervalles de référence proviennent uniquement de vos propres résultats de laboratoire ; le dernier intervalle enregistré est proposé lors de la saisie suivante. Les scripts et mvmAI peuvent créer une analyse manquante, mémoriser une autre appellation figurant sur un compte rendu, et modifier ou supprimer des résultats et des mesures par l’intermédiaire de l’API activée.\n\nProfil personnel et nutriments supplémentaires\nConservez votre sexe, votre date de naissance, votre groupe sanguin, vos pathologies et vos notes sur les médicaments dans votre profil personnel. L’âge est calculé à partir de la date de naissance, et les dernières mesures de taille et de poids s’affichent à ses côtés. La taille dispose de son propre historique de mesures. Les graphiques quotidiens prennent également en charge les glucides, les matières grasses, les acides gras saturés, les fibres et le sel ; d’autres applications peuvent transmettre ces valeurs par l’intermédiaire de l’API Health activée. Les données du profil sont accessibles aux intégrations que vous activez.",
+      "capabilities": [
+        "Poids, tension artérielle (avec pouls facultatif), eau, caféine, alcool, énergie, sucres et protéines, chacun avec sa propre page.",
+        "Analyses de laboratoire avec codes internationaux, plusieurs noms connus par analyse, vos propres appellations supplémentaires, conversion des unités et intervalle de référence de chaque compte rendu de laboratoire.",
+        "Importation d’un compte rendu de laboratoire à partir d’un PDF lu dans votre navigateur : les résultats reconnus sont d’abord confirmés, et le reste peut être modifié.",
+        "Graphiques sur 7, 30 ou 90 jours ou sur un an, avec consultation de chaque point, ainsi que les moyennes, les minimums, les maximums et la variation.",
+        "Catégories de tension artérielle avec un récapitulatif de la répartition des mesures.",
+        "Ajout, modification et suppression manuels de valeurs, à la date et à l’heure de votre choix.",
+        "Totaux quotidiens combinant vos propres quantités et celles transmises par les applications, avec indication de la provenance de chacune.",
+        "Kilogrammes ou livres, millilitres ou onces.",
+        "Page web publique pour votre compte Apps Hub.",
+        "API externe : enregistrement, modification et suppression de mesures et de résultats de laboratoire, création d’analyses et d’appellations personnalisées, et consultation des graphiques et des vues d’ensemble, une fois l’API activée.",
+        "Une conception évolutive : les nouveaux indicateurs sont ajoutés à un seul endroit et apparaissent dans l’application et dans l’API.",
+        "Historique des objectifs quotidiens sur les graphiques, jours où l’objectif a été atteint et vue d’ensemble affichant uniquement les indicateurs avec des données enregistrées.",
+        "Profil personnel avec date de naissance, âge, sexe, groupe sanguin, pathologies et notes sur les médicaments.",
+        "Mesures de taille et affichage des dernières mesures de taille et de poids dans le profil.",
+        "Suivi quotidien des glucides, des matières grasses, des acides gras saturés, des fibres et du sel, en complément des nutriments déjà pris en charge.",
+        "Fonctions de l’API d’application pour consulter et mettre à jour le profil et enregistrer la taille."
+      ],
+      "integrations": [
+        {
+          "summary": "Hydration peut transmettre à Health les quantités quotidiennes d’eau, de caféine, d’alcool, d’énergie, de sucres et de protéines de chaque profil. Chaque profil active cette fonction dans Hydration ; elle est désactivée par défaut. Hydration maintient ensuite les 90 derniers jours à jour chaque fois qu’une boisson est enregistrée, modifiée ou supprimée. L’objectif de consommation d’eau de chaque jour est inclus.",
+          "requires": "Health doit être installée et son API d’application activée dans Apps Hub → Settings → App APIs. L’API d’application est désactivée par défaut."
+        },
+        {
+          "summary": "Health propose une API de communication entre applications : d’autres applications peuvent enregistrer le poids, la tension artérielle et les totaux quotidiens d’eau, de caféine, d’alcool, d’énergie, de sucres et de protéines pour un profil, toujours avec le nom de l’application qui les a transmis, et consulter ces mêmes données en retour.",
+          "requires": "L’API d’application de Health doit être activée dans Apps Hub → Settings → App APIs. Elle est désactivée par défaut."
+        }
+      ],
+      "name": "Santé"
+    },
+    "pt-BR": {
+      "short_description": "Um só lugar para seus dados de saúde: peso, pressão arterial, água, cafeína e álcool, com gráficos e estatísticas. Adicione valores manualmente ou permita que outros apps os enviem, além de contar com uma página pública na web.",
+      "tagline": "Todos os seus dados de saúde em um só lugar, com gráficos.",
+      "description": "O Saúde reúne os números que descrevem seu dia em um só app, como um painel de saúde. Ele começa com peso, pressão arterial, água, cafeína, álcool, energia, açúcar e proteína, além de exames laboratoriais, e foi desenvolvido para receber mais métricas no futuro.\n\nCada métrica tem sua própria página com um gráfico, a opção de visualizar os últimos 7, 30 ou 90 dias ou o ano inteiro, estatísticas como média, mínimo, máximo e variação, e a lista de registros. Toque em um ponto do gráfico para consultar os dados daquele dia. Peso e pressão arterial são medições que você adiciona manualmente em qualquer data e horário, com uma observação e a pulsação opcionais; a pressão arterial também é classificada nas faixas normal, elevada e alta. Água, cafeína, álcool, energia, açúcar e proteína são totais diários, e cada dia soma a quantidade que você informa aos valores enviados por outros apps.\n\nOs exames laboratoriais são organizados por tipo de exame, e não por laboratório. Cada exame é reconhecido por vários nomes e abreviações, de modo que digitar Hemoglobina, Hb ou HGB encontra o mesmo exame, e um nome que seu laboratório escreve de outra forma pode ser adicionado como um nome personalizado. Cada exame exibe um código que você pode alterar, os resultados podem ser inseridos em qualquer unidade comum e são convertidos, e cada resultado mantém o intervalo de referência impresso no laudo do seu laboratório, sendo classificado como baixo, dentro do intervalo ou alto de acordo com esse intervalo. Você também pode criar seus próprios exames com um nome em cada idioma. É possível importar um laudo laboratorial salvo como PDF com texto selecionável: os resultados que o Saúde reconhece são apresentados para confirmação, e todo o restante pode ser corrigido manualmente. O arquivo é lido no seu navegador e nunca é enviado a um servidor. Os laboratórios que você já utilizou são apresentados em uma lista. Os valores dos exames laboratoriais são apenas informativos.\n\nOutros apps podem enviar seus dados ao Saúde, mas somente quando você permite: cada app tem sua própria opção de ativação, desativada por padrão. O Hidratação é o primeiro e envia seus totais diários de água, cafeína, álcool, energia, açúcar e proteína. Os valores enviados por um app são exibidos com o nome dele e só podem ser alterados nesse app; as quantidades que você insere manualmente podem ser editadas ou excluídas por você. O peso pode ser exibido em quilogramas ou libras, e o volume em mililitros ou onças, enquanto as datas e os horários seguem suas configurações regionais. Os mesmos dados estão na sua página pública do Apps Hub, para que você possa adicionar uma medição pelo celular.\n\nA visão geral mostra apenas métricas com registros. Os gráficos diários podem incluir metas fornecidas por um app, usando a meta salva para cada dia e contando quantos dias com registros atingiram essa meta. O catálogo de exames laboratoriais inclui 89 exames com nomes em todos os nove idiomas; a busca mostra todas as correspondências, e a unidade impressa diferencia contagens absolutas de porcentagens. Os intervalos de referência vêm apenas dos seus próprios resultados laboratoriais, e o intervalo registrado mais recentemente é sugerido para o próximo registro. Scripts e o mvmAI podem criar um exame que esteja faltando, memorizar um nome alternativo impresso e editar ou excluir resultados e medições por meio da API habilitada.\n\nPerfil pessoal e mais nutrientes\nMantenha sexo, data de nascimento, tipo sanguíneo, condições de saúde e observações sobre medicamentos em um perfil próprio. A idade é calculada a partir da data de nascimento, e as medições mais recentes de altura e peso aparecem ao lado dela. A altura tem seu próprio histórico de medições. Os gráficos diários também aceitam carboidratos, gorduras, gorduras saturadas, fibras e sal; outros apps podem fornecer esses valores por meio da API habilitada do Saúde. Os dados do perfil ficam disponíveis para as integrações que você habilitar.",
+      "capabilities": [
+        "Peso, pressão arterial (com pulsação opcional), água, cafeína, álcool, energia, açúcar e proteína, cada um com sua própria página.",
+        "Exames laboratoriais com códigos internacionais, vários nomes conhecidos por exame, nomes adicionais personalizados, conversão de unidades e o intervalo de referência de cada laudo laboratorial.",
+        "Importação de laudos laboratoriais a partir de um PDF lido no seu navegador: os resultados reconhecidos são confirmados primeiro, e os demais podem ser editados.",
+        "Gráficos de 7, 30, 90 dias ou um ano com consulta dos dados de qualquer ponto, além de médias, mínimo, máximo e variação.",
+        "Categorias de pressão arterial com um resumo da distribuição das medições.",
+        "Adição, edição e exclusão manual de valores, em qualquer data e horário.",
+        "Os totais diários combinam a quantidade que você informa com as quantidades enviadas por apps e mostram a origem de cada uma.",
+        "Quilogramas ou libras, mililitros ou onças.",
+        "Página pública na web para sua conta do Apps Hub.",
+        "API externa: registre, edite e exclua medições e resultados laboratoriais, crie exames personalizados e nomes alternativos e consulte gráficos e visões gerais, após habilitá-la.",
+        "Desenvolvido para crescer: novas métricas são adicionadas em um só lugar e aparecem no app e na API.",
+        "Histórico de metas diárias nos gráficos, dias em que a meta foi atingida e uma visão geral que mostra apenas métricas com registros.",
+        "Perfil pessoal com data de nascimento, idade, sexo, tipo sanguíneo, condições de saúde e observações sobre medicamentos.",
+        "Medições de altura e exibição da altura e do peso mais recentes no perfil.",
+        "Totais diários de carboidratos, gorduras, gorduras saturadas, fibras e sal junto aos nutrientes já disponíveis.",
+        "Funções da API do app para consultar e atualizar o perfil e registrar a altura."
+      ],
+      "integrations": [
+        {
+          "summary": "O Hidratação pode enviar os totais diários de água, cafeína, álcool, energia, açúcar e proteína de cada perfil ao Saúde. A integração é ativada em cada perfil no Hidratação e fica desativada por padrão. Após a ativação, o Hidratação mantém os últimos 90 dias atualizados sempre que uma bebida é registrada, alterada ou excluída. A meta de água de cada dia é incluída.",
+          "requires": "O Saúde deve estar instalado e sua API de app deve estar habilitada em Apps Hub → Configurações → APIs de apps. A API do app fica desativada por padrão."
+        },
+        {
+          "summary": "O Saúde disponibiliza uma API entre apps: outros apps podem registrar peso, pressão arterial e totais diários de água, cafeína, álcool, energia, açúcar e proteína para um perfil, sempre identificados com o nome do app que os enviou, e consultar esses mesmos dados.",
+          "requires": "A API de app do Saúde precisa ser ativada em Apps Hub → Configurações → APIs de apps. Ela fica desativada por padrão."
+        }
+      ],
+      "name": "Saúde"
+    },
+    "es": {
+      "short_description": "Todos tus datos de salud en un solo lugar: peso, presión arterial, agua, cafeína y alcohol, con gráficos y estadísticas. Añade valores manualmente o permite que otras aplicaciones los envíen, y accede también a una página web pública.",
+      "tagline": "Todos tus datos de salud en un solo lugar, con gráficos.",
+      "description": "Health reúne los datos que describen tu día en una sola aplicación, a modo de panel de salud. Empieza con el peso, la presión arterial, el agua, la cafeína, el alcohol, la energía, el azúcar y las proteínas, además de los análisis de laboratorio, y está diseñada para incorporar más indicadores en el futuro.\n\nCada indicador tiene su propia página con un gráfico, opciones para ver los últimos 7, 30 o 90 días o todo el año, estadísticas como la media, el mínimo, el máximo y la variación, y la lista de registros. Toca un punto del gráfico para consultar los datos de ese día. El peso y la presión arterial son mediciones puntuales que añades manualmente con cualquier fecha y hora, con una nota y el pulso opcionales; la presión arterial también se clasifica en intervalos normales, elevados y altos. El agua, la cafeína, el alcohol, la energía, el azúcar y las proteínas son totales diarios, y cada día se suman las cantidades que introduces y las que envían otras aplicaciones.\n\nLos análisis de laboratorio se organizan por tipo de prueba, no por laboratorio. Cada prueba se reconoce por varios nombres y abreviaturas, de modo que al escribir Hemoglobin, Hb o HGB encontrarás la misma prueba, y puedes añadir un nombre propio si tu laboratorio utiliza otro. Cada prueba muestra un código que puedes cambiar, los resultados se pueden introducir en cualquier unidad habitual y se convierten, y cada resultado conserva el intervalo de referencia que figura en tu informe de laboratorio, por lo que se marca como bajo, dentro del intervalo o alto según ese intervalo. También puedes crear tus propias pruebas con un nombre en cada idioma. Puedes importar un informe de laboratorio guardado como PDF con texto seleccionable: los resultados que Health reconoce se presentan para que los confirmes y todo lo demás se puede corregir manualmente; el archivo se lee en tu navegador y nunca se sube. Los laboratorios que has utilizado se ofrecen en una lista. Los valores de laboratorio son meramente informativos.\n\nOtras aplicaciones pueden enviar sus datos a Health, pero solo si lo permites: cada aplicación tiene su propio interruptor, desactivado de forma predeterminada. Hydration es la primera y envía tus cantidades diarias de agua, cafeína, alcohol, energía, azúcar y proteínas. Los valores procedentes de una aplicación se muestran con su nombre y solo se pueden cambiar en esa aplicación; puedes editar o eliminar las cantidades que hayas introducido manualmente. El peso se puede mostrar en kilogramos o libras, y el volumen en mililitros u onzas; las fechas y horas siguen tu configuración regional. Los mismos datos están disponibles en tu página pública de Apps Hub, para que puedas añadir una medición desde el teléfono.\n\nLa vista general solo muestra los indicadores con registros. Los gráficos diarios pueden incluir objetivos proporcionados por una aplicación, utilizando el objetivo guardado para cada día y contando cuántos días con registros se alcanzó. El catálogo de laboratorio incluye 89 pruebas con nombres en los nueve idiomas; la búsqueda muestra todas las coincidencias, y la unidad indicada permite distinguir los recuentos absolutos de los porcentajes. Los intervalos de referencia proceden únicamente de tus propios resultados de laboratorio, y se ofrece el último intervalo registrado para la siguiente entrada. Los scripts y mvmAI pueden crear una prueba que falte, recordar un nombre alternativo que figure en un informe y editar o eliminar resultados y mediciones mediante la API habilitada.\n\nPerfil personal y más nutrientes\nGuarda el sexo, la fecha de nacimiento, el grupo sanguíneo, las afecciones y las notas sobre medicación en tu propio perfil. La edad se calcula a partir de la fecha de nacimiento, y las últimas mediciones de altura y peso aparecen junto a ella. La altura tiene su propio historial de mediciones. Los gráficos diarios también admiten hidratos de carbono, grasas, grasas saturadas, fibra y sal; otras aplicaciones pueden aportar estos valores mediante la API de Health habilitada. Los datos del perfil están disponibles para las integraciones que habilites.",
+      "capabilities": [
+        "Peso, presión arterial (con pulso opcional), agua, cafeína, alcohol, energía, azúcar y proteínas, cada uno con su propia página.",
+        "Pruebas de laboratorio con códigos internacionales, varios nombres reconocidos por prueba, nombres adicionales propios, conversión de unidades y el intervalo de referencia de cada informe de laboratorio.",
+        "Importa un informe de laboratorio desde un PDF que se lee en tu navegador: primero se confirman los resultados reconocidos y el resto se puede editar.",
+        "Gráficos de 7, 30 o 90 días o un año que permiten consultar cualquier punto, además de medias, mínimos, máximos y variaciones.",
+        "Categorías de presión arterial con un resumen de cómo se distribuyen las mediciones.",
+        "Añade, edita y elimina valores manualmente, con cualquier fecha y hora.",
+        "Los totales diarios combinan las cantidades que introduces con las que envían las aplicaciones y muestran de dónde procede cada una.",
+        "Kilogramos o libras, mililitros u onzas.",
+        "Página web pública para tu cuenta de Apps Hub.",
+        "API externa: registra, edita y elimina mediciones y resultados de laboratorio, crea pruebas personalizadas y nombres alternativos, y consulta gráficos y vistas generales una vez habilitada.",
+        "Diseñada para crecer: los nuevos indicadores se añaden en un solo lugar y aparecen en la aplicación y en la API.",
+        "Objetivos diarios históricos en los gráficos, días en los que se alcanza el objetivo y una vista general que solo muestra indicadores con registros.",
+        "Perfil personal con fecha de nacimiento, edad, sexo, grupo sanguíneo, afecciones y notas sobre medicación.",
+        "Mediciones de altura y los últimos valores de altura y peso visibles en el perfil.",
+        "Cantidades diarias de hidratos de carbono, grasas, grasas saturadas, fibra y sal junto con los nutrientes existentes.",
+        "Funciones de la API de aplicaciones para consultar y actualizar el perfil y registrar la altura."
+      ],
+      "integrations": [
+        {
+          "summary": "Hydration puede enviar a Health las cantidades diarias de agua, cafeína, alcohol, energía, azúcar y proteínas de cada perfil. Se activa para cada perfil en Hydration y está desactivado de forma predeterminada. Una vez activado, Hydration mantiene actualizados los últimos 90 días cada vez que se registra, modifica o elimina una bebida. Se incluye el objetivo de agua de cada día.",
+          "requires": "Health debe estar instalado y su API de aplicaciones habilitada en Apps Hub → Configuración → API de aplicaciones. La API de aplicaciones está desactivada de forma predeterminada."
+        },
+        {
+          "summary": "Health ofrece una API entre aplicaciones: otras aplicaciones pueden registrar el peso, la presión arterial y los totales diarios de agua, cafeína, alcohol, energía, azúcar y proteínas de un perfil, siempre identificados con el nombre de la aplicación que los envió, y consultar esos mismos datos.",
+          "requires": "La API de aplicaciones de Health debe activarse en Apps Hub → Configuración → API de aplicaciones. Está desactivada de forma predeterminada."
+        }
+      ],
+      "name": "Salud"
+    },
+    "ru": {
+      "short_description": "Все показатели здоровья в одном месте: вес, артериальное давление, вода, кофеин и алкоголь — с графиками и статистикой. Вводите значения вручную или разрешите другим приложениям передавать их, а также пользуйтесь общедоступной веб-страницей.",
+      "tagline": "Все показатели вашего здоровья в одном месте, с графиками.",
+      "description": "«Здоровье» собирает показатели вашего дня в одном приложении, устроенном как панель контроля здоровья. Для начала доступны вес, артериальное давление, вода, кофеин, алкоголь, калории, сахар и белок, а также лабораторные анализы. В дальнейшем можно добавлять и другие показатели.\n\nУ каждого показателя есть отдельная страница с графиком за последние 7, 30, 90 дней или за весь год, статистикой — средним, минимумом, максимумом и изменением — и списком записей. Нажмите на точку графика, чтобы посмотреть данные за этот день. Вес и артериальное давление записываются вручную на любую дату и время; при желании можно добавить заметку и пульс. Значения давления также распределяются по категориям: нормальное, повышенное и высокое. Вода, кофеин, алкоголь, калории, сахар и белок учитываются как суточные итоги: за каждый день суммируются введённые вами значения и данные от других приложений.\n\nЛабораторные анализы хранятся по видам исследований, а не по лабораториям. Для каждого анализа предусмотрено несколько названий и сокращений, поэтому по запросам Hemoglobin, Hb или HGB находится один и тот же анализ. Если ваша лаборатория использует другое название, его можно добавить самостоятельно. У каждого анализа отображается код, который можно изменить. Результаты можно вводить в любых распространённых единицах измерения с последующим пересчётом. Вместе с каждым результатом сохраняется референсный интервал из вашего лабораторного бланка, по которому результат отмечается как пониженный, в пределах нормы или повышенный. Можно также создавать собственные анализы с названием на каждом языке. Лабораторный отчёт в формате PDF с выделяемым текстом можно импортировать: распознанные приложением «Здоровье» результаты предлагаются для подтверждения, а остальные данные можно исправить вручную. Файл обрабатывается в вашем браузере и никуда не загружается. Лаборатории, которыми вы уже пользовались, предлагаются в виде списка. Результаты анализов приведены только для информации.\n\nДругие приложения могут передавать данные в «Здоровье» только с вашего разрешения: у каждого приложения есть отдельный переключатель, по умолчанию выключенный. Первым такую возможность поддерживает Hydration: оно передаёт суточные значения воды, кофеина, алкоголя, калорий, сахара и белка. Данные от приложения отображаются с его названием и могут быть изменены только в нём; значения, введённые вами вручную, можно редактировать и удалять здесь. Вес можно отображать в килограммах или фунтах, а объём — в миллилитрах или унциях. Формат даты и времени соответствует вашим региональным настройкам. Те же данные доступны на вашей общедоступной странице Apps Hub, где можно добавить измерение с телефона.\n\nВ обзоре отображаются только показатели, для которых есть записи. На графиках по дням могут отображаться цели, переданные приложением: используется цель, сохранённая для каждого дня, и подсчитывается число дней с записями, когда она была достигнута. Каталог лабораторных анализов включает 89 исследований с названиями на всех девяти языках. Поиск показывает все совпадения, а указанная единица измерения позволяет отличить абсолютные значения от процентов. Референсные интервалы берутся только из ваших собственных результатов анализов; при вводе следующего результата предлагается последний сохранённый интервал. Скрипты и mvmAI могут создавать недостающие анализы, сохранять названия из бланков, а также редактировать и удалять результаты и измерения через включённый API.\n\nЛичный профиль и дополнительные пищевые вещества\nХраните пол, дату рождения, группу крови, сведения о заболеваниях и заметки о лекарствах в личном профиле. Возраст рассчитывается по дате рождения; рядом отображаются последние измерения роста и веса. Для роста ведётся отдельная история измерений. Графики по дням также поддерживают углеводы, жиры, насыщенные жиры, клетчатку и соль; другие приложения могут передавать эти значения через включённый API приложения «Здоровье». Данные профиля доступны интеграциям, которые вы включаете.",
+      "capabilities": [
+        "Вес, артериальное давление (с возможностью указать пульс), вода, кофеин, алкоголь, калории, сахар и белок — каждый показатель на отдельной странице.",
+        "Лабораторные анализы с международными кодами, несколькими известными названиями для каждого анализа, дополнительными названиями, заданными вами, пересчётом единиц и референсным интервалом из каждого лабораторного бланка.",
+        "Импорт лабораторного отчёта из PDF, который обрабатывается в вашем браузере: распознанные результаты сначала подтверждаются, остальные можно отредактировать.",
+        "Графики за 7, 30, 90 дней или год с просмотром значения в любой точке, а также средние, минимальные и максимальные значения и изменение.",
+        "Категории артериального давления со сводкой распределения измерений.",
+        "Добавление, редактирование и удаление значений вручную на любую дату и время.",
+        "Суточные итоги объединяют введённые вами значения с данными от приложений и показывают источник каждого значения.",
+        "Килограммы или фунты, миллилитры или унции.",
+        "Общедоступная веб-страница для вашей учётной записи Apps Hub.",
+        "Внешний API: после включения позволяет записывать, редактировать и удалять измерения и результаты анализов, создавать собственные анализы и альтернативные названия, а также получать данные графиков и обзоров.",
+        "Возможность расширения: новые показатели добавляются в одном месте и появляются в приложении и API.",
+        "Сохранённые цели за каждый день на графиках, число дней с достигнутой целью и обзор только тех показателей, для которых есть записи.",
+        "Личный профиль с датой рождения, возрастом, полом, группой крови, сведениями о заболеваниях и заметками о лекарствах.",
+        "Измерения роста и отображение последних значений роста и веса в профиле.",
+        "Суточные значения углеводов, жиров, насыщенных жиров, клетчатки и соли наряду с уже доступными пищевыми веществами.",
+        "Функции API приложения для чтения и обновления профиля и записи роста."
+      ],
+      "integrations": [
+        {
+          "summary": "Hydration может передавать в «Здоровье» суточные значения воды, кофеина, алкоголя, калорий, сахара и белка для каждого профиля. Передача включается в Hydration отдельно для каждого профиля и по умолчанию выключена. После включения Hydration обновляет данные за последние 90 дней при каждом добавлении, изменении или удалении записи о напитке. Также передаётся цель по воде на каждый день.",
+          "requires": "Установленное приложение «Здоровье» и включённый API этого приложения в Apps Hub → Настройки → API приложений. По умолчанию API приложения выключен."
+        },
+        {
+          "summary": "«Здоровье» предоставляет API для взаимодействия между приложениями: другие приложения могут записывать для профиля вес, артериальное давление и суточные итоги воды, кофеина, алкоголя, калорий, сахара и белка, а также считывать эти данные. Данные всегда отмечаются названием приложения, которое их передало.",
+          "requires": "API приложения «Здоровье» необходимо включить в Apps Hub → Настройки → API приложений. По умолчанию он выключен."
+        }
+      ],
+      "name": "Здоровье"
+    },
+    "ja": {
+      "short_description": "体重、血圧、水分、カフェイン、アルコールなどの健康データを1か所に集約し、グラフや統計で確認できます。値は手入力できるほか、許可したアプリからの自動送信にも対応。公開ウェブページも利用できます。",
+      "tagline": "すべての健康データを1か所にまとめ、グラフで確認。",
+      "description": "ヘルスケアは、健康ダッシュボードのように、日々の状態を表す数値を1つのアプリにまとめます。体重、血圧、水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質、さらに臨床検査に対応し、今後も指標を追加できる設計です。\n\n各指標には専用ページがあり、直近7日間、30日間、90日間、または1年間のグラフ、平均値、最小値、最大値、変化量などの統計、記録一覧を確認できます。グラフ上の点をタップすると、その日のデータを確認できます。体重と血圧は任意の日時で測定値を手入力でき、メモや脈拍も必要に応じて記録できます。血圧は正常、上昇、高値の範囲にも分類されます。水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質は1日ごとの合計で管理され、手入力した量と他のアプリから送信された量が毎日合算されます。\n\n臨床検査は、検査機関別ではなく検査項目別に管理されます。各検査項目には複数の名称や略称が登録されているため、Hemoglobin、Hb、HGBのいずれで検索しても同じ項目が見つかります。検査機関独自の表記も、自分用の名称として追加できます。各検査項目には変更可能なコードが表示され、結果は一般的な単位で入力でき、単位換算にも対応しています。また、各結果には自分の検査報告書に記載された基準範囲が保存され、その範囲に基づいて低値、基準範囲内、高値と表示されます。各言語の名称を指定して、独自の検査項目を作成することもできます。テキストを選択できるPDF形式で保存された検査報告書はインポートできます。ヘルスケアが認識した結果は確認用に提示され、それ以外は手入力で修正できます。ファイルはブラウザー内で読み取られ、アップロードされることはありません。利用した検査機関は一覧から選べます。検査値は情報提供のみを目的としています。\n\n他のアプリは、許可した場合に限り、ヘルスケアにデータを送信できます。アプリごとに個別のスイッチがあり、初期設定ではオフです。最初に対応するのは水分補給で、1日ごとの水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質を送信します。アプリからの値にはアプリ名が表示され、変更できるのは送信元のアプリ内だけです。自分で手入力した量は、自由に編集・削除できます。体重はキログラムまたはポンド、容量はミリリットルまたはオンスで表示でき、日付と時刻は地域設定に従います。同じデータをApps Hubの公開ページでも利用できるため、スマートフォンから測定値を追加できます。\n\n概要には記録のある指標だけが表示されます。日別グラフには、アプリから提供された目標を表示できます。各日に保存された目標が使われ、記録のある日のうち目標を達成した日数も集計されます。臨床検査カタログには89項目が収録され、全9言語の名称に対応しています。検索では一致する項目がすべて表示され、記載された単位によって絶対数と割合を区別できます。基準範囲は自分の検査結果に記載されたものだけを使用し、次回の入力時には直近に記録された範囲が候補として表示されます。スクリプトとmvmAIは、有効化されたAPIを通じて、未登録の検査項目の作成、報告書に記載された別名の保存、検査結果や測定値の編集・削除を行えます。\n\n個人プロフィールと栄養素の追加\n性別、生年月日、血液型、疾患、服薬に関するメモを自分のプロフィールに保存できます。年齢は生年月日から計算され、最新の身長と体重も一緒に表示されます。身長には専用の測定履歴があります。日別グラフは炭水化物、脂質、飽和脂肪酸、食物繊維、塩分にも対応し、有効化されたヘルスケアAPIを通じて他のアプリからこれらの値を送信できます。プロフィールデータは、有効にした連携先から利用できます。",
+      "capabilities": [
+        "体重、血圧（脈拍は任意）、水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質を、それぞれ専用ページで管理。",
+        "国際コード、項目ごとの複数の登録名称、自分用の追加名称、単位換算、各検査報告書の基準範囲に対応した臨床検査。",
+        "ブラウザー内で読み取ったPDFから検査報告書をインポート。認識された結果を先に確認し、残りは編集できます。",
+        "7日間、30日間、90日間、または1年間のグラフで任意の点の値を確認でき、平均値、最小値、最大値、変化量も表示。",
+        "血圧を区分別に分類し、測定値の分布を集計。",
+        "任意の日時で値を手入力し、追加・編集・削除。",
+        "1日の合計には、手入力した量とアプリから送信された量を合算し、それぞれの送信元も表示。",
+        "キログラムまたはポンド、ミリリットルまたはオンスに対応。",
+        "Apps Hubアカウントの公開ウェブページ。",
+        "外部API：有効にすると、測定値や検査結果の記録・編集・削除、独自の検査項目や別名の作成、グラフや概要の取得が可能。",
+        "拡張を見据えた設計：新しい指標は1か所で追加するだけで、アプリとAPIの両方に反映。",
+        "過去の各日の目標をグラフに表示し、目標達成日数を集計。概要には記録のある指標だけを表示。",
+        "生年月日、年齢、性別、血液型、疾患、服薬に関するメモを保存できる個人プロフィール。",
+        "身長の測定記録に対応し、プロフィールには最新の身長と体重を表示。",
+        "既存の栄養素に加え、1日ごとの炭水化物、脂質、飽和脂肪酸、食物繊維、塩分を記録。",
+        "プロフィールの取得・更新と身長の記録に対応したアプリAPI機能。"
+      ],
+      "integrations": [
+        {
+          "summary": "水分補給は、プロフィールごとの1日の水分、カフェイン、アルコール、エネルギー、糖類、たんぱく質をヘルスケアに送信できます。プロフィールごとに水分補給で有効にする必要があり、初期設定ではオフです。有効にすると、飲み物の記録・変更・削除のたびに、水分補給が直近90日間のデータを最新の状態に保ちます。各日の水分摂取目標も含まれます。",
+          "requires": "ヘルスケアがインストールされ、Apps Hub → 設定 → アプリAPIでそのアプリAPIが有効になっている必要があります。アプリAPIは初期設定ではオフです。"
+        },
+        {
+          "summary": "ヘルスケアはアプリ間連携用のAPIを提供します。他のアプリは、プロフィールの体重、血圧、水分・カフェイン・アルコール・エネルギー・糖類・たんぱく質の1日ごとの合計を記録し、同じデータを取得できます。送信された値には、常に送信元のアプリ名が表示されます。",
+          "requires": "Apps Hub → 設定 → アプリAPIで、ヘルスケアのアプリAPIを有効にする必要があります。初期設定ではオフです。"
+        }
+      ],
+      "name": "ヘルスケア"
+    }
+  }
 }

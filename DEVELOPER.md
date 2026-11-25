@@ -98,7 +98,7 @@ Do not create a narrow category for one app. Put the app in the closest broad ca
 
 ## store.json — the listing on mvmos.org
 
-`manifest.json`'s `description` is the one-paragraph blurb the desktop App Store shows on a card. `store.json` is the long form, and it is what [mvmos.org](https://mvmos.org/store) renders on the app's own page.
+`manifest.json`'s `description` is the one-paragraph blurb the desktop App Store shows on a card. `store.json` is the long form, and it is what [mvmos.org](https://mvmos.org/store) renders on the app's own page. Core 1.29.0 also reads the localized short and full descriptions and capabilities from this file in the desktop App Store, and localized Premium details from `premium.json`. These texts are fetched from the selected store repository and cached for one hour.
 
 The site reads it straight from this repository (`source/apps/<app-id>/store.json`) — there is no upload step and no admin form. Commit the file and the site picks it up on its next sync. It is **English only**, because the site is English.
 

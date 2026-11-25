@@ -39,7 +39,8 @@
         "Un dominio añadido a una cuenta gratuita de Cloudflare.",
         "Una conexión a internet en el servidor.",
         "Un usuario de Linux con permiso para usar sudo."
-      ]
+      ],
+      "name": "Dominios"
     },
     "de": {
       "short_description": "Macht mvmOS, Apps Hub oder eine einzelne öffentliche App über einen Cloudflare Tunnel unter deinen eigenen Domains erreichbar. Gib eine Domain ein und melde dich einmal bei Cloudflare an. Die App lädt den Konnektor herunter, erstellt den Tunnel, fügt den DNS-Eintrag hinzu und hält die Verbindung aufrecht – ohne Routereinstellungen oder Zertifikate.",
@@ -61,7 +62,8 @@
         "Eine Domain, die einem kostenlosen Cloudflare-Konto hinzugefügt wurde.",
         "Eine Internetverbindung auf dem Server.",
         "Ein Linux-Benutzer mit sudo-Berechtigung."
-      ]
+      ],
+      "name": "Domains"
     },
     "bg": {
       "short_description": "Осигурява достъп до mvmOS, Apps Hub или едно публично приложение на собствени домейни чрез Cloudflare Tunnel. Въведете домейн, влезте веднъж в Cloudflare и приложението ще изтегли конектора, ще създаде тунела, ще добави DNS записа и ще поддържа връзката — без настройки на рутера и без сертификати.",
@@ -83,7 +85,8 @@
         "Домейн, добавен към безплатен акаунт в Cloudflare.",
         "Интернет връзка на сървъра.",
         "Потребител в Linux с право да използва sudo."
-      ]
+      ],
+      "name": "Домейни"
     },
     "fr": {
       "short_description": "Accédez à mvmOS, à Apps Hub ou à une seule application publique depuis vos propres domaines via un tunnel Cloudflare. Saisissez un domaine, connectez-vous une seule fois à Cloudflare, et l’application télécharge le connecteur, crée le tunnel, ajoute l’enregistrement DNS et maintient la connexion, sans configuration du routeur ni gestion de certificats.",
@@ -105,7 +108,8 @@
         "Un domaine ajouté à un compte Cloudflare gratuit.",
         "Une connexion Internet sur le serveur.",
         "Un utilisateur Linux autorisé à utiliser sudo."
-      ]
+      ],
+      "name": "Domaines"
     },
     "ja": {
       "short_description": "Cloudflare Tunnelを通じて、独自ドメインでmvmOS、Apps Hub、または単一の公開アプリにアクセスできるようにします。ドメインを入力してCloudflareに一度ログインするだけで、コネクターのダウンロード、トンネルの作成、DNSレコードの追加、接続の維持までアプリが行います。ルーターの設定も証明書も不要です。",
@@ -127,7 +131,8 @@
         "無料のCloudflareアカウントに追加済みのドメイン。",
         "サーバーのインターネット接続。",
         "sudoの使用が許可されたLinuxユーザー。"
-      ]
+      ],
+      "name": "ドメイン"
     },
     "pt-BR": {
       "short_description": "Permite acessar o mvmOS, o Apps Hub ou um único app público pelos seus próprios domínios por meio de um Cloudflare Tunnel. Basta informar um domínio e entrar na sua conta Cloudflare uma vez para que o app baixe o conector, crie o túnel, adicione o registro DNS e mantenha tudo funcionando, sem configurar o roteador nem gerenciar certificados.",
@@ -149,7 +154,8 @@
         "Um domínio adicionado a uma conta gratuita da Cloudflare.",
         "Uma conexão com a internet no servidor.",
         "Um usuário Linux com permissão para usar sudo."
-      ]
+      ],
+      "name": "Domínios"
     },
     "ru": {
       "short_description": "Открывает доступ к mvmOS, Apps Hub или отдельному публичному приложению на ваших доменах через Cloudflare Tunnel. Введите домен и один раз войдите в Cloudflare — приложение само скачает коннектор, создаст туннель, добавит DNS-запись и будет поддерживать соединение. Без настройки роутера и сертификатов.",
@@ -171,7 +177,8 @@
         "Домен, добавленный в бесплатную учётную запись Cloudflare.",
         "Подключение сервера к интернету.",
         "Пользователь Linux с правом использовать sudo."
-      ]
+      ],
+      "name": "Домены"
     },
     "zh-CN": {
       "short_description": "通过 Cloudflare Tunnel，让你使用自己的域名访问 mvmOS、Apps Hub 或单个公开应用。输入域名，只需登录一次 Cloudflare，应用便会下载连接器、创建隧道、添加 DNS 记录并保持连接运行，无需配置路由器，也无需管理证书。",
@@ -193,7 +200,8 @@
         "一个已添加到免费 Cloudflare 账户的域名。",
         "服务器可连接互联网。",
         "一个具有 sudo 权限的 Linux 用户账户。"
-      ]
+      ],
+      "name": "域名"
     }
   }
 }

@@ -65,7 +65,8 @@
           "summary": "帮助应用所有者在题目管理器中补全、审核题目并获取题目建议。游戏本身无需使用此功能。",
           "requires": "可选：安装 mvmAI，配置 AI 服务提供商，并在 Apps Hub → 设置 → 应用 API 中启用其 App API。"
         }
-      ]
+      ],
+      "name": "通往百万之路"
     },
     "es": {
       "short_description": "Responde preguntas, usa tus comodines y decide cuándo retirarte con tu premio. Supera el millón en solitario o enfréntate a 20 preguntas con amigos.",
@@ -96,7 +97,8 @@
           "summary": "Ayuda al propietario a completar y revisar preguntas, y le sugiere otras en el gestor de preguntas. El juego en sí nunca lo necesita.",
           "requires": "Opcional: mvmAI instalado, configurado con un proveedor de IA y con su API de aplicación habilitada en Apps Hub → Ajustes → API de aplicaciones."
         }
-      ]
+      ],
+      "name": "El camino a los millones"
     },
     "ja": {
       "short_description": "問題に答え、ライフラインを使い、賞金を確保するタイミングを見極めましょう。1人で1,000,000の先に挑むことも、友達と20問に挑戦することもできます。",
@@ -127,7 +129,8 @@
           "summary": "問題管理機能で、オーナーによる問題の入力や見直しを支援し、問題を提案します。ゲームのプレイ自体には必要ありません。",
           "requires": "任意：mvmAIをインストールしてAIプロバイダーを設定し、Apps Hub → 設定 → App APIでmvmAIのApp APIを有効にしてください。"
         }
-      ]
+      ],
+      "name": "ミリオンズへの道"
     },
     "pt-BR": {
       "short_description": "Responda às perguntas, use suas ajudas e decida quando levar o prêmio. Continue além do milhão jogando sozinho ou encare 20 perguntas com amigos.",
@@ -158,7 +161,8 @@
           "summary": "Ajuda o proprietário a preencher e revisar perguntas, além de sugerir novas perguntas no gerenciador. O jogo em si nunca precisa dele.",
           "requires": "Opcional: mvmAI instalado, configurado com um provedor de IA e com sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos."
         }
-      ]
+      ],
+      "name": "O Caminho dos Milhões"
     },
     "fr": {
       "short_description": "Répondez aux questions, utilisez vos jokers et décidez quand repartir avec vos gains. Dépassez le million en solo ou affrontez 20 questions entre amis.",
@@ -189,7 +193,8 @@
           "summary": "Aide le propriétaire à compléter, réviser et suggérer des questions dans le gestionnaire de questions. Le jeu lui-même n’en a jamais besoin.",
           "requires": "Facultatif : mvmAI doit être installé, configuré avec un fournisseur d’IA et son API d’application doit être activée dans Apps Hub → Paramètres → API des applications."
         }
-      ]
+      ],
+      "name": "La route des millions"
     },
     "ru": {
       "short_description": "Отвечайте на вопросы, пользуйтесь подсказками и решайте, когда забрать выигрыш. Играйте в одиночку и продолжайте после миллиона или пройдите 20 вопросов с друзьями.",
@@ -220,7 +225,8 @@
           "summary": "Помогает владельцу заполнять и проверять вопросы, а также предлагает новые в менеджере вопросов. Для самой игры он не требуется.",
           "requires": "Необязательно: установленный mvmAI с настроенным поставщиком ИИ и включённым App API в Apps Hub → Настройки → API приложений."
         }
-      ]
+      ],
+      "name": "Путь к миллионам"
     },
     "de": {
       "short_description": "Beantworte Fragen, nutze deine Joker und entscheide, wann du deinen Gewinn mitnimmst. Spiele allein über die Million hinaus oder stelle dich mit Freunden 20 Fragen.",
@@ -251,7 +257,8 @@
           "summary": "Hilft dem Eigentümer, Fragen in der Fragenverwaltung zu vervollständigen und zu prüfen, und schlägt neue Fragen vor. Für das Spiel selbst wird es nie benötigt.",
           "requires": "Optional: mvmAI muss installiert, mit einem KI-Anbieter eingerichtet und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein."
         }
-      ]
+      ],
+      "name": "Der Weg zu den Millionen"
     },
     "bg": {
       "short_description": "Отговаряйте на въпроси, използвайте жокерите си и решавайте кога да приберете печалбата. Продължете отвъд милиона сами или се изправете пред 20 въпроса с приятели.",
@@ -282,7 +289,8 @@
           "summary": "Помага на собственика да попълва и преглежда въпроси и предлага нови в инструмента за управление на въпросите. Самата игра не се нуждае от него.",
           "requires": "По желание: инсталиран mvmAI, настроен с доставчик на AI и с активиран App API в Apps Hub → Настройки → API на приложенията."
         }
-      ]
+      ],
+      "name": "Пътят към милионите"
     }
   }
 }

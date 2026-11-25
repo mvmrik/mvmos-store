@@ -29,7 +29,8 @@
         "Zuschnittplan auf Basis der Länge deiner Ausgangsstangen — wie viele Stangen du kaufen musst und welche Teile du aus jeder schneidest.",
         "Optionales Bodenraster zur Orientierung bei den Größenverhältnissen.",
         "Speichere Projekte unter einem Namen, lade sie erneut oder lösche sie."
-      ]
+      ],
+      "name": "Trägerberechnung"
     },
     "zh-CN": {
       "short_description": "3D 结构设计工具。在 3D 空间中绘制梁和型材并将其连接，自由旋转、缩放视图，获取完整的材料清单。",
@@ -46,7 +47,8 @@
         "根据原材料的定尺长度生成下料方案，明确需要购买多少根，以及每根应如何切割。",
         "可选择显示地面网格，方便把握尺寸。",
         "为项目命名，并保存、重新加载或删除项目。"
-      ]
+      ],
+      "name": "梁计算"
     },
     "bg": {
       "short_description": "Планирайте конструкции в 3D. Чертаете греди и профили в 3D пространството, свързвате ги, завъртате и мащабирате свободно и получавате пълен списък с материали.",
@@ -63,7 +65,8 @@
         "План за разкрой според дължината на заготовките — колко да купите и какво да изрежете от всяка.",
         "Мрежа на пода по избор за ориентация в мащаба.",
         "Запазвате, зареждате отново и изтривате проекти с имена."
-      ]
+      ],
+      "name": "Изчисляване на греди"
     },
     "fr": {
       "short_description": "Outil de conception de structures en 3D. Dessinez des poutres et des profilés dans l’espace 3D, assemblez-les, faites pivoter la vue et zoomez librement, puis obtenez la liste complète des matériaux.",
@@ -80,7 +83,8 @@
         "Plan de découpe calculé à partir de la longueur de vos barres : combien en acheter et quelles pièces découper dans chacune.",
         "Affichez une grille au sol pour mieux apprécier l’échelle.",
         "Enregistrez, rechargez et supprimez vos projets nommés."
-      ]
+      ],
+      "name": "Calcul de poutres"
     },
     "ru": {
       "short_description": "Планировщик конструкций в 3D. Создавайте балки и профили в трёхмерном пространстве, соединяйте их, свободно вращайте модель и меняйте масштаб, получайте полный список материалов.",
@@ -97,7 +101,8 @@
         "Получайте план раскроя по длине исходной заготовки: сколько заготовок купить и какие детали вырезать из каждой.",
         "Включайте сетку на плоскости основания, чтобы ориентироваться в масштабе.",
         "Сохраняйте проекты под выбранными именами, загружайте их снова и удаляйте."
-      ]
+      ],
+      "name": "Расчёт балок"
     },
     "pt-BR": {
       "short_description": "Planejador de construções em 3D. Desenhe vigas e perfis no espaço 3D, conecte-os, gire e ajuste o zoom livremente e obtenha uma lista completa de materiais.",
@@ -114,7 +119,8 @@
         "Plano de corte com base no comprimento das barras disponíveis para compra — quantas barras comprar e o que cortar de cada uma.",
         "Grade de piso opcional como referência de escala.",
         "Salve, recarregue e exclua projetos com nome."
-      ]
+      ],
+      "name": "Cálculo de vigas"
     },
     "ja": {
       "short_description": "3Dで構造物を設計。3D空間に梁や各種部材を描いて接合し、自由に回転・ズームしながら、必要な材料を一覧で確認できます。",
@@ -131,7 +137,8 @@
         "定尺材の長さから切断計画を作成。購入する本数と、それぞれから切り出す部品がわかります。",
         "大きさの目安になる床面グリッドを必要に応じて表示。",
         "名前を付けたプロジェクトを保存・再読み込み・削除。"
-      ]
+      ],
+      "name": "梁の計算"
     },
     "es": {
       "short_description": "Planificador de construcciones en 3D. Dibuja vigas y perfiles en el espacio 3D, conéctalos, gira y ajusta el zoom libremente y obtén una lista completa de materiales.",
@@ -148,7 +155,8 @@
         "Plan de corte según la longitud de las barras que compras: cuántas barras comprar y qué cortar de cada una.",
         "Cuadrícula opcional en el suelo como referencia de escala.",
         "Guarda, vuelve a cargar y elimina proyectos con nombre."
-      ]
+      ],
+      "name": "Cálculo de vigas"
     }
   }
 }

@@ -24,5 +24,215 @@
       "summary": "With mvmFonts installed, the Text tool's font list also offers its free fonts with Latin and Cyrillic letters.",
       "requires": "mvmFonts installed, and its App API enabled in Apps Hub → Settings → App APIs. The switch is off by default; without it the Text tool keeps its usual font list."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Редактор на изображения със слоеве: избирайте области, рисувайте, добавяйте текст и фигури, коригирайте цветовете и експортирайте в PNG, JPEG или WebP.",
+      "tagline": "Редактирайте изображения и рисувайте върху слоеве направо на работния плот на mvmOS.",
+      "description": "mvmPhoto е редактор на изображения за работния плот на mvmOS, който работи по познатия ви начин от големите фоторедактори. Отваряйте изображения от папките си на сървъра или от компютъра си, или започнете с празно платно и изградете изображението си върху толкова слоеве, колкото са ви необходими, всеки със собствена непрозрачност и режим на смесване.\n\nИзберете точно частта, която искате да промените, с инструментите за правоъгълник, елипса и ласо или с магическата пръчка, след което добавяйте към селекцията, изваждайте от нея, разширявайте я или омекотявайте контура ѝ. Рисувайте с мека четка, чертайте отчетливи пиксели с молива, изтривайте, запълвайте области с кофата за боя, създавайте преливки, фигури и текст и премествайте, мащабирайте или завъртайте всичко чрез свободна трансформация. Яркостта, контрастът, оттенъкът, наситеността, замъгляването и изострянето се прилагат с преглед в реално време.\n\nВсичко работи в браузъра ви, така че не е необходим допълнителен софтуер на сървъра. Готовото изображение се експортира в PNG, JPEG или WebP в папка на сървъра или се изтегля на компютъра ви, а работата ви с всичките ѝ слоеве се запазва в проект .mvmphoto, който можете да отворите отново по-късно. Изображенията и проектите се отварят от Файловия мениджър с двойно щракване.",
+      "capabilities": [
+        "Отваряйте изображения във формат PNG, JPEG, WebP, GIF, BMP и AVIF от папките си на сървъра или от компютъра си, включително чрез плъзгане в прозореца или поставяне.",
+        "Слоеве с непрозрачност, шестнадесет режима на смесване, видимост, преименуване, пренареждане, дублиране и сливане.",
+        "Селекции с правоъгълник, елипса, ласо и магическа пръчка, които могат да се добавят, изваждат, пресичат, обръщат, разширяват, свиват и да се омекотяват по контура.",
+        "Мека четка, молив, гума, кофа за боя, линейни и радиални преливки, правоъгълници, елипси, линии и текст.",
+        "Премествайте, мащабирайте и завъртайте слоеве или селекции чрез свободна трансформация.",
+        "Основен и фонов цвят с пипета и списък с наскоро използвани цветове.",
+        "Яркост и контраст, оттенък и наситеност, замъгляване, изостряне, обръщане на цветовете и черно-бяло с преглед в реално време.",
+        "Изрязване, промяна на размера на изображението или платното, завъртане, обръщане и изрязване на прозрачните краища.",
+        "Отмяна и възстановяване на всяка промяна, мащабиране на изгледа и придвижване по платното, както и клавишни комбинации за всички инструменти.",
+        "Експортирайте в PNG, JPEG или WebP в папка на сървъра или изтеглете изображението на компютъра си.",
+        "Запазвайте цялата работа със слоевете ѝ като проект .mvmphoto и продължавайте редактирането по-късно.",
+        "Добавяйте текст с който и да е от безплатните шрифтове на mvmFonts, с поддръжка на кирилица, когато приложението е инсталирано."
+      ],
+      "integrations": [
+        {
+          "summary": "Когато mvmFonts е инсталиран, списъкът с шрифтове на инструмента „Текст“ предлага и безплатните му шрифтове с латиница и кирилица.",
+          "requires": "Инсталиран mvmFonts и активиран негов API в Apps Hub → Настройки → API на приложенията. Превключвателят е изключен по подразбиране; без него инструментът „Текст“ запазва обичайния си списък с шрифтове."
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "de": {
+      "short_description": "Ein Bildeditor mit Ebenen: auswählen, malen, zeichnen, Text und Formen hinzufügen, Farben anpassen und als PNG, JPEG oder WebP exportieren.",
+      "tagline": "Bilder bearbeiten und auf Ebenen malen – direkt auf Ihrem mvmOS-Desktop.",
+      "description": "mvmPhoto ist ein Bildeditor für den mvmOS-Desktop, der so funktioniert, wie Sie es von den großen Bildbearbeitungsprogrammen kennen. Öffnen Sie Bilder aus Ihren Ordnern auf dem Server oder von Ihrem Computer oder beginnen Sie mit einer leeren Leinwand. Bauen Sie Ihr Bild mit beliebig vielen Ebenen auf, jede mit eigener Deckkraft und eigenem Mischmodus.\n\nWählen Sie mit Rechteck, Ellipse, Lasso oder Zauberstab genau den Bereich aus, den Sie ändern möchten. Anschließend können Sie Bereiche zur Auswahl hinzufügen, davon abziehen, die Auswahl erweitern oder ihre Kante weichzeichnen. Malen Sie mit einem weichen Pinsel, zeichnen Sie scharfe Pixel mit dem Stift, radieren Sie, füllen Sie Bereiche mit dem Farbeimer, zeichnen Sie Verläufe, Formen und Text und verschieben, skalieren oder drehen Sie beliebige Elemente mit der freien Transformation. Helligkeit, Kontrast, Farbton, Sättigung, Weichzeichnen und Schärfen werden mit einer Live-Vorschau angewendet.\n\nAlles läuft in Ihrem Browser, sodass auf dem Server keine zusätzliche Software benötigt wird. Das fertige Bild wird als PNG, JPEG oder WebP in einen Serverordner exportiert oder auf Ihren Computer heruntergeladen. Ihre Arbeit mit sämtlichen Ebenen wird in einem .mvmphoto-Projekt gespeichert, das Sie später wieder öffnen können. Bilder und Projekte lassen sich mit einem Doppelklick im Dateimanager öffnen.",
+      "capabilities": [
+        "PNG-, JPEG-, WebP-, GIF-, BMP- und AVIF-Bilder aus Ihren Serverordnern oder von Ihrem Computer öffnen, auch durch Ziehen in das Fenster oder Einfügen aus der Zwischenablage.",
+        "Ebenen mit Deckkraft, sechzehn Mischmodi, Sichtbarkeit sowie Funktionen zum Umbenennen, Umordnen, Duplizieren und Zusammenführen.",
+        "Auswahlen mit Rechteck, Ellipse, Lasso und Zauberstab, die sich addieren, subtrahieren, schneiden, umkehren, erweitern, verkleinern und mit weichen Kanten versehen lassen.",
+        "Weicher Pinsel, Stift, Radierer, Farbeimer, lineare und radiale Verläufe, Rechtecke, Ellipsen, Linien und Text.",
+        "Ebenen oder Auswahlen mit der freien Transformation verschieben, skalieren und drehen.",
+        "Vordergrund- und Hintergrundfarben mit Pipette und einer Liste der zuletzt verwendeten Farben.",
+        "Helligkeit und Kontrast, Farbton und Sättigung, Weichzeichnen, Schärfen, Umkehren und Schwarzweiß mit Live-Vorschau.",
+        "Zuschneiden, Bild- oder Leinwandgröße ändern, drehen, spiegeln und transparente Ränder entfernen.",
+        "Jede Änderung rückgängig machen und wiederholen, zoomen und den Bildausschnitt verschieben sowie Tastenkombinationen für alle Werkzeuge.",
+        "Als PNG, JPEG oder WebP in einen Serverordner exportieren oder auf Ihren Computer herunterladen.",
+        "Die gesamte Arbeit mit ihren Ebenen als .mvmphoto-Projekt speichern und später weiterbearbeiten.",
+        "Text in jeder der kostenlosen Schriftarten von mvmFonts hinzufügen, auch mit kyrillischen Zeichen, wenn diese App installiert ist."
+      ],
+      "integrations": [
+        {
+          "summary": "Wenn mvmFonts installiert ist, bietet die Schriftartenliste des Textwerkzeugs auch dessen kostenlose Schriftarten mit lateinischen und kyrillischen Buchstaben an.",
+          "requires": "mvmFonts muss installiert und dessen App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig deaktiviert; ohne Aktivierung behält das Textwerkzeug seine übliche Schriftartenliste."
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "es": {
+      "short_description": "Un editor de imágenes con capas: selecciona, pinta, dibuja, añade texto y formas, ajusta los colores y exporta a PNG, JPEG o WebP.",
+      "tagline": "Edita imágenes y pinta en capas directamente en tu escritorio de mvmOS.",
+      "description": "mvmPhoto es un editor de imágenes para el escritorio de mvmOS que funciona de la forma que conoces de los grandes editores de fotos. Abre imágenes desde tus carpetas del servidor o desde tu ordenador, o empieza con un lienzo vacío, y crea tu imagen con tantas capas como necesites, cada una con su propia opacidad y modo de fusión.\n\nSelecciona exactamente la parte que quieras cambiar con las herramientas de rectángulo, elipse y lazo o con la varita mágica; después, añade áreas a la selección, réstalas, amplíala o suaviza sus bordes. Pinta con un pincel suave, dibuja píxeles nítidos con el lápiz, borra, rellena áreas con el bote de pintura, dibuja degradados, formas y texto, y mueve, escala o gira cualquier elemento con la transformación libre. Los ajustes de brillo, contraste, tono, saturación, desenfoque y enfoque se aplican con una vista previa en tiempo real.\n\nTodo se ejecuta en tu navegador, por lo que no hace falta instalar software adicional en el servidor. La imagen terminada se exporta a PNG, JPEG o WebP en una carpeta del servidor o se descarga en tu ordenador, y tu trabajo con todas sus capas se conserva en un proyecto .mvmphoto que puedes volver a abrir más adelante. Las imágenes y los proyectos se abren desde el Gestor de archivos con un doble clic.",
+      "capabilities": [
+        "Abre imágenes PNG, JPEG, WebP, GIF, BMP y AVIF desde tus carpetas del servidor o desde tu ordenador, también arrastrándolas a la ventana o pegándolas.",
+        "Capas con opacidad, dieciséis modos de fusión, control de visibilidad y opciones para cambiarles el nombre, reordenarlas, duplicarlas y fusionarlas.",
+        "Selecciones de rectángulo, elipse, lazo y varita mágica que se pueden sumar, restar, intersecar, invertir, ampliar, contraer y suavizar en los bordes.",
+        "Pincel suave, lápiz, borrador, bote de pintura, degradados lineales y radiales, rectángulos, elipses, líneas y texto.",
+        "Mueve, escala y gira capas o selecciones con la transformación libre.",
+        "Colores de primer plano y de fondo con un cuentagotas y una lista de colores utilizados recientemente.",
+        "Brillo y contraste, tono y saturación, desenfoque, enfoque, inversión y blanco y negro con una vista previa en tiempo real.",
+        "Recorta, cambia el tamaño de la imagen o del lienzo, gira, voltea y recorta los bordes transparentes.",
+        "Deshaz y rehace cada cambio, amplía y desplaza la vista, y utiliza atajos de teclado para todas las herramientas.",
+        "Exporta a PNG, JPEG o WebP en una carpeta del servidor o descarga la imagen en tu ordenador.",
+        "Guarda todo el trabajo con sus capas como un proyecto .mvmphoto y sigue editándolo más adelante.",
+        "Añade texto con cualquiera de las fuentes gratuitas de mvmFonts, con compatibilidad con el cirílico, cuando esa aplicación esté instalada."
+      ],
+      "integrations": [
+        {
+          "summary": "Con mvmFonts instalado, la lista de fuentes de la herramienta Texto también ofrece sus fuentes gratuitas con caracteres latinos y cirílicos.",
+          "requires": "mvmFonts instalado y su API de aplicación habilitada en Apps Hub → Ajustes → API de aplicaciones. El interruptor está desactivado de forma predeterminada; sin él, la herramienta Texto conserva su lista habitual de fuentes."
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "fr": {
+      "short_description": "Un éditeur d’images avec calques : sélectionnez, peignez, dessinez, ajoutez du texte et des formes, ajustez les couleurs et exportez en PNG, JPEG ou WebP.",
+      "tagline": "Retouchez des images et peignez sur des calques directement sur votre bureau mvmOS.",
+      "description": "mvmPhoto est un éditeur d’images pour le bureau mvmOS qui fonctionne comme les grands logiciels de retouche photo que vous connaissez. Ouvrez des images depuis vos dossiers sur le serveur ou depuis votre ordinateur, ou partez d’une zone de travail vide, et composez votre image avec autant de calques que nécessaire, chacun disposant de sa propre opacité et de son propre mode de fusion.\n\nSélectionnez précisément la partie à modifier avec les outils rectangle, ellipse et lasso ou avec la baguette magique, puis ajoutez des zones à la sélection, retirez-en, agrandissez-la ou adoucissez ses contours. Peignez avec un pinceau à bords doux, dessinez des pixels nets avec le crayon, gommez, remplissez des zones avec le pot de peinture, dessinez des dégradés, des formes et du texte, et déplacez, redimensionnez ou faites pivoter n’importe quel élément avec la transformation libre. La luminosité, le contraste, la teinte, la saturation, le flou et la netteté s’appliquent avec un aperçu en temps réel.\n\nTout s’exécute dans votre navigateur : aucun logiciel supplémentaire n’est donc nécessaire sur le serveur. L’image terminée est exportée en PNG, JPEG ou WebP dans un dossier du serveur ou téléchargée sur votre ordinateur, et votre travail avec tous ses calques est conservé dans un projet .mvmphoto que vous pourrez rouvrir plus tard. Les images et les projets s’ouvrent depuis le Gestionnaire de fichiers par un double-clic.",
+      "capabilities": [
+        "Ouvrez des images PNG, JPEG, WebP, GIF, BMP et AVIF depuis vos dossiers sur le serveur ou depuis votre ordinateur, y compris en les faisant glisser dans la fenêtre ou en les collant.",
+        "Calques avec opacité, seize modes de fusion, visibilité, renommage, réorganisation, duplication et fusion.",
+        "Sélections par rectangle, ellipse, lasso et baguette magique, avec ajout, soustraction, intersection, inversion, agrandissement, réduction et contour progressif.",
+        "Pinceau à bords doux, crayon, gomme, pot de peinture, dégradés linéaires et radiaux, rectangles, ellipses, lignes et texte.",
+        "Déplacez, redimensionnez et faites pivoter des calques ou des sélections avec la transformation libre.",
+        "Couleurs de premier plan et d’arrière-plan avec une pipette et une liste des couleurs récemment utilisées.",
+        "Luminosité et contraste, teinte et saturation, flou, netteté, inversion et noir et blanc avec un aperçu en temps réel.",
+        "Recadrez, redimensionnez l’image ou la zone de travail, faites pivoter, retournez et rognez les bords transparents.",
+        "Annulation et rétablissement de chaque modification, zoom et déplacement de la vue, et raccourcis clavier pour tous les outils.",
+        "Exportez en PNG, JPEG ou WebP dans un dossier du serveur ou téléchargez l’image sur votre ordinateur.",
+        "Enregistrez tout votre travail avec ses calques dans un projet .mvmphoto et reprenez la modification plus tard.",
+        "Ajoutez du texte dans n’importe quelle police gratuite de mvmFonts, avec prise en charge du cyrillique, lorsque cette application est installée."
+      ],
+      "integrations": [
+        {
+          "summary": "Lorsque mvmFonts est installé, la liste des polices de l’outil Texte propose également ses polices gratuites avec caractères latins et cyrilliques.",
+          "requires": "mvmFonts installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. L’option est désactivée par défaut ; sans elle, l’outil Texte conserve sa liste de polices habituelle."
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "ja": {
+      "short_description": "レイヤーに対応した画像エディター。選択、ペイント、描画、テキストや図形の追加、色の調整を行い、PNG、JPEG、WebPに書き出せます。",
+      "tagline": "mvmOSデスクトップで、画像の編集もレイヤーへのペイントも。",
+      "description": "mvmPhotoは、本格的な写真編集ソフトでおなじみの操作方法で使える、mvmOSデスクトップ用の画像エディターです。サーバー上のフォルダーやコンピューターから画像を開くか、空のキャンバスから始めて、必要な数だけレイヤーを重ねて画像を作成できます。各レイヤーには、不透明度と描画モードを個別に設定できます。\n\n長方形、楕円、投げ縄ツールや自動選択ツールで、変更したい部分を正確に選択し、選択範囲の追加、削除、拡張、境界のぼかしを行えます。柔らかいブラシでペイントし、鉛筆でくっきりしたピクセルを描き、消しゴムで消し、塗りつぶしツールで領域を塗りつぶせます。グラデーション、図形、テキストを描画し、自由変形で移動、拡大縮小、回転も行えます。明るさ、コントラスト、色相、彩度、ぼかし、シャープは、リアルタイムのプレビューで確認しながら適用できます。\n\nすべてブラウザー内で動作するため、サーバーに追加のソフトウェアは必要ありません。完成した画像はPNG、JPEG、WebPとしてサーバーのフォルダーに書き出すか、コンピューターにダウンロードできます。レイヤーを含む作業内容は.mvmphotoプロジェクトに保存され、後から開き直せます。画像とプロジェクトは、ファイルマネージャーからダブルクリックで開けます。",
+      "capabilities": [
+        "サーバーのフォルダーやコンピューターからPNG、JPEG、WebP、GIF、BMP、AVIF画像を開けます。ウィンドウへのドラッグや貼り付けにも対応しています。",
+        "レイヤーの不透明度、16種類の描画モード、表示切り替え、名前の変更、並び替え、複製、結合。",
+        "長方形、楕円、投げ縄、自動選択による選択範囲。追加、削除、共通部分の選択、反転、拡張、縮小、境界のぼかしに対応。",
+        "柔らかいブラシ、鉛筆、消しゴム、塗りつぶしツール、線形および放射状グラデーション、長方形、楕円、直線、テキスト。",
+        "自由変形でレイヤーや選択範囲を移動、拡大縮小、回転。",
+        "描画色と背景色の設定、スポイト、最近使った色の一覧。",
+        "明るさとコントラスト、色相と彩度、ぼかし、シャープ、階調の反転、白黒化をリアルタイムのプレビューで確認。",
+        "切り抜き、画像やキャンバスのサイズ変更、回転、反転、透明な余白のトリミング。",
+        "すべての変更の取り消しとやり直し、ズームとパン、全ツールのキーボードショートカット。",
+        "PNG、JPEG、WebPとしてサーバーのフォルダーに書き出すか、コンピューターにダウンロード。",
+        "レイヤーを含む作業全体を.mvmphotoプロジェクトとして保存し、後から編集を再開。",
+        "mvmFontsがインストールされている場合は、キリル文字に対応したmvmFontsの無料フォントを使ってテキストを追加。"
+      ],
+      "integrations": [
+        {
+          "summary": "mvmFontsがインストールされていると、テキストツールのフォント一覧に、ラテン文字とキリル文字に対応した無料フォントも表示されます。",
+          "requires": "mvmFontsのインストールと、「Apps Hub → 設定 → アプリAPI」でのアプリAPIの有効化が必要です。この設定は初期状態では無効で、有効にしない場合、テキストツールには通常のフォント一覧が表示されます。"
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "pt-BR": {
+      "short_description": "Um editor de imagens com camadas: selecione, pinte, desenhe, adicione texto e formas, ajuste cores e exporte para PNG, JPEG ou WebP.",
+      "tagline": "Edite imagens e pinte em camadas diretamente na sua área de trabalho do mvmOS.",
+      "description": "mvmPhoto é um editor de imagens para a área de trabalho do mvmOS que funciona da maneira que você conhece dos grandes editores de fotos. Abra imagens das suas pastas no servidor ou do seu computador, ou comece com uma tela em branco, e monte sua imagem com quantas camadas precisar, cada uma com sua própria opacidade e modo de mesclagem.\n\nSelecione exatamente a parte que deseja alterar com as ferramentas de retângulo, elipse e laço ou com a varinha mágica, depois adicione áreas à seleção, subtraia áreas dela, expanda-a ou suavize sua borda. Pinte com um pincel suave, desenhe pixels bem definidos com o lápis, apague, preencha áreas com o balde de tinta, desenhe degradês, formas e texto e mova, redimensione ou gire qualquer elemento com a transformação livre. Brilho, contraste, matiz, saturação, desfoque e nitidez são aplicados com uma prévia em tempo real.\n\nTudo é executado no navegador, portanto nenhum software adicional é necessário no servidor. A imagem final é exportada para PNG, JPEG ou WebP em uma pasta do servidor ou baixada para o seu computador, e seu trabalho com todas as camadas é mantido em um projeto .mvmphoto que você pode abrir novamente depois. Imagens e projetos são abertos pelo Gerenciador de Arquivos com um clique duplo.",
+      "capabilities": [
+        "Abra imagens PNG, JPEG, WebP, GIF, BMP e AVIF das suas pastas no servidor ou do seu computador, inclusive arrastando-as para a janela ou colando-as.",
+        "Camadas com opacidade, dezesseis modos de mesclagem, visibilidade, renomeação, reordenação, duplicação e mesclagem.",
+        "Seleções com retângulo, elipse, laço e varinha mágica, com opções para adicionar, subtrair, fazer interseção, inverter, expandir, contrair e suavizar bordas.",
+        "Pincel suave, lápis, borracha, balde de tinta, degradês lineares e radiais, retângulos, elipses, linhas e texto.",
+        "Mova, redimensione e gire camadas ou seleções com a transformação livre.",
+        "Cores de primeiro plano e de fundo com um conta-gotas e uma lista de cores usadas recentemente.",
+        "Brilho e contraste, matiz e saturação, desfoque, nitidez, inversão de cores e preto e branco com uma prévia em tempo real.",
+        "Recorte, redimensione a imagem ou a tela, gire, espelhe e apare bordas transparentes.",
+        "Desfaça e refaça cada alteração, amplie e desloque a visualização e use atalhos de teclado para todas as ferramentas.",
+        "Exporte para PNG, JPEG ou WebP em uma pasta do servidor ou baixe para o seu computador.",
+        "Salve todo o trabalho com suas camadas como um projeto .mvmphoto e continue editando depois.",
+        "Adicione texto em qualquer uma das fontes gratuitas do mvmFonts, com suporte ao cirílico, quando esse aplicativo estiver instalado."
+      ],
+      "integrations": [
+        {
+          "summary": "Com mvmFonts instalado, a lista de fontes da ferramenta Texto também oferece as fontes gratuitas dele com letras latinas e cirílicas.",
+          "requires": "mvmFonts instalado e sua API de aplicativo habilitada em Apps Hub → Configurações → APIs de aplicativos. A opção fica desativada por padrão; sem ela, a ferramenta Texto mantém sua lista habitual de fontes."
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "ru": {
+      "short_description": "Редактор изображений со слоями: выделяйте, рисуйте, добавляйте текст и фигуры, корректируйте цвета и экспортируйте в PNG, JPEG или WebP.",
+      "tagline": "Редактируйте изображения и рисуйте на слоях прямо на рабочем столе mvmOS.",
+      "description": "mvmPhoto — редактор изображений для рабочего стола mvmOS с привычными принципами работы, знакомыми по крупным фоторедакторам. Открывайте изображения из папок на сервере или с компьютера либо начинайте с пустого холста и создавайте изображение на любом необходимом количестве слоёв, каждый со своей непрозрачностью и режимом наложения.\n\nВыделяйте именно ту часть, которую хотите изменить, с помощью прямоугольного или эллиптического выделения, лассо или волшебной палочки, затем добавляйте области к выделению, вычитайте их, расширяйте выделение или смягчайте его края. Рисуйте мягкой кистью или чёткими пикселями с помощью карандаша, стирайте, заливайте области, создавайте градиенты, фигуры и текст, а также перемещайте, масштабируйте и поворачивайте объекты с помощью свободного трансформирования. Яркость, контрастность, цветовой тон, насыщенность, размытие и резкость настраиваются с предварительным просмотром в реальном времени.\n\nВсё работает в браузере, поэтому дополнительное программное обеспечение на сервере не требуется. Готовое изображение можно экспортировать в PNG, JPEG или WebP в папку на сервере либо скачать на компьютер, а работу со всеми слоями — сохранить в проекте .mvmphoto, который можно открыть позже. Изображения и проекты открываются из Файлового менеджера двойным щелчком.",
+      "capabilities": [
+        "Открывайте изображения PNG, JPEG, WebP, GIF, BMP и AVIF из папок на сервере или с компьютера, в том числе перетаскиванием в окно или вставкой из буфера обмена.",
+        "Слои с настройкой непрозрачности, шестнадцатью режимами наложения, управлением видимостью, переименованием, изменением порядка, дублированием и объединением.",
+        "Прямоугольное и эллиптическое выделение, лассо и волшебная палочка с возможностью добавления, вычитания, пересечения, инвертирования, расширения, сжатия и растушёвки.",
+        "Мягкая кисть, карандаш, ластик, заливка, линейные и радиальные градиенты, прямоугольники, эллипсы, линии и текст.",
+        "Перемещение, масштабирование и поворот слоёв или выделенных областей с помощью свободного трансформирования.",
+        "Цвета переднего плана и фона, пипетка и список недавно использованных цветов.",
+        "Яркость и контрастность, цветовой тон и насыщенность, размытие, повышение резкости, инверсия и чёрно-белое изображение с предварительным просмотром в реальном времени.",
+        "Кадрирование, изменение размера изображения или холста, поворот, отражение и обрезка прозрачных краёв.",
+        "Отмена и повтор каждого изменения, масштабирование и перемещение области просмотра, а также сочетания клавиш для всех инструментов.",
+        "Экспорт в PNG, JPEG или WebP в папку на сервере либо скачивание на компьютер.",
+        "Сохранение всей работы со слоями в проекте .mvmphoto для продолжения редактирования позже.",
+        "Добавление текста любым из бесплатных шрифтов mvmFonts с поддержкой кириллицы, если это приложение установлено."
+      ],
+      "integrations": [
+        {
+          "summary": "Если установлен mvmFonts, в списке шрифтов инструмента «Текст» также доступны его бесплатные шрифты с латиницей и кириллицей.",
+          "requires": "Требуется установленное приложение mvmFonts и включённый API этого приложения в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен; без него инструмент «Текст» использует обычный список шрифтов."
+        }
+      ],
+      "name": "mvmPhoto"
+    },
+    "zh-CN": {
+      "short_description": "支持图层的图像编辑器：选取、涂画、绘图、添加文字和形状、调整颜色，并导出为 PNG、JPEG 或 WebP。",
+      "tagline": "直接在 mvmOS 桌面上编辑图片，并在图层上绘画。",
+      "description": "mvmPhoto 是适用于 mvmOS 桌面的图像编辑器，操作方式与你熟悉的大型照片编辑软件相似。你可以从服务器文件夹或电脑中打开图片，也可以从空白画布开始，按需添加任意数量的图层来构建图像，每个图层均有独立的不透明度和混合模式。\n\n使用矩形、椭圆、套索工具或魔棒，精确选取想要修改的部分，然后添加选区、减去选区、扩展选区或柔化边缘。使用柔边画笔涂画，用铅笔绘制清晰的像素，擦除内容，使用油漆桶填充区域，绘制渐变、形状和文字，并通过自由变换移动、缩放或旋转任何内容。调整亮度、对比度、色相、饱和度、模糊和锐化时均可实时预览。\n\n所有操作都在浏览器中运行，因此服务器无需安装额外软件。完成的图片可导出为 PNG、JPEG 或 WebP，保存到服务器文件夹或下载到电脑中；包含所有图层的作品则保存在 .mvmphoto 项目中，方便以后重新打开。图片和项目均可在文件管理器中双击打开。",
+      "capabilities": [
+        "从服务器文件夹或电脑中打开 PNG、JPEG、WebP、GIF、BMP 和 AVIF 图片，也可将图片拖入窗口或粘贴到窗口中。",
+        "图层支持不透明度、十六种混合模式、可见性控制、重命名、重新排序、复制和合并。",
+        "矩形、椭圆、套索和魔棒选区，支持添加、减去、相交、反选、扩展、收缩和羽化。",
+        "柔边画笔、铅笔、橡皮擦、油漆桶、线性和径向渐变、矩形、椭圆、直线和文字。",
+        "通过自由变换移动、缩放和旋转图层或选区。",
+        "前景色和背景色，配有吸管工具和最近使用的颜色列表。",
+        "亮度和对比度、色相和饱和度、模糊、锐化、反相及黑白效果，均支持实时预览。",
+        "裁剪、调整图像或画布大小、旋转、翻转以及裁去透明边缘。",
+        "每次更改均可撤销和重做，支持缩放和平移，所有工具均配有键盘快捷键。",
+        "导出为 PNG、JPEG 或 WebP，保存到服务器文件夹或下载到电脑中。",
+        "将包含所有图层的完整作品保存为 .mvmphoto 项目，以便稍后继续编辑。",
+        "安装 mvmFonts 后，可使用其中任意免费字体添加文字，并支持西里尔字母。"
+      ],
+      "integrations": [
+        {
+          "summary": "安装 mvmFonts 后，文字工具的字体列表还会提供其中支持拉丁字母和西里尔字母的免费字体。",
+          "requires": "需要安装 mvmFonts，并在“Apps Hub → 设置 → 应用 API”中启用其应用 API。该开关默认关闭；未启用时，文字工具会保留原有的字体列表。"
+        }
+      ],
+      "name": "mvmPhoto"
+    }
+  }
 }

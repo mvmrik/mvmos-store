@@ -49,7 +49,8 @@
           "summary": "Играта с други играчи използва акаунти в Game Hub: вашия профил и аватар, поканите към други играчи и записването на игровите ви сесии и резултати в ранглистите на Game Hub.",
           "requires": "Необходимо е да е инсталиран Game Hub. Самостоятелната игра работи и без него."
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "de": {
       "short_description": "Lande an einem zufälligen Street View-Ort und rate, wo du auf der Karte bist. Wie gut kennst du die Welt?",
@@ -74,7 +75,8 @@
           "summary": "Der Mehrspielermodus nutzt Game Hub-Konten: dein Profil und deinen Avatar, Einladungen an andere Spieler sowie deine Spielsitzungen und Punktzahlen, die in den Game Hub-Ranglisten erfasst werden.",
           "requires": "Game Hub muss installiert sein. Der Einzelspielermodus funktioniert auch ohne Game Hub."
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "ru": {
       "short_description": "Окажитесь в случайном месте в Street View и угадайте, где вы на карте. Насколько хорошо вы знаете мир?",
@@ -99,7 +101,8 @@
           "summary": "Совместная игра использует учётные записи Game Hub: ваш профиль и аватар, приглашения другим игрокам, а также запись ваших игровых сессий и результатов в таблицах лидеров Game Hub.",
           "requires": "Требуется установленный Game Hub. Одиночная игра работает и без него."
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "zh-CN": {
       "short_description": "随机置身一处 Street View 街景，在地图上猜出你的位置。你对这个世界有多了解？",
@@ -124,7 +127,8 @@
           "summary": "多人游戏使用 Game Hub 账号：展示你的个人资料和头像，向其他玩家发送邀请，并将你的对局和得分记录在 Game Hub 排行榜中。",
           "requires": "需安装 Game Hub。单人游戏无需安装。"
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "pt-BR": {
       "short_description": "Vá parar em um local aleatório do Street View e tente adivinhar onde você está no mapa. Você conhece bem o mundo?",
@@ -149,7 +153,8 @@
           "summary": "O modo multijogador usa contas do Game Hub: seu perfil e avatar, convites para outros jogadores e suas sessões e pontuações registradas nos rankings do Game Hub.",
           "requires": "É necessário ter o Game Hub instalado. O modo solo funciona sem ele."
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "es": {
       "short_description": "Aparece en un lugar aleatorio de Street View y adivina dónde estás en el mapa. ¿Cuánto conoces el mundo?",
@@ -174,7 +179,8 @@
           "summary": "El modo multijugador utiliza cuentas de Game Hub: tu perfil y avatar, las invitaciones a otros jugadores y el registro de tus sesiones y puntuaciones en las clasificaciones de Game Hub.",
           "requires": "Game Hub debe estar instalado. El modo para un jugador funciona sin él."
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "fr": {
       "short_description": "Retrouvez-vous dans un lieu Street View au hasard et devinez où vous êtes sur la carte. Connaissez-vous bien le monde ?",
@@ -199,7 +205,8 @@
           "summary": "Le mode multijoueur utilise les comptes Game Hub : votre profil et votre avatar, les invitations à d'autres joueurs, ainsi que vos parties et vos scores enregistrés dans les classements Game Hub.",
           "requires": "Game Hub doit être installé. Le mode solo fonctionne sans."
         }
-      ]
+      ],
+      "name": "FindYourself"
     },
     "ja": {
       "short_description": "ランダムなStreet Viewの場所に降り立ち、今いる場所を地図で当てよう。あなたは世界をどれだけ知っていますか？",
@@ -224,7 +231,8 @@
           "summary": "マルチプレイはGame Hubのアカウントを使用します。プロフィールやアバターの利用、ほかのプレイヤーの招待ができ、プレイ履歴とスコアはGame Hubのランキングに記録されます。",
           "requires": "Game Hubのインストールが必要です。ひとり用モードはGame Hubがなくても遊べます。"
         }
-      ]
+      ],
+      "name": "FindYourself"
     }
   }
 }

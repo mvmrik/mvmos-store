@@ -8,5 +8,119 @@
     "mvmOS background services with their running or stopped state, and a Stop action.",
     "Open windows, including minimised and tray ones, with a Close action.",
     "Active widgets, with a Remove action."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Следете използването на процесора, паметта и диска. Преглеждайте и управлявайте работещите процеси.",
+      "tagline": "Какво работи, колко ресурси използва и как да го спрете.",
+      "description": "Диспечер на процесите показва процесите на машината с PID, потребител, процент на използване на процесора и паметта, размер в оперативната памет, състояние и команда, с филтриране, докато пишете, и ви позволява да прекратите процес, когато не работи правилно — като изисква паролата за root, когато процесът не е ваш.\n\nНаред със системните процеси показва и самата mvmOS: кои приложения имат работещи фонови услуги, кои прозорци са отворени и кои уиджети са активни, като за всеки има действие за спиране, затваряне или премахване. Това е мястото, където можете да видите както процесите на Linux, така и елементите на работния плот, които в момента използват машината.",
+      "capabilities": [
+        "Списък с процеси с PID, потребител, CPU%, памет%, RSS, състояние и команда.",
+        "Филтриране в реално време, докато пишете, с брой на съвпаденията.",
+        "Прекратяване на процес с подкана за паролата за root, когато е необходимо.",
+        "Фоновите услуги на mvmOS със състояние „работи“ или „спряна“ и действие Спиране.",
+        "Отворени прозорци, включително минимизирани и в системната област, с действие Затваряне.",
+        "Активни уиджети с действие Премахване."
+      ],
+      "name": "Мениджър на процеси"
+    },
+    "de": {
+      "short_description": "Überwache die CPU-, Arbeitsspeicher- und Datenträgerauslastung. Zeige laufende Prozesse an und verwalte sie.",
+      "tagline": "Was läuft, welche Ressourcen es benötigt und wie du es beendest.",
+      "description": "Die Prozessverwaltung zeigt die Prozesse des Rechners mit PID, Benutzer, CPU- und Arbeitsspeicheranteil, residenter Speichergröße, Status und Befehl. Die Liste lässt sich während der Eingabe filtern, und du kannst einen Prozess bei Fehlverhalten zwangsweise beenden – gehört er nicht dir, wird das root-Passwort abgefragt.\n\nNeben den Systemprozessen zeigt sie auch mvmOS selbst: welche Apps laufende Hintergrunddienste haben, welche Fenster geöffnet und welche Widgets aktiv sind, jeweils mit einer Aktion zum Stoppen, Schließen oder Entfernen. So siehst du an einem Ort sowohl auf Linux- als auch auf Desktop-Ebene, was den Rechner gerade beansprucht.",
+      "capabilities": [
+        "Prozessliste mit PID, Benutzer, CPU%, Arbeitsspeicher%, RSS, Status und Befehl.",
+        "Sofortige Filterung während der Eingabe mit Trefferanzahl.",
+        "Prozesse zwangsweise beenden, bei Bedarf mit Abfrage des root-Passworts.",
+        "mvmOS-Hintergrunddienste mit ihrem Status „Läuft“ oder „Gestoppt“ und einer Aktion zum Stoppen.",
+        "Geöffnete Fenster, einschließlich minimierter und in den Infobereich abgelegter Fenster, mit einer Aktion zum Schließen.",
+        "Aktive Widgets mit einer Aktion zum Entfernen."
+      ],
+      "name": "Prozessmanager"
+    },
+    "fr": {
+      "short_description": "Surveillez l’utilisation du processeur, de la mémoire et du disque. Consultez et gérez les processus en cours d’exécution.",
+      "tagline": "Ce qui s’exécute, les ressources utilisées et comment l’arrêter.",
+      "description": "Le Gestionnaire de processus affiche les processus de la machine avec leur PID, utilisateur, pourcentage d’utilisation du processeur et de la mémoire, taille de la mémoire résidente, état et commande. La liste se filtre au fil de la saisie et vous permet de terminer un processus qui fonctionne mal, en demandant le mot de passe root si le processus ne vous appartient pas.\n\nOutre les processus système, il affiche aussi mvmOS lui-même : les applications dont les services d’arrière-plan sont en cours d’exécution, les fenêtres ouvertes et les widgets actifs, chacun avec une action pour l’arrêter, le fermer ou le supprimer. Il réunit en un seul endroit les éléments Linux et ceux du bureau qui utilisent actuellement la machine.",
+      "capabilities": [
+        "Liste des processus avec PID, utilisateur, % processeur, % mémoire, RSS, état et commande.",
+        "Filtrage instantané au fil de la saisie, avec le nombre de résultats.",
+        "Arrêt forcé d’un processus, avec demande du mot de passe root si nécessaire.",
+        "Services d’arrière-plan mvmOS avec leur état en cours d’exécution ou arrêté, et une action Arrêter.",
+        "Fenêtres ouvertes, y compris celles réduites et celles de la zone de notification, avec une action Fermer.",
+        "Widgets actifs, avec une action Supprimer."
+      ],
+      "name": "Gestionnaire de processus"
+    },
+    "es": {
+      "short_description": "Supervisa el uso de CPU, memoria y disco. Consulta y gestiona los procesos en ejecución.",
+      "tagline": "Qué se está ejecutando, qué recursos consume y cómo detenerlo.",
+      "description": "El Gestor de procesos muestra los procesos del equipo con su PID, usuario, porcentaje de CPU y memoria, tamaño de memoria residente, estado y comando. Permite filtrarlos mientras escribes y finalizar un proceso cuando funciona mal; solicita la contraseña de root cuando el proceso no te pertenece.\n\nJunto a los procesos del sistema, también muestra el propio mvmOS: qué aplicaciones tienen servicios en segundo plano en ejecución, qué ventanas están abiertas y qué widgets están activos, cada uno con la acción para detenerlo, cerrarlo o eliminarlo. Es el lugar donde puedes ver tanto la parte de Linux como la del escritorio de todo lo que está utilizando el equipo en ese momento.",
+      "capabilities": [
+        "Lista de procesos con PID, usuario, CPU%, memoria%, RSS, estado y comando.",
+        "Filtro en tiempo real mientras escribes, con un recuento de coincidencias.",
+        "Finaliza un proceso, con una solicitud de contraseña de root cuando sea necesario.",
+        "Servicios en segundo plano de mvmOS con su estado, en ejecución o detenido, y una acción Detener.",
+        "Ventanas abiertas, incluidas las minimizadas y las de la bandeja del sistema, con una acción Cerrar.",
+        "Widgets activos, con una acción Eliminar."
+      ],
+      "name": "Administrador de procesos"
+    },
+    "ja": {
+      "short_description": "CPU、メモリ、ディスクの使用状況を監視。実行中のプロセスを表示して管理できます。",
+      "tagline": "何が動き、どれだけリソースを使い、どう停止できるかを確認。",
+      "description": "プロセスマネージャーは、マシンのプロセスについてPID、ユーザー、CPUとメモリの使用率、常駐メモリサイズ、状態、コマンドを表示します。入力に応じて絞り込めるほか、問題のあるプロセスを強制終了できます。自分以外のプロセスを終了する場合は、rootパスワードの入力を求められます。\n\nシステムのプロセスに加えて、mvmOS自体の状況も表示します。バックグラウンドサービスを実行しているアプリ、開いているウィンドウ、有効なウィジェットを確認し、それぞれを停止、終了、削除できます。現在マシンを使用しているものを、Linux側とデスクトップ側の両方から1か所で確認できます。",
+      "capabilities": [
+        "PID、ユーザー、CPU%、メモリ%、RSS、状態、コマンドを表示するプロセス一覧。",
+        "入力に応じたリアルタイムの絞り込みと、一致件数の表示。",
+        "プロセスの強制終了と、必要に応じたrootパスワードの入力要求。",
+        "mvmOSのバックグラウンドサービスの実行中・停止中の状態表示と、停止操作。",
+        "最小化中やトレイ内のものも含む、開いているウィンドウの表示と、閉じる操作。",
+        "有効なウィジェットの表示と、削除操作。"
+      ],
+      "name": "プロセスマネージャー"
+    },
+    "pt-BR": {
+      "short_description": "Monitore o uso de CPU, memória e disco. Visualize e gerencie os processos em execução.",
+      "tagline": "O que está em execução, quanto consome e como encerrar.",
+      "description": "Gerenciador de Processos mostra os processos da máquina com PID, usuário, porcentagens de CPU e memória, tamanho residente, estado e comando, com filtragem enquanto você digita, e permite encerrar um processo quando ele apresenta problemas — solicitando a senha de root quando o processo não pertence a você.\n\nAlém dos processos do sistema, ele também mostra o próprio mvmOS: quais aplicativos têm serviços em segundo plano em execução, quais janelas estão abertas e quais widgets estão ativos, cada um com uma ação para parar, fechar ou remover. É o lugar para ver tanto o lado do Linux quanto o lado do desktop de tudo que está usando a máquina no momento.",
+      "capabilities": [
+        "Lista de processos com PID, usuário, CPU%, memória%, RSS, estado e comando.",
+        "Filtro em tempo real enquanto você digita, com contagem de resultados.",
+        "Encerre um processo, com solicitação da senha de root quando necessário.",
+        "Serviços em segundo plano do mvmOS com indicação de estado em execução ou parado e uma ação Parar.",
+        "Janelas abertas, incluindo as minimizadas e as da bandeja do sistema, com uma ação Fechar.",
+        "Widgets ativos, com uma ação Remover."
+      ],
+      "name": "Gerenciador de processos"
+    },
+    "ru": {
+      "short_description": "Следите за использованием процессора, памяти и диска. Просматривайте запущенные процессы и управляйте ими.",
+      "tagline": "Что запущено, сколько ресурсов использует и как это остановить.",
+      "description": "«Диспетчер процессов» показывает процессы компьютера с PID, пользователем, процентом использования процессора и памяти, объёмом резидентной памяти, состоянием и командой. Список фильтруется по мере ввода, а процесс, который работает некорректно, можно завершить — если он принадлежит другому пользователю, приложение запросит пароль root.\n\nНаряду с системными процессами приложение показывает и саму mvmOS: у каких приложений работают фоновые службы, какие окна открыты и какие виджеты активны. Для каждого элемента доступно действие остановки, закрытия или удаления. Здесь можно одновременно увидеть, что сейчас использует ресурсы компьютера со стороны Linux и рабочего стола.",
+      "capabilities": [
+        "Список процессов с PID, пользователем, CPU%, процентом использования памяти, RSS, состоянием и командой.",
+        "Фильтрация по мере ввода с подсчётом совпадений.",
+        "Завершение процесса с запросом пароля root при необходимости.",
+        "Фоновые службы mvmOS с указанием состояния «Запущена» или «Остановлена» и действием «Остановить».",
+        "Открытые окна, включая свёрнутые и находящиеся в системном трее, с действием «Закрыть».",
+        "Активные виджеты с действием «Удалить»."
+      ],
+      "name": "Диспетчер процессов"
+    },
+    "zh-CN": {
+      "short_description": "监控 CPU、内存和磁盘使用情况。查看和管理正在运行的进程。",
+      "tagline": "了解正在运行的内容、占用的资源，以及如何将其停止。",
+      "description": "进程管理器显示本机进程的 PID、用户、CPU 和内存占用百分比、驻留内存大小、状态及命令，支持随输入即时筛选，并可在进程出现异常时将其终止；如果进程不属于您，应用会要求输入 root 密码。\n\n除了系统进程，它还会显示 mvmOS 本身的运行情况：哪些应用正在运行后台服务、哪些窗口已打开、哪些小组件处于活动状态，并分别提供停止、关闭或移除操作。在这里，您可以同时了解 Linux 系统和桌面中当前正在占用本机资源的内容。",
+      "capabilities": [
+        "进程列表，包含 PID、用户、CPU%、内存%、RSS、状态和命令。",
+        "随输入即时筛选，并显示匹配数量。",
+        "终止进程，必要时提示输入 root 密码。",
+        "显示 mvmOS 后台服务及其运行或停止状态，并提供“停止”操作。",
+        "显示已打开的窗口，包括已最小化和位于托盘中的窗口，并提供“关闭”操作。",
+        "显示活动小组件，并提供“移除”操作。"
+      ],
+      "name": "进程管理器"
+    }
+  }
 }

@@ -57,7 +57,8 @@
           "summary": "Игрите използват Game Hub за идентифициране на играчите, за записване на сесии и резултати, както и за мултиплейър стаи и покани. Това важи както за FindYourself, така и за Sudofall.",
           "requires": "Инсталиран Game Hub. Той е необходим за игрите, създадени за публичната страница за игра на Game Hub; по-старите игри може да предлагат самостоятелен режим, независим от него."
         }
-      ]
+      ],
+      "name": "Гейм хъб"
     },
     "de": {
       "short_description": "Zentrale Anlaufstelle für Spielerprofile und Spielstatistiken. Erfasst Spielsitzungen, Punktestände und Ranglisten über alle Spiele hinweg.",
@@ -86,7 +87,8 @@
           "summary": "Spiele nutzen Game Hub für Spieleridentitäten, zum Erfassen von Spielsitzungen und Punkteständen sowie für Mehrspielerräume und Einladungen. FindYourself und Sudofall nutzen diese Funktionen bereits.",
           "requires": "Game Hub muss installiert sein. Spiele, die auf der öffentlichen Spielseite von Game Hub aufbauen, setzen es voraus. Ältere Spiele bieten möglicherweise einen unabhängigen Einzelspielermodus."
         }
-      ]
+      ],
+      "name": "Spiele-Hub"
     },
     "es": {
       "short_description": "El punto de encuentro para los perfiles de jugadores y las estadísticas de juego. Registra sesiones, puntuaciones y clasificaciones de todos los juegos.",
@@ -115,7 +117,8 @@
           "summary": "Los juegos utilizan Game Hub para identificar a los jugadores, registrar sesiones y puntuaciones, y gestionar salas e invitaciones multijugador. Tanto FindYourself como Sudofall lo utilizan.",
           "requires": "Game Hub instalado. Es necesario para los juegos diseñados en torno a la página pública de Game Hub para jugar; los juegos más antiguos pueden ofrecer un modo individual independiente."
         }
-      ]
+      ],
+      "name": "Centro de juegos"
     },
     "ru": {
       "short_description": "Единый центр профилей игроков и игровой статистики. Отслеживает игровые сеансы, результаты и таблицы лидеров во всех играх.",
@@ -144,7 +147,8 @@
           "summary": "Игры используют Game Hub для идентификации игроков, записи игровых сеансов и результатов, а также для многопользовательских комнат и приглашений. Такая интеграция есть в FindYourself и Sudofall.",
           "requires": "Необходим установленный Game Hub. Для игр, использующих общедоступную игровую страницу Game Hub, он обязателен; в более старых играх может быть доступен независимый одиночный режим."
         }
-      ]
+      ],
+      "name": "Гейм-хаб"
     },
     "ja": {
       "short_description": "プレイヤープロフィールとゲーム統計を一か所に。すべてのゲームのプレイ記録、スコア、ランキングをまとめて管理します。",
@@ -173,7 +177,8 @@
           "summary": "ゲームはGame Hubを利用して、プレイヤーの識別、プレイ記録とスコアの保存、マルチプレイルームと招待を管理します。FindYourselfとSudofallも利用しています。",
           "requires": "Game Hubのインストールが必要です。Game Hubの公開プレイページを中心に構築されたゲームでは必須となります。旧来のゲームには、単独でシングルプレイを楽しめるものもあります。"
         }
-      ]
+      ],
+      "name": "ゲームハブ"
     },
     "pt-BR": {
       "short_description": "Central de perfis de jogadores e estatísticas de jogos. Registra partidas, pontuações e classificações de todos os jogos.",
@@ -202,7 +207,8 @@
           "summary": "Os jogos usam o Game Hub para identificar jogadores, registrar partidas e pontuações e gerenciar salas e convites multijogador. FindYourself e Sudofall usam esses recursos.",
           "requires": "Game Hub instalado. Ele é obrigatório para jogos desenvolvidos em torno da página pública de jogos do Game Hub; jogos mais antigos podem oferecer um modo individual independente."
         }
-      ]
+      ],
+      "name": "Central de jogos"
     },
     "zh-CN": {
       "short_description": "集中管理玩家档案和游戏统计。记录所有游戏的对局、得分和排行榜。",
@@ -231,7 +237,8 @@
           "summary": "游戏通过 Game Hub 管理玩家身份、记录对局与得分，并提供多人房间和邀请功能。FindYourself 和 Sudofall 均已接入。",
           "requires": "需安装 Game Hub。基于 Game Hub 公开游戏页面构建的游戏必须依赖它；较早的游戏可能提供独立的单人模式。"
         }
-      ]
+      ],
+      "name": "游戏中心"
     },
     "fr": {
       "short_description": "Un espace central pour les profils des joueurs et les statistiques de jeu. Retrouvez les sessions, les scores et les classements de tous les jeux.",
@@ -260,7 +267,8 @@
           "summary": "Les jeux utilisent Game Hub pour l’identité des joueurs, l’enregistrement des sessions et des scores, ainsi que les salons et les invitations multijoueurs. C’est le cas de FindYourself et de Sudofall.",
           "requires": "Game Hub doit être installé. Il est indispensable aux jeux conçus autour de sa page publique de jeu ; les jeux plus anciens peuvent proposer un mode solo indépendant."
         }
-      ]
+      ],
+      "name": "Hub de jeux"
     }
   }
 }

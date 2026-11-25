@@ -31,5 +31,287 @@
       "short": "One project conversation with a live activity map, knowledge, views and reusable tools",
       "description": "Enable mvmAgent for administrators to create general project workspaces using the existing CLI and API models. The agent maintains a project overview, knowledge, resources, TODOs, findings and a single visible conversation, with internal tasks and execution sessions managed automatically. It can discover server directory candidates, inspect selected text resources, create forms, tables and notes, and receive the user’s exact graphical selections. Repeated work can become versioned Python tools with a shared form for the user and AI. Generated versions start as drafts; explicit activation and exact invocation reviews are required. Preview results and validated parameters are retained, and execution requires a successful preview of the same version and inputs. Saved operations run without another model request. Resource-description changes invalidate older tool approvals. Tool versions can be reactivated or archived, and obsolete views can be removed. Each workspace has a Live view and an interactive Activity map showing what the agent is doing right now: searching, reading, running commands, using tools or waiting for your decision. The project header shows the model in use and lets you change it for the whole project, and an approval level decides whether every command waits for you, only read-only commands run on their own, or everything is approved automatically. You can attach files and screenshots to a message, and delete a whole project with everything it stores. Long executions renew their internal context using persistent project records and checkpoints. This is an initial general-purpose implementation; activated code runs with the approved server account and is not a Python sandbox. An encrypted account vault, universal browser login and scheduled project monitoring are not included."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Разширете mvmAI с агенти за администратори, интерактивен терминал, достъп до данни в приложенията и конфигурируеми AI и история за публичната страница.",
+      "features": [
+        {
+          "title": "Връзка с личните данни",
+          "short": "Свържете чат с едно от своите приложения и позволете на mvmAI да чете или променя данните ви там",
+          "description": "Изберете едно от своите приложения в чата, например „Бюджет“ или „Календар“, и mvmAI ще може да търси информация и да добавя или променя записи в него, но само за собствения ви акаунт. Списъкът съдържа приложенията, които сте добавили към профила си в Apps Hub и за които администраторът е включил API за връзка между приложенията, и автоматично включва всяко ново действие, добавено от приложение. Всяка промяна първо се показва като формуляр със стойностите, попълнени от mvmAI, където можете да ги коригирате и да запазите или отмените, а mvmAI отчита само действително запазеното. Той никога не може да вижда или променя данните на друг потребител. Без абонамент изборът на приложение се показва заключен на работния плот и асистентът отговаря само с обикновен чат. Няколко независими промени се преглеждат като страници на един формуляр; коригирайте или изключете всеки запис, преди да запазите избраните промени заедно. Функциите, обозначени от приложение като вътрешни, никога не се предлагат на асистента."
+        },
+        {
+          "title": "AI за публичната страница",
+          "short": "Използвайте различен AI доставчик и модел за публичната страница",
+          "description": "Публичната страница на mvmAI може да работи с различен доставчик и модел от приложението за работния плот — например по-евтин или по-бърз модел за анонимни посетители, докато работният плот запазва по-мощен модел за администратора. Без абонамент публичната страница винаги използва същия доставчик и модел, конфигурирани за работния плот."
+        },
+        {
+          "title": "Регулируема история на чата",
+          "short": "Изберете колко скорошни съобщения да се запазват в пълен вид, преди mvmAI да ги обобщи",
+          "description": "mvmAI пази най-скорошните съобщения на чата в пълен вид и включва всичко по-старо в текущо обобщение, така че дългите разговори да не поскъпват безкрайно с всеки отговор. С абонамент администраторът може да увеличава или намалява броя на скорошните съобщения, запазвани в пълен вид, както в приложението за работния плот, така и на публичната страница. Без абонамент броят е фиксиран на 20 съобщения."
+        },
+        {
+          "title": "Регулируемо време за рестартиране на сесията",
+          "short": "Изберете колко дълго чатът може да остане неактивен, преди да започне нова AI сесия",
+          "description": "Чатът продължава същата AI сесия, докато продължавате да пишете, което е евтино, защото доставчикът я помни. След по-дълга пауза тази памет се губи и продължаването на старата сесия би прочело всичко отново на пълна цена, затова mvmAI вместо това започва нова сесия от обобщението на чата и скорошните съобщения. Администраторът може да променя колко минути пауза задействат това както в приложението за работния плот, така и на публичната страница. Без абонамент времето е фиксирано на 60 минути."
+        },
+        {
+          "title": "Терминал до чата",
+          "short": "Използвайте интерактивна командна обвивка в папката на активния проект",
+          "description": "Когато настройката е включена, чатът на работния плот предлага интерактивен терминал, който стартира в папката на активния проект или в домашната ви папка, когато сте извън проект. Изпълнявайте команди сами, поставете терминала като плаващ прозорец над чата, прикрепете го вдясно или долу или го закачете, за да се отваря отново с избран разговор. Скриването на терминала запазва командната му обвивка работеща; затварянето му прекратява съответната терминална сесия. Работи с всеки AI доставчик и е достъпен само на работния плот. Без абонамент настройката остава видима и заключена, а бутонът ѝ отваря диалоговия прозорец на Premium."
+        },
+        {
+          "title": "Проектни работни пространства на mvmAgent",
+          "short": "Един разговор за проекта с карта на активността в реално време, знания, изгледи и многократно използваеми инструменти",
+          "description": "Включете mvmAgent, за да могат администраторите да създават проектни работни пространства с общо предназначение чрез съществуващите модели за командния ред и API. Агентът поддържа обзор на проекта, знания, ресурси, задачи за изпълнение, констатации и един видим разговор, като вътрешните задачи и сесиите за изпълнение се управляват автоматично. Той може да открива подходящи директории на сървъра, да преглежда избрани текстови ресурси, да създава формуляри, таблици и бележки и да получава точните избори на потребителя от графичния интерфейс. Повтарящата се работа може да се превърне в Python инструменти с версии и общ формуляр за потребителя и AI. Генерираните версии започват като чернови; изискват се изрично активиране и преглед на точните извиквания. Резултатите от предварителния преглед и валидираните параметри се запазват, а изпълнението изисква успешен предварителен преглед на същата версия със същите входни данни. Запазените операции се изпълняват без нова заявка към модела. Промените в описанията на ресурсите обезсилват по-старите одобрения за инструменти. Версиите на инструментите могат да се активират повторно или да се архивират, а остарелите изгледи могат да се премахват. Всяко работно пространство има изглед „В реално време“ и интерактивна „Карта на активността“, която показва какво прави агентът в момента: търси, чете, изпълнява команди, използва инструменти или чака вашето решение. Заглавната част на проекта показва използвания модел и ви позволява да го промените за целия проект, а нивото на одобрение определя дали всяка команда да ви изчаква, дали само командите за четене да се изпълняват самостоятелно, или всичко да се одобрява автоматично. Можете да прикачвате файлове и екранни снимки към съобщение и да изтривате цял проект заедно с всичко, което съхранява. При дълги изпълнения вътрешният контекст се обновява чрез постоянни записи за проекта и контролни точки. Това е първоначална реализация с общо предназначение; активираният код се изпълнява с одобрения сървърен акаунт и не работи в изолирана Python среда. Не са включени криптирано хранилище за акаунти, универсален вход през браузър и наблюдение на проекти по график."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Erweitern Sie mvmAI um Administratoragenten, ein interaktives Terminal, Zugriff auf App-Daten sowie konfigurierbare KI und Verlaufseinstellungen für die öffentliche Seite.",
+      "features": [
+        {
+          "title": "Zugriff auf persönliche App-Daten",
+          "short": "Verbinden Sie einen Chat mit einer Ihrer Apps und lassen Sie mvmAI dort Ihre Daten lesen oder ändern",
+          "description": "Wählen Sie im Chat eine Ihrer Apps aus, zum Beispiel Budget oder Kalender. mvmAI kann darin Informationen nachschlagen sowie Einträge hinzufügen oder ändern, jedoch nur für Ihr eigenes Konto. Die Liste enthält die Apps, die Sie Ihrem Apps Hub-Profil hinzugefügt haben und deren App-zu-App-API der Administrator aktiviert hat. Neue Aktionen, die eine App hinzufügt, werden automatisch berücksichtigt. Jede Änderung erscheint zunächst als Formular mit den von mvmAI ausgefüllten Werten. Dort können Sie sie korrigieren und speichern oder abbrechen. mvmAI meldet nur, was tatsächlich gespeichert wurde. Die Daten anderer Nutzer kann es niemals einsehen oder bearbeiten. Ohne Abonnement wird die App-Auswahl auf dem Desktop gesperrt angezeigt, und der Assistent antwortet ausschließlich im normalen Chat. Mehrere unabhängige Änderungen werden als Seiten eines gemeinsamen Formulars geprüft. Korrigieren Sie einzelne Einträge oder schließen Sie sie aus, bevor Sie die ausgewählten Änderungen gemeinsam speichern. Funktionen, die eine App als intern kennzeichnet, werden dem Assistenten niemals angeboten."
+        },
+        {
+          "title": "KI für die öffentliche Seite",
+          "short": "Verwenden Sie für die öffentliche Seite einen anderen KI-Anbieter und ein anderes Modell",
+          "description": "Die öffentliche Seite von mvmAI kann einen anderen Anbieter und ein anderes Modell verwenden als die Desktop-App – zum Beispiel ein günstigeres oder schnelleres Modell für anonyme Besucher, während auf dem Desktop ein leistungsfähigeres Modell für den Administrator genutzt wird. Ohne Abonnement verwendet die öffentliche Seite immer denselben Anbieter und dasselbe Modell, die für den Desktop konfiguriert sind."
+        },
+        {
+          "title": "Anpassbarer Chatverlauf",
+          "short": "Wählen Sie, wie viele der letzten Nachrichten vollständig erhalten bleiben, bevor mvmAI sie zusammenfasst",
+          "description": "mvmAI behält die letzten Nachrichten eines Chats vollständig bei und übernimmt alles Ältere in eine fortlaufende Zusammenfassung. So werden lange Unterhaltungen nicht mit jeder Antwort immer teurer. Mit einem Abonnement kann der Administrator sowohl für die Desktop-App als auch für die öffentliche Seite erhöhen oder verringern, wie viele der letzten Nachrichten vollständig erhalten bleiben. Ohne Abonnement ist dieser Wert auf 20 Nachrichten festgelegt."
+        },
+        {
+          "title": "Anpassbare Zeit bis zum Sitzungsneustart",
+          "short": "Wählen Sie, nach welcher Gesprächspause ein Chat eine neue KI-Sitzung beginnt",
+          "description": "Ein Chat setzt dieselbe KI-Sitzung fort, solange Sie weiterschreiben. Das ist günstig, weil der Anbieter die Sitzung im Speicher behält. Nach einer längeren Pause ist dieser Speicherinhalt nicht mehr vorhanden. Beim Fortsetzen der alten Sitzung müsste alles erneut zum vollen Preis gelesen werden. Deshalb startet mvmAI stattdessen eine neue Sitzung mit der Zusammenfassung und den letzten Nachrichten des Chats. Der Administrator kann sowohl für die Desktop-App als auch für die öffentliche Seite ändern, nach wie vielen Minuten Pause dies geschieht. Ohne Abonnement ist dieser Wert auf 60 Minuten festgelegt."
+        },
+        {
+          "title": "Terminal neben dem Chat",
+          "short": "Nutzen Sie eine interaktive Shell im aktiven Projektordner",
+          "description": "Wenn die Einstellung aktiviert ist, bietet der Desktop-Chat ein interaktives Terminal, das im aktiven Projektordner startet oder außerhalb eines Projekts in Ihrem persönlichen Ordner. Führen Sie selbst Befehle aus, lassen Sie das Terminal über dem Chat schweben, docken Sie es rechts oder unten an oder heften Sie es an eine ausgewählte Unterhaltung, damit es mit dieser wieder geöffnet wird. Beim Ausblenden des Terminals läuft die Shell weiter; beim Schließen endet die betreffende Terminalsitzung. Die Funktion unterstützt jeden KI-Anbieter und ist nur auf dem Desktop verfügbar. Ohne Abonnement bleibt die Einstellung sichtbar und gesperrt, und die zugehörige Schaltfläche öffnet den Premium-Dialog."
+        },
+        {
+          "title": "mvmAgent-Projektarbeitsbereiche",
+          "short": "Eine Projektunterhaltung mit einer Live-Aktivitätskarte, Wissen, Ansichten und wiederverwendbaren Werkzeugen",
+          "description": "Aktivieren Sie mvmAgent für Administratoren, um allgemeine Projektarbeitsbereiche mit den vorhandenen CLI- und API-Modellen zu erstellen. Der Agent pflegt eine Projektübersicht, Wissen, Ressourcen, Aufgabenlisten, Erkenntnisse und eine einzige sichtbare Unterhaltung. Interne Aufgaben und Ausführungssitzungen werden automatisch verwaltet. Er kann mögliche Serververzeichnisse finden, ausgewählte Textressourcen untersuchen, Formulare, Tabellen und Notizen erstellen und die exakte Auswahl des Nutzers aus der grafischen Oberfläche empfangen. Wiederkehrende Arbeiten können in versionierte Python-Werkzeuge mit einem gemeinsamen Formular für Nutzer und KI überführt werden. Generierte Versionen beginnen als Entwürfe; eine ausdrückliche Aktivierung und die Prüfung der exakten Aufrufe sind erforderlich. Vorschauergebnisse und validierte Parameter werden aufbewahrt. Die Ausführung setzt eine erfolgreiche Vorschau mit derselben Version und denselben Eingaben voraus. Gespeicherte Vorgänge laufen ohne weitere Modellanfrage. Änderungen an Ressourcenbeschreibungen machen ältere Werkzeugfreigaben ungültig. Werkzeugversionen können reaktiviert oder archiviert und veraltete Ansichten entfernt werden. Jeder Arbeitsbereich verfügt über eine Live-Ansicht und eine interaktive Aktivitätskarte, die zeigt, was der Agent gerade tut: suchen, lesen, Befehle ausführen, Werkzeuge verwenden oder auf Ihre Entscheidung warten. Die Projektkopfzeile zeigt das verwendete Modell an und ermöglicht, es für das gesamte Projekt zu ändern. Eine Genehmigungsstufe legt fest, ob jeder Befehl auf Sie wartet, nur rein lesende Befehle selbstständig ausgeführt werden oder alles automatisch genehmigt wird. Sie können Dateien und Screenshots an Nachrichten anhängen und ein ganzes Projekt samt allen darin gespeicherten Inhalten löschen. Bei langen Ausführungen wird der interne Kontext anhand dauerhaft gespeicherter Projektaufzeichnungen und Prüfpunkte erneuert. Dies ist eine erste allgemein einsetzbare Implementierung. Aktivierter Code läuft unter dem genehmigten Serverkonto und nicht in einer Python-Sandbox. Ein verschlüsselter Kontotresor, eine universelle Browseranmeldung und eine zeitgesteuerte Projektüberwachung sind nicht enthalten."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Amplía mvmAI con agentes para administradores, una terminal interactiva, acceso a los datos de las aplicaciones y opciones configurables de IA e historial para la página pública.",
+      "features": [
+        {
+          "title": "Conexión con datos personales",
+          "short": "Vincula un chat a una de tus aplicaciones y permite que mvmAI lea o modifique tus datos en ella",
+          "description": "Elige una de tus aplicaciones en el chat, como Presupuesto o Calendario, y mvmAI podrá consultar información y añadir o modificar elementos en ella, pero solo para tu propia cuenta. La lista contiene las aplicaciones que has añadido a tu perfil de Apps Hub cuya API entre aplicaciones haya activado el administrador, e incorpora cualquier acción nueva que añada una aplicación. Cada cambio se muestra primero como un formulario con los valores que mvmAI ha rellenado, donde puedes corregirlos y guardar o cancelar, y mvmAI solo informa de lo que se ha guardado realmente. Nunca puede ver ni modificar los datos de otro usuario. Sin una suscripción, el selector de aplicaciones aparece bloqueado en el escritorio y el asistente responde únicamente mediante un chat convencional. Los cambios independientes se revisan como páginas de un único formulario; corrige o excluye cualquier entrada antes de guardar juntos los cambios seleccionados. Las funciones que una aplicación marca como internas nunca se ofrecen al asistente."
+        },
+        {
+          "title": "IA de la página pública",
+          "short": "Usa un proveedor y un modelo de IA diferentes para la página pública",
+          "description": "La página pública de mvmAI puede comunicarse con un proveedor y un modelo diferentes de los de la aplicación de escritorio; por ejemplo, un modelo más económico o rápido para los visitantes anónimos mientras el escritorio conserva uno más potente para el administrador. Sin una suscripción, la página pública siempre usa el mismo proveedor y modelo configurados para el escritorio."
+        },
+        {
+          "title": "Historial de chat ajustable",
+          "short": "Elige cuántos mensajes recientes se conservan íntegros antes de que mvmAI los resuma",
+          "description": "mvmAI conserva íntegros los mensajes más recientes de un chat e incorpora los anteriores a un resumen acumulativo, de modo que el coste por respuesta de las conversaciones largas no aumente indefinidamente. Con una suscripción, el administrador puede aumentar o reducir cuántos mensajes recientes se conservan íntegros, tanto en la aplicación de escritorio como en la página pública. Sin una suscripción, esta cantidad está fijada en 20 mensajes."
+        },
+        {
+          "title": "Tiempo de reinicio de sesión ajustable",
+          "short": "Elige cuánto tiempo puede permanecer inactivo un chat antes de iniciar una nueva sesión de IA",
+          "description": "Un chat continúa la misma sesión de IA mientras sigues escribiendo, lo que resulta económico porque el proveedor la recuerda. Tras una pausa más larga, esa memoria se pierde y continuar la sesión anterior obligaría a releerlo todo al precio completo, por lo que mvmAI inicia una sesión nueva a partir del resumen del chat y los mensajes recientes. El administrador puede cambiar cuántos minutos de pausa activan este comportamiento, tanto en la aplicación de escritorio como en la página pública. Sin una suscripción, el tiempo está fijado en 60 minutos."
+        },
+        {
+          "title": "Terminal junto al chat",
+          "short": "Usa un shell interactivo en la carpeta del proyecto activo",
+          "description": "Con esta opción activada, el chat del escritorio ofrece una terminal interactiva que se inicia en la carpeta del proyecto activo o, si no estás en un proyecto, en tu carpeta personal. Ejecuta comandos por tu cuenta, haz flotar la terminal sobre el chat, acóplala a la derecha o abajo, o fíjala para que vuelva a abrirse con una conversación elegida. Al ocultar la terminal, su shell sigue ejecutándose; al cerrarla, finaliza esa sesión de terminal. Funciona con cualquier proveedor de IA y solo está disponible en el escritorio. Sin una suscripción, la opción permanece visible y bloqueada, y su botón abre el cuadro de diálogo de Premium."
+        },
+        {
+          "title": "Espacios de trabajo de proyectos de mvmAgent",
+          "short": "Una conversación por proyecto con un mapa de actividad en tiempo real, conocimientos, vistas y herramientas reutilizables",
+          "description": "Activa mvmAgent para que los administradores puedan crear espacios de trabajo de proyectos de propósito general utilizando los modelos CLI y API existentes. El agente mantiene una vista general del proyecto, conocimientos, recursos, tareas pendientes, hallazgos y una única conversación visible, con tareas internas y sesiones de ejecución gestionadas automáticamente. Puede descubrir posibles directorios en el servidor, inspeccionar recursos de texto seleccionados, crear formularios, tablas y notas, y recibir las selecciones gráficas exactas del usuario. El trabajo repetitivo puede convertirse en herramientas Python con versiones y un formulario compartido para el usuario y la IA. Las versiones generadas comienzan como borradores; se requiere una activación explícita y la revisión exacta de cada invocación. Se conservan los resultados de las vistas previas y los parámetros validados, y la ejecución requiere una vista previa correcta de la misma versión y con los mismos datos de entrada. Las operaciones guardadas se ejecutan sin otra solicitud al modelo. Los cambios en las descripciones de los recursos invalidan las aprobaciones anteriores de las herramientas. Las versiones de las herramientas se pueden reactivar o archivar, y las vistas obsoletas se pueden eliminar. Cada espacio de trabajo tiene una vista En directo y un Mapa de actividad interactivo que muestra lo que está haciendo el agente en ese momento: buscar, leer, ejecutar comandos, usar herramientas o esperar tu decisión. La cabecera del proyecto muestra el modelo en uso y permite cambiarlo para todo el proyecto, y un nivel de aprobación determina si todos los comandos esperan tu confirmación, si solo los comandos de solo lectura se ejecutan por su cuenta o si todo se aprueba automáticamente. Puedes adjuntar archivos y capturas de pantalla a un mensaje y eliminar un proyecto completo con todo lo que almacena. Las ejecuciones largas renuevan su contexto interno mediante registros persistentes del proyecto y puntos de control. Esta es una implementación inicial de propósito general; el código activado se ejecuta con la cuenta de servidor aprobada y no es un entorno aislado de Python. No se incluyen una bóveda cifrada de cuentas, un inicio de sesión universal en el navegador ni la supervisión programada de proyectos."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Enrichissez mvmAI avec des agents pour administrateurs, un terminal interactif, l’accès aux données des applications et des réglages de l’IA et de l’historique de la page publique.",
+      "features": [
+        {
+          "title": "Passerelle vers les données personnelles",
+          "short": "Associez une discussion à l’une de vos applications et laissez mvmAI y lire ou modifier vos données",
+          "description": "Choisissez l’une de vos applications dans la discussion, comme Budget ou Calendrier, et mvmAI peut y rechercher des informations, ajouter ou modifier des éléments, mais uniquement pour votre propre compte. La liste contient les applications ajoutées à votre profil Apps Hub dont l’administrateur a activé l’API interapplications, et prend en compte toute nouvelle action ajoutée par une application. Chaque modification est d’abord présentée dans un formulaire contenant les valeurs renseignées par mvmAI, où vous pouvez les corriger et enregistrer ou annuler ; mvmAI indique uniquement ce qui a réellement été enregistré. Il ne peut jamais voir ni modifier les données d’un autre utilisateur. Sans abonnement, le sélecteur d’application apparaît verrouillé sur le bureau et l’assistant répond uniquement sous forme de discussion simple. Plusieurs modifications indépendantes sont présentées pour vérification sous forme de pages d’un même formulaire ; corrigez ou excluez toute entrée avant d’enregistrer ensemble les modifications sélectionnées. Les fonctions qu’une application marque comme internes ne sont jamais proposées à l’assistant."
+        },
+        {
+          "title": "IA de la page publique",
+          "short": "Utilisez un fournisseur d’IA et un modèle différents pour la page publique",
+          "description": "La page publique de mvmAI peut utiliser un fournisseur et un modèle différents de ceux de l’application de bureau — par exemple, un modèle moins cher ou plus rapide pour les visiteurs anonymes, tandis que le bureau conserve un modèle plus performant pour l’administrateur. Sans abonnement, la page publique utilise toujours le même fournisseur et le même modèle que ceux configurés pour le bureau."
+        },
+        {
+          "title": "Historique de discussion réglable",
+          "short": "Choisissez combien de messages récents sont conservés intégralement avant que mvmAI ne les résume",
+          "description": "mvmAI conserve intégralement les messages les plus récents d’une discussion et intègre tous les messages plus anciens à un résumé actualisé, afin que le coût par réponse des longues conversations n’augmente pas indéfiniment. Avec un abonnement, l’administrateur peut augmenter ou réduire le nombre de messages récents conservés intégralement, aussi bien dans l’application de bureau que sur la page publique. Sans abonnement, ce nombre est fixé à 20 messages."
+        },
+        {
+          "title": "Délai de redémarrage de session réglable",
+          "short": "Choisissez la durée d’inactivité après laquelle une discussion démarre une nouvelle session IA",
+          "description": "Une discussion poursuit la même session IA tant que vous continuez à écrire, ce qui coûte peu puisque le fournisseur la garde en mémoire. Après une pause plus longue, cette mémoire disparaît et poursuivre l’ancienne session obligerait à tout relire au plein tarif ; mvmAI démarre donc une nouvelle session à partir du résumé de la discussion et des messages récents. L’administrateur peut modifier le nombre de minutes de pause qui déclenche ce comportement, aussi bien dans l’application de bureau que sur la page publique. Sans abonnement, ce délai est fixé à 60 minutes."
+        },
+        {
+          "title": "Terminal à côté de la discussion",
+          "short": "Utilisez un shell interactif dans le dossier du projet actif",
+          "description": "Lorsque le réglage est activé, la discussion de bureau propose un terminal interactif qui démarre dans le dossier du projet actif ou, en dehors d’un projet, dans votre dossier personnel. Exécutez vous-même des commandes, faites flotter le terminal au-dessus de la discussion, ancrez-le à droite ou en bas, ou épinglez-le pour qu’il se rouvre avec une conversation choisie. Masquer le terminal laisse son shell actif ; le fermer met fin à cette session de terminal. Il fonctionne avec tout fournisseur d’IA et n’est disponible que sur le bureau. Sans abonnement, le réglage reste visible et verrouillé, et son bouton ouvre la fenêtre Premium."
+        },
+        {
+          "title": "Espaces de travail de projet mvmAgent",
+          "short": "Une conversation de projet avec une carte d’activité en direct, des connaissances, des vues et des outils réutilisables",
+          "description": "Activez mvmAgent pour permettre aux administrateurs de créer des espaces de travail de projet généralistes à l’aide des modèles existants accessibles en ligne de commande et par API. L’agent tient à jour une vue d’ensemble du projet, des connaissances, des ressources, des tâches à faire, des constats et une seule conversation visible, tandis que les tâches internes et les sessions d’exécution sont gérées automatiquement. Il peut repérer des répertoires potentiels sur le serveur, examiner les ressources textuelles sélectionnées, créer des formulaires, des tableaux et des notes, et recevoir les sélections exactes effectuées par l’utilisateur dans l’interface graphique. Les opérations répétitives peuvent devenir des outils Python versionnés avec un formulaire commun à l’utilisateur et à l’IA. Les versions générées sont d’abord des brouillons ; une activation explicite et un examen des appels exacts sont requis. Les résultats des aperçus et les paramètres validés sont conservés, et l’exécution nécessite un aperçu réussi de la même version avec les mêmes entrées. Les opérations enregistrées s’exécutent sans nouvelle requête au modèle. Les modifications de description des ressources invalident les anciennes approbations d’outils. Les versions des outils peuvent être réactivées ou archivées, et les vues obsolètes peuvent être supprimées. Chaque espace de travail dispose d’une vue En direct et d’une carte d’activité interactive indiquant ce que fait l’agent à l’instant : rechercher, lire, exécuter des commandes, utiliser des outils ou attendre votre décision. L’en-tête du projet affiche le modèle utilisé et permet de le changer pour tout le projet ; un niveau d’approbation détermine si chaque commande attend votre accord, si seules les commandes en lecture seule s’exécutent de manière autonome ou si tout est approuvé automatiquement. Vous pouvez joindre des fichiers et des captures d’écran à un message, et supprimer un projet entier avec tout ce qu’il stocke. Les exécutions longues renouvellent leur contexte interne à l’aide des données persistantes du projet et de points de contrôle. Il s’agit d’une première implémentation généraliste ; le code activé s’exécute avec le compte serveur approuvé et ne constitue pas un bac à sable Python. Un coffre-fort chiffré pour les comptes, une connexion universelle par navigateur et une surveillance planifiée des projets ne sont pas inclus."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "管理者向けエージェント、対話型ターミナル、アプリデータへのアクセス、公開ページのAIと履歴の設定機能で、mvmAIを拡張します。",
+      "features": [
+        {
+          "title": "個人データ連携",
+          "short": "チャットを自分のアプリのいずれかに接続し、mvmAIがそのデータを読み取ったり変更したりできるようにします",
+          "description": "チャットで予算やカレンダーなど自分のアプリを1つ選ぶと、mvmAIがそのアプリ内の情報を調べたり、項目を追加・変更したりできます。対象は自分のアカウントだけです。一覧には、自分のApps Hubプロフィールに追加したアプリのうち、管理者がアプリ間APIを有効にしたものが表示され、アプリに新しい操作が追加されると自動的に反映されます。すべての変更は、まずmvmAIが入力した値を含むフォームとして表示され、修正して保存するか、キャンセルできます。mvmAIは実際に保存された内容だけを報告します。他のユーザーのデータを閲覧したり操作したりすることはできません。サブスクリプションがない場合、デスクトップのアプリ選択欄はロックされた状態で表示され、アシスタントは通常のチャットでのみ回答します。複数の独立した変更は1つのフォームの各ページとして確認できます。各項目を修正または除外してから、選択した変更をまとめて保存します。アプリが内部用と指定した機能は、アシスタントには提供されません。"
+        },
+        {
+          "title": "公開ページのAI",
+          "short": "公開ページに別のAIプロバイダーとモデルを使用できます",
+          "description": "mvmAIの公開ページでは、デスクトップアプリとは異なるプロバイダーとモデルを使用できます。たとえば、匿名の訪問者には低価格または高速なモデルを使い、管理者が使うデスクトップには高性能なモデルを維持できます。サブスクリプションがない場合、公開ページでは常にデスクトップ用に設定されたプロバイダーとモデルを使用します。"
+        },
+        {
+          "title": "チャット履歴の保持数を調整",
+          "short": "mvmAIが要約する前に、直近のメッセージを何件まで全文で保持するか選択できます",
+          "description": "mvmAIはチャットの直近のメッセージを全文で保持し、それより古い内容を継続的に更新する要約にまとめるため、長い会話でも返信ごとの費用が際限なく増えることを防げます。サブスクリプションがあれば、管理者はデスクトップアプリと公開ページの両方で、全文を保持する直近のメッセージ数を増減できます。サブスクリプションがない場合は20件に固定されます。"
+        },
+        {
+          "title": "セッション再開時間を調整",
+          "short": "チャットをどれだけ中断したら新しいAIセッションを開始するか選択できます",
+          "description": "書き込みを続けている間、チャットは同じAIセッションを継続します。プロバイダーが内容を記憶しているため、費用を抑えられます。長時間中断するとその記憶が失われ、古いセッションを続けるには全内容を通常料金で読み直すことになるため、mvmAIは代わりにチャットの要約と直近のメッセージから新しいセッションを開始します。管理者は、何分の中断で切り替えるかを、デスクトップアプリと公開ページの両方で変更できます。サブスクリプションがない場合は60分に固定されます。"
+        },
+        {
+          "title": "チャットの横にターミナルを表示",
+          "short": "現在のプロジェクトフォルダーで対話型シェルを使用できます",
+          "description": "設定を有効にすると、デスクトップのチャットで対話型ターミナルを利用できます。ターミナルは現在のプロジェクトフォルダーで起動し、プロジェクト外ではホームフォルダーで起動します。自分でコマンドを実行したり、ターミナルをチャットの上にフローティング表示したり、右側や下部にドッキングしたり、選択した会話とともに再表示されるよう固定したりできます。非表示にしてもシェルは動作を続け、閉じるとそのターミナルセッションが終了します。どのAIプロバイダーでも利用でき、デスクトップ専用です。サブスクリプションがない場合、設定は表示されたままロックされ、ボタンを押すとPremiumダイアログが開きます。"
+        },
+        {
+          "title": "mvmAgentプロジェクトワークスペース",
+          "short": "1つのプロジェクトの会話に、リアルタイムのアクティビティマップ、ナレッジ、ビュー、再利用可能なツールを集約します",
+          "description": "管理者向けにmvmAgentを有効にすると、既存のCLIとAPIモデルを使って汎用的なプロジェクトワークスペースを作成できます。エージェントは、プロジェクトの概要、ナレッジ、リソース、TODO、調査結果、画面に表示される1つの会話を管理し、内部タスクと実行セッションを自動的に管理します。サーバー上のディレクトリ候補の検出、選択したテキストリソースの調査、フォーム・テーブル・メモの作成ができ、ユーザーが画面上で選択した内容を正確に受け取れます。繰り返す作業は、ユーザーとAIで共通のフォームを使う、バージョン管理されたPythonツールに変換できます。生成されたバージョンは下書きとして作成され、有効化には明示的な操作、呼び出しには具体的な内容の確認が必要です。プレビュー結果と検証済みのパラメーターは保持され、実行には同じバージョンと入力でプレビューが成功している必要があります。保存済みの操作は、モデルへの追加リクエストなしで実行できます。リソースの説明を変更すると、それ以前のツール承認は無効になります。ツールのバージョンは再有効化やアーカイブができ、不要になったビューは削除できます。各ワークスペースにはライブビューと対話型のアクティビティマップがあり、検索、読み取り、コマンド実行、ツールの使用、ユーザーの判断待ちなど、エージェントが今行っていることを確認できます。プロジェクトのヘッダーには使用中のモデルが表示され、プロジェクト全体のモデルを変更できます。また、承認レベルで、すべてのコマンドをユーザーの承認待ちにするか、読み取り専用のコマンドだけを自動実行するか、すべてを自動承認するかを指定できます。メッセージにはファイルやスクリーンショットを添付でき、プロジェクトとその保存内容をまとめて削除することもできます。長時間の実行では、永続的なプロジェクト記録とチェックポイントを使って内部コンテキストを更新します。これは汎用機能の初期実装です。有効化したコードは承認済みのサーバーアカウントで実行され、Pythonサンドボックスではありません。暗号化されたアカウント保管庫、汎用的なブラウザーログイン、定期的なプロジェクト監視は含まれていません。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Amplie o mvmAI com agentes para administradores, um terminal interativo, acesso a dados de apps e IA e histórico configuráveis para a página pública.",
+      "features": [
+        {
+          "title": "Ponte de dados pessoais",
+          "short": "Direcione um chat a um dos seus apps e permita que o mvmAI leia ou altere seus dados nele",
+          "description": "Escolha um dos seus apps no chat, como Orçamento ou Calendário, e o mvmAI poderá consultar informações e adicionar ou alterar itens nele, mas apenas na sua própria conta. A lista contém os apps que você adicionou ao seu perfil do Apps Hub e cuja API entre apps foi ativada pelo administrador, e incorpora qualquer nova ação adicionada por um app. Cada alteração é apresentada primeiro em um formulário com os valores preenchidos pelo mvmAI, no qual você pode corrigi-los e salvar ou cancelar, e o mvmAI informa apenas o que foi realmente salvo. Ele nunca pode ver nem modificar os dados de outro usuário. Sem uma assinatura, o seletor de apps aparece bloqueado no desktop e o assistente responde apenas pelo chat comum. Várias alterações independentes são revisadas como páginas de um único formulário; corrija ou exclua qualquer registro da seleção antes de salvar as alterações selecionadas em conjunto. Funções marcadas como internas por um app nunca são oferecidas ao assistente."
+        },
+        {
+          "title": "IA da página pública",
+          "short": "Use um provedor e um modelo de IA diferentes para a página pública",
+          "description": "A página pública do mvmAI pode conversar com um provedor e um modelo diferentes dos usados no app de desktop — por exemplo, um modelo mais barato ou mais rápido para visitantes anônimos, enquanto o desktop mantém um modelo mais potente para o administrador. Sem uma assinatura, a página pública sempre usa o mesmo provedor e modelo configurados para o desktop."
+        },
+        {
+          "title": "Histórico de chat ajustável",
+          "short": "Escolha quantas mensagens recentes permanecem na íntegra antes de o mvmAI resumi-las",
+          "description": "O mvmAI mantém as mensagens mais recentes de um chat na íntegra e incorpora todas as anteriores a um resumo atualizado continuamente, para que o custo por resposta de conversas longas não cresça indefinidamente. Com uma assinatura, o administrador pode aumentar ou diminuir quantas mensagens recentes permanecem na íntegra, tanto no app de desktop quanto na página pública. Sem uma assinatura, esse valor é fixado em 20 mensagens."
+        },
+        {
+          "title": "Tempo ajustável para reinício da sessão",
+          "short": "Escolha por quanto tempo um chat pode ficar inativo antes de iniciar uma nova sessão de IA",
+          "description": "Um chat continua na mesma sessão de IA enquanto você mantém a conversa, o que custa pouco porque o provedor se lembra dela. Após uma pausa mais longa, essa memória se perde, e continuar a sessão antiga exigiria reler tudo pelo preço integral. Por isso, o mvmAI inicia uma nova sessão a partir do resumo e das mensagens recentes do chat. O administrador pode alterar quantos minutos de pausa acionam esse comportamento, tanto no app de desktop quanto na página pública. Sem uma assinatura, esse tempo é fixado em 60 minutos."
+        },
+        {
+          "title": "Terminal ao lado do chat",
+          "short": "Use um shell interativo na pasta do projeto ativo",
+          "description": "Com a configuração ativada, o chat de desktop oferece um terminal interativo que inicia na pasta do projeto ativo ou na sua pasta pessoal quando você está fora de um projeto. Execute comandos por conta própria, deixe o terminal flutuando sobre o chat, encaixe-o à direita ou na parte inferior, ou fixe-o para reabrir com uma conversa escolhida. Ocultar o terminal mantém seu shell em execução; fechá-lo encerra essa sessão do terminal. Ele funciona com qualquer provedor de IA e está disponível apenas no desktop. Sem uma assinatura, a configuração permanece visível e bloqueada, e seu botão abre a caixa de diálogo do Premium."
+        },
+        {
+          "title": "Espaços de trabalho de projeto do mvmAgent",
+          "short": "Uma conversa de projeto com mapa de atividade em tempo real, conhecimento, visualizações e ferramentas reutilizáveis",
+          "description": "Ative o mvmAgent para que administradores criem espaços de trabalho de projetos de uso geral usando os modelos de CLI e API existentes. O agente mantém uma visão geral do projeto, conhecimento, recursos, tarefas a fazer, descobertas e uma única conversa visível, com tarefas internas e sessões de execução gerenciadas automaticamente. Ele pode descobrir possíveis diretórios no servidor, inspecionar recursos de texto selecionados, criar formulários, tabelas e notas e receber as seleções exatas feitas pelo usuário na interface gráfica. Trabalhos repetitivos podem se tornar ferramentas Python com controle de versão e um formulário compartilhado entre o usuário e a IA. As versões geradas começam como rascunhos; são necessárias ativação explícita e revisões de cada chamada exata. Os resultados das prévias e os parâmetros validados são mantidos, e a execução exige uma prévia bem-sucedida da mesma versão e com as mesmas entradas. As operações salvas são executadas sem outra solicitação ao modelo. Alterações nas descrições dos recursos invalidam aprovações anteriores de ferramentas. As versões das ferramentas podem ser reativadas ou arquivadas, e visualizações obsoletas podem ser removidas. Cada espaço de trabalho tem uma visualização Ao vivo e um Mapa de atividade interativo que mostra o que o agente está fazendo naquele momento: pesquisando, lendo, executando comandos, usando ferramentas ou aguardando sua decisão. O cabeçalho do projeto mostra o modelo em uso e permite alterá-lo para todo o projeto, e um nível de aprovação determina se cada comando aguarda sua confirmação, se apenas comandos de leitura são executados por conta própria ou se tudo é aprovado automaticamente. Você pode anexar arquivos e capturas de tela a uma mensagem e excluir um projeto inteiro com tudo o que ele armazena. Execuções longas renovam seu contexto interno usando registros persistentes do projeto e pontos de verificação. Esta é uma implementação inicial de uso geral; o código ativado é executado com a conta de servidor aprovada e não funciona em um ambiente isolado de Python. Um cofre de contas criptografado, login universal no navegador e monitoramento programado de projetos não estão incluídos."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Расширьте mvmAI агентами для администраторов, интерактивным терминалом, доступом к данным приложений и настраиваемыми ИИ и историей публичной страницы.",
+      "features": [
+        {
+          "title": "Доступ к личным данным",
+          "short": "Подключите к чату одно из своих приложений, чтобы mvmAI мог читать или изменять ваши данные в нём",
+          "description": "Выберите в чате одно из своих приложений, например «Бюджет» или «Календарь», и mvmAI сможет искать в нём информацию, добавлять и изменять данные, но только в вашей учётной записи. В списке представлены приложения, добавленные в ваш профиль Apps Hub, для которых администратор включил API взаимодействия между приложениями; новые действия, добавленные приложением, подхватываются автоматически. Каждое изменение сначала отображается в форме со значениями, заполненными mvmAI: их можно исправить и сохранить либо отменить изменение. mvmAI сообщает только о том, что было действительно сохранено. Он никогда не сможет просматривать или изменять данные другого пользователя. Без подписки выбор приложения на рабочем столе отображается заблокированным, а помощник работает только как обычный чат. Несколько независимых изменений проверяются на страницах одной формы; исправьте или исключите любую запись перед совместным сохранением выбранных изменений. Функции, помеченные приложением как внутренние, никогда не предоставляются помощнику."
+        },
+        {
+          "title": "ИИ публичной страницы",
+          "short": "Используйте для публичной страницы другого провайдера ИИ и другую модель",
+          "description": "Публичная страница mvmAI может использовать другого провайдера и другую модель, чем приложение на рабочем столе: например, более дешёвую или быструю модель для анонимных посетителей, сохраняя более мощную модель для администратора на рабочем столе. Без подписки публичная страница всегда использует те же провайдер и модель, которые настроены для рабочего стола."
+        },
+        {
+          "title": "Настраиваемая история чата",
+          "short": "Выберите, сколько последних сообщений сохранять полностью, прежде чем mvmAI начнёт их обобщать",
+          "description": "mvmAI полностью сохраняет последние сообщения чата, а более старые включает в обновляемое резюме, чтобы стоимость каждого ответа в длинной переписке не росла бесконечно. С подпиской администратор может увеличивать или уменьшать количество последних сообщений, сохраняемых полностью, как в приложении на рабочем столе, так и на публичной странице. Без подписки это значение фиксировано и составляет 20 сообщений."
+        },
+        {
+          "title": "Настраиваемое время перезапуска сеанса",
+          "short": "Выберите, после какого перерыва в чате начинается новый сеанс ИИ",
+          "description": "Пока вы продолжаете писать, чат использует один и тот же сеанс ИИ, что обходится дешевле, поскольку провайдер его помнит. После длительного перерыва эта память исчезает, и продолжение старого сеанса потребовало бы повторного чтения всего содержимого по полной цене. Поэтому mvmAI вместо этого начинает новый сеанс на основе резюме чата и последних сообщений. Администратор может менять длительность перерыва в минутах, после которого это происходит, как в приложении на рабочем столе, так и на публичной странице. Без подписки она фиксирована и составляет 60 минут."
+        },
+        {
+          "title": "Терминал рядом с чатом",
+          "short": "Используйте интерактивную оболочку в папке активного проекта",
+          "description": "Если настройка включена, в чате на рабочем столе доступен интерактивный терминал, который запускается в папке активного проекта, а вне проекта — в вашей домашней папке. Выполняйте команды самостоятельно, размещайте терминал поверх чата, закрепляйте справа или внизу либо привязывайте его к выбранной переписке, чтобы он открывался вместе с ней. При скрытии терминала его оболочка продолжает работать; закрытие завершает этот сеанс терминала. Он работает с любым провайдером ИИ и доступен только на рабочем столе. Без подписки настройка остаётся видимой, но заблокированной, а её кнопка открывает окно Premium."
+        },
+        {
+          "title": "Рабочие пространства проектов mvmAgent",
+          "short": "Одна переписка проекта с картой текущей активности, знаниями, представлениями и повторно используемыми инструментами",
+          "description": "Включите mvmAgent, чтобы администраторы могли создавать рабочие пространства для различных проектов с использованием существующих моделей CLI и API. Агент ведёт обзор проекта, знания, ресурсы, список дел, результаты исследований и одну видимую переписку, автоматически управляя внутренними задачами и сеансами выполнения. Он может находить подходящие каталоги на сервере, изучать выбранные текстовые ресурсы, создавать формы, таблицы и заметки и получать точные сведения о выборе пользователя в графическом интерфейсе. Повторяющиеся операции можно превращать в инструменты на Python с управлением версиями и общей формой для пользователя и ИИ. Созданные версии изначально имеют статус черновиков; требуются явная активация и проверка конкретных вызовов. Результаты предварительного просмотра и проверенные параметры сохраняются, а для выполнения необходим успешный предварительный просмотр той же версии с теми же входными данными. Сохранённые операции выполняются без нового запроса к модели. Изменения описаний ресурсов делают прежние разрешения на использование инструментов недействительными. Версии инструментов можно повторно активировать или архивировать, а устаревшие представления — удалять. В каждом рабочем пространстве есть представление «В реальном времени» и интерактивная «Карта активности», показывающая, что агент делает прямо сейчас: ищет, читает, выполняет команды, использует инструменты или ждёт вашего решения. В заголовке проекта отображается используемая модель, которую можно сменить для всего проекта, а уровень подтверждения определяет, будет ли каждая команда ждать вашего решения, будут ли самостоятельно выполняться только команды чтения или всё будет подтверждаться автоматически. К сообщению можно прикреплять файлы и снимки экрана, а проект можно удалить целиком со всеми сохранёнными данными. При длительном выполнении внутренний контекст обновляется на основе постоянных записей проекта и контрольных точек. Это начальная реализация общего назначения; активированный код выполняется от имени одобренной учётной записи сервера и не изолирован в песочнице Python. Зашифрованное хранилище учётных записей, универсальный вход через браузер и мониторинг проектов по расписанию не включены."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "为 mvmAI 扩展管理员智能体、交互式终端、应用数据访问，以及可配置的公开页面 AI 和历史记录。",
+      "features": [
+        {
+          "title": "个人数据桥接",
+          "short": "为聊天选择自己的某个应用，让 mvmAI 读取或修改其中的数据",
+          "description": "在聊天中选择自己的某个应用，例如预算或日历，mvmAI 就可以查询、添加或修改其中的内容，但仅限你自己的账户。列表包含你已添加到 Apps Hub 个人资料、且管理员已启用其应用间 API 的应用，并会自动获取应用新增的操作。每项更改都会先以表单形式显示 mvmAI 填写的值，你可以修正后保存或取消，mvmAI 只会报告实际保存的内容。它绝不能查看或操作其他用户的数据。未订阅时，桌面上的应用选择器会显示为锁定状态，助手只能进行普通聊天。多项独立更改会作为同一表单的多个页面供你审核；统一保存所选更改前，可修正或排除任意条目。应用标记为内部使用的功能绝不会提供给助手。"
+        },
+        {
+          "title": "公开页面 AI",
+          "short": "为公开页面使用不同的 AI 服务提供商和模型",
+          "description": "mvmAI 公开页面可以使用与桌面应用不同的服务提供商和模型，例如为匿名访客使用更便宜或更快的模型，同时在桌面端为管理员保留能力更强的模型。未订阅时，公开页面始终使用桌面端配置的同一服务提供商和模型。"
+        },
+        {
+          "title": "可调节的聊天历史记录",
+          "short": "选择在 mvmAI 汇总前完整保留多少条近期消息",
+          "description": "mvmAI 会完整保留聊天中最近的消息，并将更早的内容并入持续更新的摘要，因此长对话的每次回复成本不会无限增长。订阅后，管理员可以在桌面应用和公开页面上增加或减少完整保留的近期消息数量。未订阅时，此数量固定为 20 条消息。"
+        },
+        {
+          "title": "可调节的会话重启时间",
+          "short": "选择聊天闲置多久后启动新的 AI 会话",
+          "description": "只要你持续发送消息，聊天就会沿用同一个 AI 会话，由于服务提供商保留了会话内容，因此成本较低。较长时间的暂停后，这些记忆会消失，继续旧会话就需要按全价重新读取全部内容，因此 mvmAI 会改用聊天摘要和近期消息启动新会话。管理员可以更改触发此行为的暂停分钟数，桌面应用和公开页面均可设置。未订阅时，此时间固定为 60 分钟。"
+        },
+        {
+          "title": "聊天旁的终端",
+          "short": "在当前项目文件夹中使用交互式 Shell",
+          "description": "启用设置后，桌面聊天会提供交互式终端，从当前项目文件夹启动；不在项目中时，则从主文件夹启动。你可以自行运行命令，将终端悬浮于聊天上方、停靠在右侧或底部，或将其固定到所选对话，以便随该对话重新打开。隐藏终端会让其 Shell 继续运行；关闭终端则会结束该终端会话。它适用于任何 AI 服务提供商，且仅在桌面端可用。未订阅时，该设置仍然可见但处于锁定状态，点击其按钮会打开 Premium 对话框。"
+        },
+        {
+          "title": "mvmAgent 项目工作区",
+          "short": "一个项目对话，配有实时活动图、知识、视图和可复用工具",
+          "description": "为管理员启用 mvmAgent，即可使用现有 CLI 和 API 模型创建通用项目工作区。智能体会维护项目概览、知识、资源、待办事项、发现和一个可见对话，并自动管理内部任务和执行会话。它可以发现可选的服务器目录、检查选定的文本资源、创建表单、表格和笔记，并接收用户在图形界面中做出的精确选择。重复性工作可以转化为带版本管理的 Python 工具，为用户和 AI 提供共用表单。生成的版本最初为草稿，必须明确激活，并审核每次调用的具体内容。预览结果和经过验证的参数会被保留，执行前必须使用相同版本和输入成功完成预览。已保存的操作无需再次请求模型即可运行。资源描述发生变化后，先前的工具批准会失效。工具版本可以重新激活或归档，过时的视图可以移除。每个工作区都有实时视图和交互式活动图，显示智能体当前正在执行的操作：搜索、读取、运行命令、使用工具，或等待你的决定。项目标题栏会显示当前使用的模型，并允许你为整个项目更改模型；审批级别则决定是每条命令都等待你确认、仅只读命令自动运行，还是所有操作均自动批准。你可以在消息中附加文件和截图，也可以删除整个项目及其存储的全部内容。长时间执行会使用持久化项目记录和检查点更新内部上下文。这是一个初步的通用实现；已激活的代码使用获批的服务器账户运行，并非 Python 沙箱。不包含加密账户保管库、通用浏览器登录和定时项目监控功能。"
+        }
+      ]
+    }
+  }
 }

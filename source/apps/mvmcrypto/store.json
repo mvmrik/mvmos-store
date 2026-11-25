@@ -13,5 +13,159 @@
     "A built-in Bitcoin block explorer for any address or transaction.",
     "Custom assets, with a subscription, for tracking anything outside the supported networks as a running transaction ledger.",
     "A public page for your Apps Hub account, enabled by an administrator."
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Криптирано хранилище за фрази за възстановяване и проследяване на Bitcoin портфейл.",
+      "tagline": "Вашите фрази за възстановяване и портфейл, криптирани, преди да напуснат браузъра ви.",
+      "description": "mvmCrypto е хранилище за фрази за възстановяване и инструмент за проследяване на портфейл за вашия mvmOS акаунт. Всеки профил в Apps Hub получава собствено хранилище, така че хората, използващи една и съща машина, никога не виждат криптопортфейлите си взаимно.\n\nВсяка фраза за възстановяване е защитена с две отделни пароли. Главната ви парола отключва хранилището и показва запазените етикети; всяка фраза за възстановяване има и собствена парола, като за показването ѝ са необходими и двете. Това означава, че промяната на главната парола впоследствие никога не ви принуждава да въвеждате отново паролата за всеки запис и нито една парола сама по себе си не може да разкрие фраза. Криптирането се извършва изцяло в браузъра — сървърът съхранява единствено нечетими криптографски соли, IV и шифротекстове, никога парола, ключ или четима фраза за възстановяване.\n\nФраза за възстановяване може да бъде споделена с друг акаунт в Apps Hub чрез еднократно защитено прехвърляне, адресирано до човек, който вече е сред любимите ви. Получателят я декриптира с парола, която вече споделяте, и получава собствено, напълно независимо копие с двойна защита — не остава постоянен достъп, който по-късно да може да бъде отворен отново само с една парола. Редактирането на споделен запис изпраща ново прехвърляне до всички, с които е бил споделен; прекратяването на споделянето изтрива напълно тяхното копие.\n\nПортфейлът проследява адреси в седем мрежи — Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin и TRON — както и токени от семейството ERC-20 в мрежите, базирани на EVM. Адресът, етикетът, мрежата и последният известен баланс се криптират по същия начин като фраза за възстановяване; обновяването на баланс извиква публичния API на съответната мрежа директно от вашия браузър, а не от сървъра, така че справката никога не разкрива притежанията ви на самата mvmOS. Вграден инструмент за преглед на Bitcoin позволява справки за всеки адрес или транзакция, независимо дали са запазени в портфейла ви.\n\nС абонамент персонализираните активи позволяват да проследявате всичко извън седемте поддържани мрежи — злато, апартамент, бизнес, спестявания на друго място — чрез текущ регистър на транзакциите вместо с едно число, което презаписвате. Те се показват в същия списък на портфейла и се включват в същата обща стойност.",
+      "capabilities": [
+        "Отделно криптирано хранилище за всеки профил в Apps Hub.",
+        "AES-GCM криптиране, извършвано в браузъра, преди каквото и да е да бъде изпратено към сървъра.",
+        "Главна парола, която никога не се предава или съхранява от mvmOS.",
+        "Втора, независима парола за всяка фраза за възстановяване — за показването ѝ са необходими и двете.",
+        "Еднократно защитено споделяне на фраза за възстановяване с любим контакт в Apps Hub, без да остава постоянен достъп.",
+        "Адреси в портфейла за Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin и TRON, както и токени от семейството ERC-20.",
+        "Баланси, обновявани директно от публичния API на всяка мрежа във вашия браузър, никога през сървъра.",
+        "Общи кеширани цени в USD за основния актив на всяка проследявана мрежа.",
+        "Вграден инструмент за преглед на блокчейна на Bitcoin за всеки адрес или транзакция.",
+        "Персонализирани активи с абонамент за проследяване на всичко извън поддържаните мрежи чрез текущ регистър на транзакциите.",
+        "Публична страница за вашия акаунт в Apps Hub, включвана от администратор."
+      ],
+      "name": "mvmCrypto"
+    },
+    "de": {
+      "short_description": "Verschlüsselter Tresor für Seed-Phrasen und Bitcoin-Portfolio-Tracker.",
+      "tagline": "Ihre Seed-Phrasen und Ihr Portfolio, verschlüsselt, bevor sie Ihren Browser verlassen.",
+      "description": "mvmCrypto ist ein Tresor für Seed-Phrasen und ein Portfolio-Tracker für Ihr mvmOS-Konto. Jedes Apps Hub-Profil erhält einen eigenen Tresor, sodass mehrere Personen, die denselben Rechner verwenden, niemals die Wallets der anderen sehen.\n\nJede Seed-Phrase wird durch zwei separate Passwörter geschützt. Ihr Master-Passwort entsperrt den Tresor und zeigt Ihre gespeicherten Bezeichnungen an; jede Seed-Phrase hat zusätzlich ein eigenes Passwort, und zum Anzeigen sind beide erforderlich. Wenn Sie Ihr Master-Passwort später ändern, müssen Sie deshalb nicht das Passwort jedes Eintrags erneut eingeben, und kein einzelnes Passwort kann allein eine Phrase offenlegen. Die Verschlüsselung erfolgt vollständig im Browser — der Server speichert ausschließlich nicht im Klartext lesbare Salts, IVs und Chiffretexte, niemals ein Passwort, einen Schlüssel oder eine lesbare Seed-Phrase.\n\nEine Seed-Phrase kann als einmalige sichere Übertragung mit einem anderen Apps Hub-Konto geteilt werden, das bereits zu Ihren Favoriten gehört. Der Empfänger entschlüsselt sie mit einem Passwort, das Ihnen beiden bereits bekannt ist, und erhält eine eigene, vollständig unabhängige, doppelt geschützte Kopie — es bleibt kein dauerhafter Zugriff bestehen, der später mit nur einem Passwort erneut geöffnet werden könnte. Wenn Sie einen geteilten Eintrag bearbeiten, wird eine neue Übertragung an alle gesendet, mit denen er geteilt wurde; wenn Sie die Freigabe beenden, wird deren Kopie vollständig gelöscht.\n\nDas Portfolio erfasst Adressen in sieben Netzwerken — Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin und TRON — sowie Token der ERC-20-Familie in den EVM-Netzwerken. Adresse, Bezeichnung, Netzwerk und letzter bekannter Kontostand werden auf dieselbe Weise wie eine Seed-Phrase verschlüsselt; beim Aktualisieren eines Kontostands wird die öffentliche API des jeweiligen Netzwerks direkt aus Ihrem eigenen Browser aufgerufen, nicht vom Server aus, sodass eine Abfrage Ihre Bestände niemals gegenüber mvmOS selbst offenlegt. Ein integrierter Bitcoin-Explorer ruft beliebige Adressen oder Transaktionen ab, unabhängig davon, ob sie in Ihrem Portfolio gespeichert sind.\n\nMit einem Abonnement können Sie über benutzerdefinierte Vermögenswerte alles außerhalb der sieben unterstützten Netzwerke erfassen — Gold, eine Wohnung, ein Unternehmen oder andernorts angelegte Ersparnisse — als fortlaufendes Transaktionsbuch statt als einzelne Zahl, die Sie überschreiben. Diese Werte erscheinen in derselben Portfolioliste und fließen in denselben Gesamtwert ein.",
+      "capabilities": [
+        "Ein separater verschlüsselter Tresor für jedes Apps Hub-Profil.",
+        "AES-GCM-Verschlüsselung im Browser, bevor Daten an den Server gesendet werden.",
+        "Ein Master-Passwort, das von mvmOS niemals übertragen oder gespeichert wird.",
+        "Ein zweites, unabhängiges Passwort für jede Seed-Phrase — zum Anzeigen sind beide erforderlich.",
+        "Einmalige sichere Freigabe einer Seed-Phrase an einen Apps Hub-Favoriten, ohne verbleibenden dauerhaften Zugriff.",
+        "Portfolio-Adressen in Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin und TRON sowie Token der ERC-20-Familie.",
+        "Kontostände werden direkt über die öffentliche API des jeweiligen Netzwerks in Ihrem eigenen Browser aktualisiert, niemals über den Server.",
+        "Gemeinsam genutzte, zwischengespeicherte USD-Kurse der nativen Vermögenswerte aller erfassten Netzwerke.",
+        "Ein integrierter Bitcoin-Blockexplorer für beliebige Adressen oder Transaktionen.",
+        "Benutzerdefinierte Vermögenswerte mit einem Abonnement, um alles außerhalb der unterstützten Netzwerke als fortlaufendes Transaktionsbuch zu erfassen.",
+        "Eine öffentliche Seite für Ihr Apps Hub-Konto, die von einem Administrator aktiviert wird."
+      ],
+      "name": "mvmCrypto"
+    },
+    "es": {
+      "short_description": "Bóveda cifrada de frases semilla y seguimiento de cartera de Bitcoin.",
+      "tagline": "Tus frases semilla y tu cartera, cifradas antes de salir del navegador.",
+      "description": "mvmCrypto es una bóveda de frases semilla y una herramienta de seguimiento de cartera para tu cuenta de mvmOS. Cada perfil de Apps Hub tiene su propia bóveda, por lo que las personas que utilizan el mismo equipo nunca ven los monederos de las demás.\n\nCada frase semilla está protegida por dos contraseñas distintas. Tu contraseña maestra desbloquea la bóveda y muestra las etiquetas guardadas; cada frase semilla también tiene su propia contraseña, y para revelarla se necesitan ambas. Esto significa que cambiar tu contraseña maestra más adelante nunca te obliga a volver a introducir la contraseña de cada entrada, y ninguna contraseña por sí sola puede revelar una frase. El cifrado se realiza íntegramente en el navegador: el servidor solo almacena valores de sal, vectores de inicialización y textos cifrados opacos, nunca una contraseña, una clave ni una frase semilla legible.\n\nUna frase semilla puede compartirse con otra cuenta de Apps Hub mediante una transferencia segura de un solo uso, dirigida a alguien que ya esté en tus favoritos. El destinatario la descifra con una contraseña que ya compartís y recibe su propia copia, totalmente independiente y protegida por dos contraseñas; no queda ningún acceso permanente que pueda volver a abrirse más adelante con una sola contraseña. Al editar una entrada compartida, se envía una nueva transferencia a todas las personas con las que se compartió; al dejar de compartirla, su copia se elimina por completo.\n\nCartera permite seguir direcciones en siete redes —Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin y TRON—, además de tokens de la familia ERC-20 en las redes EVM. La dirección, la etiqueta, la red y el último saldo conocido se cifran del mismo modo que una frase semilla; al actualizar un saldo, se consulta la API pública de cada red directamente desde tu propio navegador, sin pasar por el servidor, por lo que una consulta nunca revela tus tenencias a mvmOS. Un explorador de Bitcoin integrado permite consultar cualquier dirección o transacción, esté guardada en tu cartera o no.\n\nCon una suscripción, los activos personalizados permiten hacer un seguimiento de cualquier elemento ajeno a las siete redes compatibles —oro, un piso, un negocio, ahorros depositados en otro lugar— mediante un registro continuo de transacciones en vez de una sola cifra que se sobrescribe. Aparecen en la misma lista de la cartera y se incluyen en el mismo total.",
+      "capabilities": [
+        "Una bóveda cifrada independiente para cada perfil de Apps Hub.",
+        "Cifrado AES-GCM realizado en el navegador antes de enviar cualquier dato al servidor.",
+        "Una contraseña maestra que mvmOS nunca transmite ni almacena.",
+        "Una segunda contraseña independiente para cada frase semilla: se necesitan ambas para revelarla.",
+        "Uso compartido seguro de un solo uso de una frase semilla con un favorito de Apps Hub, sin dejar acceso permanente.",
+        "Direcciones de cartera en Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin y TRON, además de tokens de la familia ERC-20.",
+        "Saldos actualizados directamente desde la API pública de cada red en tu propio navegador, sin pasar nunca por el servidor.",
+        "Precios en USD de los activos nativos de cada red seguida, compartidos y almacenados en caché.",
+        "Un explorador de bloques de Bitcoin integrado para cualquier dirección o transacción.",
+        "Activos personalizados, con una suscripción, para hacer un seguimiento de cualquier elemento ajeno a las redes compatibles mediante un registro continuo de transacciones.",
+        "Una página pública para tu cuenta de Apps Hub, habilitada por un administrador."
+      ],
+      "name": "mvmCrypto"
+    },
+    "fr": {
+      "short_description": "Coffre-fort chiffré pour phrases de récupération et suivi de portefeuille Bitcoin.",
+      "tagline": "Vos phrases de récupération et votre portefeuille, chiffrés avant de quitter votre navigateur.",
+      "description": "mvmCrypto est un coffre-fort pour phrases de récupération et un outil de suivi de portefeuille pour votre compte mvmOS. Chaque profil Apps Hub dispose de son propre coffre-fort, de sorte que plusieurs personnes utilisant la même machine ne voient jamais les portefeuilles des autres.\n\nChaque phrase de récupération est protégée par deux mots de passe distincts. Votre mot de passe principal déverrouille le coffre-fort et affiche vos libellés enregistrés ; chaque phrase de récupération possède également son propre mot de passe, et les deux sont nécessaires pour l’afficher. Ainsi, modifier ultérieurement votre mot de passe principal ne vous oblige jamais à saisir de nouveau le mot de passe de chaque entrée, et aucun mot de passe ne peut, à lui seul, révéler une phrase. Le chiffrement s’effectue entièrement dans le navigateur — le serveur ne stocke que des sels, des vecteurs d’initialisation et des données chiffrées opaques, jamais de mot de passe, de clé ni de phrase de récupération lisible.\n\nUne phrase de récupération peut être partagée avec un autre compte Apps Hub sous la forme d’un transfert sécurisé ponctuel, adressé à une personne figurant déjà dans vos favoris. Le destinataire la déchiffre avec un mot de passe que vous partagez déjà et reçoit sa propre copie entièrement indépendante, protégée par deux mots de passe — aucun accès permanent ne subsiste qu’un seul mot de passe permettrait de rouvrir ultérieurement. La modification d’une entrée partagée envoie un nouveau transfert à toutes les personnes avec lesquelles elle a été partagée ; l’arrêt du partage supprime purement et simplement leur copie.\n\nLe portefeuille suit les adresses sur sept réseaux — Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin et TRON — ainsi que les jetons de la famille ERC-20 sur les réseaux EVM. L’adresse, le libellé, le réseau et le dernier solde connu sont chiffrés de la même manière qu’une phrase de récupération ; l’actualisation d’un solde appelle l’API publique de chaque réseau directement depuis votre navigateur, sans passer par le serveur, de sorte qu’une consultation ne révèle jamais vos avoirs à mvmOS lui-même. Un explorateur Bitcoin intégré permet de consulter n’importe quelle adresse ou transaction, qu’elle soit enregistrée dans votre portefeuille ou non.\n\nAvec un abonnement, les actifs personnalisés permettent de suivre tout ce qui se trouve en dehors des sept réseaux pris en charge — or, appartement, entreprise, épargne détenue ailleurs — sous la forme d’un registre de transactions continu plutôt que d’un montant unique que vous remplacez. Ils figurent dans la même liste du portefeuille et sont comptabilisés dans le même total.",
+      "capabilities": [
+        "Un coffre-fort chiffré distinct pour chaque profil Apps Hub.",
+        "Chiffrement AES-GCM effectué dans le navigateur avant tout envoi au serveur.",
+        "Un mot de passe principal qui n’est jamais transmis ni stocké par mvmOS.",
+        "Un second mot de passe indépendant pour chaque phrase de récupération — les deux sont nécessaires pour l’afficher.",
+        "Partage sécurisé ponctuel d’une phrase de récupération avec un favori Apps Hub, sans maintien d’un accès permanent.",
+        "Adresses de portefeuille sur Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin et TRON, ainsi que les jetons de la famille ERC-20.",
+        "Soldes actualisés directement depuis l’API publique de chaque réseau dans votre navigateur, sans jamais passer par le serveur.",
+        "Cours en USD des actifs natifs de chaque réseau suivi, mutualisés et mis en cache.",
+        "Un explorateur de blocs Bitcoin intégré pour n’importe quelle adresse ou transaction.",
+        "Actifs personnalisés, avec un abonnement, pour suivre tout ce qui se trouve en dehors des réseaux pris en charge sous la forme d’un registre de transactions continu.",
+        "Une page publique pour votre compte Apps Hub, activée par un administrateur."
+      ],
+      "name": "mvmCrypto"
+    },
+    "ja": {
+      "short_description": "暗号化されたシードフレーズ保管庫とBitcoinポートフォリオ管理ツール。",
+      "tagline": "シードフレーズとポートフォリオを、ブラウザーから送信する前に暗号化。",
+      "description": "mvmCryptoは、mvmOSアカウントで利用できるシードフレーズ保管庫とポートフォリオ管理ツールです。Apps Hubのプロフィールごとに専用の保管庫が用意されるため、同じマシンを複数のユーザーが使っていても、互いのウォレットが見えることはありません。\n\n各シードフレーズは、2つの別々のパスワードで保護されます。マスターパスワードで保管庫のロックを解除すると、保存したラベルが表示されます。各シードフレーズにはさらに専用のパスワードがあり、フレーズの表示には両方が必要です。そのため、後からマスターパスワードを変更しても、すべての項目のパスワードを再入力する必要はなく、どちらか一方のパスワードだけでフレーズが漏れることもありません。暗号化はすべてブラウザー内で行われます。サーバーに保存されるのは、内容を読み取れないソルト、IV、暗号文のみで、パスワード、キー、読み取り可能なシードフレーズが保存されることはありません。\n\nシードフレーズは、お気に入りに登録済みの相手を宛先として、別のApps Hubアカウントに一度限りの安全な転送で共有できます。受信者は、あらかじめ共有しているパスワードで復号し、完全に独立した二重保護のコピーを受け取ります。後から1つのパスワードだけで再び開けるような、継続的なアクセス権は残りません。共有した項目を編集すると、共有先全員に新しい転送が再送されます。共有を停止すると、相手のコピーは完全に削除されます。\n\nポートフォリオでは、Bitcoin、Ethereum、BNB Smart Chain、Polygon、Litecoin、Dogecoin、TRONの7つのネットワークのアドレスに加え、EVM対応ネットワーク上のERC-20系トークンを追跡できます。アドレス、ラベル、ネットワーク、最後に確認された残高は、シードフレーズと同じ方法で暗号化されます。残高の更新時には、サーバーを経由せず、ご自身のブラウザーから各ネットワークの公開APIを直接呼び出すため、照会によって保有資産がmvmOS自体に伝わることはありません。内蔵のBitcoinエクスプローラーでは、ポートフォリオへの保存の有無にかかわらず、任意のアドレスやトランザクションを調べられます。\n\nサブスクリプションでは、カスタム資産を使って、対応する7つのネットワーク以外のあらゆる資産を追跡できます。金、マンション、事業、別の場所に預けた貯蓄などを、1つの数値を上書きするのではなく、取引を積み重ねる台帳として管理します。同じポートフォリオ一覧に表示され、同じ合計額に算入されます。",
+      "capabilities": [
+        "Apps Hubのプロフィールごとに独立した暗号化保管庫を提供。",
+        "サーバーにデータを送信する前に、ブラウザー内でAES-GCM暗号化を実行。",
+        "mvmOSに送信も保存もされないマスターパスワード。",
+        "すべてのシードフレーズに、独立した2つ目のパスワードを設定。表示には両方のパスワードが必要。",
+        "Apps Hubのお気に入りの相手と、一度限りの安全な転送でシードフレーズを共有。継続的なアクセス権は残りません。",
+        "Bitcoin、Ethereum、BNB Smart Chain、Polygon、Litecoin、Dogecoin、TRONのアドレスと、ERC-20系トークンをポートフォリオで管理。",
+        "サーバーを経由せず、ご自身のブラウザーから各ネットワークの公開APIに直接アクセスして残高を更新。",
+        "追跡対象の各ネットワークのネイティブ資産について、米ドル建て価格を共有・キャッシュ。",
+        "任意のアドレスやトランザクションを調べられるBitcoinブロックエクスプローラーを内蔵。",
+        "サブスクリプションでカスタム資産を利用し、対応ネットワーク以外のあらゆる資産を、取引を積み重ねる台帳として追跡。",
+        "管理者が有効にできる、Apps Hubアカウント用の公開ページ。"
+      ],
+      "name": "mvmCrypto"
+    },
+    "pt-BR": {
+      "short_description": "Cofre criptografado de frases de recuperação e acompanhamento de portfólio de Bitcoin.",
+      "tagline": "Suas frases de recuperação e seu portfólio, criptografados antes de saírem do navegador.",
+      "description": "O mvmCrypto é um cofre de frases de recuperação e uma ferramenta de acompanhamento de portfólio para sua conta mvmOS. Cada perfil do Apps Hub tem seu próprio cofre, para que várias pessoas usando a mesma máquina nunca vejam as carteiras umas das outras.\n\nCada frase de recuperação é protegida por duas senhas separadas. Sua senha mestra desbloqueia o cofre e mostra os rótulos salvos; cada frase de recuperação também tem sua própria senha, e são necessárias as duas para revelá-la. Isso significa que alterar sua senha mestra posteriormente nunca exige que você digite novamente a senha de cada entrada, e nenhuma senha isolada pode expor uma frase. A criptografia acontece inteiramente no navegador — o servidor armazena apenas salts, IVs e textos cifrados opacos, nunca uma senha, uma chave ou uma frase de recuperação legível.\n\nUma frase de recuperação pode ser compartilhada com outra conta do Apps Hub por meio de uma transferência segura de uso único, destinada a alguém que já esteja nos seus favoritos. O destinatário a descriptografa com uma senha que vocês já compartilham e recebe sua própria cópia totalmente independente, com proteção dupla — não fica nenhum acesso permanente que uma única senha possa reabrir depois. Editar uma entrada compartilhada envia uma nova transferência a todas as pessoas com quem ela foi compartilhada; interromper o compartilhamento exclui a cópia delas por completo.\n\nO Portfólio acompanha endereços em sete redes — Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin e TRON — além de tokens da família ERC-20 nas redes EVM. Endereço, rótulo, rede e último saldo conhecido são criptografados da mesma forma que uma frase de recuperação; a atualização de saldo consulta a API pública de cada rede diretamente pelo seu navegador, sem passar pelo servidor, portanto uma consulta nunca revela seus ativos ao próprio mvmOS. Um explorador de Bitcoin integrado consulta qualquer endereço ou transação, esteja salvo no seu portfólio ou não.\n\nCom uma assinatura, os ativos personalizados permitem acompanhar qualquer coisa fora das sete redes compatíveis — ouro, um apartamento, uma empresa, economias mantidas em outro lugar — por meio de um registro contínuo de transações, em vez de um único número que você substitui, aparecendo na mesma lista do portfólio e entrando no mesmo total.",
+      "capabilities": [
+        "Um cofre criptografado separado para cada perfil do Apps Hub.",
+        "Criptografia AES-GCM realizada no navegador antes de qualquer dado ser enviado ao servidor.",
+        "Uma senha mestra que nunca é transmitida nem armazenada pelo mvmOS.",
+        "Uma segunda senha independente para cada frase de recuperação — são necessárias as duas para revelá-la.",
+        "Compartilhamento seguro de uso único de uma frase de recuperação com um favorito do Apps Hub, sem deixar acesso permanente.",
+        "Endereços do portfólio nas redes Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin e TRON, além de tokens da família ERC-20.",
+        "Saldos atualizados diretamente pela API pública de cada rede no seu próprio navegador, sem passar pelo servidor.",
+        "Cotações em USD dos ativos nativos de cada rede acompanhada, compartilhadas e armazenadas em cache.",
+        "Um explorador de blocos de Bitcoin integrado para qualquer endereço ou transação.",
+        "Ativos personalizados, com uma assinatura, para acompanhar qualquer coisa fora das redes compatíveis por meio de um registro contínuo de transações.",
+        "Uma página pública para sua conta do Apps Hub, ativada por um administrador."
+      ],
+      "name": "mvmCrypto"
+    },
+    "ru": {
+      "short_description": "Зашифрованное хранилище сид-фраз и отслеживание портфеля Bitcoin.",
+      "tagline": "Ваши сид-фразы и портфель шифруются ещё до отправки из браузера.",
+      "description": "mvmCrypto — это хранилище сид-фраз и инструмент отслеживания портфеля для вашей учётной записи mvmOS. Каждый профиль Apps Hub получает собственное хранилище, поэтому пользователи одного компьютера никогда не видят кошельки друг друга.\n\nКаждая сид-фраза защищена двумя отдельными паролями. Мастер-пароль разблокирует хранилище и показывает сохранённые названия; у каждой сид-фразы также есть собственный пароль, и для её просмотра нужны оба. Благодаря этому при последующей смене мастер-пароля не требуется заново вводить пароль каждой записи, а один пароль сам по себе не позволяет раскрыть фразу. Шифрование полностью выполняется в браузере — сервер хранит только нечитаемые соли, векторы инициализации и шифротексты, но никогда не хранит пароли, ключи или сид-фразы в читаемом виде.\n\nСид-фразу можно передать другой учётной записи Apps Hub однократно и безопасно, выбрав получателя из избранного. Получатель расшифровывает её с помощью пароля, который уже известен вам обоим, и получает собственную полностью независимую копию с двойной защитой — постоянного доступа, который впоследствии можно восстановить одним паролем, не остаётся. При редактировании записи, которой вы поделились, всем её получателям отправляется новая передача; прекращение общего доступа полностью удаляет их копии.\n\nПортфель отслеживает адреса в семи сетях — Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin и TRON, — а также токены семейства ERC-20 в сетях EVM. Адрес, название, сеть и последний известный баланс шифруются так же, как сид-фраза; при обновлении баланса публичный API каждой сети вызывается прямо из вашего браузера, а не с сервера, поэтому такой запрос никогда не раскрывает ваши активы самой mvmOS. Встроенный обозреватель Bitcoin позволяет найти любой адрес или транзакцию независимо от того, сохранены ли они в вашем портфеле.\n\nС подпиской пользовательские активы позволяют отслеживать всё, что не относится к семи поддерживаемым сетям, — золото, квартиру, бизнес, сбережения в других местах — в виде журнала операций вместо одного перезаписываемого числа. Они отображаются в том же списке портфеля и учитываются в его общей стоимости.",
+      "capabilities": [
+        "Отдельное зашифрованное хранилище для каждого профиля Apps Hub.",
+        "Шифрование AES-GCM в браузере до отправки любых данных на сервер.",
+        "Мастер-пароль, который никогда не передаётся и не хранится в mvmOS.",
+        "Второй независимый пароль для каждой сид-фразы — для её просмотра нужны оба пароля.",
+        "Однократная безопасная передача сид-фразы пользователю из избранного Apps Hub без сохранения постоянного доступа.",
+        "Адреса портфеля в Bitcoin, Ethereum, BNB Smart Chain, Polygon, Litecoin, Dogecoin и TRON, а также токены семейства ERC-20.",
+        "Обновление балансов напрямую через публичный API каждой сети в вашем браузере, без обращения через сервер.",
+        "Общие кэшируемые цены собственных активов каждой отслеживаемой сети в USD.",
+        "Встроенный обозреватель блокчейна Bitcoin для любого адреса или транзакции.",
+        "Пользовательские активы по подписке для отслеживания всего, что не относится к поддерживаемым сетям, в виде журнала операций.",
+        "Публичная страница вашей учётной записи Apps Hub, включаемая администратором."
+      ],
+      "name": "mvmCrypto"
+    },
+    "zh-CN": {
+      "short_description": "加密助记词保管库和 Bitcoin 投资组合追踪工具。",
+      "tagline": "您的助记词和投资组合，在离开浏览器前即已加密。",
+      "description": "mvmCrypto 为您的 mvmOS 账户提供助记词保管库和投资组合追踪功能。每个 Apps Hub 用户档案都有自己的保管库，因此多人使用同一台设备时，彼此无法看到对方的钱包。\n\n每条助记词都由两个独立密码保护。主密码用于解锁保管库并显示已保存的标签；每条助记词还有自己的密码，查看助记词需要同时提供这两个密码。这意味着以后更改主密码时，无需重新输入每个条目的密码，而且任何一个密码都无法单独泄露助记词。加密完全在浏览器中完成——服务器仅存储无法直接解读的盐值、初始化向量和密文，从不存储密码、密钥或可读的助记词。\n\n您可以通过一次性安全传输，将助记词共享给已加入收藏的另一个 Apps Hub 账户。接收者使用双方已知的密码解密，并获得一份完全独立、受双重密码保护的副本——不会留下日后仅凭一个密码就能再次打开的长期访问权限。编辑已共享的条目时，会向所有共享对象重新发送一次新的传输；停止共享则会直接删除他们的副本。\n\n投资组合可追踪七个网络上的地址——Bitcoin、Ethereum、BNB Smart Chain、Polygon、Litecoin、Dogecoin 和 TRON——以及其中 EVM 网络上的 ERC-20 系列代币。地址、标签、网络和最后已知余额均采用与助记词相同的方式加密；刷新余额时，由您自己的浏览器直接调用各网络的公共 API，不经过服务器，因此查询绝不会向 mvmOS 本身泄露您的持仓。内置 Bitcoin 浏览器可查询任意地址或交易，无论其是否已保存到您的投资组合中。\n\n订阅后，自定义资产可追踪七个受支持网络之外的任何资产——黄金、公寓、企业、存放在其他地方的储蓄——通过持续记录交易的账本管理，而非反复覆盖一个数字。这些资产会显示在同一投资组合列表中，并计入同一总额。",
+      "capabilities": [
+        "为每个 Apps Hub 用户档案提供独立的加密保管库。",
+        "所有内容在发送到服务器之前，均在浏览器中进行 AES-GCM 加密。",
+        "主密码绝不会由 mvmOS 传输或存储。",
+        "每条助记词都有第二个独立密码——查看时需要同时提供两个密码。",
+        "通过一次性安全传输，将助记词共享给 Apps Hub 收藏中的用户，不保留长期访问权限。",
+        "支持 Bitcoin、Ethereum、BNB Smart Chain、Polygon、Litecoin、Dogecoin 和 TRON 上的投资组合地址，以及 ERC-20 系列代币。",
+        "由您自己的浏览器直接通过各网络的公共 API 刷新余额，绝不经过服务器。",
+        "为每个追踪的网络提供共享缓存的原生资产美元价格。",
+        "内置 Bitcoin 区块浏览器，可查询任意地址或交易。",
+        "订阅后可使用自定义资产，通过持续记录交易的账本追踪受支持网络之外的任何资产。",
+        "为您的 Apps Hub 账户提供公开页面，由管理员启用。"
+      ],
+      "name": "mvmCrypto"
+    }
+  }
 }

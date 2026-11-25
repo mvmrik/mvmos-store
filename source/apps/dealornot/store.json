@@ -49,7 +49,8 @@
           "summary": "Осигурява профили на играчите, стаи, покани, запазване на самостоятелни игри, история на игровите сесии, статистика и класирания. Настолното приложение отваря страницата за игра в Game Hub.",
           "requires": "Инсталиран Game Hub. Програмата за стартиране на настолното приложение предлага да го инсталира, ако липсва."
         }
-      ]
+      ],
+      "name": "Сделка или не"
     },
     "es": {
       "short_description": "Elige al azar una de las 36 cajas numeradas, abre las demás y responde a las llamadas del banquero: acepta su oferta o quédate con tu caja. Hasta seis jugadores comparten un tablero y el banquero llama a cada uno en privado. Los importes llegan hasta un millón y las bonificaciones por jugar con astucia mantienen la disputa por la máxima puntuación.",
@@ -74,7 +75,8 @@
           "summary": "Ofrece perfiles de jugador, salas, invitaciones, partidas guardadas en solitario, historial de partidas, estadísticas y clasificaciones. La aplicación de escritorio abre la página de juego de Game Hub.",
           "requires": "Game Hub instalado. El lanzador de escritorio ofrece instalarlo si no está disponible."
         }
-      ]
+      ],
+      "name": "Trato o no"
     },
     "fr": {
       "short_description": "Tirez au sort l'une des 36 boîtes numérotées, ouvrez les autres et répondez aux appels du banquier : acceptez son offre ou gardez votre boîte. Jusqu'à six joueurs partagent un même plateau et le banquier appelle chacun en privé. Les montants atteignent un million et les bonus récompensant les bonnes décisions entretiennent la course au meilleur score.",
@@ -99,7 +101,8 @@
           "summary": "Fournit les profils des joueurs, les salons, les invitations, les sauvegardes solo, l'historique des parties, les statistiques et les classements. L'application de bureau ouvre la page de jeu de Game Hub.",
           "requires": "Game Hub doit être installé. Le lanceur de bureau propose de l'installer s'il est absent."
         }
-      ]
+      ],
+      "name": "Deal ou pas"
     },
     "de": {
       "short_description": "Ziehe eine von 36 nummerierten Boxen, öffne die anderen und nimm die Anrufe des Bankiers entgegen: Nimm sein Angebot an oder behalte deine Box. Bis zu sechs Spieler teilen sich ein Spielfeld, und der Bankier ruft jeden von ihnen persönlich an. Die Beträge reichen bis zu einer Million, und dank Boni für kluges Spielen bleibt das Rennen um die höchste Punktzahl offen.",
@@ -124,7 +127,8 @@
           "summary": "Bietet Spielerprofile, Räume, Einladungen, Solospielstände, Spielverlauf, Statistiken und Ranglisten. Die Desktop-App öffnet die Spielseite von Game Hub.",
           "requires": "Game Hub muss installiert sein. Das Desktop-Startprogramm bietet die Installation an, falls Game Hub fehlt."
         }
-      ]
+      ],
+      "name": "Deal oder nicht"
     },
     "pt-BR": {
       "short_description": "Sorteie uma das 36 caixas numeradas, abra as outras e atenda às ligações do banqueiro: aceite a oferta dele ou fique com sua caixa. Até seis jogadores compartilham o mesmo tabuleiro, e o banqueiro liga para cada um em particular. Os valores chegam a um milhão, e os bônus por boas jogadas mantêm a disputa pela maior pontuação em aberto.",
@@ -149,7 +153,8 @@
           "summary": "Oferece perfis de jogadores, salas, convites, partidas solo salvas, histórico de partidas, estatísticas e classificações. O aplicativo para computador abre a página de jogo do Game Hub.",
           "requires": "Game Hub instalado. O inicializador para computador oferece a instalação caso ele não esteja instalado."
         }
-      ]
+      ],
+      "name": "Acordo ou nada"
     },
     "ja": {
       "short_description": "番号付きの36個の箱から1つを引き、残りの箱を開けながらバンカーからの電話に応じましょう。提示額を受け取るか、自分の箱を守り抜くかはあなた次第。最大6人で1つの盤面を共有し、バンカーは各プレイヤーに個別に電話をかけます。金額は最大100万。賢い判断でボーナスを獲得すれば、誰にでもトップスコアを狙うチャンスがあります。",
@@ -174,7 +179,8 @@
           "summary": "プレイヤープロフィール、ルーム、招待、ソロプレイのセーブ、プレイ履歴、統計、ランキングを提供します。デスクトップアプリからGame Hubのプレイページを開きます。",
           "requires": "Game Hubのインストールが必要です。未インストールの場合は、デスクトップランチャーがインストールを案内します。"
         }
-      ]
+      ],
+      "name": "取引する？しない？"
     },
     "zh-CN": {
       "short_description": "从 36 个编号箱子中抽取一个，打开其余箱子，接听银行家的来电：接受报价，还是保留自己的箱子？最多六名玩家共用一个游戏盘，银行家会分别向每位玩家私下报价。箱内金额最高达一百万，明智决策还能赢取加分，让最高分的争夺始终充满悬念。",
@@ -199,7 +205,8 @@
           "summary": "提供玩家资料、房间、邀请、单人存档、对局历史、统计数据和排名。桌面应用会打开 Game Hub 游戏页面。",
           "requires": "需安装 Game Hub。若尚未安装，桌面启动器会提示安装。"
         }
-      ]
+      ],
+      "name": "成交还是不成交"
     },
     "ru": {
       "short_description": "Вытяните один из 36 пронумерованных ящиков, открывайте остальные и отвечайте на звонки банкира: принять его предложение или оставить свой ящик? На одном поле могут играть до шести человек, и каждому банкир звонит лично. Суммы достигают миллиона, а бонусы за продуманные решения дают шанс вырваться вперёд по очкам.",
@@ -224,7 +231,8 @@
           "summary": "Предоставляет профили игроков, комнаты, приглашения, сохранения одиночной игры, историю игр, статистику и рейтинги. Приложение для компьютера открывает игровую страницу Game Hub.",
           "requires": "Требуется установленный Game Hub. Если он отсутствует, приложение запуска для компьютера предложит его установить."
         }
-      ]
+      ],
+      "name": "Сделка или нет"
     }
   }
 }

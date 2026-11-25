@@ -49,6 +49,7 @@
   function errText(e) {
     const m = String((e && e.message) || e);
     return m === 'mvmai_missing' ? t('rmm_ai_err_missing') : m === 'mvmai_disabled' ? t('rmm_ai_err_disabled')
+      : m === 'repair_too_long' ? t('rmm_imp_repair_long') : m === 'repair_incomplete' ? t('rmm_imp_repair_incomplete')
       : m === 'login_required' ? t('rmm_ai_err_profile') : m === 'timeout' ? t('rmm_ai_err_timeout')
       : t('rmm_ai_err');
   }
@@ -162,7 +163,7 @@
   // ── Import ─────────────────────────────────────────────────────────────────
   function importWindow(mgr) {
     const d = mgr.meta;
-    let open = true, items = [];
+    let open = true, items = [], parsedText = null;
     mgr.panel({
       id: 'roadtomillion-ai-import',
       title: '📥 ' + t('rmm_imp_title'),
@@ -190,14 +191,14 @@
           '<button class="s-btn i-add">' + esc(t('rmm_ai_add')) + '</button></div>';
         const $ = s => body.querySelector(s), list = $('.i-list');
         const status = txt => { $('.i-status').textContent = txt || ''; };
-        const addable = it => !!(it.c && it.d && it.texts && it.texts.en);
+        const addable = it => !!(it.c && it.d && it.texts && it.texts.en && it.verdict !== 'reject');
         const isOn = i => { const c = list.querySelector('[data-i="' + i + '"] .i-on'); return !!(c && c.checked); };
         const picked = () => items.map((it, i) => ({ it, i })).filter(x => isOn(x.i));
         const refresh = () => {
           const n = picked().filter(x => addable(x.it)).length;
           $('.i-add').textContent = t('rmm_ai_add') + (n ? ' (' + n + ')' : '');
         };
-        const busy = on => { $('.i-parse').disabled = on; $('.i-ai').disabled = on; $('.i-add').disabled = on; if (!on) refresh(); };
+        const busy = on => { $('.i-parse').disabled = on; $('.i-ai').disabled = on; $('.i-add').disabled = on; $('.i-paste').disabled = on; if (!on) refresh(); };
 
         const edit = i => {
           const it = items[i];
@@ -211,7 +212,7 @@
             draw();
             list.querySelectorAll('[data-i]').forEach(row => {
               const c = row.querySelector('.i-on');
-              if (c && !c.disabled) c.checked = selected[+row.dataset.i];
+              if (c) c.checked = selected[+row.dataset.i];
             });
             refresh();
           } });
@@ -224,7 +225,7 @@
             const probs = (it.issues || []).filter(s => /^(bad_text|too_long|no_english|no_category|no_level)/.test(s));
             const ok = addable(it) && it.verdict !== 'reject';
             return '<div data-i="' + i + '" style="border:1px solid var(--border);border-radius:8px;padding:8px 10px;display:flex;flex-direction:column;gap:5px' + (ok ? '' : ';opacity:.85') + '">' +
-              '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input class="i-on" type="checkbox"' + (ok ? ' checked' : ' disabled') + '>' +
+              '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><input class="i-on" type="checkbox"' + ' checked' + '>' +
               (it.c ? tag(t('rm_cat_' + it.c)) : '') + (it.d ? tag(t('rmm_level', { n: it.d })) : '') +
               (miss ? warn(t('rmm_missing_n', { n: miss })) : '') +
               ((!it.k || !it.s) ? warn(t('rmm_issue_chances')) : '') +
@@ -256,17 +257,30 @@
           $('.i-copied').textContent = done ? t('rmm_imp_copied') : t('rmm_imp_copy_manual');
         };
 
+        $('.i-paste').addEventListener('input', () => { parsedText = null; items = []; draw(); status(''); });
+
         $('.i-parse').onclick = async () => {
-          status(''); busy(true);
+          status(''); busy(true); items = []; parsedText = null; draw();
           try {
             const r = await call('/import/parse', 'POST', { text: $('.i-paste').value });
-            items = r.items; draw();
+            items = r.items; parsedText = $('.i-paste').value; draw();
             if (!items.length) status(t('rmm_imp_none'));
           } catch (_) { status(t('rmm_imp_bad')); }
           busy(false);
         };
 
         $('.i-ai').onclick = async () => {
+          const raw = $('.i-paste').value;
+          if (parsedText === null && raw.trim()) {
+            busy(true); status(t('rmm_ai_working'));
+            try {
+              const r = await job('/import/repair', { text: raw },
+                p => status(t('rmm_ai_working') + (p ? ' ' + p : '')), () => open && body.isConnected);
+              if (!r) return;
+              items = r.items; parsedText = raw; draw(); status(t('rmm_imp_repaired'));
+            } catch (e) { status(errText(e)); }
+            busy(false); return;
+          }
           const pick = picked();
           if (!pick.length) { status(t('rmm_imp_pick_first')); return; }
           busy(true); status(t('rmm_ai_working'));

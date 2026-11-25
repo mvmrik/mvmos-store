@@ -6,5 +6,87 @@
       "short": "Your own buttons, your own answers",
       "description": "Build a Telegram bot with a menu of your own. Add a button, give it a name, choose an app and one of the functions that app offers, and decide how each value is obtained: the bot can ask for it in the chat, offer the app's own choices as buttons, or always use a value you fix. Then write the answer the bot sends back and place values in it, for example “In {category_id} there is now {balance}”. A button can add an amount to a Budget category, show a list, or run any other function an app offers through its App API on your behalf. The administrator switches custom bots on in the Telegram Hub settings, and the App API of each app must be enabled in Apps Hub."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "summary": "Ermöglicht einem Profil, aus den Funktionen seiner Apps ein eigenes Telegram-Bot-Menü zu erstellen.",
+      "features": [
+        {
+          "title": "Bot mit eigenem Menü",
+          "short": "Deine eigenen Schaltflächen, deine eigenen Antworten",
+          "description": "Erstelle einen Telegram-Bot mit deinem eigenen Menü. Füge eine Schaltfläche hinzu, gib ihr einen Namen, wähle eine App und eine ihrer angebotenen Funktionen und lege fest, wie jeder Wert ermittelt wird: Der Bot kann im Chat danach fragen, die Auswahlmöglichkeiten der App als Schaltflächen anbieten oder immer einen von dir festgelegten Wert verwenden. Schreibe anschließend die Antwort, die der Bot zurücksendet, und füge Werte darin ein, zum Beispiel „In {category_id} beträgt der Kontostand jetzt {balance}“. Eine Schaltfläche kann einen Betrag zu einer Budget-Kategorie hinzufügen, eine Liste anzeigen oder in deinem Namen jede andere Funktion ausführen, die eine App über ihre App-API anbietet. Der Administrator aktiviert Bots mit eigenen Menüs in den Telegram Hub-Einstellungen, und die App-API jeder App muss in Apps Hub aktiviert sein."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Позволява на профила да създаде собствено меню за бот в Telegram от функциите на приложенията си.",
+      "features": [
+        {
+          "title": "Бот с персонализирано меню",
+          "short": "Ваши бутони, ваши отговори",
+          "description": "Създайте бот в Telegram със собствено меню. Добавете бутон, дайте му име, изберете приложение и една от функциите, които то предлага, и определете как се получава всяка стойност: ботът може да я поиска в чата, да предложи възможностите от самото приложение като бутони или винаги да използва фиксирана от вас стойност. След това напишете отговора, който ботът връща, и вмъкнете стойности в него, например „В {category_id} вече има {balance}“. Бутонът може да добавя сума към категория в „Бюджет“, да показва списък или да изпълнява от ваше име всяка друга функция, която приложение предлага чрез своя API. Администраторът включва персонализираните ботове в настройките на Центъра за Telegram, а API на всяко приложение трябва да е включен в Apps Hub."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Permite que un perfil cree su propio menú de bot de Telegram a partir de las funciones de sus aplicaciones.",
+      "features": [
+        {
+          "title": "Bot con menú personalizado",
+          "short": "Tus propios botones, tus propias respuestas",
+          "description": "Crea un bot de Telegram con tu propio menú. Añade un botón, dale un nombre, elige una aplicación y una de las funciones que ofrece, y decide cómo se obtiene cada valor: el bot puede solicitarlo en el chat, ofrecer las opciones de la propia aplicación como botones o utilizar siempre un valor que tú fijes. Después, escribe la respuesta que enviará el bot e incluye valores en ella, por ejemplo: «En {category_id} ahora hay {balance}». Un botón puede añadir un importe a una categoría de Presupuesto, mostrar una lista o ejecutar en tu nombre cualquier otra función que una aplicación ofrezca a través de su API de aplicación. El administrador activa los bots personalizados en los ajustes de Telegram Hub, y la API de aplicación de cada aplicación debe estar activada en Apps Hub."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Permet à un profil de créer son propre menu de bot Telegram à partir des fonctions de ses applications.",
+      "features": [
+        {
+          "title": "Bot à menu personnalisé",
+          "short": "Vos propres boutons, vos propres réponses",
+          "description": "Créez un bot Telegram avec votre propre menu. Ajoutez un bouton, donnez-lui un nom, choisissez une application et l'une des fonctions qu'elle propose, puis définissez comment chaque valeur est obtenue : le bot peut la demander dans la conversation, proposer les choix de l'application sous forme de boutons ou toujours utiliser une valeur fixe que vous définissez. Rédigez ensuite la réponse du bot et insérez-y des valeurs, par exemple « Dans {category_id}, il y a maintenant {balance} ». Un bouton peut ajouter un montant à une catégorie de Budget, afficher une liste ou exécuter pour votre compte toute autre fonction proposée par une application via son API d'application. L'administrateur active les bots personnalisés dans les paramètres de Telegram Hub, et l'API de chaque application doit être activée dans Apps Hub."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "プロフィールで、利用するアプリの機能を使った独自のTelegramボットメニューを作成できます。",
+      "features": [
+        {
+          "title": "カスタムメニューボット",
+          "short": "自分だけのボタンと応答",
+          "description": "独自のメニューを持つTelegramボットを作成できます。ボタンを追加して名前を付け、アプリとそのアプリが提供する機能を1つ選び、それぞれの値をどう取得するかを決めます。ボットがチャットで質問する、アプリが用意した選択肢をボタンで表示する、指定した固定値を常に使う、といった方法を選べます。次に、ボットが返す応答を作成し、たとえば「{category_id}の現在の残高は{balance}です」のように値を埋め込みます。ボタンから予算アプリのカテゴリに金額を加算したり、一覧を表示したり、アプリがアプリAPIで提供するほかの機能を自分に代わって実行したりできます。管理者がTelegram Hubの設定でカスタムボットをオンにし、Apps Hubで各アプリのアプリAPIを有効にする必要があります。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Permite que um perfil crie seu próprio menu de bot do Telegram a partir das funções dos seus aplicativos.",
+      "features": [
+        {
+          "title": "Bot com menu personalizado",
+          "short": "Seus próprios botões, suas próprias respostas",
+          "description": "Crie um bot do Telegram com seu próprio menu. Adicione um botão, dê um nome a ele, escolha um aplicativo e uma das funções que ele oferece e decida como cada valor será obtido: o bot pode perguntar na conversa, oferecer as opções do próprio aplicativo como botões ou sempre usar um valor fixo definido por você. Depois, escreva a resposta que o bot enviará e insira valores nela, por exemplo: “Em {category_id} agora há {balance}”. Um botão pode adicionar um valor a uma categoria do Orçamento, mostrar uma lista ou executar em seu nome qualquer outra função que um aplicativo ofereça por meio de sua API de aplicativo. O administrador ativa os bots personalizados nas configurações da Central do Telegram, e a API de aplicativo de cada aplicativo precisa estar ativada no Apps Hub."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Позволяет создавать для профиля собственное меню бота Telegram из функций его приложений.",
+      "features": [
+        {
+          "title": "Бот с собственным меню",
+          "short": "Ваши кнопки, ваши ответы",
+          "description": "Создайте бота Telegram с собственным меню. Добавьте кнопку, задайте ей название, выберите приложение и одну из доступных в нём функций, а затем определите способ получения каждого значения: бот может запросить его в чате, предложить варианты из приложения в виде кнопок или всегда использовать заданное вами значение. Затем напишите ответ бота и вставьте в него значения, например: «В {category_id} теперь {balance}». Кнопка может добавлять сумму в категорию Бюджета, показывать список или выполнять от вашего имени любую другую функцию, которую приложение предоставляет через свой API приложения. Администратор включает ботов с собственным меню в настройках Telegram Hub, а API каждого приложения необходимо включить в Apps Hub."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "允许个人资料使用其应用提供的功能，构建自己的 Telegram 机器人菜单。",
+      "features": [
+        {
+          "title": "自定义菜单机器人",
+          "short": "自定义按钮，自定义回复",
+          "description": "构建带有专属菜单的 Telegram 机器人。添加按钮并命名，选择应用及其提供的某个功能，再决定各个值的获取方式：机器人可以在聊天中询问，将应用自身提供的选项显示为按钮，或始终使用你指定的固定值。然后编写机器人的回复，并在其中插入值，例如“{category_id} 中现在有 {balance}”。按钮可以为预算类别增加金额、显示列表，或代表你运行应用通过其应用 API 提供的任何其他功能。管理员需在 Telegram 中心设置中启用自定义机器人，各应用的应用 API 也必须在 Apps Hub 中启用。"
+        }
+      ]
+    }
+  }
 }

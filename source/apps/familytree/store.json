@@ -41,7 +41,8 @@
         "Selectores de padres, hijos y parejas con función de búsqueda.",
         "Distribución de ramas que mantiene juntas a las familias y separa las ramas sin parentesco.",
         "Propone a la persona seleccionada como el progenitor correspondiente al añadir a alguien nuevo."
-      ]
+      ],
+      "name": "Árbol genealógico"
     },
     "bg": {
       "short_description": "Красиви частни родословни дървета с връзки към профили в Apps Hub, роли за споделяне и преглед на предложените промени.",
@@ -64,7 +65,8 @@
         "Полета за избор на родител, дете и партньор с възможност за търсене.",
         "Подредба на клоните, която държи семействата заедно и отделя несвързаните клони.",
         "Предлага избрания човек като съответния родител при добавяне на нов човек."
-      ]
+      ],
+      "name": "Родословно дърво"
     },
     "de": {
       "short_description": "Schöne, private Stammbäume mit Apps Hub-Profilverknüpfungen, Zugriffsrollen und geprüften Beiträgen.",
@@ -87,7 +89,8 @@
         "Durchsuchbare Auswahlfelder für Eltern, Kinder und Partner.",
         "Anordnung der Zweige, die Familien zusammenhält und nicht verwandte Zweige voneinander trennt.",
         "Schlägt beim Hinzufügen einer neuen Person die ausgewählte Person als passenden Elternteil vor."
-      ]
+      ],
+      "name": "Stammbaum"
     },
     "fr": {
       "short_description": "De beaux arbres généalogiques privés avec des liens vers les profils Apps Hub, des rôles de partage et des contributions soumises à validation.",
@@ -110,7 +113,8 @@
         "Sélecteurs de parents, d’enfants et de partenaires avec fonction de recherche.",
         "Disposition des branches qui regroupe les familles et sépare les branches sans lien entre elles.",
         "Propose la personne sélectionnée comme parent correspondant lors de l’ajout d’une nouvelle personne."
-      ]
+      ],
+      "name": "Arbre généalogique"
     },
     "ja": {
       "short_description": "Apps Hubプロフィールへのリンク、役割に応じた共有、変更のレビューに対応した、美しくプライベートな家系図。",
@@ -133,7 +137,8 @@
         "検索できる親・子・パートナーの選択欄。",
         "家族をまとめ、つながりのない枝を離して配置するレイアウト。",
         "新しい人物を追加する際、選択中の人物を該当する親の候補として表示。"
-      ]
+      ],
+      "name": "家系図"
     },
     "pt-BR": {
       "short_description": "Belas árvores genealógicas privadas com links para perfis do Apps Hub, funções de compartilhamento e contribuições revisadas.",
@@ -156,7 +161,8 @@
         "Seletores de pais, filhos e parceiros com pesquisa.",
         "Organização dos ramos que mantém as famílias juntas e separa os ramos sem parentesco.",
         "Sugere a pessoa selecionada no campo apropriado de pai ou mãe ao adicionar alguém novo."
-      ]
+      ],
+      "name": "Árvore genealógica"
     },
     "ru": {
       "short_description": "Красивые семейные деревья с приватным доступом, ссылками на профили Apps Hub, ролями участников и проверкой изменений.",
@@ -179,7 +185,8 @@
         "Поля выбора родителей, детей и партнёров с поиском.",
         "Расположение ветвей, которое объединяет семьи и отделяет ветви без родственных связей.",
         "При добавлении нового человека выбранный на дереве человек предлагается в соответствующем поле родителя."
-      ]
+      ],
+      "name": "Родословное дерево"
     },
     "zh-CN": {
       "short_description": "精美的私密家谱，支持关联 Apps Hub 个人资料、按角色共享，以及审核协作修改。",
@@ -202,7 +209,8 @@
         "父母、子女和伴侣选择器均支持搜索。",
         "分支布局让同一家庭的成员聚在一起，并将互不相关的分支分开。",
         "添加新成员时，会在相应的父母字段中推荐当前选中的人物。"
-      ]
+      ],
+      "name": "家谱"
     }
   }
 }

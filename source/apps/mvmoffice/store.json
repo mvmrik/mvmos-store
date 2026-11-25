@@ -39,5 +39,303 @@
       "summary": "The writing assistant sends its questions and picture requests to the AI that mvmAI is set up with, so it needs no key of its own.",
       "requires": "mvmAI installed with its App API enabled in Apps Hub → Settings → App APIs, and a picture generator ready in mvmAI for pictures. The switch is off by default; without it the assistant is not available."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Текстови документи на страници A4 и електронни таблици в един файл, с таблици в текста, формули между таблици и страници и изчислени стойности направо в изреченията ви.",
+      "tagline": "Текстът и числата ви в един документ, който ги поддържа в синхрон.",
+      "description": "mvmOffice събира текстов документ и електронна таблица в един файл. Страниците се пишат като в текстообработваща програма, върху листове A4, със заглавия, списъци, цветове и таблици, поставени направо в текста. Листовете с данни са пълноценни електронни таблици с хиляди редове и колони, които не се отпечатват с документа, така че могат да съдържат всичко, на което се основава текстът.\n\nДвете части са свързани помежду си. Формула във всяка таблица може да използва клетки от всяка друга таблица или лист с данни, а изчислена стойност може да стои вътре в изречение: напишете „Най-високата цена е“ и вмъкнете максималната стойност от колоната „Цена“, и изречението ще следва данните при всяка тяхна промяна. При преименуване на таблица или вмъкване на редове всяка формула продължава да сочи към правилното място.\n\nДокументите са обикновени файлове .mvmoffice. Те се запазват автоматично в документите ви на сървъра под вашия акаунт в Apps Hub, могат да се изтеглят и изпращат на друг човек, който да ги отвори на собствения си mvmOS, а в Chrome и Edge файл на компютъра ви може да се редактира и запазва на същото място. В прозореца на работния плот документът може също да се запазва в папките ви на сървъра и да се отваря от тях.",
+      "capabilities": [
+        "Текстови страници на листове A4 със заглавия до четири нива, получер, курсив, подчертаване, зачертаване, цветове, подравняване, списъци с водещи символи и номерация, връзки, изображения, хоризонтални линии и прекъсвания на страница.",
+        "Таблици в текста, които работят като електронна таблица, със заглавен ред, повтарящ се на всяка отпечатана страница.",
+        "Листове с данни с до сто хиляди реда, колони с регулируема ширина, числови, процентни, валутни и датни формати, цветове за запълване и текст.",
+        "Формули с обичайните функции за електронни таблици, които работят между таблици, листове с данни и страници, с предложения за функции, таблици и имена на колони при въвеждане.",
+        "Изчислени стойности в изречение, които се актуализират при всяка промяна на данните.",
+        "Препратки, които се адаптират при преименуване на таблици и вмъкване или изтриване на редове и колони.",
+        "Копиране и поставяне от и в други електронни таблици и уеб страници, с отмяна и повторно изпълнение на всяка промяна.",
+        "Автоматично запазване в документите ви на сървъра със защита срещу взаимно презаписване от два прозореца.",
+        "Изтегляне като файл .mvmoffice и отваряне на всеки друг mvmOS.",
+        "Редактиране на файл на компютъра ви на същото място в Chrome и Edge.",
+        "Запазване в папките ви на сървъра и отваряне от тях в прозореца на работния плот.",
+        "Отпечатване на документа или лист с данни с предварителен преглед, избор на размер на хартията, полета, номера на страници и повтаряща се горна колонтитула.",
+        "Тип документ „Книга“ с предна и задна корица, които оформяте свободно, глави, започващи на нова страница, огледални полета, съдържание с номера на страници и бележки, изброени в края на всяка глава.",
+        "Редактор на корици с изображения, текстове, фигури, текстови ефекти, водачи за прилепване и индикатори за равни разстояния, който работи както на телефон, така и на компютър.",
+        "Преглед на книга, който я отваря на цял екран и прелиства страниците ѝ, показвайки точно какво ще бъде отпечатано.",
+        "Бележки, които се показват като номер в текста и се отварят при щракване, в печатното издание и в електронните книги.",
+        "Експортиране в Word (.docx), PDF и електронна книга (.epub) със съдържание с активни връзки, корица, изображения и бележки.",
+        "Публична уеб страница за вашия акаунт в Apps Hub.",
+        "Избор от сто безплатни шрифта с кирилица за текста и заглавията на кориците, когато mvmFonts е инсталиран; експортираният EPUB включва използваните шрифтове."
+      ],
+      "integrations": [
+        {
+          "summary": "Когато mvmFonts е инсталиран, лентата с инструменти за текст и редакторът на корици предлагат неговите шрифтове, а печатът, PDF и EPUB ги използват.",
+          "requires": "Инсталиран mvmFonts с активиран API за приложения в Apps Hub → Настройки → API за приложения. Превключвателят е изключен по подразбиране; без него mvmOffice не показва избор на шрифт."
+        },
+        {
+          "summary": "Асистентът за писане изпраща въпросите и заявките си за изображения към ИИ, с който е настроен да работи mvmAI, така че не се нуждае от собствен ключ.",
+          "requires": "Инсталиран mvmAI с активиран API за приложения в Apps Hub → Настройки → API за приложения и готов за работа генератор на изображения в mvmAI за създаване на изображения. Превключвателят е изключен по подразбиране; без него асистентът не е достъпен."
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "de": {
+      "short_description": "Textdokumente auf A4-Seiten und Tabellenblätter in einer Datei, mit Tabellen im Text, Formeln über Tabellen und Seiten hinweg und berechneten Werten direkt in Ihren Sätzen.",
+      "tagline": "Ihre Texte und Zahlen in einem Dokument, das beide synchron hält.",
+      "description": "mvmOffice vereint ein Textdokument und eine Tabellenkalkulation in derselben Datei. Sie schreiben wie in einer Textverarbeitung auf A4-Seiten, mit Überschriften, Listen, Farben und Tabellen direkt im Text. Datenblätter sind vollwertige Tabellenblätter mit Tausenden von Zeilen und Spalten, die nicht zusammen mit dem Dokument gedruckt werden. So können sie alle Daten enthalten, auf denen der Text beruht.\n\nDie beiden Teile sind miteinander verbunden. Eine Formel in einer beliebigen Tabelle kann Zellen aus jeder anderen Tabelle oder jedem Datenblatt verwenden, und ein berechneter Wert kann mitten in einem Satz stehen: Schreiben Sie „Der höchste Preis ist“ und fügen Sie den Maximalwert der Spalte „Preis“ ein. Der Satz passt sich dann bei jeder Änderung an die Daten an. Wenn Sie eine Tabelle umbenennen oder Zeilen einfügen, verweisen alle Formeln weiterhin auf die richtige Stelle.\n\nDokumente sind gewöhnliche .mvmoffice-Dateien. Sie werden automatisch unter Ihrem Apps Hub-Konto in Ihren Dokumenten auf dem Server gespeichert, können heruntergeladen und an Personen geschickt werden, die sie auf ihrem eigenen mvmOS öffnen. In Chrome und Edge lässt sich eine Datei auf Ihrem Computer direkt bearbeiten und am selben Ort speichern. Im Desktopfenster können Sie ein Dokument auch in Ihren Ordnern auf dem Server speichern und von dort öffnen.",
+      "capabilities": [
+        "Textseiten im A4-Format mit Überschriften in bis zu vier Ebenen, Fett- und Kursivschrift, Unterstreichung, Durchstreichung, Farben, Ausrichtung, Aufzählungen und nummerierten Listen, Links, Bildern, horizontalen Linien und Seitenumbrüchen.",
+        "Tabellen direkt im Text, die wie eine Tabellenkalkulation funktionieren, mit einer Kopfzeile, die auf jeder gedruckten Seite wiederholt wird.",
+        "Datenblätter mit bis zu hunderttausend Zeilen, anpassbaren Spaltenbreiten, Zahlen-, Prozent-, Währungs- und Datumsformaten sowie Füll- und Textfarben.",
+        "Formeln mit den gängigen Tabellenkalkulationsfunktionen, die über Tabellen, Datenblätter und Seiten hinweg funktionieren, mit Vorschlägen für Funktionen, Tabellen und Spaltennamen während der Eingabe.",
+        "Berechnete Werte innerhalb eines Satzes, die sich bei jeder Datenänderung aktualisieren.",
+        "Verweise, die beim Umbenennen von Tabellen sowie beim Einfügen oder Löschen von Zeilen und Spalten angepasst werden.",
+        "Kopieren und Einfügen zwischen anderen Tabellenkalkulationen und Webseiten, mit Rückgängig und Wiederholen für jede Änderung.",
+        "Automatisches Speichern in Ihren Dokumenten auf dem Server, mit Schutz davor, dass zwei Fenster gegenseitig ihre Änderungen überschreiben.",
+        "Als .mvmoffice-Datei herunterladen und auf jedem anderen mvmOS öffnen.",
+        "Eine Datei auf Ihrem Computer in Chrome und Edge direkt bearbeiten und am selben Ort speichern.",
+        "Im Desktopfenster in Ihren Serverordnern speichern und daraus öffnen.",
+        "Das Dokument oder ein Datenblatt drucken, mit Vorschau sowie Auswahl von Papierformat, Seitenrändern, Seitenzahlen und einer wiederkehrenden Kopfzeile.",
+        "Ein Dokumenttyp „Buch“ mit frei gestaltbarem Vorder- und Rückumschlag, Kapiteln, die auf einer neuen Seite beginnen, gespiegelten Seitenrändern, einem Inhaltsverzeichnis mit Seitenzahlen und Anmerkungen am Ende jedes Kapitels.",
+        "Ein Umschlageditor mit Bildern, Texten, Formen, Texteffekten, einrastenden Hilfslinien und Anzeigen für gleiche Abstände, der auf dem Smartphone ebenso funktioniert wie auf dem Computer.",
+        "Eine Buchvorschau, die das Buch im Vollbild öffnet und seine Seiten umblättert. Sie zeigt genau, was gedruckt wird.",
+        "Anmerkungen, die im Text als Zahl erscheinen und sich per Klick öffnen, im Druck und in E-Books.",
+        "Export nach Word (.docx), PDF und E-Book (.epub) mit anklickbarem Inhaltsverzeichnis, Umschlag, Bildern und Anmerkungen.",
+        "Öffentliche Webseite für Ihr Apps Hub-Konto.",
+        "Bei installiertem mvmFonts stehen hundert kostenlose Schriftarten mit kyrillischen Zeichen für Text und Umschlagtitel zur Auswahl; der EPUB-Export enthält die verwendeten Schriftarten."
+      ],
+      "integrations": [
+        {
+          "summary": "Wenn mvmFonts installiert ist, bieten die Textwerkzeugleiste und der Umschlageditor dessen Schriftarten an. Diese werden auch beim Drucken sowie in PDF und EPUB verwendet.",
+          "requires": "mvmFonts muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Der Schalter ist standardmäßig ausgeschaltet; ohne ihn zeigt mvmOffice keine Schriftartenauswahl an."
+        },
+        {
+          "summary": "Der Schreibassistent sendet seine Fragen und Bildanfragen an die in mvmAI eingerichtete KI und benötigt daher keinen eigenen Schlüssel.",
+          "requires": "mvmAI muss installiert und seine App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein. Für Bilder muss außerdem ein Bildgenerator in mvmAI einsatzbereit sein. Der Schalter ist standardmäßig ausgeschaltet; ohne ihn steht der Assistent nicht zur Verfügung."
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "es": {
+      "short_description": "Documentos de texto en páginas A4 y hojas de cálculo en un solo archivo, con tablas dentro del texto, fórmulas entre tablas y páginas, y valores calculados directamente en tus frases.",
+      "tagline": "Tus textos y tus números en un solo documento que los mantiene sincronizados.",
+      "description": "mvmOffice reúne un documento de texto y una hoja de cálculo en un mismo archivo. Las páginas se escriben como en un procesador de textos, en hojas A4, con títulos, listas, colores y tablas insertadas directamente en el texto. Las hojas de datos son hojas de cálculo completas con miles de filas y columnas que no se imprimen con el documento, por lo que pueden contener todos los datos en los que se basa el texto.\n\nLas dos partes se comunican entre sí. Una fórmula de cualquier tabla puede utilizar celdas de cualquier otra tabla u hoja de datos, y un valor calculado puede aparecer dentro de una frase: escribe \"El precio más alto es\" e inserta el máximo de la columna Precio, y la frase se actualizará cada vez que cambien los datos. Al cambiar el nombre de una tabla o insertar filas, todas las fórmulas siguen apuntando al lugar correcto.\n\nLos documentos son archivos .mvmoffice normales. Se guardan automáticamente en tus documentos del servidor, en tu cuenta de Apps Hub, se pueden descargar y enviar a alguien que los abra en su propio mvmOS y, en Chrome y Edge, se puede editar y guardar directamente un archivo de tu ordenador. En la ventana de escritorio también se puede guardar un documento en tus carpetas del servidor y abrirlo desde ellas.",
+      "capabilities": [
+        "Páginas de texto en hojas A4 con títulos de hasta cuatro niveles, negrita, cursiva, subrayado, tachado, colores, alineación, listas con viñetas y numeradas, enlaces, imágenes, líneas horizontales y saltos de página.",
+        "Tablas dentro del texto que funcionan como una hoja de cálculo, con una fila de encabezado que se repite en cada página impresa.",
+        "Hojas de datos con hasta cien mil filas, columnas de ancho ajustable, formatos de número, porcentaje, moneda y fecha, y colores de relleno y de texto.",
+        "Fórmulas con las funciones habituales de las hojas de cálculo que funcionan entre tablas, hojas de datos y páginas, con sugerencias de funciones, tablas y nombres de columnas mientras escribes.",
+        "Valores calculados dentro de una frase que se actualizan cada vez que cambian los datos.",
+        "Referencias que se adaptan a los cambios de nombre de las tablas y a la inserción o eliminación de filas y columnas.",
+        "Copia y pega con otras hojas de cálculo y páginas web, con opciones de deshacer y rehacer cada cambio.",
+        "Guardado automático en tus documentos del servidor, con protección para evitar que dos ventanas sobrescriban los cambios de la otra.",
+        "Descarga como archivo .mvmoffice y apertura en cualquier otro mvmOS.",
+        "Edición directa de un archivo de tu ordenador en Chrome y Edge.",
+        "Guardado en tus carpetas del servidor y apertura desde ellas en la ventana de escritorio.",
+        "Impresión del documento o de una hoja de datos, con vista previa y opciones de tamaño del papel, márgenes, números de página y encabezado repetido.",
+        "Un tipo de documento Libro con portada y contraportada de diseño libre, capítulos que empiezan en una página nueva, márgenes simétricos, un índice con números de página y notas al final de cada capítulo.",
+        "Un editor de cubiertas con imágenes, textos, formas, efectos de texto, guías de ajuste e indicadores de separación uniforme que funciona tanto en un teléfono como en un ordenador.",
+        "Una vista previa del libro que lo abre a pantalla completa y permite pasar sus páginas, mostrando exactamente lo que se imprimirá.",
+        "Notas que aparecen como un número en el texto y se abren al hacer clic, en la versión impresa y en los libros electrónicos.",
+        "Exportación a Word (.docx), PDF y libro electrónico (.epub) con índice con enlaces, cubierta, imágenes y notas.",
+        "Página web pública para tu cuenta de Apps Hub.",
+        "Elección entre cien fuentes gratuitas con caracteres cirílicos para el texto y los títulos de las cubiertas cuando mvmFonts está instalado; la exportación a EPUB incluye las fuentes utilizadas."
+      ],
+      "integrations": [
+        {
+          "summary": "Con mvmFonts instalado, la barra de herramientas de texto y el editor de cubiertas ofrecen sus fuentes, y la impresión, el PDF y el EPUB las utilizan.",
+          "requires": "mvmFonts instalado y su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones. El interruptor está desactivado de forma predeterminada; sin él, mvmOffice no muestra un selector de fuentes."
+        },
+        {
+          "summary": "El asistente de escritura envía sus consultas y solicitudes de imágenes a la IA configurada en mvmAI, por lo que no necesita una clave propia.",
+          "requires": "mvmAI instalado con su API de aplicación activada en Apps Hub → Ajustes → API de aplicaciones y, para las imágenes, un generador de imágenes preparado en mvmAI. El interruptor está desactivado de forma predeterminada; sin él, el asistente no está disponible."
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "fr": {
+      "short_description": "Des documents texte sur des pages A4 et des feuilles de calcul dans un même fichier, avec des tableaux intégrés au texte, des formules reliant tableaux et pages, et des valeurs calculées au cœur de vos phrases.",
+      "tagline": "Vos textes et vos chiffres réunis dans un document qui les garde synchronisés.",
+      "description": "mvmOffice réunit un document texte et un tableur dans un même fichier. Les pages se rédigent comme dans un traitement de texte, sur des feuilles A4, avec des titres, des listes, des couleurs et des tableaux placés directement dans le texte. Les feuilles de données sont de véritables feuilles de calcul comportant des milliers de lignes et de colonnes qui ne sont pas imprimées avec le document : elles peuvent donc contenir toutes les données sur lesquelles repose le texte.\n\nLes deux parties communiquent entre elles. Une formule dans n’importe quel tableau peut utiliser les cellules de tout autre tableau ou feuille de données, et une valeur calculée peut s’insérer dans une phrase : écrivez « Le prix le plus élevé est » et insérez le maximum de la colonne Prix ; la phrase suit alors les données à chaque modification. Renommer un tableau ou insérer des lignes préserve toutes les références des formules.\n\nLes documents sont de simples fichiers .mvmoffice. Ils sont automatiquement enregistrés dans vos documents sur le serveur, sous votre compte Apps Hub, et peuvent être téléchargés puis envoyés à une personne qui les ouvrira sur son propre mvmOS. Dans Chrome et Edge, un fichier de votre ordinateur peut être modifié et enregistré directement à son emplacement. Dans la fenêtre de bureau, un document peut aussi être enregistré dans vos dossiers sur le serveur et ouvert depuis ceux-ci.",
+      "capabilities": [
+        "Pages de texte sur des feuilles A4 avec jusqu’à quatre niveaux de titres, gras, italique, soulignement, texte barré, couleurs, alignement, listes à puces et numérotées, liens, images, lignes horizontales et sauts de page.",
+        "Tableaux intégrés au texte qui fonctionnent comme un tableur, avec une ligne d’en-tête répétée sur chaque page imprimée.",
+        "Feuilles de données comportant jusqu’à cent mille lignes, colonnes redimensionnables, formats numériques, pourcentages, devises et dates, couleurs de fond et de texte.",
+        "Formules utilisant les fonctions courantes des tableurs entre les tableaux, les feuilles de données et les pages, avec des suggestions de fonctions, de tableaux et de noms de colonnes pendant la saisie.",
+        "Valeurs calculées intégrées aux phrases et mises à jour à chaque modification des données.",
+        "Références qui suivent les changements de nom des tableaux et les insertions ou suppressions de lignes et de colonnes.",
+        "Copier-coller avec d’autres tableurs et des pages web, avec annulation et rétablissement de chaque modification.",
+        "Enregistrement automatique dans vos documents sur le serveur, avec une protection empêchant deux fenêtres d’écraser leurs modifications respectives.",
+        "Téléchargement au format .mvmoffice et ouverture sur tout autre mvmOS.",
+        "Modification directe d’un fichier de votre ordinateur dans Chrome et Edge.",
+        "Enregistrement dans vos dossiers sur le serveur et ouverture depuis ceux-ci dans la fenêtre de bureau.",
+        "Impression du document ou d’une feuille de données, avec aperçu, choix du format de papier, marges, numéros de page et en-tête courant.",
+        "Type de document Livre avec première et quatrième de couverture librement personnalisables, chapitres commençant sur une nouvelle page, marges en miroir, table des matières avec numéros de page et notes regroupées à la fin de chaque chapitre.",
+        "Éditeur de couverture avec images, textes, formes, effets de texte, repères d’alignement avec magnétisme et indicateurs d’espacement égal, utilisable aussi bien sur téléphone que sur ordinateur.",
+        "Aperçu du livre en plein écran avec pages à tourner, montrant exactement ce qui sera imprimé.",
+        "Notes affichées sous forme de numéros dans le texte et accessibles d’un clic, dans les versions imprimées et les livres numériques.",
+        "Export vers Word (.docx), PDF et livre numérique (.epub), avec table des matières cliquable, couverture, images et notes.",
+        "Page web publique pour votre compte Apps Hub.",
+        "Choix parmi une centaine de polices gratuites avec caractères cyrilliques pour le texte et les titres de couverture lorsque mvmFonts est installé ; l’export EPUB embarque les polices utilisées."
+      ],
+      "integrations": [
+        {
+          "summary": "Lorsque mvmFonts est installé, la barre d’outils de texte et l’éditeur de couverture proposent ses polices, qui sont utilisées pour l’impression, les PDF et les EPUB.",
+          "requires": "mvmFonts doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications. Cette option est désactivée par défaut ; sans elle, mvmOffice ne propose aucun choix de police."
+        },
+        {
+          "summary": "L’assistant de rédaction envoie ses questions et ses demandes d’images à l’IA configurée dans mvmAI ; il n’a donc pas besoin de sa propre clé.",
+          "requires": "mvmAI doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications ; pour les images, un générateur d’images doit être prêt dans mvmAI. Cette option est désactivée par défaut ; sans elle, l’assistant n’est pas disponible."
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "ja": {
+      "short_description": "A4ページの文書とスプレッドシートを1つのファイルにまとめられます。本文内の表、表やページをまたぐ数式、文中に直接挿入できる計算値に対応しています。",
+      "tagline": "文章と数値を1つの文書にまとめ、常に連動させられます。",
+      "description": "mvmOfficeは、文書とスプレッドシートを同じファイルにまとめます。ページはワープロのようにA4用紙上で作成でき、見出し、リスト、色、表を本文に直接配置できます。データシートは数千の行と列を備えた本格的なスプレッドシートで、文書と一緒には印刷されないため、文章の基礎となるデータをすべて保存できます。\n\n文書とデータシートは相互に連動します。どの表の数式でも、ほかの表やデータシートのセルを参照でき、計算値を文中に配置することもできます。「最高価格は」と書いて「価格」列の最大値を挿入すれば、データが変わるたびに文章も更新されます。表の名前を変更したり行を挿入したりしても、すべての数式は正しい参照先を維持します。\n\n文書は通常の.mvmofficeファイルです。Apps Hubアカウントのサーバー上の文書領域に自動保存され、ダウンロードして送れば、相手のmvmOSで開くことができます。ChromeとEdgeでは、コンピューター上のファイルを直接編集して上書き保存できます。デスクトップウィンドウでは、サーバー上のフォルダーへの保存や、そこからの読み込みも可能です。",
+      "capabilities": [
+        "A4用紙上の文書ページ。4階層までの見出し、太字、斜体、下線、取り消し線、色、配置、箇条書きと番号付きリスト、リンク、画像、水平線、改ページに対応。",
+        "スプレッドシートのように操作できる本文内の表。印刷時には各ページで見出し行を繰り返し表示。",
+        "最大10万行のデータシート。列幅の変更、数値・パーセント・通貨・日付の表示形式、塗りつぶしと文字色に対応。",
+        "表、データシート、ページをまたいで使える一般的なスプレッドシート関数。入力中に関数、表、列名の候補を表示。",
+        "データが変わるたびに更新される、文中の計算値。",
+        "表の名前の変更や、行・列の挿入と削除に追従する参照。",
+        "ほかのスプレッドシートやWebページとのコピー＆ペースト。すべての変更の取り消しとやり直し。",
+        "サーバー上の文書領域への自動保存。2つのウィンドウによる相互の上書きを防止。",
+        ".mvmofficeファイルとしてダウンロードし、ほかのmvmOSで開くことが可能。",
+        "ChromeとEdgeでコンピューター上のファイルを直接編集して保存。",
+        "デスクトップウィンドウからサーバーフォルダーへの保存と読み込み。",
+        "文書やデータシートの印刷。プレビュー、用紙サイズ、余白、ページ番号、柱の設定に対応。",
+        "自由にデザインできる表紙と裏表紙、改ページして始まる章、見開き用の余白、ページ番号付き目次、各章末に一覧表示される注に対応した「書籍」文書タイプ。",
+        "画像、テキスト、図形、文字効果、スナップガイド、等間隔インジケーターを備え、スマートフォンでもコンピューターでも使える表紙エディター。",
+        "本を全画面で開いてページをめくり、実際の印刷結果を正確に確認できる書籍プレビュー。",
+        "本文中に番号で表示され、クリックすると開く注。印刷と電子書籍にも対応。",
+        "クリック可能な目次、表紙、画像、注を含むWord（.docx）、PDF、電子書籍（.epub）への書き出し。",
+        "Apps Hubアカウント用の公開Webページ。",
+        "mvmFontsがインストールされている場合、本文や表紙のタイトルにキリル文字対応の100種類の無料フォントを使用可能。EPUBの書き出しには使用フォントを同梱。"
+      ],
+      "integrations": [
+        {
+          "summary": "mvmFontsをインストールすると、テキストツールバーと表紙エディターでそのフォントを選択でき、印刷、PDF、EPUBにも使用できます。",
+          "requires": "mvmFontsがインストールされ、Apps Hub → 設定 → App APIでそのApp APIが有効になっている必要があります。初期設定では無効で、有効でない場合、mvmOfficeにはフォントの選択肢が表示されません。"
+        },
+        {
+          "summary": "執筆アシスタントは、質問や画像生成のリクエストをmvmAIで設定されたAIに送信するため、専用のキーは必要ありません。",
+          "requires": "mvmAIがインストールされ、Apps Hub → 設定 → App APIでそのApp APIが有効になっている必要があります。画像を生成するには、mvmAIで画像生成機能が利用可能になっている必要があります。初期設定では無効で、有効でない場合、アシスタントは利用できません。"
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "pt-BR": {
+      "short_description": "Documentos de texto em páginas A4 e planilhas em um só arquivo, com tabelas dentro do texto, fórmulas entre tabelas e páginas e valores calculados diretamente nas suas frases.",
+      "tagline": "Seus textos e seus números em um único documento que os mantém sincronizados.",
+      "description": "mvmOffice reúne um documento de texto e uma planilha no mesmo arquivo. As páginas são escritas como em um processador de texto, em folhas A4, com títulos, listas, cores e tabelas inseridas diretamente no texto. As folhas de dados são planilhas completas com milhares de linhas e colunas que não são impressas com o documento, permitindo armazenar todos os dados em que o texto se baseia.\n\nAs duas partes se comunicam. Uma fórmula em qualquer tabela pode usar células de qualquer outra tabela ou folha de dados, e um valor calculado pode aparecer dentro de uma frase: escreva \"O maior preço é\" e insira o valor máximo da coluna Preço, e a frase acompanhará os dados sempre que eles mudarem. Renomear uma tabela ou inserir linhas mantém todas as fórmulas apontando para o lugar certo.\n\nOs documentos são arquivos .mvmoffice comuns. Eles são salvos automaticamente nos seus documentos no servidor, na sua conta do Apps Hub, podem ser baixados e enviados a alguém que os abra no próprio mvmOS e, no Chrome e no Edge, um arquivo no seu computador pode ser editado e salvo diretamente no local de origem. Na janela da área de trabalho, um documento também pode ser salvo e aberto nas suas pastas do servidor.",
+      "capabilities": [
+        "Páginas de texto em folhas A4 com títulos de até quatro níveis, negrito, itálico, sublinhado, tachado, cores, alinhamento, listas com marcadores e numeradas, links, imagens, linhas horizontais e quebras de página.",
+        "Tabelas dentro do texto que funcionam como uma planilha, com uma linha de cabeçalho que se repete em cada página impressa.",
+        "Folhas de dados com até cem mil linhas, colunas redimensionáveis, formatos de número, porcentagem, moeda e data, e cores de preenchimento e de texto.",
+        "Fórmulas com as funções comuns de planilhas que funcionam entre tabelas, folhas de dados e páginas, com sugestões de funções, tabelas e nomes de colunas enquanto você digita.",
+        "Valores calculados dentro de uma frase que são atualizados sempre que os dados mudam.",
+        "Referências que acompanham tabelas renomeadas e linhas e colunas inseridas ou excluídas.",
+        "Copiar e colar entre outras planilhas e páginas da web, com opções para desfazer e refazer cada alteração.",
+        "Salvamento automático nos seus documentos no servidor, com proteção para impedir que duas janelas sobrescrevam as alterações uma da outra.",
+        "Download como arquivo .mvmoffice e abertura em qualquer outro mvmOS.",
+        "Edição de um arquivo no seu computador diretamente no local de origem no Chrome e no Edge.",
+        "Salvamento e abertura nas suas pastas do servidor pela janela da área de trabalho.",
+        "Impressão do documento ou de uma folha de dados, com pré-visualização, escolha de tamanho do papel, margens, números de página e cabeçalho recorrente.",
+        "Um tipo de documento Livro com capa e contracapa que você cria livremente, capítulos que começam em uma nova página, margens espelhadas, sumário com números de página e notas listadas ao final de cada capítulo.",
+        "Um editor de capas com imagens, textos, formas, efeitos de texto, guias de encaixe e indicadores de espaçamento uniforme que funciona tanto no celular quanto no computador.",
+        "Uma pré-visualização do livro que o abre em tela cheia e permite virar suas páginas, mostrando exatamente o que será impresso.",
+        "Notas que aparecem como um número no texto e abrem ao clicar, na impressão e em e-books.",
+        "Exportação para Word (.docx), PDF e e-book (.epub) com sumário clicável, capa, imagens e notas.",
+        "Página pública na web para sua conta do Apps Hub.",
+        "Escolha entre cem fontes gratuitas com caracteres cirílicos para textos e títulos de capa quando o mvmFonts estiver instalado; a exportação para EPUB inclui as fontes usadas."
+      ],
+      "integrations": [
+        {
+          "summary": "Com o mvmFonts instalado, a barra de ferramentas de texto e o editor de capas oferecem suas fontes, que também são usadas na impressão, no PDF e no EPUB.",
+          "requires": "mvmFonts instalado e sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos. A opção fica desativada por padrão; sem ela, o mvmOffice não mostra opções de fonte."
+        },
+        {
+          "summary": "O assistente de escrita envia suas perguntas e solicitações de imagens para a IA configurada no mvmAI, dispensando uma chave própria.",
+          "requires": "mvmAI instalado com sua API de aplicativo ativada em Apps Hub → Configurações → APIs de aplicativos e, para imagens, um gerador de imagens pronto para uso no mvmAI. A opção fica desativada por padrão; sem ela, o assistente não fica disponível."
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "ru": {
+      "short_description": "Текстовые документы на страницах A4 и электронные таблицы в одном файле: таблицы внутри текста, формулы, связывающие таблицы и страницы, и вычисляемые значения прямо в предложениях.",
+      "tagline": "Текст и числа в одном документе, который поддерживает их согласованность.",
+      "description": "mvmOffice объединяет текстовый документ и электронную таблицу в одном файле. Страницы создаются как в текстовом редакторе, на листах A4, с заголовками, списками, цветным оформлением и таблицами прямо в тексте. Листы данных — это полноценные электронные таблицы с тысячами строк и столбцов, которые не печатаются вместе с документом и могут хранить все данные, на которых основан текст.\n\nОбе части связаны друг с другом. Формула в любой таблице может использовать ячейки из любой другой таблицы или листа данных, а вычисляемое значение можно вставить прямо в предложение: напишите «Самая высокая цена —» и вставьте максимум из столбца «Цена», и предложение будет обновляться при каждом изменении данных. При переименовании таблицы или вставке строк все формулы продолжают ссылаться на нужные места.\n\nДокументы — это обычные файлы .mvmoffice. Они автоматически сохраняются в ваших документах на сервере под вашей учётной записью Apps Hub; их можно скачать и отправить человеку, который откроет их в своей mvmOS, а в Chrome и Edge файл на компьютере можно редактировать и сохранять непосредственно на месте. В окне приложения на рабочем столе документ также можно сохранять в свои папки на сервере и открывать из них.",
+      "capabilities": [
+        "Текстовые страницы на листах A4 с заголовками до четырёх уровней, полужирным, курсивным, подчёркнутым и зачёркнутым текстом, цветами, выравниванием, маркированными и нумерованными списками, ссылками, изображениями, горизонтальными линиями и разрывами страниц.",
+        "Таблицы внутри текста, работающие как электронные таблицы, со строкой заголовков, повторяющейся на каждой печатной странице.",
+        "Листы данных, содержащие до ста тысяч строк, с изменяемой шириной столбцов, числовым, процентным, денежным форматами и форматом даты, цветами заливки и текста.",
+        "Формулы с распространёнными функциями электронных таблиц, работающие между таблицами, листами данных и страницами, с подсказками функций, таблиц и названий столбцов при вводе.",
+        "Вычисляемые значения внутри предложений, обновляющиеся при изменении данных.",
+        "Ссылки, которые учитывают переименование таблиц, вставку и удаление строк и столбцов.",
+        "Копирование и вставка из других электронных таблиц и веб-страниц и обратно, с отменой и повтором каждого изменения.",
+        "Автоматическое сохранение в ваших документах на сервере с защитой от перезаписи данных двумя окнами.",
+        "Скачивание в виде файла .mvmoffice и открытие в любой другой mvmOS.",
+        "Редактирование файла на компьютере с сохранением на месте в Chrome и Edge.",
+        "Сохранение в папки на сервере и открытие из них в окне приложения на рабочем столе.",
+        "Печать документа или листа данных с предварительным просмотром, выбором размера бумаги, полей, номеров страниц и верхнего колонтитула.",
+        "Тип документа «Книга» с произвольным оформлением передней и задней обложек, главами с новой страницы, зеркальными полями, оглавлением с номерами страниц и примечаниями в конце каждой главы.",
+        "Редактор обложек с изображениями, текстовыми блоками, фигурами, текстовыми эффектами, направляющими привязки и индикаторами равных промежутков, работающий как на телефоне, так и на компьютере.",
+        "Предварительный просмотр книги в полноэкранном режиме с перелистыванием страниц, точно показывающий результат печати.",
+        "Примечания, обозначенные номером в тексте и открывающиеся по нажатию, в печатной версии и электронных книгах.",
+        "Экспорт в Word (.docx), PDF и электронную книгу (.epub) с интерактивным оглавлением, обложкой, изображениями и примечаниями.",
+        "Публичная веб-страница для вашей учётной записи Apps Hub.",
+        "Выбор из ста бесплатных шрифтов с кириллицей для текста и заголовков обложек при установленном mvmFonts; при экспорте в EPUB используемые шрифты включаются в файл."
+      ],
+      "integrations": [
+        {
+          "summary": "При установленном mvmFonts его шрифты доступны на панели форматирования текста и в редакторе обложек, а также используются при печати и экспорте в PDF и EPUB.",
+          "requires": "Требуется установленное приложение mvmFonts с включённым API приложения в Apps Hub → Настройки → API приложений. По умолчанию переключатель выключен; без него mvmOffice не предлагает выбор шрифта."
+        },
+        {
+          "summary": "Помощник по работе с текстом отправляет вопросы и запросы на изображения в ИИ, настроенный в mvmAI, поэтому отдельный ключ ему не нужен.",
+          "requires": "Требуется установленное приложение mvmAI с включённым API приложения в Apps Hub → Настройки → API приложений, а для изображений — готовый к работе генератор изображений в mvmAI. По умолчанию переключатель выключен; без него помощник недоступен."
+        }
+      ],
+      "name": "mvmOffice"
+    },
+    "zh-CN": {
+      "short_description": "在同一文件中整合 A4 文本文档和电子表格，支持正文内嵌表格、跨表格和页面的公式，以及直接插入句子的计算值。",
+      "tagline": "让文字与数据在同一文档中保持同步。",
+      "description": "mvmOffice 将文本文档和电子表格放在同一个文件中。页面像文字处理软件一样在 A4 纸张上编写，支持标题、列表、颜色，以及直接插入正文的表格。数据工作表是完整的电子表格，拥有数千行和列，不会随文档一起打印，因此可以容纳正文所依据的全部数据。\n\n这两个部分相互联通。任意表格中的公式都可以使用其他表格或数据工作表中的单元格，计算值也可以直接放在句子中：输入“最高价格为”，再插入“价格”列的最大值，数据变化时，句子也会随之更新。重命名表格或插入行后，每个公式仍会指向正确的位置。\n\n文档是普通的 .mvmoffice 文件。它们会自动保存到服务器上你的 Apps Hub 账户下的文档中，也可以下载并发送给他人，让对方在自己的 mvmOS 上打开。在 Chrome 和 Edge 中，还可以直接编辑电脑上的文件并保存到原位置。在桌面窗口中，也可以将文档保存到服务器文件夹，或从中打开文档。",
+      "capabilities": [
+        "A4 文本页面，支持最多四级标题、粗体、斜体、下划线、删除线、颜色、对齐、项目符号和编号列表、链接、图片、水平分隔线和分页符。",
+        "正文中的表格具备电子表格功能，表头行会在每张打印页面上重复显示。",
+        "数据工作表最多支持十万行，可调整列宽，设置数字、百分比、货币和日期格式，以及填充颜色和文字颜色。",
+        "支持常用电子表格函数的公式，可跨表格、数据工作表和页面使用，并在输入时提供函数、表格和列名建议。",
+        "可在句子中插入计算值，并随数据变化自动更新。",
+        "引用会随表格重命名以及行列的插入或删除自动调整。",
+        "支持与其他电子表格和网页之间复制粘贴，每次更改均可撤销和重做。",
+        "自动保存到服务器上的文档中，并防止两个窗口相互覆盖。",
+        "下载为 .mvmoffice 文件，并在任何其他 mvmOS 上打开。",
+        "在 Chrome 和 Edge 中直接编辑电脑上的文件并保存到原位置。",
+        "在桌面窗口中保存到服务器文件夹，或从中打开文件。",
+        "打印文档或数据工作表，支持预览，以及纸张大小、页边距、页码和页眉设置。",
+        "书籍文档类型，支持自由设计封面和封底、章节另起一页、对称页边距、带页码的目录，以及列于各章末尾的注释。",
+        "封面编辑器支持图片、文字、形状、文字效果、吸附参考线和等间距指示，可在手机和电脑上使用。",
+        "书籍预览可全屏打开并翻页，准确展示打印效果。",
+        "注释在正文中显示为数字，点击即可打开，打印版和电子书中也会保留。",
+        "导出为 Word (.docx)、PDF 和电子书 (.epub)，包含可点击的目录、封面、图片和注释。",
+        "为你的 Apps Hub 账户提供公开网页。",
+        "安装 mvmFonts 后，可从一百款支持西里尔字母的免费字体中为正文和封面标题选择字体；EPUB 导出会包含所用字体。"
+      ],
+      "integrations": [
+        {
+          "summary": "安装 mvmFonts 后，文字工具栏和封面编辑器会提供其中的字体，打印、PDF 和 EPUB 也会使用这些字体。",
+          "requires": "需安装 mvmFonts，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API。此开关默认关闭；未启用时，mvmOffice 不显示字体选择选项。"
+        },
+        {
+          "summary": "写作助手会将问题和图片请求发送给 mvmAI 中配置的 AI，因此无需单独配置密钥。",
+          "requires": "需安装 mvmAI，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API；如需生成图片，还需在 mvmAI 中配置好图片生成器。此开关默认关闭；未启用时，助手不可用。"
+        }
+      ],
+      "name": "mvmOffice"
+    }
+  }
 }

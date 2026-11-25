@@ -22,5 +22,199 @@
       "summary": "Turn on “Offer this public page as a site widget” and QueueDesk registers its booking page with mvmSiteBuilder, where it becomes an App widget block you can drop into a page. Clients then book from inside your own site instead of a separate link.",
       "requires": "mvmSiteBuilder installed with its App API enabled in Apps Hub → Settings → App APIs (off by default). Placing the widget in a page is a Premium feature of mvmSiteBuilder; QueueDesk's own public page is free."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Публична система за записване на часове и номера за опашка. Поддържайте седмичен график за посещения или опашка с номера без предварително записване — клиентите запазват час или вземат номер от публична страница без нужда от акаунт, а вие получавате известия и управлявате всичко оттук.",
+      "tagline": "Записване на часове и номера за опашка от публична страница без нужда от акаунт.",
+      "description": "QueueDesk управлява рецепцията. В режим със записване на часове определяте седмичното си работно време и продължителността на часовете, а клиентите избират свободен час от публична страница — име, телефон, съобщение и готово. В режим без предварително записване същата страница раздава билети с номера, а вие извиквате следващия, когато сте готови.\n\nКлиентите нямат нужда от акаунт. Те получават код за проверка със записания си час или номер; вие получавате известие веднага щом постъпи нов час или номер и управлявате всичко от работния плот: днешния списък, историята, почивните дни и анулиранията.\n\nПубличната страница има собствен адрес, който избирате, на избран от вас език, и може да се предлага и като уиджет за вграждане в сайт, създаден с mvmSiteBuilder.",
+      "capabilities": [
+        "Два режима: седмичен график за посещения с предварително записване или опашка с номера без предварително записване.",
+        "Седмично работно време с продължителност на часовете за всеки ден.",
+        "Почивни дни, така че празник да затваря календара, без да променяте работното време.",
+        "Публична страница за записване на часове с име, телефон, имейл и съобщение — без нужда от клиентски акаунт.",
+        "Код за проверка за всеки записан час или номер.",
+        "Текущо обслужван номер, Извикване на следващия, оставащ капацитет и нулиране на опашката за режима без предварително записване.",
+        "Днешен списък, история за период от време и състояния на записаните часове: записан, извикан, обслужен, анулиран.",
+        "Известие при всеки нов записан час или издаден номер.",
+        "Собствен публичен адрес и език на публичната страница.",
+        "Име на бизнеса, което се показва на клиентите."
+      ],
+      "integrations": [
+        {
+          "summary": "Включете „Предлагане на тази публична страница като уиджет за сайт“ и QueueDesk регистрира страницата си за записване на часове в mvmSiteBuilder, където тя става блок Уиджет на приложение, който можете да поставите в страница. След това клиентите записват часове от вашия собствен сайт вместо чрез отделна връзка.",
+          "requires": "Инсталиран mvmSiteBuilder с активиран API на приложението в Apps Hub → Настройки → API на приложенията (изключен по подразбиране). Поставянето на уиджета в страница е функция на Premium за mvmSiteBuilder; собствената публична страница на QueueDesk е безплатна."
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "de": {
+      "short_description": "Öffentliches System für Terminbuchungen und Wartemarken. Verwalte einen wöchentlichen Terminplan oder eine Warteschlange mit Nummern für Kunden ohne Termin – Kunden buchen oder ziehen eine Wartemarke auf einer öffentlichen Seite ganz ohne Konto. Du wirst benachrichtigt und verwaltest alles von hier aus.",
+      "tagline": "Terminbuchungen und Wartemarken über eine öffentliche Seite, ganz ohne Konto.",
+      "description": "QueueDesk übernimmt den Empfang. Im Terminmodus legst du deine wöchentlichen Öffnungszeiten und die Termindauer fest. Kunden wählen auf einer öffentlichen Seite einen freien Termin aus – Name, Telefonnummer, Nachricht, fertig. Im Modus für Kunden ohne Termin gibt dieselbe Seite nummerierte Wartemarken aus, und du rufst die nächste Nummer auf, sobald du bereit bist.\n\nKunden benötigen kein Konto. Sie erhalten mit ihrer Buchung oder Wartemarke einen Bestätigungscode. Du bekommst sofort eine Benachrichtigung, wenn eine neue Buchung oder Wartemarke eingeht, und verwaltest alles vom Desktop aus: die heutige Liste, den Verlauf, freie Tage und Stornierungen.\n\nDie öffentliche Seite erhält eine eigene Adresse und Sprache, die du auswählst. Sie kann auch als Widget zum Einbetten in eine mit mvmSiteBuilder erstellte Website angeboten werden.",
+      "capabilities": [
+        "Zwei Modi: wöchentlicher Terminplan oder Warteschlange mit Nummern für Kunden ohne Termin.",
+        "Wöchentliche Öffnungszeiten mit einer Termindauer pro Tag.",
+        "Freie Tage, damit ein Feiertag den Kalender sperrt, ohne die Öffnungszeiten zu ändern.",
+        "Öffentliche Buchungsseite mit Name, Telefonnummer, E-Mail-Adresse und Nachricht – kein Kundenkonto erforderlich.",
+        "Bestätigungscode pro Buchung oder Wartemarke.",
+        "Anzeige der aktuell bedienten Nummer, Aufruf der nächsten Nummer, verbleibende Kapazität und Zurücksetzen der Warteschlange im Modus für Kunden ohne Termin.",
+        "Heutige Liste, Verlauf für einen Datumsbereich und Buchungsstatus: gebucht, aufgerufen, bedient, storniert.",
+        "Benachrichtigung bei jeder neuen Buchung oder Wartemarke.",
+        "Eigene öffentliche Adresse und Sprache der öffentlichen Seite.",
+        "Firmenname, der Kunden angezeigt wird."
+      ],
+      "integrations": [
+        {
+          "summary": "Aktiviere „Diese öffentliche Seite als Website-Widget anbieten“. QueueDesk registriert dann seine Buchungsseite bei mvmSiteBuilder, wo sie als App-Widget-Block verfügbar wird, den du in eine Seite einfügen kannst. Kunden buchen dann direkt auf deiner eigenen Website statt über einen separaten Link.",
+          "requires": "mvmSiteBuilder muss installiert und die zugehörige App-API unter Apps Hub → Einstellungen → App-APIs aktiviert sein (standardmäßig deaktiviert). Das Einfügen des Widgets in eine Seite ist eine Premium-Funktion von mvmSiteBuilder; die eigene öffentliche Seite von QueueDesk ist kostenlos."
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "fr": {
+      "short_description": "Système public de réservation et de tickets de file d’attente. Gérez un planning hebdomadaire de rendez-vous ou une file d’attente sans rendez-vous à tickets numérotés : les clients réservent ou prennent un ticket sur une page publique sans avoir besoin de compte, et vous recevez une notification et gérez tout depuis cette application.",
+      "tagline": "Réservations et tickets de file d’attente depuis une page publique, sans compte.",
+      "description": "QueueDesk gère l’accueil. En mode rendez-vous, vous définissez vos horaires hebdomadaires et la durée des créneaux, et les clients choisissent un créneau libre sur une page publique : un nom, un numéro de téléphone, un message, et c’est fait. En mode sans rendez-vous, la même page distribue des tickets numérotés, et vous appelez le suivant quand vous êtes prêt.\n\nLes clients n’ont pas besoin de compte. Ils reçoivent un code de vérification avec leur réservation ou leur ticket ; vous recevez une notification dès qu’une demande arrive et gérez tout depuis le bureau : la liste du jour, l’historique, les jours de fermeture et les annulations.\n\nLa page publique possède une adresse que vous choisissez, dans la langue de votre choix, et peut également être proposée sous forme de widget à intégrer dans un site créé avec mvmSiteBuilder.",
+      "capabilities": [
+        "Deux modes : planning hebdomadaire de rendez-vous ou file d’attente sans rendez-vous à tickets numérotés.",
+        "Horaires d’ouverture hebdomadaires avec une durée de créneau définie pour chaque jour.",
+        "Jours de fermeture permettant de fermer le calendrier pour un jour férié sans modifier les horaires.",
+        "Page publique de réservation avec nom, téléphone, e-mail et message — aucun compte client requis.",
+        "Code de vérification pour chaque réservation ou ticket.",
+        "Numéro en cours, action Appeler le suivant, capacité restante et réinitialisation de la file en mode sans rendez-vous.",
+        "Liste du jour, historique sur une plage de dates et états des réservations : réservé, appelé, pris en charge, annulé.",
+        "Notification à chaque nouvelle réservation ou nouveau ticket.",
+        "Adresse publique personnalisée et choix de la langue de la page publique.",
+        "Nom de l’établissement affiché aux clients."
+      ],
+      "integrations": [
+        {
+          "summary": "Activez « Proposer cette page publique comme widget de site » et QueueDesk enregistre sa page de réservation auprès de mvmSiteBuilder, où elle devient un bloc Widget d’application à insérer dans une page. Les clients réservent alors directement depuis votre propre site plutôt que via un lien distinct.",
+          "requires": "mvmSiteBuilder doit être installé et son API d’application activée dans Apps Hub → Paramètres → API des applications (désactivée par défaut). L’insertion du widget dans une page est une fonctionnalité Premium de mvmSiteBuilder ; la page publique propre à QueueDesk est gratuite."
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "es": {
+      "short_description": "Sistema público de reservas y turnos. Gestiona un horario semanal de citas o una cola de turnos sin cita previa: los clientes reservan o sacan un número desde una página pública sin necesidad de cuenta, y tú recibes notificaciones y lo gestionas todo desde aquí.",
+      "tagline": "Reservas y turnos desde una página pública, sin necesidad de cuenta.",
+      "description": "QueueDesk se encarga de la recepción. En el modo de citas, defines tu horario semanal y la duración de las franjas, y los clientes eligen una franja libre desde una página pública: nombre, teléfono, mensaje y listo. En el modo sin cita previa, la misma página entrega turnos numerados y tú llamas al siguiente cuando estés listo.\n\nLos clientes no necesitan cuenta. Reciben un código de verificación con su reserva o turno; tú recibes una notificación en cuanto llega uno y lo gestionas todo desde el escritorio: la lista de hoy, el historial, los días de cierre y las cancelaciones.\n\nLa página pública tiene la dirección y el idioma que elijas, y también se puede ofrecer como widget para insertarlo en un sitio creado con mvmSiteBuilder.",
+      "capabilities": [
+        "Dos modos: horario semanal de citas o cola de turnos sin cita previa.",
+        "Horario semanal de apertura con una duración de las franjas para cada día.",
+        "Días de cierre, para que un festivo bloquee el calendario sin modificar el horario.",
+        "Página pública de reservas con nombre, teléfono, correo electrónico y mensaje, sin necesidad de que el cliente tenga cuenta.",
+        "Código de verificación para cada reserva o turno.",
+        "Turno en atención, Llamar al siguiente, capacidad restante y reinicio de la cola para el modo sin cita previa.",
+        "Lista de hoy, historial por intervalo de fechas y estados de reserva: reservada, llamada, atendida, cancelada.",
+        "Notificación por cada nueva reserva o turno.",
+        "Tu propia dirección pública y el idioma de la página pública.",
+        "Nombre del negocio visible para los clientes."
+      ],
+      "integrations": [
+        {
+          "summary": "Activa «Ofrecer esta página pública como widget para sitios» y QueueDesk registra su página de reservas en mvmSiteBuilder, donde se convierte en un bloque de widget de aplicación que puedes colocar en una página. Así, los clientes reservan desde tu propio sitio en lugar de hacerlo mediante un enlace independiente.",
+          "requires": "mvmSiteBuilder instalado con su API de la aplicación habilitada en Apps Hub → Configuración → API de aplicaciones (desactivada de forma predeterminada). Colocar el widget en una página es una función Premium de mvmSiteBuilder; la página pública de QueueDesk es gratuita."
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "ja": {
+      "short_description": "公開予約・順番待ち整理券システム。週ごとの予約スケジュールや当日受付の番号順キューを運用できます。利用者はアカウント不要の公開ページから予約や発券を行い、こちらで通知を受け取ってすべてを管理できます。",
+      "tagline": "アカウント不要の公開ページで、予約と順番待ちの整理券を受け付け。",
+      "description": "QueueDeskは受付業務を支援します。予約モードでは、週ごとの受付時間と予約枠の長さを設定すると、利用者が公開ページから空いている枠を選べます。名前、電話番号、メッセージを入力すれば完了です。当日受付モードでは、同じページで番号付き整理券を発行し、準備ができたら次の人を呼び出せます。\n\n利用者のアカウントは不要です。予約や整理券とともに確認コードが発行されます。新しい予約や発券があるとすぐに通知が届き、当日の一覧、履歴、休業日、キャンセルをすべてデスクトップから管理できます。\n\n公開ページには、希望するアドレスと言語を設定できます。また、mvmSiteBuilderで作成したサイトに埋め込むためのウィジェットとして提供することもできます。",
+      "capabilities": [
+        "週ごとの予約スケジュールと、当日受付の番号順キューの2つのモード。",
+        "曜日ごとの受付時間と予約枠の長さの設定。",
+        "受付時間の設定を変えずに、休業日を指定してカレンダーの受付を停止。",
+        "名前、電話番号、メールアドレス、メッセージを入力できる公開予約ページ。利用者のアカウントは不要。",
+        "予約または整理券ごとの確認コード。",
+        "当日受付モードでの対応中の番号の表示、次の人の呼び出し、残り受付可能数の表示、キューのリセット。",
+        "当日の一覧、期間を指定した履歴、予約済み・呼び出し済み・対応済み・キャンセル済みの予約状態。",
+        "新しい予約や発券ごとの通知。",
+        "独自の公開アドレスと公開ページの言語。",
+        "利用者に表示する事業名。"
+      ],
+      "integrations": [
+        {
+          "summary": "「この公開ページをサイトウィジェットとして提供」を有効にすると、QueueDeskが予約ページをmvmSiteBuilderに登録します。登録されたページは、ページ内に配置できるアプリウィジェットブロックとして利用できます。これにより、利用者は別のリンクに移動せず、自分のサイト内から予約できます。",
+          "requires": "mvmSiteBuilderがインストールされ、Apps Hub → 設定 → アプリAPIでそのアプリAPIが有効になっている必要があります（初期状態では無効）。ページへのウィジェット配置はmvmSiteBuilderのPremium機能です。QueueDesk自体の公開ページは無料です。"
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "pt-BR": {
+      "short_description": "Sistema público de agendamentos e senhas de atendimento. Gerencie uma agenda semanal de horários ou uma fila por ordem de chegada — os clientes agendam ou retiram uma senha em uma página pública sem precisar de conta, e você recebe notificações e gerencia tudo por aqui.",
+      "tagline": "Agendamentos e senhas de atendimento em uma página pública, sem precisar de conta.",
+      "description": "QueueDesk cuida da recepção. No modo de agendamento, você define seus horários semanais e a duração de cada atendimento, e os clientes escolhem um horário livre em uma página pública — nome, telefone, uma mensagem e pronto. No modo por ordem de chegada, a mesma página distribui senhas numeradas, e você chama a próxima quando estiver pronto.\n\nOs clientes não precisam de conta. Eles recebem um código de verificação junto com o agendamento ou a senha; você recebe uma notificação assim que um novo agendamento ou senha é registrado e gerencia tudo pelo desktop: a lista de hoje, o histórico, os dias de folga e os cancelamentos.\n\nA página pública tem um endereço próprio e um idioma escolhidos por você, e também pode ser oferecida como widget para incorporar em um site criado com mvmSiteBuilder.",
+      "capabilities": [
+        "Dois modos: agenda semanal de atendimentos ou fila de senhas por ordem de chegada.",
+        "Horários semanais de funcionamento com duração de atendimento definida por dia.",
+        "Dias de folga, para que um feriado bloqueie a agenda sem alterar os horários.",
+        "Página pública de agendamento com nome, telefone, e-mail e mensagem — sem exigir conta do cliente.",
+        "Código de verificação para cada agendamento ou senha.",
+        "Senha em atendimento, Chamar próxima, capacidade restante e reinicialização da fila no modo por ordem de chegada.",
+        "Lista de hoje, histórico por intervalo de datas e estados de agendamento: agendado, chamado, atendido, cancelado.",
+        "Notificação a cada novo agendamento ou senha.",
+        "Seu próprio endereço público e idioma da página pública.",
+        "Nome da empresa exibido aos clientes."
+      ],
+      "integrations": [
+        {
+          "summary": "Ative “Oferecer esta página pública como widget de site” e QueueDesk registrará sua página de agendamento no mvmSiteBuilder, onde ela se tornará um bloco de widget de aplicativo que você pode inserir em uma página. Assim, os clientes fazem agendamentos dentro do seu próprio site, em vez de acessar um link separado.",
+          "requires": "mvmSiteBuilder instalado com sua API do aplicativo ativada em Apps Hub → Configurações → APIs dos aplicativos (desativada por padrão). Inserir o widget em uma página é um recurso Premium do mvmSiteBuilder; a página pública do próprio QueueDesk é gratuita."
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "ru": {
+      "short_description": "Общедоступная система записи на приём и выдачи талонов электронной очереди. Ведите еженедельное расписание приёмов или живую очередь с номерами — клиенты записываются или получают талон на общедоступной странице без учётной записи, а вы получаете уведомления и управляете всем отсюда.",
+      "tagline": "Запись на приём и талоны электронной очереди на общедоступной странице без учётной записи.",
+      "description": "QueueDesk помогает организовать приём посетителей. В режиме записи вы задаёте еженедельные часы работы и длительность интервалов, а клиенты выбирают свободное время на общедоступной странице — имя, телефон, сообщение, готово. В режиме живой очереди та же страница выдаёт номерные талоны, а вы вызываете следующего посетителя, когда готовы.\n\nКлиентам не нужна учётная запись. Вместе с записью или талоном они получают код подтверждения; вы сразу получаете уведомление и управляете всем с рабочего стола: списком на сегодня, историей, выходными днями и отменами.\n\nУ общедоступной страницы есть собственный адрес, который вы выбираете, и выбранный вами язык. Её также можно предложить в виде виджета для встраивания в сайт, созданный с помощью mvmSiteBuilder.",
+      "capabilities": [
+        "Два режима: еженедельное расписание приёмов или живая очередь с номерами.",
+        "Еженедельные часы работы с длительностью интервалов для каждого дня.",
+        "Выходные дни, позволяющие закрыть календарь на праздник без изменения часов работы.",
+        "Общедоступная страница записи с именем, телефоном, электронной почтой и сообщением — учётная запись клиента не требуется.",
+        "Код подтверждения для каждой записи или талона.",
+        "Текущий обслуживаемый номер, действие «Вызвать следующего», оставшееся число мест и сброс очереди в режиме живой очереди.",
+        "Список на сегодня, история за выбранный диапазон дат и статусы записи: записан, вызван, обслужен, отменён.",
+        "Уведомление о каждой новой записи или талоне.",
+        "Собственный общедоступный адрес и язык общедоступной страницы.",
+        "Название организации, которое видят клиенты."
+      ],
+      "integrations": [
+        {
+          "summary": "Включите «Предлагать эту общедоступную страницу как виджет сайта», и QueueDesk зарегистрирует страницу записи в mvmSiteBuilder, где она станет блоком «Виджет приложения», который можно добавить на страницу. После этого клиенты смогут записываться прямо на вашем сайте вместо перехода по отдельной ссылке.",
+          "requires": "Установленный mvmSiteBuilder с включённым API приложения в Apps Hub → Настройки → API приложений (по умолчанию выключен). Размещение виджета на странице — функция Premium в mvmSiteBuilder; собственная общедоступная страница QueueDesk бесплатна."
+        }
+      ],
+      "name": "QueueDesk"
+    },
+    "zh-CN": {
+      "short_description": "公开预约和排队取号系统。可采用每周预约时间表或现场叫号队列；客户无需账户，即可从公开页面预约或取号，您则在此接收通知并管理一切。",
+      "tagline": "通过公开页面预约和排队取号，无需账户。",
+      "description": "QueueDesk 帮您处理前台接待。在预约模式下，您设置每周营业时间和预约时段长度，客户便可在公开页面选择空闲时段，填写姓名、电话和留言，即可完成预约。在现场排队模式下，同一页面会发放排队号码，您准备好后即可叫下一位。\n\n客户无需账户。预约或取号后，他们会获得一个验证码；您会在收到新预约或排队号时立即获得通知，并可在桌面端管理所有内容：今日列表、历史记录、休息日和取消操作。\n\n您可以为公开页面选择专属地址和语言，也可以将其作为小组件，嵌入使用 mvmSiteBuilder 构建的网站。",
+      "capabilities": [
+        "两种模式：每周预约时间表或现场叫号队列。",
+        "设置每周营业时间，并为每天指定预约时段长度。",
+        "设置休息日，无需修改营业时间即可在节假日关闭预约。",
+        "公开预约页面，支持填写姓名、电话、电子邮件和留言，客户无需账户。",
+        "每个预约或排队号均有独立验证码。",
+        "现场排队模式支持显示当前叫号、叫下一位、剩余容量和重置队列。",
+        "今日列表、按日期范围查看历史记录，以及预约状态：已预约、已叫号、已接待、已取消。",
+        "每次收到新预约或排队号时发送通知。",
+        "自定义公开地址和公开页面语言。",
+        "向客户显示商家名称。"
+      ],
+      "integrations": [
+        {
+          "summary": "开启“将此公开页面作为网站小组件提供”后，QueueDesk 会向 mvmSiteBuilder 注册其预约页面，使其成为可拖放到页面中的应用小组件区块。客户随后即可直接在您的网站内预约，无需打开单独的链接。",
+          "requires": "已安装 mvmSiteBuilder，并在 Apps Hub → 设置 → 应用 API 中启用其应用 API（默认关闭）。将小组件放入页面是 mvmSiteBuilder 的 Premium 功能；QueueDesk 自身的公开页面免费。"
+        }
+      ],
+      "name": "QueueDesk"
+    }
+  }
 }

@@ -21,5 +21,207 @@
       "short": "Turn Fast play on or off for players",
       "description": "The owner of the server decides from the game's window in the desktop whether players get Fast play. It is on by default."
     }
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "summary": "Premium ergänzt Tower Defense um das Schnellspiel. So müssen Spieler mit einem starken Turm weniger Zeit auf Wellen warten, von denen sie bereits wissen, dass sie sie gewinnen werden.",
+      "features": [
+        {
+          "title": "Spielgeschwindigkeit",
+          "short": "Lass das Spiel bis zu zehnmal schneller laufen",
+          "description": "Wähle während einer Welle eine Geschwindigkeit zwischen normal und zehnfach. Die Simulation verwendet dieselben Schritte und dieselbe Punktewertung. Langsamere Geräte erreichen möglicherweise weniger als die gewählte Geschwindigkeit, damit die Bedienung flüssig bleibt."
+        },
+        {
+          "title": "Automatische Wellen",
+          "short": "Lass Wellen automatisch aufeinanderfolgen",
+          "description": "Wähle in der Wellenliste „Nach Welle N“, um aufeinanderfolgende Wellen bis zu deinem bisherigen Rekord automatisch zu starten. Die erste Option „Zwischenstopp“ öffnet den Shop nach jeder Welle. Bei der gewählten Welle öffnet sich der Shop, und die Geschwindigkeit wird für diese Runde auf normal zurückgesetzt. Die Bedienelemente bleiben während der Wellen verfügbar."
+        },
+        {
+          "title": "Gespeicherte Schnellspiel-Einstellungen",
+          "short": "Behalte deine bevorzugten Einstellungen für neue Spiele",
+          "description": "Wenn du die Geschwindigkeit oder die Welle zum Anhalten änderst, erscheint eine Schaltfläche zum Speichern. Drücke sie, um diese Einstellungen in diesem Browser zu speichern. Neue Spiele verwenden sie; Änderungen während einer Runde ersetzen sie erst, wenn du erneut speicherst."
+        },
+        {
+          "title": "Schalter für den Serverbetreiber",
+          "short": "Aktiviere oder deaktiviere das Schnellspiel für Spieler",
+          "description": "Der Serverbetreiber legt im Spielfenster auf dem Desktop fest, ob Spieler das Schnellspiel nutzen können. Es ist standardmäßig aktiviert."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Premium добавя бърза игра към „Защита на кулата“, така че играчите със силна кула да прекарват по-малко време в изчакване на вълни, които вече знаят, че ще победят.",
+      "features": [
+        {
+          "title": "Скорост на играта",
+          "short": "Ускорете играта до десет пъти",
+          "description": "Изберете скорост от нормална до десет пъти по-висока по време на вълна. Симулацията използва същите стъпки и отчитане на резултата; по-бавните устройства може да работят под избраната скорост, за да запазят бързата реакция на управлението."
+        },
+        {
+          "title": "Автоматични вълни",
+          "short": "Оставете вълните да следват една след друга автоматично",
+          "description": "Изберете „След вълна N“ в списъка с вълни, за да стартирате последователни вълни автоматично до текущия си рекорд; първата опция, „Междинно спиране“, отваря магазина след всяка вълна. При избраната вълна магазинът се отваря и скоростта се връща към нормалната за тази игра. Управлението остава достъпно по време на вълните."
+        },
+        {
+          "title": "Запазени настройки за бърза игра",
+          "short": "Запазете предпочитаните си настройки за нови игри",
+          "description": "Когато промените скоростта или вълната за спиране, се появява бутон за запазване. Натиснете го, за да запомните тези настройки в този браузър; новите игри ги използват, а промените по време на игра не ги заменят, докато не ги запазите отново."
+        },
+        {
+          "title": "Превключвател за собственика",
+          "short": "Включвайте или изключвайте бързата игра за играчите",
+          "description": "Собственикът на сървъра решава от прозореца на играта на работния плот дали играчите да имат бърза игра. Тя е включена по подразбиране."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Premium añade el juego rápido a Tower Defense, para que los jugadores con una torre potente pasen menos tiempo esperando en oleadas que ya saben que van a superar.",
+      "features": [
+        {
+          "title": "Velocidad del juego",
+          "short": "Ejecuta el juego hasta diez veces más rápido",
+          "description": "Elige una velocidad desde la normal hasta diez veces más rápida durante una oleada. La simulación utiliza los mismos pasos y el mismo sistema de puntuación; los dispositivos más lentos pueden funcionar por debajo de la velocidad seleccionada para mantener una respuesta fluida."
+        },
+        {
+          "title": "Oleadas automáticas",
+          "short": "Deja que las oleadas se sucedan automáticamente",
+          "description": "Elige \"Después de la oleada N\" en la lista de oleadas para iniciar automáticamente oleadas sucesivas hasta tu récord actual; la primera opción, Parada intermedia, abre la tienda después de cada oleada. Al llegar a la oleada elegida, la tienda se abre y la velocidad vuelve a la normal para esta partida. Los controles siguen disponibles durante las oleadas."
+        },
+        {
+          "title": "Ajustes guardados del juego rápido",
+          "short": "Conserva tu configuración preferida para las nuevas partidas",
+          "description": "Aparece un botón para guardar cuando cambias la velocidad o la oleada de parada. Púlsalo para recordar esa configuración en este navegador; las nuevas partidas la utilizarán, y los cambios durante una partida no la sustituirán hasta que vuelvas a guardar."
+        },
+        {
+          "title": "Control del propietario",
+          "short": "Activa o desactiva el juego rápido para los jugadores",
+          "description": "El propietario del servidor decide desde la ventana del juego en el escritorio si los jugadores disponen del juego rápido. Está activado de forma predeterminada."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Premium ajoute le mode Jeu rapide à Tower Defense, pour que les joueurs disposant d’une tour puissante passent moins de temps à attendre la fin des vagues qu’ils savent déjà pouvoir vaincre.",
+      "features": [
+        {
+          "title": "Vitesse du jeu",
+          "short": "Accélérez le jeu jusqu’à dix fois sa vitesse normale",
+          "description": "Choisissez une vitesse allant de la normale à dix fois plus rapide pendant une vague. La simulation utilise les mêmes étapes et le même calcul des scores ; les appareils plus lents peuvent fonctionner en dessous de la vitesse sélectionnée pour rester réactifs."
+        },
+        {
+          "title": "Vagues automatiques",
+          "short": "Laissez les vagues s’enchaîner automatiquement",
+          "description": "Choisissez « Après la vague N » dans la liste des vagues pour lancer automatiquement les vagues successives, jusqu’à votre record actuel ; la première option, Arrêt intermédiaire, ouvre la boutique après chaque vague. À la vague choisie, la boutique s’ouvre et la vitesse revient à la normale pour cette partie. Les commandes restent disponibles pendant les vagues."
+        },
+        {
+          "title": "Réglages du mode Jeu rapide enregistrés",
+          "short": "Conservez vos réglages préférés pour les nouvelles parties",
+          "description": "Un bouton d’enregistrement apparaît lorsque vous modifiez la vitesse ou la vague d’arrêt. Appuyez dessus pour mémoriser ces réglages dans ce navigateur ; les nouvelles parties les utilisent, et les modifications effectuées pendant une partie ne les remplacent que si vous les enregistrez à nouveau."
+        },
+        {
+          "title": "Activation par le propriétaire",
+          "short": "Activez ou désactivez le mode Jeu rapide pour les joueurs",
+          "description": "Le propriétaire du serveur décide, depuis la fenêtre du jeu sur le bureau, si les joueurs ont accès au mode Jeu rapide. Il est activé par défaut."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "Premiumではタワーディフェンスに高速プレイが追加され、強いタワーを持つプレイヤーは、勝てると分かっているウェーブの待ち時間を短縮できます。",
+      "features": [
+        {
+          "title": "ゲーム速度",
+          "short": "ゲームを最大10倍速で実行",
+          "description": "ウェーブ中に、通常速度から10倍速までの速度を選べます。シミュレーションの処理手順とスコア計算は同じです。処理速度の低いデバイスでは、操作への応答性を保つため、選択した速度を下回ることがあります。"
+        },
+        {
+          "title": "ウェーブの自動進行",
+          "short": "ウェーブを自動で連続開始",
+          "description": "ウェーブ一覧で「ウェーブNの後」を選ぶと、現在の自己記録を上限として、ウェーブが自動で連続開始されます。最初の選択肢「途中停止」では、各ウェーブの終了後にショップが開きます。選択したウェーブに到達するとショップが開き、そのプレイの速度は通常に戻ります。ウェーブ中も操作できます。"
+        },
+        {
+          "title": "高速プレイ設定の保存",
+          "short": "好みの設定を新しいゲームでも使用",
+          "description": "速度または停止するウェーブを変更すると、保存ボタンが表示されます。押すと、その設定がこのブラウザーに保存され、新しいゲームで使われます。プレイ中に設定を変更しても、再び保存するまでは保存済みの設定は置き換わりません。"
+        },
+        {
+          "title": "オーナーによる切り替え",
+          "short": "プレイヤーの高速プレイを有効・無効に設定",
+          "description": "サーバーのオーナーは、デスクトップ上のゲームウィンドウから、プレイヤーが高速プレイを使えるかどうかを決められます。初期設定では有効です。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "O Premium adiciona o Jogo rápido ao Tower Defense, para que jogadores com uma torre forte passem menos tempo esperando por ondas que já sabem que vão vencer.",
+      "features": [
+        {
+          "title": "Velocidade do jogo",
+          "short": "Execute o jogo até dez vezes mais rápido",
+          "description": "Escolha uma velocidade entre a normal e dez vezes mais rápida durante uma onda. A simulação usa as mesmas etapas e a mesma pontuação; dispositivos mais lentos podem executar abaixo da velocidade selecionada para manter a resposta aos comandos."
+        },
+        {
+          "title": "Ondas automáticas",
+          "short": "Deixe as ondas começarem uma após a outra automaticamente",
+          "description": "Escolha \"Após a onda N\" na lista de ondas para iniciar ondas sucessivas automaticamente, até o seu recorde atual; a primeira opção, Parada intermediária, abre a loja após cada onda. Na onda escolhida, a loja abre e a velocidade volta ao normal para esta partida. Os controles continuam disponíveis durante as ondas."
+        },
+        {
+          "title": "Configurações salvas do Jogo rápido",
+          "short": "Mantenha sua configuração preferida para novas partidas",
+          "description": "Um botão de salvar aparece quando você altera a velocidade ou a onda de parada. Pressione-o para memorizar essa configuração neste navegador; novas partidas a utilizam, e alterações durante uma partida não a substituem até que você salve novamente."
+        },
+        {
+          "title": "Controle do proprietário",
+          "short": "Ative ou desative o Jogo rápido para os jogadores",
+          "description": "O proprietário do servidor decide, pela janela do jogo na área de trabalho, se os jogadores terão acesso ao Jogo rápido. Ele vem ativado por padrão."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Premium добавляет в «Защиту башни» ускоренную игру, чтобы игроки с сильной башней тратили меньше времени на ожидание в волнах, победа в которых уже предрешена.",
+      "features": [
+        {
+          "title": "Скорость игры",
+          "short": "Ускоряйте игру до десяти раз",
+          "description": "Во время волны выбирайте скорость от обычной до десятикратной. Симуляция использует те же шаги и правила подсчёта очков; на менее мощных устройствах фактическая скорость может быть ниже выбранной, чтобы игра сохраняла отзывчивость."
+        },
+        {
+          "title": "Автоматические волны",
+          "short": "Позвольте волнам сменять друг друга автоматически",
+          "description": "Выберите «После волны N» в списке волн, чтобы следующие волны запускались автоматически вплоть до вашего текущего рекорда; первый пункт, «Промежуточная остановка», открывает магазин после каждой волны. На выбранной волне откроется магазин, а скорость в этом прохождении вернётся к обычной. Управление остаётся доступным во время волн."
+        },
+        {
+          "title": "Сохранение настроек ускоренной игры",
+          "short": "Сохраняйте удобные настройки для новых игр",
+          "description": "При изменении скорости или волны остановки появляется кнопка сохранения. Нажмите её, чтобы запомнить настройки в этом браузере; они будут использоваться в новых играх, а изменения во время прохождения не заменят их, пока вы снова не сохраните настройки."
+        },
+        {
+          "title": "Переключатель для владельца",
+          "short": "Включайте и отключайте ускоренную игру для игроков",
+          "description": "Владелец сервера решает в окне игры на рабочем столе, будет ли игрокам доступна ускоренная игра. По умолчанию она включена."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "Premium 为《塔防》添加快速游玩功能，让拥有强大防御塔的玩家减少等待，快速通过那些已知能够取胜的波次。",
+      "features": [
+        {
+          "title": "游戏速度",
+          "short": "以最高十倍速运行游戏",
+          "description": "在一波进攻期间，可选择从正常速度到十倍速的运行速度。模拟采用相同的步进和计分方式；速度较慢的设备可能会低于所选速度运行，以保持响应流畅。"
+        },
+        {
+          "title": "自动开始波次",
+          "short": "让各波进攻自动接续",
+          "description": "在波次列表中选择“第 N 波后”，即可自动连续开始各波进攻，最多达到你现有的纪录；第一个选项“中途停顿”会在每波结束后打开商店。到达所选波次时，商店会打开，本局游戏速度会恢复正常。进攻期间仍可使用各项控制。"
+        },
+        {
+          "title": "保存快速游玩设置",
+          "short": "为新游戏保留你偏好的配置",
+          "description": "更改速度或停止波次后，会出现保存按钮。按下按钮即可在此浏览器中记住该配置，供新游戏使用；本局游戏中的更改只有在再次保存后才会覆盖它。"
+        },
+        {
+          "title": "所有者开关",
+          "short": "为玩家开启或关闭快速游玩",
+          "description": "服务器所有者可在桌面中的游戏窗口内决定是否向玩家提供快速游玩。默认开启。"
+        }
+      ]
+    }
+  }
 }

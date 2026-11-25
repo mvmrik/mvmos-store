@@ -16,5 +16,167 @@
       "short": "Choose whether chat, images and public pages may use the AI; prices are set in Apps Hub.",
       "description": "AI is off until the administrator enables it in the application's settings. Chat and images can be switched on separately, with another switch for public pages. Each message and picture is charged at the price set for this app in Apps Hub → Paid Apps, and a failed request is refunded automatically. One request per profile runs at a time. mvmAI must be installed and its App API enabled in Apps Hub."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Създавайте изображения според контекста на оформлението си и редактирайте проекти чрез разговор с ИИ, като използвате доставчиците, настроени в mvmAI.",
+      "features": [
+        {
+          "title": "Изображения, съобразени с проекта",
+          "short": "Генерирайте фон или отделно изображение въз основа на проекта си и допълнително описание.",
+          "description": "ИИ прочита името на проекта, размерите на страниците, текста и субтитрите, за да планира подходяща сцена. Добавете желания обект, настроение или стил, прегледайте генерираното изображение и го вмъкнете като фон на страница или като отделен редактируем елемент. Генерирането на изображения използва доставчика, настроен в mvmAI, и е достъпно и като инструмент в чата за дизайн. Оригиналното изображение се вгражда в проекта."
+        },
+        {
+          "title": "Асистент за дизайн с инструменти за редактиране",
+          "short": "Поискайте промени в страниците, текста, слоевете, запазените стилове за субтитри и времевите настройки на видеото.",
+          "description": "Разговаряйте в чат до редактора. Асистентът прочита структурираното съдържание на проекта и предлага конкретни редакции. Прегледайте и приложете промените заедно, след което можете да ги отмените с една стъпка. Променят се само свойствата, които сте поискали; запазените стилове запазват позициите си и индивидуалните настройки на отделните субтитри. Съществуващите медийни файлове могат да се използват повторно и могат да се генерират нови изображения. Асистентът не слуша аудио, не разпознава реч и не синхронизира субтитри автоматично. Запазването на сървъра и споделянето продължават да използват съществуващите правила за достъп до проекта."
+        },
+        {
+          "title": "Администраторски настройки",
+          "short": "Изберете дали чатът, изображенията и публичните страници могат да използват ИИ; цените се задават в Apps Hub.",
+          "description": "ИИ е изключен, докато администраторът не го активира в настройките на приложението. Чатът и изображенията могат да се включват поотделно, с отделен превключвател за публичните страници. Всяко съобщение и изображение се таксува по цената, зададена за това приложение в Apps Hub → Платени приложения, а сумата за неуспешна заявка се възстановява автоматично. За всеки профил се изпълнява по една заявка в даден момент. mvmAI трябва да е инсталиран и неговият API за приложения да е активиран в Apps Hub."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Erstellen Sie Bilder aus dem Kontext Ihrer Gestaltung und bearbeiten Sie Projekte im Gespräch mit einer KI. Dabei werden die in mvmAI eingerichteten Anbieter verwendet.",
+      "features": [
+        {
+          "title": "Bilder, die das Projekt verstehen",
+          "short": "Generieren Sie anhand Ihres Projekts und einer zusätzlichen Beschreibung einen Hintergrund oder ein separates Bild.",
+          "description": "Die KI liest den Projektnamen, die Seitenabmessungen, den Text und die Untertitel, um eine passende Szene zu planen. Ergänzen Sie das gewünschte Motiv, die Stimmung oder den Stil, sehen Sie sich das generierte Bild in der Vorschau an und fügen Sie es anschließend als Seitenhintergrund oder separates bearbeitbares Element ein. Die Bildgenerierung verwendet den in mvmAI eingerichteten Anbieter und steht auch als Werkzeug im Gestaltungs-Chat zur Verfügung. Das Originalbild wird in das Projekt eingebettet."
+        },
+        {
+          "title": "Ein Gestaltungsassistent mit Bearbeitungswerkzeugen",
+          "short": "Bitten Sie um Änderungen an Seiten, Text, Ebenen, gespeicherten Untertitelstilen und Video-Zeitabläufen.",
+          "description": "Chatten Sie direkt neben dem Editor. Der Assistent liest strukturierte Projektinhalte und schlägt konkrete Änderungen vor. Prüfen und übernehmen Sie die Änderungen gemeinsam und machen Sie sie anschließend bei Bedarf in einem Schritt rückgängig. Nur die von Ihnen angeforderten Eigenschaften werden geändert; gespeicherte Stile behalten ihre Positionen und individuelle Anpassungen einzelner Untertitel. Vorhandene Medien können wiederverwendet und neue Bilder generiert werden. Der Assistent hört keine Audiodateien an, erkennt keine Sprache und synchronisiert Untertitel nicht automatisch. Für das Speichern auf dem Server und das Teilen gelten weiterhin die bestehenden Zugriffsregeln des Projekts."
+        },
+        {
+          "title": "Administratoreinstellungen",
+          "short": "Legen Sie fest, ob Chat, Bilder und öffentliche Seiten die KI verwenden dürfen; die Preise werden in Apps Hub festgelegt.",
+          "description": "Die KI ist ausgeschaltet, bis der Administrator sie in den Anwendungseinstellungen aktiviert. Chat und Bilder können getrennt eingeschaltet werden; für öffentliche Seiten gibt es einen weiteren Schalter. Jede Nachricht und jedes Bild wird zu dem Preis berechnet, der für diese App unter Apps Hub → Kostenpflichtige Apps festgelegt ist. Fehlgeschlagene Anfragen werden automatisch erstattet. Pro Profil wird jeweils eine Anfrage gleichzeitig verarbeitet. mvmAI muss installiert und seine App-API in Apps Hub aktiviert sein."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Crea imágenes a partir del contexto de tu diseño y edita proyectos mediante una conversación con IA, usando los proveedores configurados en mvmAI.",
+      "features": [
+        {
+          "title": "Imágenes que entienden el proyecto",
+          "short": "Genera un fondo o una imagen independiente a partir de tu proyecto y una descripción adicional.",
+          "description": "La IA lee el nombre del proyecto, las dimensiones de la página, el texto y los subtítulos para planificar una escena adecuada. Añade el tema, el ambiente o el estilo que quieras, previsualiza la imagen generada e insértala como fondo de página o como elemento editable independiente. La generación de imágenes utiliza el proveedor configurado en mvmAI y también está disponible como herramienta en el chat de diseño. La imagen original se incorpora al proyecto."
+        },
+        {
+          "title": "Un asistente de diseño con herramientas de edición",
+          "short": "Solicita cambios en páginas, texto, capas, estilos de subtítulos guardados y tiempos del vídeo.",
+          "description": "Conversa junto al editor. El asistente lee el contenido estructurado del proyecto y propone cambios concretos. Revisa y aplica los cambios en conjunto y deshazlos después en un solo paso. Solo se modifican las propiedades que solicites; los estilos guardados conservan sus posiciones y los ajustes individuales de cada subtítulo. Se pueden reutilizar los archivos multimedia existentes y generar imágenes nuevas. El asistente no escucha el audio, no reconoce el habla ni sincroniza los subtítulos automáticamente. El guardado y el uso compartido en el servidor siguen las reglas de acceso existentes del proyecto."
+        },
+        {
+          "title": "Controles de administración",
+          "short": "Elige si el chat, las imágenes y las páginas públicas pueden usar la IA; los precios se establecen en Apps Hub.",
+          "description": "La IA permanece desactivada hasta que el administrador la activa en los ajustes de la aplicación. El chat y las imágenes se pueden activar por separado, con otro interruptor para las páginas públicas. Cada mensaje e imagen se cobra al precio establecido para esta aplicación en Apps Hub → Aplicaciones de pago, y las solicitudes fallidas se reembolsan automáticamente. Solo se ejecuta una solicitud por perfil a la vez. mvmAI debe estar instalado y su API de aplicación debe estar activada en Apps Hub."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Créez des images à partir du contexte de votre composition et modifiez vos projets au fil d’une conversation avec l’IA, à l’aide des fournisseurs configurés dans mvmAI.",
+      "features": [
+        {
+          "title": "Des images qui tiennent compte du projet",
+          "short": "Générez un arrière-plan ou une image distincte à partir de votre projet et d’une description complémentaire.",
+          "description": "L’IA lit le nom du projet, les dimensions des pages, le texte et les sous-titres pour concevoir une scène adaptée. Ajoutez le sujet, l’ambiance ou le style souhaités, prévisualisez l’image générée, puis insérez-la comme arrière-plan de page ou comme élément modifiable distinct. La génération d’images utilise le fournisseur configuré dans mvmAI et est également disponible sous forme d’outil dans la discussion de création. L’image d’origine est intégrée au projet."
+        },
+        {
+          "title": "Un assistant de création doté d’outils de modification",
+          "short": "Demandez des modifications des pages, du texte, des calques, des styles de sous-titres enregistrés et du minutage vidéo.",
+          "description": "Discutez avec l’assistant à côté de l’éditeur. Il lit le contenu structuré du projet et propose des modifications précises. Examinez et appliquez les modifications ensemble, puis annulez-les en une seule étape. Seules les propriétés demandées sont modifiées ; les styles enregistrés conservent leurs positions et les réglages propres à chaque sous-titre. Les médias existants peuvent être réutilisés et de nouvelles images peuvent être générées. L’assistant n’écoute pas l’audio, ne reconnaît pas la parole et ne synchronise pas automatiquement les sous-titres. L’enregistrement et le partage sur le serveur continuent d’utiliser les règles d’accès existantes du projet."
+        },
+        {
+          "title": "Commandes d’administration",
+          "short": "Choisissez si la discussion, les images et les pages publiques peuvent utiliser l’IA ; les tarifs sont définis dans Apps Hub.",
+          "description": "L’IA est désactivée tant que l’administrateur ne l’active pas dans les paramètres de l’application. La discussion et les images peuvent être activées séparément, avec une option supplémentaire pour les pages publiques. Chaque message et chaque image sont facturés au tarif défini pour cette application dans Apps Hub → Applications payantes, et toute requête échouée est automatiquement remboursée. Une seule requête par profil est exécutée à la fois. mvmAI doit être installé et son API d’application activée dans Apps Hub."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "mvmAIで設定されたプロバイダーを使用して、デザインの内容に合った画像を作成し、AIとの会話を通じてプロジェクトを編集できます。",
+      "features": [
+        {
+          "title": "プロジェクトを理解する画像生成",
+          "short": "プロジェクトの内容と追加の説明から、背景や個別の画像を生成できます。",
+          "description": "AIはプロジェクト名、ページのサイズ、テキスト、字幕を読み取り、内容に合ったシーンを考えます。希望する被写体、雰囲気、スタイルを追加し、生成された画像をプレビューしてから、ページの背景や個別に編集可能な要素として挿入できます。画像生成にはmvmAIで設定されたプロバイダーを使用し、デザインチャットのツールとしても利用できます。元の画像はプロジェクトに埋め込まれます。"
+        },
+        {
+          "title": "編集ツールを備えたデザインアシスタント",
+          "short": "ページ、テキスト、レイヤー、保存済みの字幕スタイル、動画のタイミングの変更を依頼できます。",
+          "description": "エディターの横でチャットできます。アシスタントは構造化されたプロジェクトの内容を読み取り、具体的な編集を提案します。変更内容を確認してまとめて適用し、1回の操作で取り消せます。変更されるのは依頼したプロパティだけで、保存済みスタイルの位置や字幕ごとの個別設定は維持されます。既存のメディアを再利用したり、新しい画像を生成したりできます。アシスタントは音声を聴いたり、音声認識や字幕の自動同期を行ったりすることはありません。サーバーへの保存や共有には、引き続きプロジェクトの既存のアクセスルールが適用されます。"
+        },
+        {
+          "title": "管理者向けの設定",
+          "short": "チャット、画像、公開ページでのAI利用を許可するか選択できます。料金はApps Hubで設定します。",
+          "description": "AIは、管理者がアプリの設定で有効にするまで無効です。チャットと画像は個別に有効にでき、公開ページでの利用には別のスイッチがあります。メッセージや画像ごとに、Apps Hub → 有料アプリでこのアプリに設定された料金が課金され、リクエストが失敗した場合は自動的に返金されます。同じプロフィールでは、一度に1件のリクエストが実行されます。mvmAIがインストールされ、Apps HubでそのApp APIが有効になっている必要があります。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Crie imagens a partir do contexto do seu design e edite projetos por meio de uma conversa com IA, usando os provedores configurados no mvmAI.",
+      "features": [
+        {
+          "title": "Imagens que entendem o projeto",
+          "short": "Gere um fundo ou uma imagem separada a partir do seu projeto e de uma descrição adicional.",
+          "description": "A IA lê o nome do projeto, as dimensões da página, o texto e as legendas para planejar uma cena adequada. Adicione o tema, o clima ou o estilo desejado, visualize a imagem gerada e insira-a como fundo da página ou como um elemento editável separado. A geração de imagens usa o provedor configurado no mvmAI e também está disponível como ferramenta na conversa sobre o design. A imagem original é incorporada ao projeto."
+        },
+        {
+          "title": "Um assistente de design com ferramentas de edição",
+          "short": "Peça alterações em páginas, textos, camadas, estilos de legenda salvos e marcações de tempo do vídeo.",
+          "description": "Converse ao lado do editor. O assistente lê o conteúdo estruturado do projeto e propõe edições específicas. Revise e aplique as alterações em conjunto e depois desfaça-as em uma única etapa. Apenas as propriedades solicitadas são alteradas; os estilos salvos mantêm suas posições e os ajustes individuais das legendas. Mídias existentes podem ser reutilizadas e novas imagens podem ser geradas. O assistente não ouve o áudio, não reconhece a fala nem sincroniza as legendas automaticamente. O salvamento no servidor e o compartilhamento continuam usando as regras de acesso existentes do projeto."
+        },
+        {
+          "title": "Controles do administrador",
+          "short": "Escolha se a conversa, as imagens e as páginas públicas podem usar a IA; os preços são definidos no Apps Hub.",
+          "description": "A IA fica desativada até que o administrador a ative nas configurações do aplicativo. A conversa e as imagens podem ser ativadas separadamente, com outra opção para páginas públicas. Cada mensagem e imagem é cobrada pelo preço definido para este aplicativo em Apps Hub → Aplicativos pagos, e solicitações que falham são reembolsadas automaticamente. Apenas uma solicitação por perfil é executada por vez. O mvmAI precisa estar instalado e sua API de aplicativo deve estar ativada no Apps Hub."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Создавайте изображения с учётом содержимого проекта и редактируйте проекты в диалоге с ИИ, используя провайдеров, настроенных в mvmAI.",
+      "features": [
+        {
+          "title": "Изображения с учётом проекта",
+          "short": "Создавайте фон или отдельное изображение на основе проекта и дополнительного описания.",
+          "description": "ИИ анализирует название проекта, размеры страниц, текст и субтитры, чтобы продумать подходящую сцену. Укажите желаемые тему, настроение или стиль, просмотрите созданное изображение, а затем вставьте его как фон страницы или отдельный редактируемый элемент. Для генерации изображений используется провайдер, настроенный в mvmAI; эта функция также доступна как инструмент в чате редактора. Исходное изображение встраивается в проект."
+        },
+        {
+          "title": "Помощник по дизайну с инструментами редактирования",
+          "short": "Просите изменить страницы, текст, слои, сохранённые стили субтитров и временные привязки видео.",
+          "description": "Общайтесь с помощником рядом с редактором. Он читает структурированное содержимое проекта и предлагает конкретные правки. Просматривайте и применяйте изменения вместе, а затем отменяйте их одним действием. Меняются только запрошенные свойства; сохранённые стили сохраняют свои позиции и индивидуальные переопределения для субтитров. Можно повторно использовать существующие медиафайлы и создавать новые изображения. Помощник не прослушивает аудио, не распознаёт речь и не синхронизирует субтитры автоматически. При сохранении на сервере и предоставлении общего доступа продолжают действовать существующие правила доступа к проекту."
+        },
+        {
+          "title": "Настройки администратора",
+          "short": "Определяйте, можно ли использовать ИИ в чате, для изображений и на публичных страницах; цены задаются в Apps Hub.",
+          "description": "ИИ выключен, пока администратор не включит его в настройках приложения. Чат и изображения можно включать отдельно; для публичных страниц предусмотрен ещё один переключатель. Каждое сообщение и изображение оплачивается по цене, заданной для этого приложения в Apps Hub → Платные приложения, а при неудачном запросе средства возвращаются автоматически. Для каждого профиля одновременно выполняется один запрос. Требуется установленное приложение mvmAI с включённым API приложения в Apps Hub."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "使用 mvmAI 中配置的服务提供商，根据设计上下文生成图片，并通过 AI 对话编辑项目。",
+      "features": [
+        {
+          "title": "理解项目内容的图片生成",
+          "short": "根据项目内容和补充描述生成背景或独立图片。",
+          "description": "AI 会读取项目名称、页面尺寸、文字和字幕，构思合适的场景。补充你想要的主体、氛围或风格，预览生成的图片，然后将其插入为页面背景或独立的可编辑元素。图片生成使用 mvmAI 中配置的服务提供商，也可作为工具在设计对话中使用。原始图片会嵌入项目中。"
+        },
+        {
+          "title": "具备编辑工具的设计助手",
+          "short": "通过对话修改页面、文字、图层、已保存的字幕样式和视频时序。",
+          "description": "在编辑器旁与助手对话。助手会读取结构化的项目内容，并提出具体修改建议。你可以一并审阅和应用修改，然后一步撤销。只会更改你要求的属性；已保存样式的位置和各条字幕的单独覆盖设置都会保留。现有媒体可以重复使用，也可以生成新图片。助手不会聆听音频、识别语音或自动同步字幕。服务器保存和分享仍遵循项目现有的访问规则。"
+        },
+        {
+          "title": "管理员控制",
+          "short": "选择是否允许对话、图片和公开页面使用 AI；价格在 Apps Hub 中设置。",
+          "description": "AI 默认关闭，需由管理员在应用设置中启用。对话和图片功能可以分别开启，公开页面另有独立开关。每条消息和每张图片均按 Apps Hub → 付费应用中为此应用设置的价格收费，请求失败时会自动退款。每个个人资料同时只能运行一个请求。需安装 mvmAI，并在 Apps Hub 中启用其应用 API。"
+        }
+      ]
+    }
+  }
 }

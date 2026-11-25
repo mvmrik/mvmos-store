@@ -20,5 +20,215 @@
   "requirements": [
     "An Apps Hub profile.",
     "A modern browser with Canvas and Blob support."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "JPEG-, PNG- und WebP-Bilder im Browser konvertieren und optimieren – mit Stapelverarbeitung, Qualitätssteuerung, ZIP-Ordnern und Premium-Werkzeugen zur Bildbearbeitung.",
+      "tagline": "Kleinere Bilder und saubere WebP-Konvertierung, ohne ein einziges Byte hochzuladen.",
+      "description": "Image Optimizer konvertiert und komprimiert JPEG-, PNG- und WebP-Bilder direkt in Ihrem Browser. Ziehen Sie ein einzelnes Bild oder einen ganzen Stapel hinein, wählen Sie WebP oder behalten Sie das ursprüngliche Format jeder Datei bei, stellen Sie die Qualität per Schieberegler ein und sehen Sie die genaue Dateigröße vor und nach der Verarbeitung.\n\nJedes Ergebnis lässt sich einzeln in der Vorschau ansehen und herunterladen. Alternativ können alle verarbeiteten Bilder in einer ZIP-Datei zusammengefasst werden. Premium ergänzt die vollständige Verarbeitung von ZIP-Ordnern unter Beibehaltung der ursprünglichen Verzeichnisstruktur, Änderungen der Auflösung, Transparenzeinstellungen und eine flexible Stapelumbenennung mit Regeln für Präfixe, Suffixe, Groß- und Kleinschreibung, Leerzeichen und Textersetzungen. Ein Modus zum ausschließlichen Umbenennen ändert die Namen, ohne die Bilddaten anzutasten.\n\nDer Administrator legt fest, welche Premium-Werkzeuge auf der öffentlichen Seite von Apps Hub angezeigt werden. Persönliche Einstellungen können lokal für jedes Apps Hub-Profil gespeichert oder nur für den aktuellen Stapel verwendet werden. Ist das Speichern deaktiviert, werden beim Löschen der Ergebnisse auch die Standardeinstellungen wiederhergestellt. Wenn Werkzeuge zur Bildbearbeitung oder ZIP-Verarbeitung nicht geladen werden können, erscheint eine verständliche Fehlermeldung, statt den gewünschten Ablauf stillschweigend zu ändern. Bilddaten müssen niemals auf einen Server hochgeladen werden: Dekodierung, Konvertierung, Optimierung und ZIP-Erstellung erfolgen vollständig auf dem aktuellen Gerät.",
+      "capabilities": [
+        "JPEG-, PNG- und WebP-Bilder in WebP konvertieren.",
+        "Bilder optimieren und dabei das ursprüngliche JPEG-, PNG- oder WebP-Format beibehalten.",
+        "Die Qualität mit einem visuellen Schieberegler zwischen 10% und 100% einstellen.",
+        "Mehrere Bilder oder ein ZIP-Archiv über einen gemeinsamen Drag-and-drop-Bereich oder die Dateiauswahl verarbeiten.",
+        "Für jedes Bild die ursprüngliche Größe, die optimierte Größe und die prozentuale Einsparung vergleichen.",
+        "Jedes verarbeitete Bild einzeln in der Vorschau ansehen und herunterladen.",
+        "Alle erfolgreichen Ergebnisse gemeinsam als ZIP-Archiv herunterladen.",
+        "PNG-Dateien bei 100% Qualität ohne erneute Kodierung beibehalten.",
+        "Läuft vollständig im Browser, ohne Bilddaten auf den Server hochzuladen.",
+        "Die ZIP-Ordnerverarbeitung mit Premium erhält verschachtelte Verzeichnisse und unveränderte Dateien, die keine Bilder sind, ohne die Ergebnisliste zu überladen.",
+        "Premium-Einstellungen für Auflösung, Transparenz und Stapelumbenennung, einschließlich eines Modus zum ausschließlichen Umbenennen.",
+        "Vom Administrator gesteuerte Verfügbarkeit von Premium auf der öffentlichen Seite von Apps Hub.",
+        "Optionales lokales Speichern der Premium-Einstellungen pro Apps Hub-Profil, mit Zurücksetzen per Klick und Wiederherstellung der Standardeinstellungen beim Löschen der Ergebnisse, wenn das Speichern deaktiviert ist.",
+        "Auf dem Desktop und über ein Apps Hub-Profil verfügbar, in alle neun mvmOS-Sprachen übersetzt."
+      ],
+      "requirements": [
+        "Ein Apps Hub-Profil.",
+        "Ein moderner Browser mit Unterstützung für Canvas und Blob."
+      ],
+      "name": "Bildoptimierer"
+    },
+    "es": {
+      "short_description": "Convierte y optimiza imágenes JPEG, PNG y WebP en el navegador, con procesamiento por lotes, control de calidad, carpetas ZIP y herramientas de transformación Premium.",
+      "tagline": "Imágenes más ligeras y conversión a WebP sin complicaciones, sin subir un solo byte.",
+      "description": "El Optimizador de imágenes convierte y comprime imágenes JPEG, PNG y WebP directamente en tu navegador. Arrastra una imagen o un lote completo, elige WebP o conserva el formato original de cada archivo, ajusta la calidad con un control deslizante y consulta el tamaño exacto antes y después del procesamiento.\n\nPuedes previsualizar y descargar cada resultado por separado, o reunir todas las imágenes procesadas en un único ZIP. Premium añade el procesamiento completo de carpetas ZIP, que recrea la estructura de directorios original, cambios de resolución, control de transparencia y opciones flexibles para cambiar nombres por lotes mediante reglas de prefijos, sufijos, mayúsculas y minúsculas, espacios y sustitución de texto. El modo de solo cambio de nombre modifica los nombres sin alterar los datos de las imágenes.\n\nEl administrador elige qué herramientas Premium aparecen en la página pública de Apps Hub. Las preferencias personales se pueden guardar localmente para cada perfil de Apps Hub o aplicar solo al lote actual. Si el guardado está desactivado, Borrar resultados también restablece los ajustes predeterminados. Si no se pueden cargar las herramientas de transformación o de ZIP, se muestra un error claro en lugar de cambiar silenciosamente el flujo de trabajo solicitado. Los datos de las imágenes nunca tienen que subirse a un servidor: la decodificación, la conversión, la optimización y la creación de archivos ZIP se realizan en el dispositivo actual.",
+      "capabilities": [
+        "Convierte imágenes JPEG, PNG y WebP a WebP.",
+        "Conserva el formato original JPEG, PNG o WebP al optimizar la imagen.",
+        "Elige una calidad del 10% al 100% con un control deslizante visual.",
+        "Procesa varias imágenes o un archivo ZIP mediante una única zona de arrastrar y soltar o un selector de archivos.",
+        "Compara el tamaño original, el tamaño optimizado y el porcentaje de ahorro de cada imagen.",
+        "Previsualiza y descarga cada imagen procesada por separado.",
+        "Descarga todos los resultados procesados correctamente en un único archivo ZIP.",
+        "Conserva los archivos PNG con una calidad del 100% sin volver a codificarlos.",
+        "Funciona íntegramente en el navegador sin subir los datos de las imágenes al servidor.",
+        "El procesamiento de carpetas ZIP de Premium conserva los directorios anidados y los archivos que no son imágenes sin modificarlos ni saturar la lista de resultados.",
+        "Controles Premium de resolución, transparencia y cambio de nombres por lotes, incluido el modo de solo cambio de nombre.",
+        "Disponibilidad de Premium controlada por el administrador en la página pública de Apps Hub.",
+        "Guardado local opcional de los ajustes Premium para cada perfil de Apps Hub, con restablecimiento en un clic y recuperación de los valores predeterminados al borrar los resultados si el guardado está desactivado.",
+        "Disponible en el escritorio y a través de un perfil de Apps Hub, con traducción a los nueve idiomas de mvmOS."
+      ],
+      "requirements": [
+        "Un perfil de Apps Hub.",
+        "Un navegador moderno compatible con Canvas y Blob."
+      ],
+      "name": "Optimizador de imágenes"
+    },
+    "bg": {
+      "short_description": "Конвертирайте и оптимизирайте изображения във формат JPEG, PNG и WebP в браузъра с групова обработка, настройка на качеството, папки в ZIP архиви и инструменти за преобразуване с Premium.",
+      "tagline": "По-малки изображения и безпроблемно конвертиране в WebP, без да качвате нито байт.",
+      "description": "Image Optimizer конвертира и компресира изображения във формат JPEG, PNG и WebP директно в браузъра ви. Пуснете едно изображение или цяла група, изберете WebP или запазете оригиналния формат на всеки файл, задайте качеството с плъзгач и вижте точния размер преди и след обработката.\n\nВсеки резултат може да се прегледа и изтегли поотделно, а всички обработени изображения могат да се съберат в един ZIP архив. Premium добавя обработка на всички папки в ZIP архив със запазване на оригиналната структура на директориите, промяна на разделителната способност, настройка на прозрачността и гъвкаво групово преименуване с правила за префикс, суфикс, главни и малки букви, интервали и замяна на текст. Режимът само за преименуване променя имената, без да променя данните на изображенията.\n\nАдминистраторът избира кои инструменти на Premium да се показват на публичната страница в Apps Hub. Личните настройки могат да се запомнят локално за всеки профил в Apps Hub или да се използват само за текущата група. Когато запомнянето е изключено, „Изчистване на резултатите“ възстановява и настройките по подразбиране. Ако инструментите за преобразуване или за работа със ZIP архиви не успеят да се заредят, се показва ясно съобщение за грешка, вместо заявената последователност на обработка да се променя без предупреждение. Данните на изображенията никога не се нуждаят от качване на сървър: декодирането, конвертирането, оптимизирането и създаването на ZIP архиви се извършват изцяло на текущото устройство.",
+      "capabilities": [
+        "Конвертиране на изображения от JPEG, PNG и WebP в WebP.",
+        "Запазване на оригиналния формат JPEG, PNG или WebP при оптимизиране на изображението.",
+        "Избор на качество от 10% до 100% с визуален плъзгач.",
+        "Обработка на множество изображения или ZIP архив чрез една обща зона за плъзгане и пускане или диалог за избор на файлове.",
+        "Сравняване на оригиналния размер, оптимизирания размер и процента спестено място за всяко изображение.",
+        "Преглед и изтегляне на всяко обработено изображение поотделно.",
+        "Изтегляне на всички успешно обработени резултати заедно като ZIP архив.",
+        "Запазване на PNG файловете с качество 100% без повторно кодиране.",
+        "Работи изцяло в браузъра, без да качва данните на изображенията на сървъра.",
+        "Обработката на папки в ZIP архив с Premium запазва вложените директории и файловете, които не са изображения, без да ги променя и без да претрупва списъка с резултати.",
+        "Настройки за разделителна способност, прозрачност и групово преименуване с Premium, включително режим само за преименуване.",
+        "Администраторът управлява достъпността на Premium на публичната страница в Apps Hub.",
+        "Възможност за локално запазване на настройките на Premium за всеки профил в Apps Hub, с нулиране с едно щракване и възстановяване на настройките по подразбиране при изчистване, когато запазването е изключено.",
+        "Достъпно на работния плот и чрез профил в Apps Hub, с превод на всичките девет езика на mvmOS."
+      ],
+      "requirements": [
+        "Профил в Apps Hub.",
+        "Съвременен браузър с поддръжка на Canvas и Blob."
+      ],
+      "name": "Оптимизатор за изображения"
+    },
+    "fr": {
+      "short_description": "Convertissez et optimisez des images JPEG, PNG et WebP dans le navigateur, avec traitement par lots, réglage de la qualité, gestion des dossiers ZIP et outils de transformation Premium.",
+      "tagline": "Des images plus légères et une conversion WebP soignée, sans envoyer le moindre octet.",
+      "description": "L’Optimiseur d’images convertit et compresse les images JPEG, PNG et WebP directement dans votre navigateur. Déposez une image ou un lot entier, choisissez le format WebP ou conservez le format d’origine de chaque fichier, réglez la qualité à l’aide d’un curseur et consultez la taille exacte avant et après traitement.\n\nChaque résultat peut être prévisualisé et téléchargé séparément, ou toutes les images traitées peuvent être regroupées dans une seule archive ZIP. Premium ajoute le traitement complet des dossiers ZIP en recréant l’arborescence d’origine, la modification de la résolution, le réglage de la transparence et le renommage par lots personnalisable avec des règles de préfixe, de suffixe, de casse, d’espacement et de remplacement de texte. Un mode de renommage seul modifie les noms sans toucher aux données des images.\n\nL’administrateur choisit les outils Premium qui apparaissent sur la page publique d’Apps Hub. Les préférences personnelles peuvent être mémorisées localement pour chaque profil Apps Hub ou appliquées uniquement au lot en cours. Lorsque la mémorisation est désactivée, l’effacement des résultats rétablit également les paramètres par défaut. Si le chargement d’un outil de transformation ou de gestion ZIP échoue, un message d’erreur clair s’affiche au lieu de modifier silencieusement le traitement demandé. Les données des images n’ont jamais besoin d’être envoyées à un serveur : le décodage, la conversion, l’optimisation et la création des archives ZIP s’effectuent entièrement sur l’appareil utilisé.",
+      "capabilities": [
+        "Convertissez des images JPEG, PNG et WebP au format WebP.",
+        "Conservez le format JPEG, PNG ou WebP d’origine tout en optimisant l’image.",
+        "Choisissez une qualité de 10 % à 100 % à l’aide d’un curseur visuel.",
+        "Traitez plusieurs images ou une archive ZIP depuis une seule zone de glisser-déposer ou un sélecteur de fichiers.",
+        "Comparez la taille d’origine, la taille optimisée et le pourcentage de réduction pour chaque image.",
+        "Prévisualisez et téléchargez chaque image traitée séparément.",
+        "Téléchargez tous les résultats réussis dans une seule archive ZIP.",
+        "Conservez les fichiers PNG à 100 % de qualité sans les réencoder.",
+        "Fonctionne entièrement dans le navigateur sans envoyer les données des images au serveur.",
+        "Le traitement Premium des dossiers ZIP préserve les dossiers imbriqués et les fichiers autres que des images sans les modifier ni encombrer la liste des résultats.",
+        "Réglages Premium de la résolution, de la transparence et du renommage par lots, avec un mode de renommage seul.",
+        "Disponibilité des outils Premium sur la page publique d’Apps Hub contrôlée par l’administrateur.",
+        "Enregistrement local facultatif des paramètres Premium pour chaque profil Apps Hub, avec réinitialisation en un clic et rétablissement des valeurs par défaut à l’effacement des résultats lorsque l’enregistrement est désactivé.",
+        "Disponible sur le bureau et via un profil Apps Hub, avec une traduction dans les neuf langues de mvmOS."
+      ],
+      "requirements": [
+        "Un profil Apps Hub.",
+        "Un navigateur moderne prenant en charge Canvas et Blob."
+      ],
+      "name": "Optimiseur d’images"
+    },
+    "ru": {
+      "short_description": "Конвертируйте и оптимизируйте изображения JPEG, PNG и WebP в браузере: пакетная обработка, настройка качества, работа с папками в ZIP и инструменты преобразования Premium.",
+      "tagline": "Меньше размер, качественная конвертация в WebP — без отправки на сервер ни единого байта.",
+      "description": "Оптимизатор изображений конвертирует и сжимает изображения JPEG, PNG и WebP прямо в браузере. Перетащите одно или сразу несколько изображений, выберите WebP или сохраните исходный формат каждого файла, настройте качество ползунком и сравните точный размер до и после обработки.\n\nКаждый результат можно просмотреть и скачать отдельно, а все обработанные изображения — собрать в один ZIP-архив. Premium добавляет полноценную обработку папок в ZIP с восстановлением исходной структуры каталогов, изменение разрешения, управление прозрачностью и гибкое массовое переименование с правилами для префиксов, суффиксов, регистра, пробелов и замены текста. Режим «Только переименование» меняет имена файлов, не затрагивая данные изображений.\n\nАдминистратор выбирает, какие инструменты Premium доступны на общедоступной странице Apps Hub. Личные настройки можно сохранять локально для каждого профиля Apps Hub или применять только к текущей группе файлов. Если сохранение отключено, очистка результатов также восстанавливает настройки по умолчанию. При сбое загрузки инструментов преобразования или работы с ZIP появляется понятное сообщение об ошибке, а выбранный порядок обработки не меняется без уведомления. Данные изображений не требуется загружать на сервер: декодирование, конвертация, оптимизация и создание ZIP выполняются на текущем устройстве.",
+      "capabilities": [
+        "Конвертация изображений JPEG, PNG и WebP в WebP.",
+        "Оптимизация изображений с сохранением исходного формата JPEG, PNG или WebP.",
+        "Выбор качества от 10% до 100% с помощью наглядного ползунка.",
+        "Обработка нескольких изображений или ZIP-архива через единую область перетаскивания или диалог выбора файлов.",
+        "Сравнение исходного и оптимизированного размера, а также процента уменьшения для каждого изображения.",
+        "Просмотр и скачивание каждого обработанного изображения отдельно.",
+        "Скачивание всех успешно обработанных файлов в одном ZIP-архиве.",
+        "Сохранение файлов PNG с качеством 100% без повторного кодирования.",
+        "Работа полностью в браузере без загрузки данных изображений на сервер.",
+        "Обработка папок в ZIP с Premium сохраняет вложенные каталоги и файлы других типов без изменений, не перегружая список результатов.",
+        "Настройка разрешения, прозрачности и массового переименования с Premium, включая режим «Только переименование».",
+        "Управление доступностью инструментов Premium на общедоступной странице Apps Hub со стороны администратора.",
+        "Необязательное локальное сохранение настроек Premium для каждого профиля Apps Hub со сбросом одним нажатием и восстановлением настроек по умолчанию при очистке результатов, если сохранение отключено.",
+        "Доступно на рабочем столе и через профиль Apps Hub, переведено на все девять языков mvmOS."
+      ],
+      "requirements": [
+        "Профиль Apps Hub.",
+        "Современный браузер с поддержкой Canvas и Blob."
+      ],
+      "name": "Оптимизатор изображений"
+    },
+    "zh-CN": {
+      "short_description": "在浏览器中转换和优化 JPEG、PNG 和 WebP 图像，支持批量处理、质量控制、ZIP 文件夹及 Premium 图像变换工具。",
+      "tagline": "缩小图像体积，轻松转换为 WebP，无需上传任何数据。",
+      "description": "图像优化器可直接在浏览器中转换和压缩 JPEG、PNG 和 WebP 图像。拖入单张或一批图像，选择转换为 WebP 或保留各文件的原始格式，通过滑块设置质量，并查看处理前后的确切文件大小。\n\n每个处理结果均可单独预览和下载，也可将所有已处理的图像打包为一个 ZIP 文件。Premium 还提供完整的 ZIP 文件夹处理功能，可重建原始目录结构，并支持调整分辨率、控制透明度，以及通过前缀、后缀、大小写、空格和文本替换规则灵活批量重命名。仅重命名模式只更改文件名，不改动图像数据。\n\n管理员可选择在 Apps Hub 公开页面上显示哪些 Premium 工具。个人设置可按 Apps Hub 个人资料保存在本地，也可仅用于当前批次。关闭设置记忆后，清除结果也会恢复默认设置。图像变换工具或 ZIP 工具加载失败时，会显示明确的错误提示，而不会悄然改变所请求的工作流程。图像数据无需上传至服务器：解码、转换、优化和 ZIP 创建均在当前设备上完成。",
+      "capabilities": [
+        "将 JPEG、PNG 和 WebP 图像转换为 WebP。",
+        "优化图像的同时保留原始 JPEG、PNG 或 WebP 格式。",
+        "通过直观的滑块选择 10% 至 100% 的质量。",
+        "通过同一个拖放区域或文件选择器处理多张图像或一个 ZIP 压缩包。",
+        "对比每张图像的原始大小、优化后大小及节省比例。",
+        "单独预览和下载每张处理后的图像。",
+        "将所有处理成功的结果一起下载为 ZIP 压缩包。",
+        "保留质量为 100% 的 PNG 文件，不进行重新编码。",
+        "完全在浏览器中运行，无需将图像数据上传至服务器。",
+        "Premium ZIP 文件夹处理功能可保留嵌套目录和未经改动的非图像文件，同时避免结果列表过于拥挤。",
+        "Premium 提供分辨率、透明度和批量重命名控制功能，包括仅重命名模式。",
+        "由管理员控制 Apps Hub 公开页面上 Premium 工具的可用性。",
+        "可选择按 Apps Hub 个人资料在本地保存 Premium 设置，支持一键重置；关闭保存后，清除结果时会恢复默认设置。",
+        "可在桌面中及通过 Apps Hub 个人资料使用，并已翻译为 mvmOS 支持的全部九种语言。"
+      ],
+      "requirements": [
+        "一个 Apps Hub 个人资料。",
+        "支持 Canvas 和 Blob 的现代浏览器。"
+      ],
+      "name": "图像优化器"
+    },
+    "ja": {
+      "short_description": "ブラウザーでJPEG、PNG、WebP画像の変換と最適化ができます。一括処理、画質調整、ZIPフォルダー、Premiumの画像加工ツールに対応しています。",
+      "tagline": "1バイトもアップロードせずに、画像の軽量化ときれいなWebP変換を。",
+      "description": "画像最適化は、ブラウザーで直接JPEG、PNG、WebP画像を変換・圧縮するアプリです。画像を1枚でもまとめてでもドロップし、WebPへの変換か各ファイルの元の形式を維持するかを選び、スライダーで画質を設定すると、処理前後の正確なファイルサイズを確認できます。\n\n処理結果は個別にプレビューしてダウンロードできるほか、処理済みの画像をすべて1つのZIPにまとめることもできます。Premiumでは、元のディレクトリ構造を再現するZIPフォルダー全体の処理、解像度の変更、透明部分の設定に加え、接頭辞、接尾辞、大文字・小文字、スペース、文字列置換のルールを使った柔軟な一括名前変更が利用できます。名前変更のみのモードでは、画像データに手を加えずに名前を変更できます。\n\nApps Hubの公開ページに表示するPremiumツールは、管理者が選択します。個人設定は、Apps Hubのプロフィールごとに端末内に保存することも、現在の一括処理にのみ適用することもできます。設定の保存が無効な場合は、処理結果をクリアすると設定も初期値に戻ります。画像加工ツールやZIPツールの読み込みに失敗した場合は、指定した処理の流れを無断で変更せず、明確なエラーを表示します。画像データをサーバーにアップロードする必要はありません。デコード、変換、最適化、ZIP作成はすべて、使用中の端末で行われます。",
+      "capabilities": [
+        "JPEG、PNG、WebP画像をWebPに変換。",
+        "元のJPEG、PNG、WebP形式を維持しながら画像を最適化。",
+        "視覚的に操作できるスライダーで、画質を10%から100%の範囲で選択。",
+        "共通のドラッグ＆ドロップ領域またはファイル選択画面から、複数の画像やZIPアーカイブを処理。",
+        "画像ごとに元のサイズ、最適化後のサイズ、削減率を比較。",
+        "処理済みの画像を個別にプレビューしてダウンロード。",
+        "正常に処理された結果をすべてZIPアーカイブにまとめてダウンロード。",
+        "画質100%のPNGファイルは再エンコードせずに保持。",
+        "画像データをサーバーにアップロードせず、すべてブラウザー内で実行。",
+        "PremiumのZIPフォルダー処理では、階層化されたディレクトリと画像以外のファイルをそのまま保持し、結果一覧が煩雑になるのを防止。",
+        "Premiumでは、解像度、透明部分、一括名前変更の設定に対応し、名前変更のみのモードも利用可能。",
+        "Apps Hubの公開ページでのPremiumの利用可否を管理者が設定。",
+        "Premiumの設定をApps Hubのプロフィールごとに端末内に保存するか選択可能。ワンクリックでリセットでき、保存が無効な場合は結果のクリア時に設定も初期値に復元。",
+        "デスクトップおよびApps Hubのプロフィールから利用でき、mvmOSの全9言語に翻訳済み。"
+      ],
+      "requirements": [
+        "Apps Hubのプロフィール。",
+        "CanvasとBlobに対応した最新のブラウザー。"
+      ],
+      "name": "画像オプティマイザー"
+    },
+    "pt-BR": {
+      "short_description": "Converta e otimize imagens JPEG, PNG e WebP no navegador, com processamento em lote, controle de qualidade, pastas ZIP e ferramentas de transformação Premium.",
+      "tagline": "Imagens menores e conversão para WebP sem complicações, sem enviar um único byte.",
+      "description": "O Otimizador de Imagens converte e comprime imagens JPEG, PNG e WebP diretamente no navegador. Arraste uma imagem ou um lote inteiro, escolha WebP ou mantenha o formato original de cada arquivo, ajuste a qualidade com um controle deslizante e veja o tamanho exato antes e depois do processamento.\n\nCada resultado pode ser visualizado e baixado separadamente, ou todas as imagens processadas podem ser reunidas em um único ZIP. O Premium oferece processamento completo de pastas ZIP que recria a estrutura original de diretórios, alterações de resolução, controle de transparência e renomeação flexível em lote com regras de prefixo, sufixo, maiúsculas e minúsculas, espaços e substituição de texto. O modo de apenas renomeação altera os nomes sem modificar os dados das imagens.\n\nO administrador escolhe quais ferramentas Premium aparecem na página pública do Apps Hub. As preferências pessoais podem ser salvas localmente por perfil do Apps Hub ou usadas apenas no lote atual. Quando a opção de salvar preferências está desativada, Limpar resultados também restaura as configurações padrão. Falhas no carregamento das ferramentas de transformação ou de ZIP exibem um erro claro em vez de alterar silenciosamente o fluxo de trabalho solicitado. Os dados das imagens nunca precisam ser enviados a um servidor: a decodificação, a conversão, a otimização e a criação de arquivos ZIP acontecem no dispositivo em uso.",
+      "capabilities": [
+        "Converta imagens JPEG, PNG e WebP para WebP.",
+        "Mantenha o formato original JPEG, PNG ou WebP ao otimizar a imagem.",
+        "Escolha a qualidade de 10% a 100% com um controle deslizante visual.",
+        "Processe várias imagens ou um arquivo ZIP por uma única área de arrastar e soltar ou pelo seletor de arquivos.",
+        "Compare o tamanho original, o tamanho otimizado e a porcentagem de redução de cada imagem.",
+        "Visualize e baixe cada imagem processada separadamente.",
+        "Baixe todos os resultados bem-sucedidos juntos em um arquivo ZIP.",
+        "Preserve arquivos PNG com qualidade de 100% sem recodificá-los.",
+        "Funciona inteiramente no navegador, sem enviar dados das imagens ao servidor.",
+        "O processamento de pastas ZIP do Premium preserva diretórios aninhados e arquivos que não são imagens sem alterá-los nem sobrecarregar a lista de resultados.",
+        "Controles Premium de resolução, transparência e renomeação em lote, incluindo o modo de apenas renomeação.",
+        "Disponibilidade do Premium controlada pelo administrador na página pública do Apps Hub.",
+        "Salvamento local opcional das configurações Premium por perfil do Apps Hub, com redefinição em um clique e restauração dos padrões ao limpar os resultados quando o salvamento está desativado.",
+        "Disponível na área de trabalho e por meio de um perfil do Apps Hub, com tradução para os nove idiomas do mvmOS."
+      ],
+      "requirements": [
+        "Um perfil do Apps Hub.",
+        "Um navegador moderno com suporte a Canvas e Blob."
+      ],
+      "name": "Otimizador de imagens"
+    }
+  }
 }

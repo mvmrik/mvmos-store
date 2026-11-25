@@ -6,5 +6,87 @@
       "short": "Embed another app's widget in a site page",
       "description": "Apps that offer a widget — QueueDesk's booking page, for example — can be placed inside a page as an App widget block, so visitors book, browse or read inside your own site instead of following a link to a separate address. Without a subscription the block is listed but cannot be added; every other block type and everything else in the app works exactly the same."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "summary": "Вграждайте уиджети от други приложения директно в страниците на сайта си.",
+      "features": [
+        {
+          "title": "Уиджети на приложения в страниците ви",
+          "short": "Вградете уиджет от друго приложение в страница на сайта",
+          "description": "Приложенията, които предлагат уиджет — например страницата за резервации на QueueDesk — могат да бъдат поставени в страница като блок „Уиджет на приложение“, така че посетителите да резервират, разглеждат или четат в собствения ви сайт, вместо да следват връзка към отделен адрес. Без абонамент блокът се показва в списъка, но не може да бъде добавен; всички останали видове блокове и всичко друго в приложението работят по същия начин."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Bette Widgets anderer Apps direkt in die Seiten deiner Website ein.",
+      "features": [
+        {
+          "title": "App-Widgets auf deinen Seiten",
+          "short": "Bette das Widget einer anderen App in eine Website-Seite ein",
+          "description": "Apps, die ein Widget anbieten – etwa die Buchungsseite von QueueDesk –, lassen sich als App-Widget-Block in eine Seite einfügen. So können Besucher direkt auf deiner Website buchen, stöbern oder lesen, statt einem Link zu einer separaten Adresse zu folgen. Ohne Abonnement wird der Block aufgeführt, kann aber nicht hinzugefügt werden; alle anderen Blocktypen und sämtliche übrigen Funktionen der App funktionieren genauso."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Intégrez les widgets d’autres applications directement dans les pages de votre site.",
+      "features": [
+        {
+          "title": "Widgets d’application dans vos pages",
+          "short": "Intégrez le widget d’une autre application dans une page de votre site",
+          "description": "Les applications qui proposent un widget — la page de réservation de QueueDesk, par exemple — peuvent être intégrées à une page sous forme de bloc Widget d’application. Les visiteurs peuvent ainsi réserver, parcourir du contenu ou lire directement sur votre site au lieu de suivre un lien vers une adresse distincte. Sans abonnement, le bloc est répertorié mais ne peut pas être ajouté ; tous les autres types de blocs et toutes les autres fonctions de l’application fonctionnent exactement de la même manière."
+        }
+      ]
+    },
+    "es": {
+      "summary": "Inserta widgets de otras aplicaciones directamente en las páginas de tu sitio.",
+      "features": [
+        {
+          "title": "Widgets de aplicaciones en tus páginas",
+          "short": "Inserta el widget de otra aplicación en una página del sitio",
+          "description": "Las aplicaciones que ofrecen un widget, como la página de reservas de QueueDesk, pueden insertarse en una página como un bloque de widget de aplicación, para que los visitantes reserven, exploren o lean dentro de tu propio sitio en lugar de seguir un enlace a una dirección independiente. Sin una suscripción, el bloque aparece en la lista, pero no se puede añadir; todos los demás tipos de bloques y el resto de la aplicación funcionan exactamente igual."
+        }
+      ]
+    },
+    "ja": {
+      "summary": "他のアプリのウィジェットをサイトのページに直接埋め込めます。",
+      "features": [
+        {
+          "title": "ページ内のアプリウィジェット",
+          "short": "他のアプリのウィジェットをサイトのページに埋め込み",
+          "description": "QueueDeskの予約ページなど、ウィジェットを提供するアプリは、アプリウィジェットブロックとしてページ内に配置できます。訪問者は別のアドレスへのリンクをたどることなく、サイト内で予約、閲覧、情報の確認を行えます。サブスクリプションがない場合もブロックは一覧に表示されますが、追加はできません。他のすべてのブロックと、アプリ内のそれ以外の機能は、まったく同じように利用できます。"
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Incorpore widgets de outros aplicativos diretamente nas páginas do seu site.",
+      "features": [
+        {
+          "title": "Widgets de aplicativos nas suas páginas",
+          "short": "Incorpore o widget de outro aplicativo em uma página do site",
+          "description": "Aplicativos que oferecem um widget — a página de agendamento do QueueDesk, por exemplo — podem ser inseridos em uma página como um bloco Widget de aplicativo, para que os visitantes façam agendamentos, naveguem ou leiam dentro do seu próprio site, em vez de seguir um link para um endereço separado. Sem uma assinatura, o bloco aparece na lista, mas não pode ser adicionado; todos os outros tipos de bloco e todos os demais recursos do aplicativo funcionam exatamente da mesma forma."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Встраивайте виджеты других приложений прямо в страницы своего сайта.",
+      "features": [
+        {
+          "title": "Виджеты приложений на ваших страницах",
+          "short": "Встраивайте виджет другого приложения в страницу сайта",
+          "description": "Приложения, предоставляющие виджет, например страницу бронирования QueueDesk, можно разместить на странице в виде блока «Виджет приложения». Посетители смогут бронировать, просматривать материалы или читать прямо на вашем сайте без перехода по ссылке на отдельный адрес. Без подписки блок отображается в списке, но добавить его нельзя; все остальные типы блоков и остальные возможности приложения работают точно так же."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "将其他应用的小组件直接嵌入你的网站页面。",
+      "features": [
+        {
+          "title": "页面中的应用小组件",
+          "short": "在网站页面中嵌入其他应用的小组件",
+          "description": "提供小组件的应用——例如 QueueDesk 的预约页面——可以作为“应用小组件”内容块放入页面，让访客直接在你的网站内预约、浏览或阅读，无需通过链接前往另一个地址。未订阅时，此内容块会显示在列表中，但无法添加；其他所有内容块类型及应用中的其余功能均照常使用。"
+        }
+      ]
+    }
+  }
 }

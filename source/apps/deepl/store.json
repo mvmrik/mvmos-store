@@ -47,7 +47,8 @@
           "summary": "Wenn der Administrator von Nostradamus die DeepL-Integration (Premium) aktiviert, erscheint unter Beiträgen und im Beitragseditor eine Schaltfläche zum Übersetzen, die den eigenen, hier hinterlegten DeepL-Schlüssel des Lesers verwendet.",
           "requires": "Ein DeepL-API-Schlüssel, der in den eigenen Einstellungen von DeepL Translator hinterlegt ist."
         }
-      ]
+      ],
+      "name": "DeepL Übersetzer"
     },
     "bg": {
       "short_description": "Превеждайте текст със собствен API ключ за DeepL и пазете история на преводите си.",
@@ -69,7 +70,8 @@
           "summary": "Когато администраторът на Nostradamus активира интеграцията с DeepL (Premium), под публикациите и в редактора за създаването им се появява бутон за превод, който използва собствения ключ за DeepL на читателя, въведен тук.",
           "requires": "API ключ за DeepL, въведен в настройките на самото приложение DeepL Translator."
         }
-      ]
+      ],
+      "name": "DeepL Преводач"
     },
     "es": {
       "short_description": "Traduce textos con tu propia clave de API de DeepL y guarda un historial de tus traducciones.",
@@ -91,7 +93,8 @@
           "summary": "Cuando el administrador de Nostradamus activa la integración con DeepL (Premium), aparece un botón para traducir debajo de las publicaciones y en el editor, que utiliza la clave de DeepL del propio lector introducida aquí.",
           "requires": "Una clave de API de DeepL introducida en los ajustes de DeepL Translator."
         }
-      ]
+      ],
+      "name": "Traductor DeepL"
     },
     "fr": {
       "short_description": "Traduisez du texte avec votre propre clé API DeepL et conservez un historique de vos traductions.",
@@ -113,7 +116,8 @@
           "summary": "Lorsque l’administrateur de Nostradamus active l’intégration DeepL (Premium), un bouton de traduction apparaît sous les publications et dans l’éditeur de publications. Il utilise la clé DeepL personnelle du lecteur, renseignée ici.",
           "requires": "Une clé API DeepL renseignée dans les paramètres de DeepL Translator."
         }
-      ]
+      ],
+      "name": "Traducteur DeepL"
     },
     "pt-BR": {
       "short_description": "Traduza textos com sua própria chave de API do DeepL e mantenha um histórico das suas traduções.",
@@ -135,7 +139,8 @@
           "summary": "Quando o administrador do Nostradamus ativa a integração com o DeepL (Premium), um botão de tradução aparece abaixo das publicações e no editor de publicações, usando a própria chave do DeepL do leitor informada aqui.",
           "requires": "Uma chave de API do DeepL informada nas configurações do próprio DeepL Translator."
         }
-      ]
+      ],
+      "name": "Tradutor DeepL"
     },
     "ja": {
       "short_description": "自分のDeepL APIキーでテキストを翻訳し、翻訳履歴を保存できます。",
@@ -157,7 +162,8 @@
           "summary": "Nostradamusの管理者がDeepL連携（Premium）を有効にすると、投稿の下や投稿作成画面に翻訳ボタンが表示され、読者がここで入力した自分のDeepLキーで翻訳できます。",
           "requires": "DeepL Translator自体の設定でDeepL APIキーを入力する必要があります。"
         }
-      ]
+      ],
+      "name": "DeepL 翻訳"
     },
     "ru": {
       "short_description": "Переводите тексты с собственным API-ключом DeepL и сохраняйте историю переводов.",
@@ -179,7 +185,8 @@
           "summary": "Когда администратор Nostradamus включает интеграцию с DeepL (Premium), под публикациями и в редакторе появляется кнопка перевода, использующая собственный ключ DeepL читателя, указанный здесь.",
           "requires": "API-ключ DeepL, указанный в настройках самого приложения DeepL Translator."
         }
-      ]
+      ],
+      "name": "Переводчик DeepL"
     },
     "zh-CN": {
       "short_description": "使用你自己的 DeepL API 密钥翻译文本，并保留翻译历史记录。",
@@ -201,7 +208,8 @@
           "summary": "当 Nostradamus 的管理员启用 DeepL 集成（Premium）后，帖子下方和编辑器中会出现翻译按钮，使用读者在此处输入的个人 DeepL 密钥进行翻译。",
           "requires": "需要在 DeepL Translator 自身的设置中输入 DeepL API 密钥。"
         }
-      ]
+      ],
+      "name": "DeepL 翻译"
     }
   }
 }

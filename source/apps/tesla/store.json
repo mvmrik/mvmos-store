@@ -19,5 +19,207 @@
     "A public HTTPS domain serving the installation and its Tesla public-key endpoint.",
     "Desktop root access for initial server setup. The setup installs cryptography if it is missing.",
     "Tesla Fleet API availability, permissions and usage charges apply separately."
-  ]
+  ],
+  "i18n": {
+    "de": {
+      "short_description": "Dein Tesla auf einen Blick: Live-Status, Batterie, Fahrten mit Routen, Ladevorgänge mit Kosten, Effizienz, Batteriezustand und Ruheverlauf. Die Daten werden über die offizielle Tesla Fleet API erfasst und auf deinem eigenen Server gespeichert, mit einer öffentlichen Webseite für das Smartphone oder den Fahrzeugbrowser.",
+      "tagline": "Deine Tesla-Historie, auf deinem eigenen Server erfasst.",
+      "description": "Tesla bringt Fahrzeugstatus, Fahrtrouten, Ladehistorie und Kosten auf den mvmOS-Desktop und auf eine Apps Hub-Seite für Smartphones oder den Fahrzeugbrowser. Deine Installation verbindet sich direkt mit der Tesla Fleet API und speichert den Verlauf lokal. Die Datenabfrage berücksichtigt den Ruhezustand und vermeidet Aufweckbefehle.\n\nDer Serverinhaber richtet eine Tesla-Entwickleranwendung ein, registriert die HTTPS-Domain und den öffentlichen Schlüssel der Installation und verbindet das Tesla-Konto. Er kann ausgewählten Apps Hub-Favoriten Lesezugriff gewähren oder ihnen die Verwaltung von Verlauf und Einstellungen übertragen, ohne Zugangsdaten oder die Kontrolle über das Konto weiterzugeben. Die Gebühren der Tesla API fallen unabhängig von mvmOS an. Die Anzeige der Anfragekosten in der App ist eine Schätzung und keine Tesla-Rechnung.",
+      "capabilities": [
+        "Live-Fahrzeugstatus, Batterie, Reichweite, Klimatisierung und verfügbare Messwerte der Fahrzeugsensoren.",
+        "Aufgezeichnete Fahrten mit Routenkarten, Strecke, Dauer und geschätzter Energieeffizienz.",
+        "Ladehistorie mit Energie, Standorten, Preisen pro Einheit und manuell festgelegten Kosten für einzelne Ladevorgänge.",
+        "Zeitabhängige Ladetarife mit getrennten Währungen und geschätzter Kostenaufteilung.",
+        "Fasse aufgezeichnete Fahrten zu Reisen zusammen und prüfe deren Gesamtwerte.",
+        "Schätzungen zum Batteriezustand, eine aus deinen Ladevorgängen abgeleitete Schätzung der nutzbaren Kapazität samt Entwicklung über Zeit oder Fahrstrecke sowie ein Ruheverlauf auf Grundlage der erfassten Fahrzeugdaten.",
+        "Datenerfassung unter Berücksichtigung des Ruhezustands mit konfigurierbaren Abfrageintervallen und Zeitplänen.",
+        "Über den Desktop freigegebene Servereinrichtung, persönliche Fleet API-Zugangsdaten und OAuth-Verbindung.",
+        "Vom Inhaber gesteuerte Freigaben mit Lese- und Administratorrollen, deren Berechtigungen bei jedem Routenaufruf geprüft werden.",
+        "Desktop-Ansichten und responsive öffentliche Ansichten mit Übersetzungen in neun Sprachen."
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 oder neuer und ein Apps Hub-Profil.",
+        "Ein kompatibles Tesla-Fahrzeug und Entwicklerzugangsdaten für die Tesla Fleet API mit Zugriff auf dieses Fahrzeug.",
+        "Eine öffentliche HTTPS-Domain, über die die Installation und ihr Endpunkt für den öffentlichen Tesla-Schlüssel erreichbar sind.",
+        "Root-Zugriff über den Desktop für die erste Servereinrichtung. Die Einrichtung installiert cryptography, falls es fehlt.",
+        "Verfügbarkeit, Berechtigungen und Nutzungsgebühren der Tesla Fleet API gelten unabhängig davon."
+      ],
+      "name": "Tesla"
+    },
+    "bg": {
+      "short_description": "Вашата Tesla с един поглед: състояние в реално време, батерия, пътувания с маршрути, сесии на зареждане с разходи, ефективност, състояние на батерията и история на режима на заспиване, събирани чрез официалния Tesla Fleet API и съхранявани на собствения ви сървър, с публична уеб страница за телефона или браузъра на автомобила.",
+      "tagline": "Историята на вашата Tesla, събирана на собствения ви сървър.",
+      "description": "Tesla предоставя състоянието на автомобила, маршрутите на пътуванията, историята на зарежданията и разходите в работния плот на mvmOS и на страница в Apps Hub за телефони или браузъра на автомобила. Инсталацията ви се свързва директно с Tesla Fleet API и съхранява историята локално. Периодичното извличане на данни отчита режима на заспиване и избягва изпращането на команди за събуждане.\n\nСобственикът на сървъра настройва приложение за разработчици на Tesla, регистрира HTTPS домейна и публичния ключ на инсталацията и свързва акаунта в Tesla. Собственикът може да споделя достъп само за преглед или да делегира управлението на историята и настройките на избрани любими контакти в Apps Hub, без да споделя данни за вход или контрол над акаунта. Таксите за Tesla API са отделни от mvmOS; показателят за разходите за заявки в приложението е приблизителна оценка, а не фактура от Tesla.",
+      "capabilities": [
+        "Състояние на автомобила в реално време, батерия, пробег, климатична система и налични показания от сензорите на автомобила.",
+        "Записани пътувания с карти на маршрутите, разстояние, продължителност и приблизителна енергийна ефективност.",
+        "История на зарежданията с енергия, местоположения, единични цени и ръчно задаване на разходите за сесия.",
+        "Тарифи за зареждане според часовия диапазон с отделни валути и приблизително разпределение на разходите.",
+        "Групирайте записани пътувания в общи пътувания и преглеждайте сумарните им показатели.",
+        "Оценки за състоянието на батерията, оценка на използваемия капацитет въз основа на сесиите ви на зареждане с промяната му във времето или според изминатото разстояние, както и история на режима на заспиване въз основа на събраните данни от автомобила.",
+        "Събиране на данни, съобразено с режима на заспиване, с настройваеми интервали и графици за извличане.",
+        "Настройка на сървъра с одобрение от работния плот, лични данни за достъп до Fleet API и свързване чрез OAuth.",
+        "Споделяне, контролирано от собственика, с роли за преглед и администриране, чиито права се проверяват при всяка заявка към маршрут.",
+        "Изгледи за работния плот и адаптивни публични изгледи с преводи на девет езика."
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 или по-нова версия и профил в Apps Hub.",
+        "Съвместим автомобил Tesla и данни за достъп за разработчици до Tesla Fleet API с достъп до този автомобил.",
+        "Публичен HTTPS домейн, който обслужва инсталацията и крайната ѝ точка за публичния ключ за Tesla.",
+        "Root достъп през работния плот за първоначалната настройка на сървъра. При настройката се инсталира cryptography, ако липсва.",
+        "Наличността на Tesla Fleet API, разрешенията и таксите за използване се прилагат отделно."
+      ],
+      "name": "Тесла"
+    },
+    "es": {
+      "short_description": "Tu Tesla de un vistazo: estado en directo, batería, trayectos con rutas, sesiones de carga con costes, eficiencia, estado de salud de la batería e historial de reposo, recopilados mediante la API oficial Tesla Fleet API y guardados en tu propio servidor, con una página web pública para el teléfono o el navegador del coche.",
+      "tagline": "El historial de tu Tesla, recopilado en tu propio servidor.",
+      "description": "Tesla lleva el estado del vehículo, las rutas de los trayectos y el historial y los costes de carga al escritorio de mvmOS y a una página de Apps Hub para teléfonos o el navegador del coche. Tu instalación se conecta directamente a Tesla Fleet API y guarda el historial de forma local. Las consultas tienen en cuenta el estado de reposo para evitar enviar órdenes de activación.\n\nEl propietario del servidor configura una aplicación de desarrollador de Tesla, registra el dominio HTTPS y la clave pública de la instalación y conecta la cuenta de Tesla. El propietario puede compartir acceso de solo lectura o delegar la gestión del historial y los ajustes en determinados favoritos de Apps Hub, sin compartir credenciales ni el control de la cuenta. Los cargos de la API de Tesla son independientes de mvmOS; el medidor de costes de las solicitudes de la aplicación es una estimación, no una factura de Tesla.",
+      "capabilities": [
+        "Estado del vehículo en directo, batería, autonomía, climatización y lecturas disponibles de los sensores del vehículo.",
+        "Trayectos registrados con mapas de rutas, distancia, duración y eficiencia energética estimada.",
+        "Historial de carga con energía, ubicaciones, precios unitarios y ajustes manuales del coste de cada sesión.",
+        "Tarifas de carga por franjas horarias con monedas independientes y desgloses de costes estimados.",
+        "Agrupa los trayectos registrados en viajes y consulta sus totales.",
+        "Estimaciones del estado de salud de la batería, una estimación de la capacidad útil a partir de tus sesiones de carga con su evolución a lo largo del tiempo o de la distancia recorrida, e historial de reposo basado en los datos recopilados del vehículo.",
+        "Recopilación que tiene en cuenta el estado de reposo, con intervalos y horarios de consulta configurables.",
+        "Configuración del servidor autorizada desde el escritorio, credenciales personales de Fleet API y conexión OAuth.",
+        "Acceso compartido controlado por el propietario, con roles de lector y administrador que se verifican en cada ruta.",
+        "Vistas de escritorio y públicas adaptables, con traducciones a nueve idiomas."
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 o posterior y un perfil de Apps Hub.",
+        "Un vehículo Tesla compatible y credenciales de desarrollador de Tesla Fleet API con acceso a ese vehículo.",
+        "Un dominio HTTPS público que dé acceso a la instalación y a su endpoint de clave pública de Tesla.",
+        "Acceso root desde el escritorio para la configuración inicial del servidor. La configuración instala cryptography si no está instalado.",
+        "La disponibilidad, los permisos y los cargos por uso de Tesla Fleet API se aplican por separado."
+      ],
+      "name": "Tesla"
+    },
+    "fr": {
+      "short_description": "Votre Tesla en un coup d'œil : état en direct, batterie, trajets avec itinéraires, sessions de recharge avec coûts, efficacité énergétique, état de santé de la batterie et historique de veille. Les données sont recueillies via l'API officielle Tesla Fleet API et conservées sur votre propre serveur, avec une page web publique pour le téléphone ou le navigateur du véhicule.",
+      "tagline": "L'historique de votre Tesla, recueilli sur votre propre serveur.",
+      "description": "Tesla intègre l'état du véhicule, les itinéraires des trajets, l'historique des recharges et leurs coûts au bureau mvmOS et à une page Apps Hub pour les téléphones ou le navigateur du véhicule. Votre installation se connecte directement à Tesla Fleet API et conserve son historique localement. La collecte tient compte de la veille pour éviter d'envoyer des commandes de réveil.\n\nLe propriétaire du serveur configure une application développeur Tesla, enregistre le domaine HTTPS et la clé publique de l'installation, puis connecte le compte Tesla. Il peut partager un accès en lecture seule ou déléguer la gestion de l'historique et des paramètres à des favoris Apps Hub sélectionnés, sans partager les identifiants ni le contrôle du compte. Les frais de l'API Tesla sont distincts de mvmOS ; le compteur de coût des requêtes de l'application fournit une estimation, et non une facture Tesla.",
+      "capabilities": [
+        "État du véhicule en direct, batterie, autonomie, climatisation et relevés disponibles des capteurs du véhicule.",
+        "Trajets enregistrés avec cartes des itinéraires, distance, durée et estimation de l'efficacité énergétique.",
+        "Historique des recharges avec énergie, lieux, prix unitaires et remplacement manuel du coût de chaque session.",
+        "Tarifs de recharge selon les plages horaires, avec devises distinctes et estimation de la répartition des coûts.",
+        "Regroupez les trajets enregistrés en voyages et consultez les totaux de chaque voyage.",
+        "Estimations de l'état de santé de la batterie, estimation de la capacité utile à partir de vos sessions de recharge avec son évolution dans le temps ou selon la distance, et historique de veille fondé sur les données recueillies du véhicule.",
+        "Collecte tenant compte de la veille, avec intervalles et plages horaires d'interrogation configurables.",
+        "Configuration du serveur approuvée depuis le bureau, identifiants Fleet API personnels et connexion OAuth.",
+        "Partage contrôlé par le propriétaire avec des rôles de consultation et d'administration, dont les droits sont vérifiés sur chaque route.",
+        "Vues pour le bureau et pages publiques adaptatives, traduites en neuf langues."
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 ou version ultérieure et un profil Apps Hub.",
+        "Un véhicule Tesla compatible et des identifiants développeur Tesla Fleet API donnant accès à ce véhicule.",
+        "Un domaine HTTPS public desservant l'installation et son point de terminaison de clé publique Tesla.",
+        "Un accès root depuis le bureau pour la configuration initiale du serveur. La configuration installe cryptography si ce composant est absent.",
+        "La disponibilité, les autorisations et les frais d'utilisation de Tesla Fleet API s'appliquent séparément."
+      ],
+      "name": "Tesla"
+    },
+    "ja": {
+      "short_description": "Teslaの情報をひと目で確認。現在の状態、バッテリー、ルート付きの走行記録、費用付きの充電記録、エネルギー効率、バッテリーの健全性、スリープ履歴を、公式Tesla Fleet APIから収集して自分のサーバーに保存します。スマートフォンや車載ブラウザー向けの公開ウェブページも利用できます。",
+      "tagline": "Teslaの履歴を、自分のサーバーに収集。",
+      "description": "Teslaは、車両の状態、走行ルート、充電履歴と費用を、mvmOSのデスクトップと、スマートフォンや車載ブラウザー向けのApps Hubページに表示します。お使いの環境からTesla Fleet APIに直接接続し、履歴をローカルに保存します。スリープ状態を考慮したポーリングにより、ウェイクアップコマンドの送信を避けます。\n\nサーバー所有者がTeslaの開発者アプリケーションを設定し、この環境のHTTPSドメインと公開鍵を登録して、Teslaアカウントを接続します。所有者は、認証情報やアカウントの操作権限を共有せずに、Apps Hubのお気に入りから選んだ相手に閲覧専用アクセスを付与したり、履歴や設定の管理を委任したりできます。Tesla APIの料金はmvmOSとは別に発生します。アプリのリクエスト費用メーターは推定値であり、Teslaの請求書ではありません。",
+      "capabilities": [
+        "車両の現在の状態、バッテリー、航続距離、空調、取得可能な車両センサーの測定値を表示します。",
+        "走行記録に、ルートマップ、距離、所要時間、推定エネルギー効率を保存します。",
+        "充電履歴に、充電量、場所、単価を記録でき、充電ごとの費用を手動で上書きできます。",
+        "時間帯別の充電料金に対応し、それぞれの通貨と推定費用の内訳を扱えます。",
+        "走行記録を旅程にまとめ、旅程全体の集計を確認できます。",
+        "バッテリーの健全性の推定値、充電記録から推定した使用可能容量と時間または走行距離に伴う変化、収集した車両データに基づくスリープ履歴を表示します。",
+        "スリープ状態を考慮してデータを収集し、ポーリング間隔やスケジュールを設定できます。",
+        "デスクトップで承認するサーバー設定、個人のFleet API認証情報、OAuth接続に対応しています。",
+        "所有者が閲覧者と管理者の役割で共有を管理し、すべてのルートでアクセス制御を適用します。",
+        "デスクトップ画面とレスポンシブ対応の公開画面を備え、9言語の翻訳に対応しています。"
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0以降とApps Hubプロフィール。",
+        "対応するTesla車両と、その車両にアクセスできるTesla Fleet API開発者認証情報。",
+        "この環境とTesla公開鍵エンドポイントを提供する公開HTTPSドメイン。",
+        "サーバーの初期設定に必要な、デスクトップでのroot権限。セットアップでは、cryptographyがない場合にインストールします。",
+        "Tesla Fleet APIの提供状況、権限、利用料金は別途適用されます。"
+      ],
+      "name": "テスラ"
+    },
+    "pt-BR": {
+      "short_description": "Seu Tesla em um relance: status ao vivo, bateria, trajetos com rotas, sessões de carregamento com custos, eficiência, saúde da bateria e histórico de repouso, coletados da API oficial Tesla Fleet API e mantidos no seu próprio servidor, com uma página pública na web para o celular ou o navegador do carro.",
+      "tagline": "O histórico do seu Tesla, coletado no seu próprio servidor.",
+      "description": "Tesla traz o status do veículo, rotas dos trajetos, histórico de carregamento e custos para a área de trabalho do mvmOS e uma página do Apps Hub para celulares ou o navegador do carro. Sua instalação se conecta diretamente à Tesla Fleet API e mantém o histórico localmente. As consultas levam em conta o estado de repouso e evitam enviar comandos para despertar o veículo.\n\nO proprietário do servidor configura um aplicativo de desenvolvedor da Tesla, registra o domínio HTTPS e a chave pública da instalação e conecta a conta Tesla. O proprietário pode compartilhar acesso somente para leitura ou delegar a gestão do histórico e das configurações a favoritos selecionados do Apps Hub, sem compartilhar credenciais ou o controle da conta. As cobranças da API da Tesla são separadas do mvmOS; o medidor de custo das solicitações do aplicativo é uma estimativa, não uma fatura da Tesla.",
+      "capabilities": [
+        "Status do veículo ao vivo, bateria, autonomia, climatização e leituras disponíveis dos sensores do veículo.",
+        "Trajetos registrados com mapas de rotas, distância, duração e estimativa de eficiência energética.",
+        "Histórico de carregamento com energia, locais, preços unitários e ajustes manuais do custo das sessões.",
+        "Tarifas de carregamento por horário, com moedas separadas e estimativas da divisão dos custos.",
+        "Agrupe trajetos registrados em viagens e consulte os totais de cada viagem.",
+        "Estimativas da saúde da bateria, uma estimativa da capacidade utilizável com base nas sessões de carregamento e sua variação ao longo do tempo ou da distância, além do histórico de repouso com base nos dados coletados do veículo.",
+        "Coleta que leva em conta o estado de repouso, com intervalos de consulta e horários configuráveis.",
+        "Configuração do servidor aprovada pela área de trabalho, credenciais pessoais da Fleet API e conexão OAuth.",
+        "Compartilhamento controlado pelo proprietário, com funções de visualização e administração cujas permissões são verificadas em cada rota.",
+        "Visualizações para a área de trabalho e páginas públicas responsivas, com traduções em nove idiomas."
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 ou mais recente e um perfil do Apps Hub.",
+        "Um veículo Tesla compatível e credenciais de desenvolvedor da Tesla Fleet API com acesso a esse veículo.",
+        "Um domínio HTTPS público que disponibilize a instalação e seu endpoint de chave pública da Tesla.",
+        "Acesso root pela área de trabalho para a configuração inicial do servidor. A configuração instala cryptography se estiver ausente.",
+        "A disponibilidade, as permissões e as cobranças de uso da Tesla Fleet API se aplicam separadamente."
+      ],
+      "name": "Tesla"
+    },
+    "ru": {
+      "short_description": "Ваша Tesla с первого взгляда: текущее состояние, заряд батареи, поездки с маршрутами, сеансы зарядки со стоимостью, энергоэффективность, состояние батареи и история спящего режима. Данные собираются через официальный Tesla Fleet API и хранятся на вашем сервере, а общедоступная веб-страница доступна с телефона или в браузере автомобиля.",
+      "tagline": "История вашей Tesla, собранная на вашем сервере.",
+      "description": "Tesla показывает состояние автомобиля, маршруты поездок, историю зарядки и расходы на рабочем столе mvmOS и на странице Apps Hub для телефонов или браузера автомобиля. Ваша установка подключается напрямую к Tesla Fleet API и хранит историю локально. Опрос с учётом спящего режима позволяет обходиться без отправки команд пробуждения.\n\nВладелец сервера настраивает приложение разработчика Tesla, регистрирует HTTPS-домен и открытый ключ установки и подключает учётную запись Tesla. Владелец может предоставить доступ только для чтения или делегировать управление историей и настройками выбранным пользователям из избранного Apps Hub, не передавая учётные данные или управление учётной записью. Плата за Tesla API взимается отдельно от mvmOS; счётчик стоимости запросов в приложении показывает оценку, а не счёт от Tesla.",
+      "capabilities": [
+        "Текущее состояние автомобиля, заряд батареи, запас хода, климат и доступные показания датчиков автомобиля.",
+        "Сохранённые поездки с картами маршрутов, расстоянием, продолжительностью и оценкой энергоэффективности.",
+        "История зарядки с количеством энергии, местоположениями, ценами за единицу и возможностью вручную задать стоимость сеанса.",
+        "Тарифы на зарядку по времени с раздельным учётом валют и оценочной разбивкой стоимости.",
+        "Объединение сохранённых поездок в путешествия и просмотр итоговых показателей путешествия.",
+        "Оценки состояния батареи, оценка полезной ёмкости по вашим сеансам зарядки с отслеживанием её изменения со временем или пробегом, а также история спящего режима на основе собранных данных автомобиля.",
+        "Сбор данных с учётом спящего режима, настраиваемыми интервалами опроса и расписаниями.",
+        "Настройка сервера с подтверждением на рабочем столе, личные учётные данные Fleet API и подключение через OAuth.",
+        "Совместный доступ под контролем владельца с ролями для просмотра и администрирования, проверяемыми на каждом маршруте.",
+        "Интерфейс для рабочего стола и адаптивные общедоступные страницы с переводом на девять языков."
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 или новее и профиль Apps Hub.",
+        "Совместимый автомобиль Tesla и учётные данные разработчика Tesla Fleet API с доступом к этому автомобилю.",
+        "Общедоступный HTTPS-домен, через который доступны установка и её конечная точка открытого ключа Tesla.",
+        "Доступ root на рабочем столе для первоначальной настройки сервера. При настройке устанавливается cryptography, если этот пакет отсутствует.",
+        "Доступность Tesla Fleet API, разрешения и плата за использование регулируются отдельно."
+      ],
+      "name": "Тесла"
+    },
+    "zh-CN": {
+      "short_description": "一目了然地掌握你的 Tesla：实时状态、电池、含路线的行程、含费用的充电记录、能效、电池健康状况和休眠历史。数据通过官方 Tesla Fleet API 采集并保存在你自己的服务器上，另提供适用于手机或车载浏览器的公开网页。",
+      "tagline": "在你自己的服务器上采集并保存 Tesla 历史记录。",
+      "description": "Tesla 将车辆状态、行程路线、充电历史和费用整合到 mvmOS 桌面，以及适用于手机或车载浏览器的 Apps Hub 页面中。你的实例直接连接 Tesla Fleet API，并将历史记录保存在本地。轮询会考虑车辆休眠状态，避免发送唤醒命令。\n\n服务器所有者需设置 Tesla 开发者应用，注册该实例的 HTTPS 域名和公钥，并连接 Tesla 账户。所有者可以向选定的 Apps Hub 收藏用户共享只读访问权限，或委托其管理历史记录和设置，无需共享凭据或账户控制权。Tesla API 费用独立于 mvmOS；应用中的请求费用计量仅为估算，并非 Tesla 账单。",
+      "capabilities": [
+        "实时车辆状态、电池、续航里程、空调状态及可获取的车辆传感器读数。",
+        "记录行程及其路线地图、距离、时长和估算能效。",
+        "充电历史包含充电电量、地点、单价，并可手动覆盖单次充电费用。",
+        "支持分时充电费率、分别设置币种以及估算费用明细。",
+        "将已记录的行程归为旅程，并查看旅程汇总。",
+        "根据采集的车辆数据，提供电池健康状况估算、基于充电记录的可用容量估算及其随时间或里程的变化，以及休眠历史。",
+        "采集时考虑车辆休眠状态，可配置轮询间隔和时间安排。",
+        "经桌面授权的服务器设置、个人 Fleet API 凭据和 OAuth 连接。",
+        "由所有者控制共享，提供查看者和管理员角色，并在每个路由上强制执行权限检查。",
+        "提供桌面视图和响应式公开视图，支持九种语言。"
+      ],
+      "requirements": [
+        "mvmOS Core 1.17.0 或更新版本，以及 Apps Hub 个人资料。",
+        "兼容的 Tesla 车辆，以及具有该车辆访问权限的 Tesla Fleet API 开发者凭据。",
+        "用于访问此实例及其 Tesla 公钥端点的公开 HTTPS 域名。",
+        "初次设置服务器需要桌面 root 权限。若缺少 cryptography，设置程序会安装它。",
+        "Tesla Fleet API 的可用性、权限和使用费用需另行遵循其规定。"
+      ],
+      "name": "特斯拉"
+    }
+  }
 }

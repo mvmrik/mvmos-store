@@ -23,5 +23,207 @@
       "summary": "Other apps can offer a widget for embedding in your pages — QueueDesk publishes its booking page this way. mvmSiteBuilder collects what they offer and lists it as an App widget block.",
       "requires": "The mvmSiteBuilder App API has to be switched on in Apps Hub → Settings → App APIs (off by default), and placing an app widget in a page is a Premium feature."
     }
-  ]
+  ],
+  "i18n": {
+    "bg": {
+      "short_description": "Създайте собствен уебсайт: страници, меню, теми, персонализирани CSS/JS.",
+      "tagline": "Създайте и публикувайте уебсайт от работния си плот.",
+      "description": "mvmSiteBuilder е малък инструмент за създаване на сайтове, който работи в mvmOS и публикува на собствения ви сървър. Сайтът е набор от страници, всяка изградена от блокове — текст, директен HTML, изображения, празни отстояния — с лента за форматиране на текстовите блокове и изглед на кода, когато искате да редактирате директно JSON на блоковете.\n\nВсеки сайт има меню, което подреждате сами от страници или външни връзки, тема и собствени персонализирани CSS и JavaScript, с отчитане на грешки, ако някой от тях е невалиден. Страниците могат да бъдат чернови или публикувани, а всяка страница може да бъде зададена като начална.\n\nСайтовете могат да се споделят: поканете други акаунти в Apps Hub като редактори или читатели, като читателите имат достъп само за четене. Всеки сайт е достъпен на собствен адрес, така че за разлика от повечето приложения няма една обща публична страница — всеки сайт има своя.",
+      "capabilities": [
+        "Множество сайтове, всеки със собствени страници, меню, тема и настройки.",
+        "Страници от блокове: текст, директен HTML (включително скриптове), изображение с алтернативен текст и надпис, празно отстояние.",
+        "Лента за форматиране на текст — заглавия, получер, курсив, подчертаване, зачеркване, цитати, списъци, връзки, изчистване на форматирането, отмяна и повторение.",
+        "Изглед на кода за директно редактиране на JSON на блоковете на страницата, с проверка за валидност.",
+        "Чернови и публикувани страници и начална страница по ваш избор.",
+        "Меню от страници или външни URL адреси, подредени по ваш избор.",
+        "Теми, включително качване на собствени като .zip.",
+        "Персонализирани CSS и JavaScript за всеки сайт с извеждане на синтактичните грешки.",
+        "Качване на изображения директно в страница.",
+        "Контрол върху името на сайта и частта от URL адреса, която го идентифицира, така че адресът да е по ваш избор.",
+        "Споделяйте сайт с други акаунти в Apps Hub като собственик, редактор или читател."
+      ],
+      "integrations": [
+        {
+          "summary": "Други приложения могат да предлагат уиджет за вграждане в страниците ви — QueueDesk публикува страницата си за резервации по този начин. mvmSiteBuilder събира предлаганото от тях и го показва като блок „Уиджет на приложение“.",
+          "requires": "API на приложението mvmSiteBuilder трябва да бъде включен в Apps Hub → Настройки → API на приложенията (изключен по подразбиране), а поставянето на уиджет на приложение в страница е функция на Premium."
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "de": {
+      "short_description": "Erstelle deine eigene Website: Seiten, Menü, Designs, eigenes CSS/JS.",
+      "tagline": "Erstelle und veröffentliche eine Website von deinem Desktop aus.",
+      "description": "mvmSiteBuilder ist ein kleiner Website-Baukasten, der in mvmOS läuft und auf deinem eigenen Server veröffentlicht. Eine Website besteht aus mehreren Seiten, die jeweils aus Blöcken aufgebaut sind – Text, unverarbeitetes HTML, Bilder, Abstandshalter. Für Textblöcke gibt es eine Formatierungsleiste und für die direkte Bearbeitung der Block-JSON-Daten eine Codeansicht.\n\nJede Website erhält ein Menü, das du selbst aus Seiten oder externen Links zusammenstellst, ein Design sowie eigenes CSS und JavaScript mit Fehlermeldungen bei ungültigem Code. Seiten können als Entwurf vorliegen oder veröffentlicht sein, und jede Seite lässt sich als Startseite festlegen.\n\nWebsites lassen sich teilen: Lade andere Apps Hub-Konten als Bearbeiter oder Betrachter ein; Letztere haben nur Lesezugriff. Eine Website ist unter ihrer eigenen Adresse erreichbar. Anders als bei den meisten Apps gibt es daher keine einzelne öffentliche Seite – jede Website hat ihre eigene.",
+      "capabilities": [
+        "Mehrere Websites, jeweils mit eigenen Seiten, eigenem Menü, Design und Einstellungen.",
+        "Seiten aus Blöcken: Text, unverarbeitetes HTML (einschließlich Skripten), Bild mit Alternativtext und Bildunterschrift, Abstandshalter.",
+        "Formatierungsleiste – Überschriften, fett, kursiv, unterstrichen, durchgestrichen, Zitate, Listen, Links, Formatierung entfernen, rückgängig machen und wiederholen.",
+        "Codeansicht zur direkten Bearbeitung der Block-JSON-Daten einer Seite mit Validierung.",
+        "Seiten als Entwurf oder veröffentlicht und eine frei wählbare Startseite.",
+        "Menü aus Seiten oder externen URLs in deiner gewünschten Reihenfolge.",
+        "Designs, einschließlich des Uploads eigener Designs als .zip.",
+        "Eigenes CSS und JavaScript pro Website mit Rückmeldung zu Syntaxfehlern.",
+        "Bilder direkt in eine Seite hochladen.",
+        "URL-Kürzel und Name der Website frei festlegbar, damit du die Adresse bestimmst.",
+        "Teile eine Website mit anderen Apps Hub-Konten als Eigentümer, Bearbeiter oder Betrachter."
+      ],
+      "integrations": [
+        {
+          "summary": "Andere Apps können ein Widget zum Einbetten in deine Seiten anbieten – QueueDesk veröffentlicht seine Buchungsseite auf diese Weise. mvmSiteBuilder sammelt diese Angebote und führt sie als App-Widget-Blöcke auf.",
+          "requires": "Die App-API von mvmSiteBuilder muss unter Apps Hub → Einstellungen → App-APIs eingeschaltet sein (standardmäßig ausgeschaltet). Das Einfügen eines App-Widgets in eine Seite ist eine Premium-Funktion."
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "fr": {
+      "short_description": "Créez votre propre site web : pages, menu, thèmes, CSS/JS personnalisés.",
+      "tagline": "Créez et publiez un site web depuis votre bureau.",
+      "description": "mvmSiteBuilder est un petit outil de création de sites qui fonctionne dans mvmOS et publie sur votre propre serveur. Un site se compose de pages, chacune construite à partir de blocs — texte, HTML brut, images, espaces — avec une barre d’outils de mise en forme pour les blocs de texte et une vue du code lorsque vous souhaitez modifier directement le JSON des blocs.\n\nChaque site dispose d’un menu que vous organisez vous-même à partir de pages ou de liens externes, d’un thème, ainsi que de son propre CSS et JavaScript personnalisés, avec signalement des erreurs si l’un ou l’autre est invalide. Les pages peuvent être à l’état de brouillon ou publiées, et n’importe quelle page peut devenir la page d’accueil.\n\nLes sites peuvent être partagés : invitez d’autres comptes Apps Hub comme éditeurs ou lecteurs, ces derniers disposant d’un accès en lecture seule. Chaque site est accessible à sa propre adresse ; contrairement à la plupart des applications, il n’existe donc pas de page publique unique — chaque site possède la sienne.",
+      "capabilities": [
+        "Plusieurs sites, chacun avec ses propres pages, son menu, son thème et ses paramètres.",
+        "Pages composées de blocs : texte, HTML brut (scripts compris), image avec texte alternatif et légende, espace.",
+        "Barre d’outils de mise en forme — titres, gras, italique, souligné, barré, citations, listes, liens, effacement de la mise en forme, annulation et rétablissement.",
+        "Vue du code pour modifier directement le JSON des blocs de la page, avec validation.",
+        "Pages à l’état de brouillon ou publiées, et page d’accueil de votre choix.",
+        "Menu composé de pages ou d’URL externes, dans l’ordre de votre choix.",
+        "Thèmes, avec possibilité d’importer le vôtre au format .zip.",
+        "CSS et JavaScript personnalisés pour chaque site, avec signalement des erreurs de syntaxe.",
+        "Envoi d’images directement dans une page.",
+        "Identifiant d’URL et nom du site personnalisables, pour une adresse qui vous appartient.",
+        "Partage d’un site avec d’autres comptes Apps Hub en tant que propriétaire, éditeur ou lecteur."
+      ],
+      "integrations": [
+        {
+          "summary": "D’autres applications peuvent proposer un widget à intégrer à vos pages — QueueDesk publie ainsi sa page de réservation. mvmSiteBuilder rassemble les widgets proposés et les répertorie dans un bloc Widget d’application.",
+          "requires": "L’API d’application de mvmSiteBuilder doit être activée dans Apps Hub → Paramètres → API des applications (désactivée par défaut), et l’ajout d’un widget d’application à une page est une fonction Premium."
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "es": {
+      "short_description": "Crea tu propio sitio web: páginas, menú, temas y CSS/JS personalizados.",
+      "tagline": "Crea y publica un sitio web desde tu escritorio.",
+      "description": "mvmSiteBuilder es un pequeño creador de sitios web que se ejecuta dentro de mvmOS y publica en tu propio servidor. Un sitio es un conjunto de páginas, cada una formada por bloques —texto, HTML sin procesar, imágenes y espaciadores—, con una barra de herramientas de texto enriquecido para los bloques de texto y una vista de código para cuando quieras editar directamente el JSON del bloque.\n\nCada sitio tiene un menú que organizas a tu gusto con páginas o enlaces externos, un tema y su propio CSS y JavaScript personalizados, con avisos de error si alguno no es válido. Las páginas pueden estar en borrador o publicadas, y cualquiera de ellas puede establecerse como página de inicio.\n\nLos sitios se pueden compartir: invita a otras cuentas de Apps Hub como editores o lectores, con un modo de solo lectura para estos últimos. Cada sitio tiene su propia dirección, por lo que, a diferencia de la mayoría de las aplicaciones, no hay una única página pública: cada sitio tiene la suya.",
+      "capabilities": [
+        "Varios sitios, cada uno con sus propias páginas, menú, tema y ajustes.",
+        "Páginas basadas en bloques: texto, HTML sin procesar (con scripts incluidos), imagen con texto alternativo y pie de imagen, y espaciador.",
+        "Barra de herramientas de texto enriquecido: encabezados, negrita, cursiva, subrayado, tachado, citas, listas, enlaces, borrar formato, deshacer y rehacer.",
+        "Vista de código para editar directamente el JSON de los bloques de la página, con validación.",
+        "Páginas en borrador y publicadas, y una página de inicio a tu elección.",
+        "Menú creado a partir de páginas o URL externas, en el orden que prefieras.",
+        "Temas, con la posibilidad de cargar los tuyos en formato .zip.",
+        "CSS y JavaScript personalizados para cada sitio, con avisos de errores de sintaxis.",
+        "Carga de imágenes directamente en una página.",
+        "Controla el identificador de URL y el nombre del sitio para definir su dirección.",
+        "Comparte un sitio con otras cuentas de Apps Hub como propietario, editor o lector."
+      ],
+      "integrations": [
+        {
+          "summary": "Otras aplicaciones pueden ofrecer un widget para insertarlo en tus páginas; QueueDesk publica su página de reservas de esta forma. mvmSiteBuilder reúne los widgets disponibles y los muestra como bloques de widget de aplicación.",
+          "requires": "La API de aplicación de mvmSiteBuilder debe estar activada en Apps Hub → Ajustes → API de aplicaciones (desactivada de forma predeterminada), e insertar un widget de aplicación en una página es una función Premium."
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "ja": {
+      "short_description": "ページ、メニュー、テーマ、カスタムCSS/JSで、自分のWebサイトを作成できます。",
+      "tagline": "デスクトップからWebサイトを作成して公開。",
+      "description": "mvmSiteBuilderは、mvmOS内で動作し、自分のサーバーでサイトを公開できる小規模なサイト作成ツールです。サイトは複数のページで構成され、各ページはテキスト、直接記述するHTML、画像、スペーサーなどのブロックで作成します。テキストブロックにはリッチテキストツールバーがあり、ブロックのJSONを直接編集したい場合はコード表示を利用できます。\n\n各サイトには、ページや外部リンクを自由に並べて作るメニュー、テーマ、サイト専用のカスタムCSSとJavaScriptを設定できます。CSSやJavaScriptに誤りがある場合は、エラーが報告されます。ページは下書きまたは公開済みに設定でき、どのページでもホームページに指定できます。\n\nサイトは共有することもできます。他のApps Hubアカウントを編集者または閲覧者として招待でき、閲覧者には読み取り専用モードが適用されます。サイトにはそれぞれ固有のアドレスでアクセスできるため、多くのアプリとは異なり、共通の公開ページはありません。各サイトが独自の公開ページを持ちます。",
+      "capabilities": [
+        "それぞれに独自のページ、メニュー、テーマ、設定を持つ複数のサイト。",
+        "テキスト、直接記述するHTML（スクリプトを含む）、代替テキストとキャプション付きの画像、スペーサーで構成するブロック形式のページ。",
+        "見出し、太字、斜体、下線、取り消し線、引用、リスト、リンク、書式のクリア、元に戻す、やり直しに対応したリッチテキストツールバー。",
+        "ページのブロックJSONを直接編集でき、検証機能を備えたコード表示。",
+        "下書きページと公開済みページ、および自由に選べるホームページ。",
+        "ページや外部URLを好きな順番で並べて作成するメニュー。",
+        "独自のテーマを.zipでアップロードする機能を含むテーマ対応。",
+        "サイトごとのカスタムCSSとJavaScript、および構文エラーの通知。",
+        "ページへの画像の直接アップロード。",
+        "サイトのスラッグとサイト名を自分で設定し、アドレスを管理。",
+        "他のApps Hubアカウントと、所有者、編集者、閲覧者の権限でサイトを共有。"
+      ],
+      "integrations": [
+        {
+          "summary": "他のアプリが、ページに埋め込めるウィジェットを提供できます。QueueDeskはこの仕組みで予約ページを提供しています。mvmSiteBuilderは各アプリが提供するウィジェットを集め、アプリウィジェットブロックとして一覧表示します。",
+          "requires": "Apps Hub → 設定 → App APIでmvmSiteBuilderのApp APIをオンにする必要があります（初期状態ではオフ）。ページへのアプリウィジェットの配置はPremium機能です。"
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "pt-BR": {
+      "short_description": "Crie seu próprio site: páginas, menu, temas e CSS/JS personalizados.",
+      "tagline": "Crie e publique um site a partir da sua área de trabalho.",
+      "description": "mvmSiteBuilder é um pequeno construtor de sites que funciona dentro do mvmOS e publica no seu próprio servidor. Um site é um conjunto de páginas, cada uma formada por blocos — texto, HTML puro, imagens, espaçadores — com uma barra de ferramentas de texto formatado para os blocos de texto e uma visualização de código para quando você quiser editar diretamente o JSON dos blocos.\n\nCada site tem um menu que você organiza com páginas ou links externos, um tema e seus próprios CSS e JavaScript personalizados, com indicação de erros caso algum deles seja inválido. As páginas podem ser rascunhos ou publicadas, e qualquer página pode ser definida como página inicial.\n\nOs sites podem ser compartilhados: convide outras contas do Apps Hub como editores ou visualizadores, com um modo somente leitura para os visualizadores. Cada site pode ser acessado pelo próprio endereço; por isso, diferentemente da maioria dos aplicativos, não há uma única página pública — cada site tem a sua.",
+      "capabilities": [
+        "Vários sites, cada um com suas próprias páginas, menu, tema e configurações.",
+        "Páginas baseadas em blocos: texto, HTML puro (incluindo scripts), imagem com texto alternativo e legenda, espaçador.",
+        "Barra de ferramentas de texto formatado — títulos, negrito, itálico, sublinhado, tachado, citações, listas, links, limpar formatação, desfazer e refazer.",
+        "Visualização de código para editar diretamente o JSON dos blocos da página, com validação.",
+        "Páginas em rascunho e publicadas, com uma página inicial à sua escolha.",
+        "Menu criado com páginas ou URLs externas, na ordem que você definir.",
+        "Temas, incluindo o envio do seu próprio tema como um arquivo .zip.",
+        "CSS e JavaScript personalizados por site, com indicação de erros de sintaxe.",
+        "Envio de imagens diretamente para uma página.",
+        "Controle do slug e do nome do site, para que o endereço seja seu.",
+        "Compartilhe um site com outras contas do Apps Hub como proprietário, editor ou visualizador."
+      ],
+      "integrations": [
+        {
+          "summary": "Outros aplicativos podem oferecer um widget para incorporar às suas páginas — o QueueDesk disponibiliza sua página de agendamento dessa forma. O mvmSiteBuilder reúne as opções oferecidas e as lista como um bloco Widget de aplicativo.",
+          "requires": "A API de aplicativo do mvmSiteBuilder precisa estar ativada em Apps Hub → Configurações → APIs de aplicativos (desativada por padrão), e inserir um widget de aplicativo em uma página é um recurso Premium."
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "ru": {
+      "short_description": "Создайте свой сайт: страницы, меню, темы, собственные CSS/JS.",
+      "tagline": "Создавайте и публикуйте сайт с рабочего стола.",
+      "description": "mvmSiteBuilder — небольшой конструктор сайтов, который работает внутри mvmOS и публикует сайты на вашем сервере. Сайт состоит из страниц, каждая из которых собирается из блоков: текста, HTML-кода, изображений и отступов. Для текстовых блоков есть панель форматирования, а для прямого редактирования JSON блоков — режим кода.\n\nУ каждого сайта есть меню, которое вы сами составляете из страниц или внешних ссылок, тема, а также собственные CSS и JavaScript с сообщениями об ошибках при некорректном коде. Страницы могут быть черновиками или опубликованными, а любую страницу можно назначить главной.\n\nК сайтам можно предоставлять совместный доступ: приглашайте другие учётные записи Apps Hub в качестве редакторов или читателей; для читателей доступен режим только для чтения. Каждый сайт доступен по собственному адресу, поэтому, в отличие от большинства приложений, единой публичной страницы здесь нет — у каждого сайта она своя.",
+      "capabilities": [
+        "Несколько сайтов, каждый со своими страницами, меню, темой и настройками.",
+        "Страницы из блоков: текст, HTML-код (включая скрипты), изображение с альтернативным текстом и подписью, отступ.",
+        "Панель форматирования текста: заголовки, полужирный, курсив, подчёркивание, зачёркивание, цитаты, списки, ссылки, очистка форматирования, отмена и повтор действий.",
+        "Режим кода для прямого редактирования JSON блоков страницы с проверкой корректности.",
+        "Черновики и опубликованные страницы, а также выбор главной страницы.",
+        "Меню из страниц или внешних URL в выбранном вами порядке.",
+        "Темы, включая загрузку собственных в формате .zip.",
+        "Собственные CSS и JavaScript для каждого сайта с сообщениями о синтаксических ошибках.",
+        "Загрузка изображений прямо на страницу.",
+        "Вы сами задаёте название сайта и его идентификатор в URL, определяя адрес сайта.",
+        "Совместный доступ к сайту для других учётных записей Apps Hub с ролями владельца, редактора или читателя."
+      ],
+      "integrations": [
+        {
+          "summary": "Другие приложения могут предоставлять виджет для встраивания в ваши страницы — QueueDesk таким образом публикует свою страницу бронирования. mvmSiteBuilder собирает доступные виджеты и показывает их в блоке «Виджет приложения».",
+          "requires": "API приложения mvmSiteBuilder должен быть включён в Apps Hub → Настройки → API приложений (по умолчанию выключен), а размещение виджета приложения на странице требует Premium."
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    },
+    "zh-CN": {
+      "short_description": "构建自己的网站：页面、菜单、主题、自定义 CSS/JS。",
+      "tagline": "在桌面上构建并发布网站。",
+      "description": "mvmSiteBuilder 是一款在 mvmOS 内运行的小型网站构建工具，可将网站发布到你自己的服务器。网站由一组页面组成，每个页面通过内容块构建——文本、原始 HTML、图片、间隔块——文本块配有富文本工具栏，需要直接编辑内容块 JSON 时，还可切换到代码视图。\n\n每个网站都有可自行编排的菜单，支持页面或外部链接，并配有主题及独立的自定义 CSS 和 JavaScript；代码无效时会报告错误。页面可设为草稿或已发布，任意页面都可设为首页。\n\n网站支持共享：可邀请其他 Apps Hub 账号作为编辑者或查看者，后者使用只读模式。每个网站都有自己的访问地址，因此与大多数应用不同，这里没有统一的公开页面——每个网站都有自己的公开页面。",
+      "capabilities": [
+        "支持多个网站，每个网站都有独立的页面、菜单、主题和设置。",
+        "基于内容块构建页面：文本、原始 HTML（包括脚本）、带替代文本和说明的图片、间隔块。",
+        "富文本工具栏——标题、粗体、斜体、下划线、删除线、引用、列表、链接、清除格式、撤销和重做。",
+        "代码视图可直接编辑页面的内容块 JSON，并进行验证。",
+        "支持草稿和已发布页面，可自行选择首页。",
+        "使用页面或外部 URL 构建菜单，并自行排列顺序。",
+        "支持主题，也可上传自己的 .zip 主题包。",
+        "每个网站均可自定义 CSS 和 JavaScript，并提供语法错误提示。",
+        "直接向页面上传图片。",
+        "自行设置网站的 URL 标识和名称，掌握网站地址。",
+        "与其他 Apps Hub 账号共享网站，并分配所有者、编辑者或查看者角色。"
+      ],
+      "integrations": [
+        {
+          "summary": "其他应用可提供嵌入页面的小组件——QueueDesk 就通过这种方式提供预约页面。mvmSiteBuilder 会汇集这些组件，并在“应用小组件”内容块中列出。",
+          "requires": "必须在 Apps Hub → 设置 → 应用 API 中开启 mvmSiteBuilder 应用 API（默认关闭），且在页面中放置应用小组件属于 Premium 功能。"
+        }
+      ],
+      "name": "mvmSiteBuilder"
+    }
+  }
 }

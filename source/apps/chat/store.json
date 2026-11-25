@@ -30,7 +30,8 @@
         "Öffentliche Webseite für dein Apps Hub-Konto.",
         "In neun Sprachen verfügbar.",
         "Anmeldung bei Apps Hub, bevor sich der Desktop-Chat öffnet."
-      ]
+      ],
+      "name": "mvmOS Chat"
     },
     "es": {
       "short_description": "Chat entre usuarios de mvmOS, con una página web pública para las cuentas de Apps Hub.",
@@ -47,7 +48,8 @@
         "Página web pública para tu cuenta de Apps Hub.",
         "Disponible en nueve idiomas.",
         "Inicio de sesión en Apps Hub antes de abrir el chat del escritorio."
-      ]
+      ],
+      "name": "mvmOS Chat"
     },
     "fr": {
       "short_description": "Discutez entre utilisateurs de mvmOS, avec une page web publique pour les comptes Apps Hub.",
@@ -64,7 +66,8 @@
         "Page web publique pour votre compte Apps Hub.",
         "Disponible en neuf langues.",
         "Connexion à Apps Hub avant l’ouverture de la messagerie sur le bureau."
-      ]
+      ],
+      "name": "mvmOS Chat"
     },
     "bg": {
       "short_description": "Чат между потребители на mvmOS с публична уеб страница за акаунти в Apps Hub.",
@@ -81,7 +84,8 @@
         "Публична уеб страница за вашия акаунт в Apps Hub.",
         "Достъпно на девет езика.",
         "Влизане в Apps Hub преди отваряне на чата на работния плот."
-      ]
+      ],
+      "name": "mvmOS Чат"
     },
     "pt-BR": {
       "short_description": "Converse com usuários do mvmOS, com uma página web pública para contas do Apps Hub.",
@@ -98,7 +102,8 @@
         "Página web pública da sua conta do Apps Hub.",
         "Disponível em nove idiomas.",
         "Login no Apps Hub antes de abrir o chat no desktop."
-      ]
+      ],
+      "name": "mvmOS Chat"
     },
     "ja": {
       "short_description": "mvmOSユーザー同士でチャット。Apps Hubアカウントの公開ウェブページからも利用できます。",
@@ -115,7 +120,8 @@
         "Apps Hubアカウントの公開ウェブページ。",
         "9言語に対応。",
         "デスクトップのチャットを開く前にApps Hubにサインイン。"
-      ]
+      ],
+      "name": "mvmOS チャット"
     },
     "zh-CN": {
       "short_description": "供 mvmOS 用户聊天交流，并为 Apps Hub 账户提供公共网页。",
@@ -132,7 +138,8 @@
         "为你的 Apps Hub 账户提供公共网页。",
         "支持九种语言。",
         "打开桌面端聊天前先登录 Apps Hub。"
-      ]
+      ],
+      "name": "mvmOS 聊天"
     },
     "ru": {
       "short_description": "Общение между пользователями mvmOS с общедоступной веб-страницей для учётных записей Apps Hub.",
@@ -149,7 +156,8 @@
         "Общедоступная веб-страница вашей учётной записи Apps Hub.",
         "Доступно на девяти языках.",
         "Вход в Apps Hub перед открытием чата на рабочем столе."
-      ]
+      ],
+      "name": "mvmOS Чат"
     }
   }
 }

@@ -21,5 +21,207 @@
       "short": "Open a pull request from an issue's branch",
       "description": "Once you're on an issue's own branch, open a pull request straight from Git Manager: choose the source branch and search for the target branch from a list that always puts the repository's default branch first, edit the title and description — prefilled from the issue — and see any pull requests that already target the same branch before opening another. The branch is pushed automatically first if it hasn't been pushed yet, and the finished pull request opens on GitHub to review and merge."
     }
-  ]
+  ],
+  "i18n": {
+    "es": {
+      "summary": "Desbloquea repositorios de otros perfiles, gestiona incidencias de GitHub Issues y abre solicitudes de incorporación de cambios directamente en Git Manager.",
+      "features": [
+        {
+          "title": "Acceso a repositorios de otros perfiles",
+          "short": "Desbloquea todos los repositorios desde un solo perfil",
+          "description": "Git Manager siempre muestra la existencia de los repositorios de otros perfiles del sistema, pero mantiene bloqueados su estado, historial, archivos, repositorios remotos y acciones. Con Premium, un usuario con permisos de sudo introduce su propia contraseña una sola vez y desbloquea todos los repositorios durante la sesión actual de mvmOS, mientras que cada comando de Git sigue ejecutándose con la identidad del propietario real del repositorio. Sin Premium, sigues teniendo acceso a todo: inicia sesión en el perfil del propietario correspondiente y gestiona allí el mismo repositorio."
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Gestiona incidencias con Markdown, listas de tareas y su propia rama",
+          "description": "Consulta las incidencias abiertas y cerradas de GitHub Issues, revisa sus detalles y comentarios, crea incidencias nuevas, edita después su título y descripción, y ciérralas o vuelve a abrirlas. Al crear o editar una incidencia, puedes elegir las personas asignadas, las etiquetas y el hito directamente a partir de los datos del repositorio en GitHub. Las descripciones de las incidencias y los comentarios se muestran con formato Markdown, incluidas las casillas interactivas de las listas de tareas, cuyos cambios se guardan en GitHub en cuanto las marcas o desmarcas, sin necesidad de abrir el editor. Siempre que escribas o edites una incidencia, tendrás a tu disposición una barra de herramientas de formato con encabezados, negrita, cursiva, citas, código, enlaces, listas y listas de tareas. Cada incidencia tiene su propia rama user/issue<number>, que puedes crear con un clic a partir de la rama actual o de la rama predeterminada del repositorio, usando la copia local o la versión recién obtenida del repositorio remoto. Nunca se crea sin preguntarte antes. La autenticación funciona tanto con una sesión ya iniciada en GitHub CLI como con un token de acceso detallado a la API de GitHub, individual para cada usuario y con acceso a Issues."
+        },
+        {
+          "title": "Configuración de incidencias",
+          "short": "Elige cómo se muestran las incidencias y cuándo se cambia a su rama",
+          "description": "En la configuración de Git Manager puedes decidir qué ocurre con tu rama al abrir una incidencia: permanecer en la rama actual, que es la opción predeterminada; cambiar a la rama de la incidencia solo si estás en la rama de otra incidencia; o cambiar siempre a ella, descargándola si solo existe en el repositorio remoto. También puedes dividir la lista de incidencias en las que has creado, las que tienes asignadas y todas las demás, en cualquier combinación, o agrupar las que has creado y las que tienes asignadas en una sola sección. Si no seleccionas ninguna opción, todas las incidencias se muestran juntas."
+        },
+        {
+          "title": "Solicitudes de incorporación de cambios",
+          "short": "Abre una solicitud de incorporación de cambios desde la rama de una incidencia",
+          "description": "Cuando estés en la rama de una incidencia, abre una solicitud de incorporación de cambios directamente desde Git Manager: elige la rama de origen y busca la rama de destino en una lista que siempre muestra primero la rama predeterminada del repositorio, edita el título y la descripción, que se rellenan previamente con los de la incidencia, y consulta las solicitudes que ya apuntan a la misma rama antes de abrir otra. Si la rama aún no se ha enviado al repositorio remoto, se envía automáticamente primero, y la solicitud creada se abre en GitHub para revisarla y fusionar los cambios."
+        }
+      ]
+    },
+    "bg": {
+      "summary": "Отключвайте хранилища на други профили, управлявайте GitHub Issues и създавайте заявки за сливане направо в Git Manager.",
+      "features": [
+        {
+          "title": "Достъп до хранилища на други профили",
+          "short": "Отключете всички хранилища от един профил",
+          "description": "Git Manager винаги показва, че съществуват хранилища, притежавани от други системни профили, но държи състоянието, историята, файловете, отдалечените им хранилища и действията с тях заключени. С Premium потребител с права за sudo потвърждава собствената си парола веднъж и отключва всички хранилища за текущата сесия в mvmOS, а всяка Git команда продължава да се изпълнява от името на действителния собственик на хранилището. Без Premium не губите нищо: влезте в съответния профил на собственика и управлявайте същото хранилище оттам."
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Управлявайте задачи с Markdown, контролни списъци и собствен клон",
+          "description": "Преглеждайте отворени и затворени задачи в GitHub Issues, разглеждайте подробностите и коментарите им, създавайте нови задачи, редактирайте заглавието и описанието им впоследствие и ги затваряйте или отваряйте отново. При създаване или редактиране на задача можете да задавате отговорници, етикети и етап директно от данните на самото хранилище в GitHub. Описанията и коментарите на задачите се показват с Markdown форматиране, включително полета за отметка в списъците със задачи, които запазват промяната в GitHub веднага щом поставите или махнете отметка — без да отваряте редактора. Когато пишете или редактирате задача, разполагате с лента за форматиране (заглавия, получер, курсив, цитат, код, връзки, списъци, контролни списъци). Всяка задача има собствен клон user/issue<number>, който създавате сами с едно щракване от текущия клон или от клона по подразбиране на хранилището — от локалното му копие или от актуалната му отдалечена версия. Клонът никога не се създава без потвърждение. Удостоверяването работи както със съществуващ вход в GitHub CLI, така и с индивидуален за потребителя токен за GitHub API с подробно зададени права и достъп до Issues."
+        },
+        {
+          "title": "Настройки за задачите",
+          "short": "Изберете как да се показват задачите и кога да се отваря техният клон",
+          "description": "В настройките на Git Manager решавате какво да става с клона при отваряне на задача: да останете в текущия клон, както е по подразбиране, да превключвате към собствения клон на задачата само когато сте в клон на друга задача или винаги да превключвате към него, като той се изтегля, ако съществува само в отдалеченото хранилище. Можете също да разделите списъка със задачи на създадени от вас, възложени на вас и всички останали, във всякаква комбинация, или да обедините създадените от вас и възложените на вас задачи в един раздел. Ако не е избрано нищо, всички задачи се показват заедно."
+        },
+        {
+          "title": "Заявки за сливане",
+          "short": "Създайте заявка за сливане от клона на задача",
+          "description": "Когато сте в собствения клон на задача, създайте заявка за сливане направо от Git Manager: изберете изходния клон и потърсете целевия клон в списък, който винаги поставя клона по подразбиране на хранилището най-отгоре, редактирайте заглавието и описанието — предварително попълнени от задачата — и прегледайте заявките за сливане, които вече са насочени към същия клон, преди да създадете още една. Ако клонът още не е изпратен, той първо се изпраща автоматично, а създадената заявка за сливане се отваря в GitHub за преглед и сливане."
+        }
+      ]
+    },
+    "de": {
+      "summary": "Entsperre Repositories anderer Profile, verwalte GitHub Issues und erstelle Pull Requests direkt in Git Manager.",
+      "features": [
+        {
+          "title": "Profilübergreifender Repository-Zugriff",
+          "short": "Alle Repositories von einem Profil aus entsperren",
+          "description": "Git Manager zeigt immer an, dass Repositories anderer Systemprofile vorhanden sind. Ihr Status, ihr Verlauf, ihre Dateien, ihre Remotes und ihre Aktionen bleiben jedoch gesperrt. Mit Premium bestätigt ein Benutzer mit sudo-Berechtigung einmal sein eigenes Passwort und entsperrt damit alle Repositories für die aktuelle mvmOS-Sitzung. Jeder Git-Befehl wird weiterhin unter dem tatsächlichen Eigentümer des Repositorys ausgeführt. Auch ohne Premium stehen dir alle Möglichkeiten offen: Melde dich beim jeweiligen Eigentümerprofil an und verwalte dasselbe Repository dort."
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Issues mit Markdown, Checklisten und eigenem Branch verwalten",
+          "description": "Sieh dir offene und geschlossene GitHub Issues samt Details und Kommentaren an, erstelle neue Issues, bearbeite später Titel und Beschreibung und schließe oder öffne sie erneut. Beim Erstellen oder Bearbeiten kannst du direkt anhand der GitHub-Daten des Repositorys zuständige Personen, Labels und einen Meilenstein festlegen. Issue-Beschreibungen und Kommentare werden als Markdown dargestellt, einschließlich anklickbarer Kontrollkästchen in Aufgabenlisten. Sobald du ein Häkchen setzt oder entfernst, wird die Änderung in GitHub gespeichert, ohne dass du den Editor öffnen musst. Beim Schreiben oder Bearbeiten eines Issues steht dir eine Formatierungsleiste zur Verfügung: Überschriften, Fettdruck, Kursivschrift, Zitate, Code, Links, Listen und Checklisten. Jedes Issue hat einen eigenen Branch namens user/issue<number>, den du selbst mit einem Klick erstellst. Als Ausgangspunkt wählst du den aktuellen Branch oder den Standardbranch des Repositorys – entweder dessen lokalen Stand oder den neuesten Stand vom Remote. Der Branch wird nie ungefragt erstellt. Für die Authentifizierung nutzt du entweder eine bestehende Anmeldung über die GitHub CLI oder ein benutzerspezifisches, feingranulares GitHub-API-Token mit Zugriff auf Issues."
+        },
+        {
+          "title": "Issue-Einstellungen",
+          "short": "Festlegen, wie Issues aufgelistet werden und wann zu ihrem Branch gewechselt wird",
+          "description": "In den Einstellungen von Git Manager legst du fest, was beim Öffnen eines Issues mit deinem Branch passiert: standardmäßig auf dem aktuellen Branch bleiben, nur dann zum eigenen Branch des Issues wechseln, wenn du gerade auf dem Branch eines anderen Issues bist, oder immer dorthin wechseln. Existiert der Branch nur auf dem Remote, wird er dabei heruntergeladen. Außerdem kannst du die Issue-Liste beliebig nach selbst erstellten Issues, dir zugewiesenen Issues und allen übrigen aufteilen oder deine erstellten und zugewiesenen Issues in einem Abschnitt zusammenfassen. Wenn du nichts auswählst, werden alle Issues gemeinsam aufgelistet."
+        },
+        {
+          "title": "Pull Requests",
+          "short": "Einen Pull Request aus dem Branch eines Issues erstellen",
+          "description": "Sobald du auf dem eigenen Branch eines Issues bist, kannst du direkt in Git Manager einen Pull Request erstellen: Wähle den Quellbranch und suche den Zielbranch in einer Liste, die den Standardbranch des Repositorys immer zuerst anzeigt. Bearbeite Titel und Beschreibung, die bereits aus dem Issue übernommen wurden, und sieh dir vorhandene Pull Requests mit demselben Zielbranch an, bevor du einen weiteren erstellst. Wurde der Branch noch nicht gepusht, geschieht das zuvor automatisch. Der erstellte Pull Request öffnet sich anschließend auf GitHub zur Prüfung und zum Zusammenführen."
+        }
+      ]
+    },
+    "pt-BR": {
+      "summary": "Desbloqueie repositórios de outros perfis, gerencie GitHub Issues e abra pull requests diretamente no Git Manager.",
+      "features": [
+        {
+          "title": "Acesso a repositórios de outros perfis",
+          "short": "Desbloqueie todos os repositórios a partir de um único perfil",
+          "description": "O Git Manager sempre mostra que existem repositórios pertencentes a outros perfis do sistema, mas mantém bloqueados o status, o histórico, os arquivos, os repositórios remotos e as ações. Com o Premium, um usuário com permissão para usar sudo confirma a própria senha uma vez e desbloqueia todos os repositórios durante a sessão atual do mvmOS, enquanto cada comando Git continua sendo executado como o verdadeiro proprietário do repositório. Sem o Premium, você continua tendo acesso a tudo: basta entrar no perfil do respectivo proprietário e gerenciar o mesmo repositório por lá."
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Gerencie issues com Markdown, listas de tarefas e uma branch própria",
+          "description": "Veja GitHub Issues abertas e fechadas, consulte seus detalhes e comentários, crie novas issues, edite o título e a descrição depois da criação e feche ou reabra issues. Ao criar ou editar uma issue, você pode definir responsáveis, etiquetas e marco usando os dados do próprio repositório no GitHub. As descrições e os comentários das issues são exibidos com formatação Markdown, incluindo caixas de seleção clicáveis nas listas de tarefas. Ao marcar ou desmarcar uma caixa, a alteração é salva imediatamente no GitHub, sem precisar abrir o editor. Uma barra de formatação (títulos, negrito, itálico, citação, código, links, listas e listas de tarefas) fica disponível sempre que você escreve ou edita uma issue. Cada issue tem sua própria branch user/issue<number>, que você cria com um clique a partir da branch atual ou da branch padrão do repositório, usando a cópia local ou a versão mais recente do remoto. A branch nunca é criada sem sua confirmação. A autenticação funciona com um login já existente no GitHub CLI ou com um token da API do GitHub com permissões granulares e acesso a Issues, configurado por usuário."
+        },
+        {
+          "title": "Configurações de issues",
+          "short": "Escolha como listar as issues e quando mudar para a branch delas",
+          "description": "Nas configurações do Git Manager, você decide o que acontece com sua branch ao abrir uma issue: permanecer na branch atual, que é a opção padrão; mudar para a branch da issue apenas quando você estiver na branch de outra issue; ou sempre mudar para ela, baixando-a se existir apenas no remoto. Você também pode dividir a lista em issues criadas por você, issues atribuídas a você e todas as demais, em qualquer combinação, ou reunir as issues que você criou e as atribuídas a você em uma única seção. Sem nenhuma opção selecionada, todas as issues são listadas juntas."
+        },
+        {
+          "title": "Pull Requests",
+          "short": "Abra um pull request a partir da branch de uma issue",
+          "description": "Quando estiver na branch de uma issue, abra um pull request diretamente no Git Manager: escolha a branch de origem, procure a branch de destino em uma lista que sempre coloca a branch padrão do repositório em primeiro lugar, edite o título e a descrição — preenchidos com base na issue — e veja os pull requests que já apontam para a mesma branch antes de abrir outro. Se a branch ainda não tiver sido enviada ao remoto, o push será feito automaticamente primeiro. Depois de criado, o pull request abre no GitHub para revisão e merge."
+        }
+      ]
+    },
+    "fr": {
+      "summary": "Déverrouillez les dépôts d’autres profils, gérez les tickets GitHub Issues et ouvrez des pull requests directement dans Git Manager.",
+      "features": [
+        {
+          "title": "Accès aux dépôts d’autres profils",
+          "short": "Déverrouillez tous les dépôts depuis un seul profil",
+          "description": "Git Manager signale toujours la présence de dépôts appartenant à d’autres profils système, mais verrouille l’accès à leur état, leur historique, leurs fichiers, leurs dépôts distants et leurs actions. Avec Premium, un utilisateur disposant des droits sudo saisit son propre mot de passe une seule fois pour déverrouiller tous les dépôts pendant la session mvmOS en cours. Chaque commande Git continue de s’exécuter sous l’identité du véritable propriétaire du dépôt. Sans Premium, vous conservez toutes vos possibilités : connectez-vous au profil propriétaire concerné pour y gérer le même dépôt."
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Gérez les tickets avec Markdown, des listes de tâches et une branche dédiée",
+          "description": "Consultez les tickets GitHub Issues ouverts et fermés, examinez leurs détails et leurs commentaires, créez de nouveaux tickets, modifiez ensuite leur titre et leur description, et fermez-les ou rouvrez-les. Lors de la création ou de la modification d’un ticket, définissez les personnes responsables, les étiquettes et le jalon directement à partir des données GitHub du dépôt. Les descriptions des tickets et les commentaires sont affichés avec la mise en forme Markdown, y compris des cases de listes de tâches cliquables : chaque case cochée ou décochée est immédiatement enregistrée sur GitHub, sans ouvrir l’éditeur. Une barre de mise en forme (titres, gras, italique, citation, code, liens, listes et listes de tâches) est disponible dès que vous rédigez ou modifiez un ticket. Chaque ticket dispose de sa propre branche user/issue<number>, que vous créez vous-même d’un clic à partir de la branche actuelle ou de la branche par défaut du dépôt, dans sa version locale ou dans sa dernière version distante. Aucune branche n’est créée sans votre accord. L’authentification utilise soit une connexion GitHub CLI existante, soit un jeton d’API GitHub à autorisations fines propre à l’utilisateur et disposant d’un accès à Issues."
+        },
+        {
+          "title": "Paramètres des tickets",
+          "short": "Choisissez comment les tickets sont affichés et quand passer à leur branche",
+          "description": "Dans les paramètres de Git Manager, choisissez l’effet de l’ouverture d’un ticket sur votre branche : rester sur la branche actuelle, ce qui est le comportement par défaut, passer à la branche du ticket uniquement lorsque vous êtes sur celle d’un autre ticket, ou toujours passer à sa branche, en la récupérant si elle n’existe que sur le dépôt distant. Vous pouvez également répartir la liste entre les tickets que vous avez créés, ceux qui vous sont attribués et tous les autres, selon la combinaison de votre choix, ou regrouper dans une même section les tickets que vous avez créés et ceux qui vous sont attribués. Si aucune option n’est sélectionnée, tous les tickets sont affichés ensemble."
+        },
+        {
+          "title": "Pull Requests",
+          "short": "Ouvrez une pull request depuis la branche d’un ticket",
+          "description": "Une fois sur la branche propre à un ticket, ouvrez une pull request directement depuis Git Manager : choisissez la branche source, recherchez la branche cible dans une liste qui place toujours la branche par défaut du dépôt en premier, puis modifiez le titre et la description préremplis à partir du ticket. Avant d’en ouvrir une nouvelle, consultez les pull requests qui ciblent déjà la même branche. Un push de la branche est d’abord effectué automatiquement si elle n’a pas encore été envoyée vers le dépôt distant. La pull request créée s’ouvre ensuite sur GitHub pour être examinée et fusionnée."
+        }
+      ]
+    },
+    "ru": {
+      "summary": "Открывайте доступ к репозиториям других профилей, управляйте GitHub Issues и создавайте запросы на слияние прямо в Git Manager.",
+      "features": [
+        {
+          "title": "Доступ к репозиториям других профилей",
+          "short": "Разблокируйте все репозитории из одного профиля",
+          "description": "Git Manager всегда показывает наличие репозиториев, принадлежащих другим системным профилям, но блокирует доступ к их состоянию, истории, файлам, удалённым репозиториям и действиям с ними. С Premium пользователь с правами sudo может один раз подтвердить свой пароль и разблокировать все репозитории на время текущего сеанса mvmOS. При этом каждая команда Git по-прежнему выполняется от имени фактического владельца репозитория. Без Premium все возможности работы с репозиторием сохраняются: войдите в соответствующий профиль владельца и управляйте им оттуда."
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Управляйте задачами с Markdown, списками дел и отдельной веткой для каждой задачи",
+          "description": "Просматривайте открытые и закрытые задачи GitHub Issues, их подробности и комментарии, создавайте новые задачи, редактируйте заголовки и описания существующих, закрывайте и повторно открывайте их. При создании или редактировании задачи можно назначить исполнителей, метки и этап, выбирая их прямо из данных репозитория на GitHub. Описания задач и комментарии отображаются с форматированием Markdown, включая интерактивные флажки списков дел: каждое изменение флажка сразу сохраняется на GitHub, без открытия редактора. При написании или редактировании задачи доступна панель форматирования: заголовки, полужирный и курсив, цитаты, код, ссылки, списки и списки дел. Для каждой задачи предусмотрена отдельная ветка user/issue<number>, которую вы сами создаёте одним нажатием из текущей ветки или основной ветки репозитория — её локальной копии либо последней версии из удалённого репозитория. Без вашего согласия ветка не создаётся. Для аутентификации можно использовать уже выполненный вход через GitHub CLI или персональный токен GitHub API с детальными разрешениями и доступом к Issues."
+        },
+        {
+          "title": "Настройки задач",
+          "short": "Выбирайте вид списка задач и условия переключения на их ветки",
+          "description": "В настройках Git Manager можно выбрать, что происходит с текущей веткой при открытии задачи: оставаться на ней (по умолчанию), переключаться на ветку задачи только при переходе с ветки другой задачи или переключаться всегда, загружая ветку, если она существует только в удалённом репозитории. Также можно разделить список на задачи, созданные вами, назначенные вам и все остальные — в любом сочетании — или объединить созданные вами и назначенные вам задачи в один раздел. Если ничего не выбрано, все задачи отображаются общим списком."
+        },
+        {
+          "title": "Запросы на слияние",
+          "short": "Создавайте запросы на слияние из ветки задачи",
+          "description": "Перейдя в ветку задачи, создайте запрос на слияние прямо в Git Manager: выберите исходную ветку и найдите целевую в списке, где основной ветке репозитория всегда отведено первое место. При необходимости измените заголовок и описание, заранее заполненные из задачи, и просмотрите уже существующие запросы на слияние в ту же целевую ветку, прежде чем создавать новый. Если исходная ветка ещё не отправлена, сначала автоматически выполняется push. Созданный запрос открывается на GitHub для проверки и слияния."
+        }
+      ]
+    },
+    "zh-CN": {
+      "summary": "解锁其他账户的仓库、管理 GitHub Issues，并直接在 Git Manager 中创建拉取请求。",
+      "features": [
+        {
+          "title": "跨账户访问仓库",
+          "short": "通过一个账户解锁所有仓库",
+          "description": "Git Manager 始终会显示其他系统账户所拥有的仓库，但会锁定其状态、历史记录、文件、远程仓库信息及各项操作。使用 Premium 后，拥有 sudo 权限的用户只需验证一次自己的密码，即可在当前 mvmOS 会话中解锁所有仓库，而每条 Git 命令仍会以仓库实际所有者的身份运行。没有 Premium 也不影响原有管理功能：登录仓库所属账户，即可在那里管理同一个仓库。"
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "使用 Markdown、任务清单和专属分支管理议题",
+          "description": "查看 GitHub 上开放和已关闭的议题、阅读详情与评论、创建新议题、修改已有议题的标题和正文，以及关闭或重新打开议题。创建或编辑议题时，可直接使用该仓库在 GitHub 上的数据设置负责人、标签和里程碑。议题正文和评论会以 Markdown 格式呈现，其中任务清单的复选框可直接点击，勾选或取消勾选后会立即保存到 GitHub，无需打开编辑器。撰写或编辑议题时，均可使用格式工具栏，插入标题、粗体、斜体、引用、代码、链接、列表和任务清单。每个议题都有专属的 user/issue<number> 分支，你可以一键从当前分支，或从仓库默认分支的本地版本或远程最新版本创建。分支创建始终需要你的确认。身份验证可使用现有的 GitHub CLI 登录状态，也可使用各用户自己的、具备 Issues 访问权限的细粒度 GitHub API 令牌。"
+        },
+        {
+          "title": "议题设置",
+          "short": "选择议题的列表显示方式及何时切换到对应分支",
+          "description": "在 Git Manager 设置中，你可以决定打开议题时如何处理分支：保持在当前分支（默认选项）；仅在当前处于其他议题的分支时切换到所打开议题的专属分支；或始终切换到该议题的分支，如果该分支仅存在于远程，则先下载。你还可以任意组合，将议题列表按你创建的议题、分配给你的议题及其他所有议题分组，或将你创建的议题和分配给你的议题合并为一组。如果未选择任何分组选项，所有议题将统一列出。"
+        },
+        {
+          "title": "拉取请求",
+          "short": "从议题分支创建拉取请求",
+          "description": "切换到议题的专属分支后，即可直接在 Git Manager 中创建拉取请求：选择源分支，在始终将仓库默认分支置顶的列表中搜索目标分支，编辑根据议题预先填好的标题和描述，并在创建前查看已有的、指向同一目标分支的拉取请求。如果该分支尚未推送，系统会先自动推送；创建完成后，拉取请求将在 GitHub 上打开，供你审查和合并。"
+        }
+      ]
+    },
+    "ja": {
+      "summary": "プロフィールをまたいだリポジトリへのアクセス、GitHub Issuesの管理、プルリクエストの作成を、Git Managerから直接行えます。",
+      "features": [
+        {
+          "title": "プロフィールをまたいだリポジトリへのアクセス",
+          "short": "ひとつのプロフィールからすべてのリポジトリのロックを解除",
+          "description": "Git Managerでは、他のシステムプロフィールが所有するリポジトリの存在も常に表示されますが、そのステータス、履歴、ファイル、リモートの情報や操作はロックされています。Premiumでは、sudoを実行できるユーザーが自分のパスワードで一度認証すると、現在のmvmOSセッション中はすべてのリポジトリのロックを解除できます。その場合も、各Gitコマンドはリポジトリの実際の所有者として実行されます。Premiumがなくても、利用できる機能は変わりません。所有者のプロフィールにサインインすれば、同じリポジトリをそこで管理できます。"
+        },
+        {
+          "title": "GitHub Issues",
+          "short": "Markdown、チェックリスト、専用ブランチでIssueを管理",
+          "description": "未解決・解決済みのGitHub Issuesを表示し、詳細やコメントを確認できます。新しいIssueの作成、作成後のタイトルや本文の編集、クローズ、再オープンにも対応しています。Issueの作成・編集時には、そのリポジトリのGitHubデータから担当者、ラベル、マイルストーンを直接設定できます。Issueの本文とコメントはMarkdownで表示されます。タスクリストのチェックボックスはクリックで操作でき、チェックを付けたり外したりすると、その場でGitHubに保存されます。エディターを開く必要はありません。Issueの作成・編集中は、見出し、太字、斜体、引用、コード、リンク、リスト、チェックリストを挿入できる書式設定ツールバーを利用できます。各Issueには専用のuser/issue<number>ブランチを用意でき、現在のブランチ、またはリポジトリのデフォルトブランチからワンクリックで作成できます。デフォルトブランチは、ローカルのものとリモートから取得した最新のものを選べます。確認なしにブランチが作成されることはありません。認証には、GitHub CLIの既存のログイン情報、またはユーザーごとに用意した、Issuesへのアクセス権を持つGitHub APIの細粒度トークンを利用できます。"
+        },
+        {
+          "title": "Issueの設定",
+          "short": "Issueの表示方法と、専用ブランチに切り替えるタイミングを設定",
+          "description": "Git Managerの設定では、Issueを開いたときのブランチの動作を選べます。現在のブランチを維持する既定の動作のほか、別のIssueのブランチにいる場合にのみ開いたIssueの専用ブランチへ切り替えるか、常に切り替えるように設定できます。対象のブランチがリモートにしかない場合は、取得してから切り替えます。Issue一覧は、自分が作成したIssue、自分に割り当てられたIssue、その他のIssueに分けて表示でき、任意の組み合わせを選べます。自分が作成したIssueと自分に割り当てられたIssueを、ひとつのセクションにまとめることもできます。何も選択しなければ、すべてのIssueがまとめて表示されます。"
+        },
+        {
+          "title": "プルリクエスト",
+          "short": "Issueのブランチからプルリクエストを作成",
+          "description": "Issueの専用ブランチに切り替えたら、Git Managerから直接プルリクエストを作成できます。作成元のブランチを選び、リポジトリのデフォルトブランチが常に先頭に表示される一覧から、マージ先のブランチを検索できます。Issueの内容があらかじめ入力されたタイトルと説明を編集し、同じブランチをマージ先とする既存のプルリクエストを確認してから、新たに作成できます。ブランチがまだプッシュされていない場合は、先に自動でプッシュされます。作成したプルリクエストはGitHubで開かれ、レビューやマージを行えます。"
+        }
+      ]
+    }
+  }
 }
