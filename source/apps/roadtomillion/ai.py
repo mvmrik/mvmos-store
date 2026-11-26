@@ -471,7 +471,7 @@ def review(head, langs, user, drafts, ui_lang, job, bank):
 # ── the template for another AI, and the import ─────────────────────────────
 
 def template(head, count, topic):
-    n = max(1, min(int(count or 10), 50))
+    n = max(1, min(int(count or 30), 50))
     ex = {"c": head["cats"][0], "d": 3, "changeable": False,
           "country_chances": {c: 70 + (i * 7) % 28 for i, c in enumerate(head["countries"])},
           "specialist_chances": {p: 60 + (i * 11) % 36 for i, p in enumerate(head["professions"])},
@@ -481,10 +481,6 @@ def template(head, count, topic):
     guide = "What a good question is:" + rules(head).split("What a good question is:", 1)[1].split("A question record in JSON")[0]
     return (
         'Write quiz questions for the game "Road to a Million" (a ladder of 20 questions, difficulty 1 to 20, the last one worth 1,000,000).\n\n' + guide
-        + "\nFunny opening question: Include at least one genuinely very easy question with d=1 whose three wrong answers are all funny and obviously absurd, so the one correct answer is immediately obvious to everyone. "
-        "This is the only exception to the rule that wrong answers must be plausible and of the same kind as the right answer; the correct answer must still be uniquely correct. "
-        "You may include other d=1 questions that are either normal or funny; whenever a d=1 question is funny, all three wrong answers must be funny and obviously absurd. Use funny wrong answers only on d=1 questions, not on higher difficulties. "
-        "Keep the humor light, original, understandable across cultures and natural in all nine translations.\n"
         + "\nHow to answer:\nReply with ONE JSON object and nothing else (no markdown, no explanations): {\"questions\": [ ...records... ]}. "
         "Every record has: \"changeable\" (boolean), \"c\" (category), \"d\" (difficulty 1-20), \"country_chances\" (all keys), \"specialist_chances\" (all keys), optionally \"country_difficulty\" (see above, only when a question is specific to some countries) and \"texts\" with ALL nine languages "
         "(en, bg, de, es, fr, ja, pt-BR, ru, zh-CN), each {\"q\": question, \"a\": [right answer FIRST, wrong, wrong, wrong]}. "

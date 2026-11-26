@@ -271,7 +271,7 @@ def ai_review(request: Request, body: FinishBody):
 # ── Import of questions written by another AI ────────────────────────────────
 
 @desktop_router.get("/import/template", dependencies=[Depends(_admin)])
-def import_template(count: int = 10, topic: str = ""):
+def import_template(count: int = 30, topic: str = ""):
     return {"text": ai.template(bank.header(), count, topic)}
 
 

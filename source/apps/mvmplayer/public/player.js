@@ -403,6 +403,7 @@ function mount(host,options={}){
   const first=list.find(i=>i.show_id)||list[0];if(!first)return;
   const box=dialog(name,`<div class="mp-series-head"><div>${seriesArt(name,list)}</div><section><p class="mp-eyebrow">${esc(t('series'))}</p><h2>${esc(name)}</h2><p class="mp-description">${esc(seriesOf(name)?.description||'')}</p><p>${list.length} ${esc(t('availableEpisodes'))} · ${list.filter(i=>i.state.completed).length} ${esc(t('watched'))}</p><p data-series-status class="mp-muted">${esc(t('loading'))}</p>${s.admin?`<p>${button('findSeriesData','data-series-lookup','primary')}</p>`:''}</section></div><div data-season-tabs class="mp-chips"></div><div data-episode-list></div>`);
   box.querySelector('[data-series-lookup]')?.addEventListener('click',()=>seriesLookupDialog(name));
+  const picked={};
   let remote={seasons:[],episodes:[]};
   try{remote=await api('/series/'+first.id,'GET')}catch(e){if(box.isConnected)box.querySelector('[data-series-status]').textContent=e.message}
   if(!box.isConnected)return;
@@ -412,10 +413,129 @@ function mount(host,options={}){
    box.querySelectorAll('[data-season]').forEach(b=>b.classList.toggle('active',Number(b.dataset.season)===number));
    const known=remote.episodes.filter(e=>e.season===number&&e.number!==null),local=list.filter(i=>i.season===number);const rows=known.length?known.map(e=>({...e,file:local.find(i=>i.episode===e.number)})):local.map(i=>({title:i.title,number:i.episode,file:i}));
    const knownNumbers=new Set(rows.map(e=>e.number));for(const i of local)if(!knownNumbers.has(i.episode))rows.push({title:i.title,number:i.episode,file:i});rows.sort((a,b)=>a.number-b.number);
-   box.querySelector('[data-episode-list]').innerHTML=rows.map(e=>`<article class="mp-episode ${e.file?'':'unavailable'}"><span class="mp-episode-number">${esc(e.number)}</span><div><strong>${esc(e.title)}</strong><p class="mp-meta">${e.file?`${e.file.state.completed?'✓ '+t('watched'):pct(e.file.percent)} · ${t('available')}`:esc(t('noFile'))}${e.airdate?' · '+esc(e.airdate):''}</p>${e.file?.state.duration?`<div class="mp-progress"><span style="width:${e.file.percent}%"></span></div>`:''}</div>${e.file?button('open',`data-episode-open="${e.file.id}"`):''}</article>`).join('');
+   box.querySelector('[data-episode-list]').innerHTML=rows.map(e=>`<article class="mp-episode ${e.file?'':'unavailable'}"><span class="mp-episode-number">${esc(e.number)}</span><div><strong>${esc(e.title)}</strong><p class="mp-meta">${e.file?`${e.file.state.completed?'✓ '+t('watched'):pct(e.file.percent)} · ${t('available')}`:esc(t('noFile'))}${e.airdate?' · '+esc(e.airdate):''}</p>${e.file?.state.duration?`<div class="mp-progress"><span style="width:${e.file.percent}%"></span></div>`:''}${e.file&&s.translation?episodeSubtitles(e.file):''}</div>${e.file?button('open',`data-episode-open="${e.file.id}"`):''}</article>`).join('');
    box.querySelectorAll('[data-episode-open]').forEach(b=>b.onclick=()=>openDetail(b.dataset.episodeOpen));
+   box.querySelectorAll('[data-ep-sub]').forEach(sel=>{let before=sel.value;sel.onchange=()=>{if(sel.value==='@translate'){sel.value=before;run(()=>bulkTranslateDialog(name,sel.dataset.epSub,picked))}else{before=sel.value;if(sel.value)picked[sel.dataset.epSub]='db:'+sel.value;else delete picked[sel.dataset.epSub]}}});
   }
   box.querySelector('[data-season-tabs]').innerHTML=numbers.map(n=>`<button data-season="${n}">${esc(t('season'))} ${n}</button>`).join('');box.querySelectorAll('[data-season]').forEach(b=>b.onclick=()=>season(Number(b.dataset.season)));season(list.find(i=>!i.state.completed)?.season??numbers[0]);
+ }
+ // The subtitle list of one episode in the series view: what it has and which one plays now, plus the translation.
+ function episodeSubtitles(i){
+  const cur=preferredSubtitle(i);
+  const subs=i.subtitles.length?i.subtitles.map(st=>`<option value="${st.id}" ${st.id===cur?'selected':''}>${esc(st.title)} · ${esc(languageName(st.language))}</option>`).join(''):`<option value="">${esc(t('aiNoSubs'))}</option>`;
+  return `<select class="mp-ep-sub" data-ep-sub="${i.id}" aria-label="${esc(t('subtitles'))}">${subs}<option disabled>──────────</option><option value="@translate">✨ ${esc(t('aiTranslateOption'))}</option></select>`;
+ }
+ // Translate the subtitles of many episodes of one series, one after the other. Every episode shows how far its translation is;
+ // the parts already translated are kept by the server, so a stopped run continues where it stopped when it is started again.
+ async function bulkTranslateDialog(name,preId,picked={}){
+  const adm=!!options.desktop,call=(path,method,body)=>api(path,method,body,adm);
+  const eps=s.items.filter(i=>i.kind==='episode'&&i.series===name).sort((a,b)=>a.season-b.season||a.episode-b.episode);
+  if(!eps.length)return;
+  const base=c=>String(c||'').split('-')[0].toLowerCase(),code=i=>'S'+String(i.season).padStart(2,'0')+'E'+String(i.episode).padStart(2,'0');
+  const fill=(text,n)=>Object.entries(n).reduce((a,[k,v])=>a.replace('{'+k+'}',v),text);
+  const explain=c=>window.MP_I18N.en[c]?t(c):t('error');
+  const langs=s.languages||[];
+  const row=i=>`<div class="mp-bulk-row" data-ep="${i.id}"><label class="mp-bulk-pick"><input type="checkbox" data-pick ${i.id===preId?'checked':''}><strong>${esc(code(i))} · ${esc(i.title)}</strong></label><select data-src disabled><option>${esc(t('loading'))}</option></select><div class="mp-bulk-prog"><div class="mp-bulk-bar"><span data-fill></span></div><small data-mark></small></div></div>`;
+  const box=dialog(t('aiBulkTitle'),`<form class="mp-form mp-bulk"><div class="mp-bulk-top"><p class="mp-muted">${esc(name)}</p><label>${esc(t('aiTo'))}<select name="language">${langs.map(l=>`<option value="${l}" ${l===lang?'selected':''}>${esc(languageName(l))}</option>`).join('')}</select></label><label class="mp-check"><input type="checkbox" data-all><span>${esc(t('selectAll'))}</span></label></div><div class="mp-bulk-list">${eps.map(row).join('')}</div><div class="mp-bulk-foot"><p class="mp-muted" data-quote role="status"></p><div class="mp-bulk-total"><progress max="100" value="0"></progress><small data-overall></small></div><p class="mp-muted mp-bulk-note">${esc(t('aiNote'))}</p><p class="mp-error" role="alert"></p><div class="mp-actions"><button class="mp-btn primary" type="submit" data-go disabled>${esc(t('aiStart'))}</button><button class="mp-btn" type="button" data-stop hidden>${esc(t('aiStop'))}</button></div></div></form>`);
+  box.querySelector('.mp-dialog').classList.add('mp-bulk-dialog');
+  const form=box.querySelector('form'),quote=box.querySelector('[data-quote]'),go=box.querySelector('[data-go]'),stop=box.querySelector('[data-stop]'),bar=box.querySelector('progress'),overall=box.querySelector('[data-overall]'),err=box.querySelector('.mp-error'),all=box.querySelector('[data-all]');
+  const rows=[...box.querySelectorAll('.mp-bulk-row')];
+  const sources={};let running=false,halt=false,job='',gen=0;const quotes=new Map();
+  const target=()=>form.elements.language.value,item=r=>itemById(r.dataset.ep),translated=r=>(item(r)?.subtitles||[]).some(st=>base(st.language)===base(target()));
+  const chosen=()=>rows.filter(r=>r.querySelector('[data-pick]').checked&&!r.querySelector('[data-src]').disabled);
+  const pool=async(list,fn)=>{const q=[...list];await Promise.all([0,1,2].map(async()=>{for(let x=q.shift();x;x=q.shift())await fn(x)}))};
+  const setRow=(r,pct,text)=>{r.querySelector('[data-fill]').style.width=pct+'%';r.querySelector('[data-mark]').textContent=text;r.classList.toggle('mp-translated',pct>=100)};
+  const qkey=r=>r.dataset.ep+'|'+r.querySelector('[data-src]').value+'|'+target();
+  async function rowQuote(r){
+   const sel=r.querySelector('[data-src]');if(sel.disabled)return null;const key=qkey(r);
+   if(!quotes.has(key)){try{quotes.set(key,await call('/media/'+r.dataset.ep+'/translate/quote','POST',{source:sel.value,language:target()}))}catch(e){return null}}
+   return quotes.get(key);
+  }
+  // What the bar of an episode shows when nothing runs: finished, how much of it is already translated, or nothing yet.
+  function paint(r){
+   if(translated(r)){setRow(r,100,'100%');return}
+   const q=quotes.get(qkey(r));if(!q||!q.all_segments){setRow(r,0,'0%');return}
+   const pct=Math.floor(100*q.resumed/q.all_segments);
+   setRow(r,pct,pct+'%'+(q.resumed?' · '+fill(t('aiRowParts'),{done:q.resumed,total:q.all_segments}):''));
+  }
+  const paintAll=()=>pool(rows,async r=>{await rowQuote(r);if(!running&&box.isConnected)paint(r)});
+  function pickDefault(list,id){
+   if(picked[id]&&list.some(x=>x.id===picked[id]))return picked[id];
+   const from=list.filter(x=>x.title!=='AI translation');
+   return (from.find(x=>x.kind!=='embedded')||from[0]||list[0]).id;
+  }
+  async function loadSources(){
+   await pool(rows,async r=>{
+    const id=r.dataset.ep,sel=r.querySelector('[data-src]'),c=r.querySelector('[data-pick]');
+    try{const list=(await call('/media/'+id+'/translate/sources','GET')).sources.filter(x=>!x.unsupported);if(s.dead||!box.isConnected)return;sources[id]=list;
+     if(!list.length){sel.innerHTML=`<option>${esc(t('aiNoSubs'))}</option>`;c.checked=false;c.disabled=true;setRow(r,0,'');return}
+     const pick=pickDefault(list,id);sel.innerHTML=list.map(x=>`<option value="${esc(x.id)}" ${x.id===pick?'selected':''}>${esc((x.kind==='embedded'?t('aiEmbedded')+' · ':'')+x.title+' · '+languageName(x.language))}</option>`).join('');sel.disabled=false;
+     await rowQuote(r);if(box.isConnected&&!running){paint(r);price()}
+    }catch(e){if(box.isConnected){sel.innerHTML=`<option>${esc(t('aiNoSubs'))}</option>`;c.disabled=true;c.checked=false;setRow(r,0,'')}}
+   });
+  }
+  async function price(){
+   const g=++gen;go.disabled=true;err.textContent='';const picks=chosen();
+   if(!picks.length){quote.textContent=t('aiBulkNone');return}
+   quote.textContent='…';
+   try{
+    let segments=0,each=0,balance=null;
+    for(const r of picks){
+     const q=await rowQuote(r);if(g!==gen||s.dead||!box.isConnected)return;if(!q)throw Error(t('error'));
+     segments+=q.segments;each=q.price_each;balance=q.balance;
+    }
+    const lines=fill(t('aiBulkSummary'),{n:picks.length,segments});
+    if(!each){quote.textContent=lines+' · '+t('aiFree');go.disabled=false}
+    else{const total=each*segments,enough=balance>=total;quote.textContent=lines+' · '+fill(t('aiPrice'),{total,each,balance});go.disabled=!enough;if(!enough)err.textContent=t('noCredits')}
+   }catch(e){if(g===gen){quote.textContent='';err.textContent=e.message}}
+  }
+  const syncAll=()=>{const free=rows.filter(r=>!r.querySelector('[data-pick]').disabled);all.checked=free.length>0&&free.every(r=>r.querySelector('[data-pick]').checked)};
+  all.onchange=()=>{rows.forEach(r=>{const c=r.querySelector('[data-pick]');if(!c.disabled)c.checked=all.checked&&!translated(r)});if(all.checked&&!chosen().length)all.checked=false;price()};
+  form.addEventListener('change',e=>{
+   if(running||e.target===all)return;
+   if(e.target===form.elements.language){rows.forEach(paint);paintAll().then(()=>{if(!running)price()})}
+   else if(e.target.matches('[data-src]')){const r=e.target.closest('.mp-bulk-row');rowQuote(r).then(()=>{if(!running){paint(r);price()}})}
+   syncAll();price();
+  });
+  rows.forEach(r=>setRow(r,0,''));loadSources().then(()=>{syncAll();price()});
+  async function runOne(r,n,total,onFrac){
+   const id=r.dataset.ep,body={source:r.querySelector('[data-src]').value,language:target()};
+   const q0=quotes.get(qkey(r)),before=q0?q0.resumed:0,started=Date.now();
+   r.scrollIntoView({block:'nearest'});
+   job=(await call('/media/'+id+'/translate','POST',body)).id;
+   for(;;){
+    await new Promise(x=>setTimeout(x,1500));if(s.dead||!box.isConnected)return 'gone';
+    const st=await call('/translate/'+job,'GET');
+    const frac=st.total?st.done/st.total:0,pct=Math.floor(100*frac);
+    let eta=t('aiEtaWait');
+    if(st.done>before&&st.done<st.total){const left=Math.round((Date.now()-started)/(st.done-before)*(st.total-st.done)/1000);eta=fill(t('aiEta'),{time:Math.floor(left/60)+':'+String(left%60).padStart(2,'0')})}
+    setRow(r,pct,fill(t('aiProgress'),{percent:pct,done:st.done,total:st.total})+' · '+eta);onFrac(frac);
+    if(st.status==='running')continue;
+    return st.status==='done'?'done':st.status==='cancelled'?'cancelled':st.error||'error';
+   }
+  }
+  form.onsubmit=e=>{e.preventDefault();run(async()=>{
+   const picks=chosen();if(!picks.length||running)return;
+   running=true;halt=false;modal._busy=true;err.textContent='';go.disabled=true;form.querySelectorAll('select,input').forEach(x=>x.disabled=true);stop.hidden=false;stop.disabled=false;
+   let finished=0,result='done';const total=picks.length;
+   overall.textContent=fill(t('aiBulkOverall'),{n:0,total});bar.value=0;
+   for(let n=0;n<total&&!halt;n++){
+    try{result=await runOne(picks[n],n,total,frac=>{bar.value=100*(n+frac)/total})}catch(x){result=x.message||'error'}
+    if(result==='gone')return;
+    if(result!=='done')break;
+    finished++;bar.value=100*finished/total;overall.textContent=fill(t('aiBulkOverall'),{n:finished,total});await refresh();setRow(picks[n],100,'100%');
+   }
+   if(s.dead||!box.isConnected)return;
+   modal._busy=false;running=false;stop.hidden=true;
+   form.querySelectorAll('select,input').forEach(x=>x.disabled=false);rows.forEach(r=>{if(!sources[r.dataset.ep]?.length){r.querySelector('[data-src]').disabled=true;r.querySelector('[data-pick]').disabled=true}});
+   quotes.clear();
+   if(result==='done')overall.textContent=fill(t('aiBulkDone'),{n:finished});
+   else if(result==='cancelled'||halt)overall.textContent=t('aiBulkStopped');
+   else{overall.textContent=t('aiBulkStopped');err.textContent=explain(result)}
+   rows.forEach(r=>{if(translated(r))r.querySelector('[data-pick]').checked=false;else r.querySelector('[data-mark]').textContent=''});syncAll();
+   paintAll().then(()=>{if(!running)price()});
+  })};
+  stop.onclick=()=>run(async()=>{halt=true;stop.disabled=true;if(job)await call('/translate/'+job+'/cancel','POST').catch(()=>{})});
  }
  async function seriesLookupDialog(name){
   const list=s.items.filter(i=>i.kind==='episode'&&i.series===name).sort((a,b)=>a.season-b.season||a.episode-b.episode);

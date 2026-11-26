@@ -56,6 +56,8 @@ TIME_CHOICES = (20, 30, 45, 60, 90)
 DEFAULT_TIME = 45
 PICK_TIME = 60
 REVEAL_PAUSE = 4.5
+FRESH_BOOST = 3.0    # a question never shown is this many times as likely as an old one
+FRESH_SHOWS = 5      # after this many showings it counts like every other question
 
 
 def _load_bank_module():
@@ -312,17 +314,34 @@ class Game:
         if not pool:
             return None
 
-        def eff(q):
-            return sum(eff_difficulty(q, c) for c in countries) / len(countries)
+        def levels(q):
+            """The levels a question may be asked at: its own difficulty and the
+            difficulty it has for any of the players' countries."""
+            out = {int(q.get("d", 10))}
+            for c in countries:
+                out.add(int(round(eff_difficulty(q, c))))
+            return out
 
-        scored = []
-        for q in pool:
-            gap = abs(eff(q) - n)
-            if q.get("c") == self.last_cat:
-                gap += 0.8               # and the same subject twice in a row is avoided
-            scored.append((gap + random.random() * 0.6, q))
-        scored.sort(key=lambda x: x[0])
-        return scored[0][1]
+        info = [(q, levels(q)) for q in pool]
+        # Exactly this level; if the bank has nothing there, the nearest levels.
+        for spread in range(LEVELS):
+            fit = [q for q, lv in info if any(abs(x - n) <= spread for x in lv)]
+            if fit:
+                break
+        else:
+            fit = pool
+        fresh = [q for q in fit if q.get("c") != self.last_cat]     # a different subject than the last one, when possible
+        fresh = fresh or fit
+        try:
+            seen = _load_bank_module().shown_counts()
+        except Exception:
+            seen = {}
+        # Equal chances for every question; a new one gets a temporary head start
+        # that fades to nothing after FRESH_SHOWS showings. No count ever pushes
+        # an old question out.
+        weights = [1.0 + (FRESH_BOOST - 1.0) * max(0, FRESH_SHOWS - seen.get(q["id"], 0)) / FRESH_SHOWS
+                   for q in fresh]
+        return random.choices(fresh, weights=weights, k=1)[0]
 
     async def _next_question(self):
         if self.over:
@@ -358,6 +377,10 @@ class Game:
         # The text goes with the question, in each player's own language.
         for p in self.ctx.all_players():
             await self.ctx.send(p["id"], dict(msg, text=self._q_text(p["id"])))
+        try:
+            _load_bank_module().mark_shown(q["id"])      # counted once the players have it, not when it was picked
+        except Exception as e:
+            print(f"[roadtomillion] showing not counted: {e}")
         if self.turn_time:
             tok = self._arm(self.turn_time)
             self.ctx.schedule(self.turn_time + 1.0, lambda: self._question_timeout(tok))

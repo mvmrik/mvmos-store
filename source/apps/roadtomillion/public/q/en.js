@@ -3117,18 +3117,18 @@
   "q": "Which explorer led the expedition that reached the Americas in 1492?",
   "a": [
    "Christopher Columbus",
-   "Jack Sparrow",
-   "Santa Claus",
-   "Harry Potter"
+   "Marco Polo",
+   "Vasco da Gama",
+   "Ferdinand Magellan"
   ]
  },
  "q0348": {
   "q": "Which medical instrument do doctors place on the chest to listen to the heart and lungs?",
   "a": [
    "Stethoscope",
-   "A bucket of cold spaghetti",
-   "A singing toaster",
-   "A tiny inflatable sofa"
+   "Thermometer",
+   "Syringe",
+   "Bandage"
   ]
  },
  "q0349": {
@@ -3216,9 +3216,9 @@
   "q": "What is the Sun?",
   "a": [
    "A star",
-   "A giant glowing marshmallow",
-   "A cosmic disco ball",
-   "A giant space potato"
+   "A planet",
+   "A moon",
+   "A comet"
   ]
  },
  "q0359": {
@@ -3396,9 +3396,9 @@
   "q": "What is the Moon?",
   "a": [
    "Earth's natural satellite",
-   "A giant cheese wheel",
-   "A flying pizza",
-   "A lost boomerang"
+   "A star",
+   "A planet",
+   "A comet"
   ]
  },
  "q0379": {
@@ -3441,18 +3441,18 @@
   "q": "Which space company did Elon Musk found in 2002?",
   "a": [
    "SpaceX",
-   "A flock of trained pigeons",
-   "A giant cardboard box",
-   "A trampoline to the Moon"
+   "Netflix",
+   "IKEA",
+   "McDonald's"
   ]
  },
  "q0384": {
   "q": "Which electric car company is closely associated with Elon Musk?",
   "a": [
    "Tesla",
-   "A fleet of pedal-powered scooters",
-   "A giant hamster wheel on wheels",
-   "A car made of melted cheese"
+   "Toyota",
+   "Ferrari",
+   "Volkswagen"
   ]
  },
  "q0385": {
@@ -3621,9 +3621,9 @@
   "q": "What kind of currency is Bitcoin?",
   "a": [
    "Digital cryptocurrency",
-   "Physical chocolate coins",
-   "Monopoly board game money",
-   "Ancient Roman gold coins"
+   "Paper banknotes",
+   "Metal coins",
+   "Plastic bank cards"
   ]
  },
  "q0404": {
@@ -11136,9 +11136,9 @@
   "q": "Which frozen substance is most commonly used in cocktails to chill the drink?",
   "a": [
    "Ice cubes",
-   "Dry lava",
-   "Frozen socks",
-   "Snowballs from Mars"
+   "Frozen peas",
+   "Frozen fish",
+   "Frozen bread"
   ]
  },
  "q1239": {
@@ -11325,18 +11325,18 @@
   "q": "Which organ pumps blood throughout the human body?",
   "a": [
    "The heart",
-   "A garden hose",
-   "A bicycle pump",
-   "A kitchen blender"
+   "The liver",
+   "The stomach",
+   "The brain"
   ]
  },
  "q1260": {
   "q": "How many fingers and thumbs does a person normally have on both hands combined?",
   "a": [
    "10",
-   "42",
-   "100",
-   "3"
+   "5",
+   "8",
+   "12"
   ]
  },
  "q1261": {
@@ -11604,9 +11604,9 @@
   "q": "In which country are the ancient Pyramids of Giza located?",
   "a": [
    "Egypt",
-   "Narnia",
-   "A giant sandbox in space",
-   "Penguin Island"
+   "Norway",
+   "Canada",
+   "Japan"
   ]
  },
  "q1291": {
@@ -11874,9 +11874,9 @@
   "q": "Which prehistoric invention revolutionized human transport and pottery?",
   "a": [
    "The wheel",
-   "The flying carpet",
-   "The pocket teleport",
-   "The invisible unicycle"
+   "The printing press",
+   "The compass",
+   "The steam engine"
   ]
  },
  "q1321": {
@@ -12234,9 +12234,9 @@
   "q": "In which ancient language is the famous phrase 'Carpe diem' written?",
   "a": [
    "Latin",
-   "Martian",
-   "Cat language",
-   "Binary code"
+   "Ancient Egyptian",
+   "Old Norse",
+   "Sumerian"
   ]
  },
  "q1361": {
@@ -12414,9 +12414,9 @@
   "q": "Which sound does a happy domestic cat commonly make?",
   "a": [
    "Purring",
-   "Opera singing",
-   "Car horn honking",
-   "Motorcycle revving"
+   "Barking",
+   "Quacking",
+   "Howling"
   ]
  },
  "q1381": {
@@ -12729,18 +12729,18 @@
   "q": "What was the official language of the Roman Empire?",
   "a": [
    "Latin",
-   "Emoji",
-   "Morse code",
-   "Dolphin clicks"
+   "Arabic",
+   "Hebrew",
+   "Sanskrit"
   ]
  },
  "q1416": {
   "q": "Which large amphitheater in Rome hosted gladiator fights?",
   "a": [
    "The Colosseum",
-   "A bouncy castle",
-   "A giant igloo",
-   "A treehouse"
+   "The Parthenon",
+   "The Pantheon",
+   "Hagia Sophia"
   ]
  },
  "q1417": {
@@ -13008,18 +13008,18 @@
   "q": "According to the Book of Genesis, what huge vessel did Noah build before the flood?",
   "a": [
    "An ark",
-   "A submarine with Wi-Fi",
-   "A hot air balloon",
-   "A roller coaster"
+   "A temple",
+   "A bridge",
+   "A castle"
   ]
  },
  "q1447": {
   "q": "Which animal tempted Eve in the Garden of Eden according to Genesis?",
   "a": [
    "A serpent",
-   "A penguins on skis",
-   "A dancing kangaroo",
-   "A purple giraffe"
+   "A lion",
+   "A wolf",
+   "An eagle"
   ]
  },
  "q1448": {
@@ -13305,9 +13305,9 @@
   "q": "According to the New Testament, what did Jesus turn water into at a wedding in Cana?",
   "a": [
    "Wine",
-   "Hot lava",
-   "Liquid gold",
-   "Soy sauce"
+   "Milk",
+   "Olive oil",
+   "Honey"
   ]
  },
  "q1480": {
@@ -13584,9 +13584,9 @@
   "q": "Which celestial body was Ra, the ancient Egyptian sun god, associated with?",
   "a": [
    "The Sun",
-   "A flying potato",
-   "A dancing teapot",
-   "A giant sock"
+   "The Moon",
+   "Mars",
+   "Jupiter"
   ]
  },
  "q1511": {
@@ -14385,9 +14385,9 @@
   "q": "Who was the king of the gods in ancient Greek mythology?",
   "a": [
    "Zeus",
-   "Napoleon",
-   "Donald Trump",
-   "Genghis Khan"
+   "Achilles",
+   "Odysseus",
+   "Perseus"
   ]
  },
  "q1600": {
@@ -14664,9 +14664,9 @@
   "q": "What object do players kick into a goal to score in association football?",
   "a": [
    "A ball",
-   "A watermelon",
-   "A sleeping cat",
-   "A bowling pin"
+   "A puck",
+   "A frisbee",
+   "A shuttlecock"
   ]
  },
  "q1631": {
@@ -14988,9 +14988,9 @@
   "q": "Which natural phenomenon during a thunderstorm produces a bright flash of light in the sky?",
   "a": [
    "Lightning",
-   "Taking a photo with a camera from another planet",
-   "A disco ball",
-   "A herd of fireflies"
+   "A rainbow",
+   "Fog",
+   "Snow"
   ]
  },
  "q1667": {
@@ -15825,9 +15825,9 @@
   "q": "What kind of water fills Earth's oceans?",
   "a": [
    "Saltwater",
-   "Sparkling lemonade",
-   "Melted vanilla ice cream",
-   "Hot chicken soup"
+   "Fresh water",
+   "Sparkling water",
+   "Rainwater"
   ]
  },
  "q1760": {
@@ -16611,6 +16611,2175 @@
    "A silver compass",
    "A brass bell",
    "A wooden oar"
+  ]
+ },
+ "q1847": {
+  "q": "Which German inventor patented the first practical gasoline-powered automobile in 1886?",
+  "a": [
+   "Karl Benz",
+   "Gottlieb Daimler",
+   "Rudolf Diesel",
+   "Ferdinand Porsche"
+  ]
+ },
+ "q1848": {
+  "q": "Who completed the world's first long-distance automobile road trip in August 1888, driving about 106 km from Mannheim to Pforzheim?",
+  "a": [
+   "Bertha Benz",
+   "Marie Curie",
+   "Amelia Earhart",
+   "Clara Ford"
+  ]
+ },
+ "q1849": {
+  "q": "What type of vehicles did the Italian company Lamborghini originally manufacture before entering the sports car market in 1963?",
+  "a": [
+   "Tractors",
+   "Motorcycles",
+   "Airplanes",
+   "Bicycles"
+  ]
+ },
+ "q1850": {
+  "q": "Which automaker introduced the modern three-point seatbelt in 1959 and opened its patent free of charge to all car manufacturers?",
+  "a": [
+   "Volvo",
+   "Mercedes-Benz",
+   "Saab",
+   "Ford"
+  ]
+ },
+ "q1851": {
+  "q": "Who was granted the first U.S. patent for a practical windshield wiper operated from inside the vehicle in 1903?",
+  "a": [
+   "Mary Anderson",
+   "Hedy Lamarr",
+   "Stephanie Kwolek",
+   "Margaret Knight"
+  ]
+ },
+ "q1852": {
+  "q": "Which American inventor, who became completely blind at age five, invented modern automotive cruise control in the 1940s?",
+  "a": [
+   "Ralph Teetor",
+   "Charles Kettering",
+   "Henry Leland",
+   "Ransom Olds"
+  ]
+ },
+ "q1853": {
+  "q": "What speed in miles per hour was Walter Arnold caught driving in Kent, England, in January 1896 when he received the world's first speeding ticket?",
+  "a": [
+   "8 mph",
+   "25 mph",
+   "40 mph",
+   "55 mph"
+  ]
+ },
+ "q1854": {
+  "q": "Which car model, introduced in 1966, holds the record as the best-selling automobile nameplate in history with over 50 million units sold?",
+  "a": [
+   "Toyota Corolla",
+   "Volkswagen Beetle",
+   "Ford Model T",
+   "Honda Civic"
+  ]
+ },
+ "q1855": {
+  "q": "Which French automaker forced Porsche to rename its 1963 sports car from 901 to 911 due to a trademark on three-digit numbers with a zero in the middle?",
+  "a": [
+   "Peugeot",
+   "Renault",
+   "Citroën",
+   "Bugatti"
+  ]
+ },
+ "q1856": {
+  "q": "Ferrari's prancing horse emblem was originally painted on the World War I fighter plane of which Italian aviation ace?",
+  "a": [
+   "Francesco Baracca",
+   "Gabriele D'Annunzio",
+   "Italo Balbo",
+   "Umberto Nobile"
+  ]
+ },
+ "q1857": {
+  "q": "Which English sculptor created the Spirit of Ecstasy hood ornament used on Rolls-Royce motor cars?",
+  "a": [
+   "Charles Robinson Sykes",
+   "Henry Moore",
+   "Jacob Epstein",
+   "Eric Gill"
+  ]
+ },
+ "q1858": {
+  "q": "Which type of internal combustion engine, famously used in Mazda sports cars like the RX-7, uses a triangular rotor instead of reciprocating pistons?",
+  "a": [
+   "Wankel engine",
+   "Stirling engine",
+   "Atkinson cycle engine",
+   "Diesel engine"
+  ]
+ },
+ "q1859": {
+  "q": "Which Japanese automaker won the 1991 24 Hours of Le Mans with the 787B, the only rotary-powered car ever to win the race overall?",
+  "a": [
+   "Mazda",
+   "Toyota",
+   "Nissan",
+   "Honda"
+  ]
+ },
+ "q1860": {
+  "q": "Which Southeast Asian monarch owns the world's largest private car collection, estimated at around 7,000 vehicles?",
+  "a": [
+   "Sultan of Brunei",
+   "King of Thailand",
+   "Sultan of Oman",
+   "King of Malaysia"
+  ]
+ },
+ "q1861": {
+  "q": "Which Swedish car brand produced the 1966 1800S coupe in which Irv Gordon drove a record 3.26 million miles as a single owner?",
+  "a": [
+   "Volvo",
+   "Saab",
+   "Koenigsegg",
+   "Polestar"
+  ]
+ },
+ "q1862": {
+  "q": "Which automotive engineer designed the original Volkswagen Beetle in Germany in the 1930s?",
+  "a": [
+   "Ferdinand Porsche",
+   "Karl Benz",
+   "Gottlieb Daimler",
+   "Adam Opel"
+  ]
+ },
+ "q1863": {
+  "q": "According to Henry Ford's famous remark about the Model T, customers could have a car painted any color so long as it was what color?",
+  "a": [
+   "Black",
+   "White",
+   "Dark blue",
+   "Silver"
+  ]
+ },
+ "q1864": {
+  "q": "Which Italian automotive designer penned both the mid-engined Lamborghini Miura and the wedge-shaped Lamborghini Countach at Bertone?",
+  "a": [
+   "Marcello Gandini",
+   "Giorgetto Giugiaro",
+   "Battista Farina",
+   "Sergio Scaglietti"
+  ]
+ },
+ "q1865": {
+  "q": "Which American engineer developed the electric self-starter for automobiles, first introduced on Cadillac cars in 1912?",
+  "a": [
+   "Charles Kettering",
+   "Lee De Forest",
+   "Nikola Tesla",
+   "George Westinghouse"
+  ]
+ },
+ "q1866": {
+  "q": "Italian hypercar maker Pagani names its models, such as the Zonda and Huayra, after which natural phenomenon or meteorological theme?",
+  "a": [
+   "Winds",
+   "Volcanoes",
+   "Constellations",
+   "Ocean currents"
+  ]
+ },
+ "q1867": {
+  "q": "In which musical note are most standard car horns tuned to honk?",
+  "a": [
+   "F",
+   "C",
+   "A",
+   "G"
+  ]
+ },
+ "q1868": {
+  "q": "According to Mercedes-Benz racing legend, what color paint was supposedly scraped off the W25 race cars in 1934 to meet a weight limit, creating the Silver Arrows?",
+  "a": [
+   "White",
+   "Red",
+   "Blue",
+   "Green"
+  ]
+ },
+ "q1869": {
+  "q": "Which American luxury car brand introduced the first practical concept car, the Buick Y-Job, designed by Harley Earl in 1938?",
+  "a": [
+   "Buick",
+   "Cadillac",
+   "Lincoln",
+   "Packard"
+  ]
+ },
+ "q1870": {
+  "q": "Which Hungarian-born Daimler-Benz engineer pioneered automotive crumple zones and rigid passenger cells in the 1950s?",
+  "a": [
+   "Béla Barényi",
+   "János Csonka",
+   "Donát Bánki",
+   "Ottó Bláthy"
+  ]
+ },
+ "q1871": {
+  "q": "Which American automotive pioneer introduced a stationary assembly line to mass-produce the Curved Dash automobile in 1901, predating Henry Ford's moving line?",
+  "a": [
+   "Ransom E. Olds",
+   "Walter Chrysler",
+   "David Dunbar Buick",
+   "William C. Durant"
+  ]
+ },
+ "q1872": {
+  "q": "In which year did French inventor Nicolas-Joseph Cugnot build his steam-powered artillery tractor, widely considered the world's first full-scale self-propelled mechanical vehicle?",
+  "a": [
+   "1769",
+   "1804",
+   "1825",
+   "1852"
+  ]
+ },
+ "q1873": {
+  "q": "Which American inventor patented the intermittent windshield wiper in 1967 and later won major patent infringement settlements against Ford and Chrysler?",
+  "a": [
+   "Robert Kearns",
+   "Mary Anderson",
+   "William Folberth",
+   "Ralph Teetor"
+  ]
+ },
+ "q1874": {
+  "q": "How many units of the ultra-luxury Bugatti Royale (Type 41) were built between 1927 and 1933?",
+  "a": [
+   "7",
+   "3",
+   "15",
+   "25"
+  ]
+ },
+ "q1875": {
+  "q": "Which British engineer patented the automotive disc brake in 1902, decades before it became standard equipment on passenger cars?",
+  "a": [
+   "Frederick Lanchester",
+   "Herbert Austin",
+   "William Morris",
+   "Henry Royce"
+  ]
+ },
+ "q1876": {
+  "q": "In which German pharmacy did Bertha Benz stop to buy ligroin as fuel during her 1888 road trip, making it the world's first filling station?",
+  "a": [
+   "Wiesloch City Pharmacy",
+   "Heidelberg Lion Pharmacy",
+   "Mannheim Court Pharmacy",
+   "Pforzheim Old Pharmacy"
+  ]
+ },
+ "q1877": {
+  "q": "Which Czechoslovak carmaker sued Volkswagen over design similarities between its 1930s rear-engined cars and the Beetle, receiving a 1 million Deutsche Mark settlement in 1965?",
+  "a": [
+   "Tatra",
+   "Škoda",
+   "Praga",
+   "Aero"
+  ]
+ },
+ "q1878": {
+  "q": "Which German automaker built the Wankel Spider in 1964, the world's first production car powered by a Wankel rotary engine?",
+  "a": [
+   "NSU",
+   "Mazda",
+   "Audi",
+   "Borgward"
+  ]
+ },
+ "q1879": {
+  "q": "In what year did the Belgian electric car La Jamais Contente become the first automobile to exceed 100 km/h?",
+  "a": [
+   "1899",
+   "1908",
+   "1921",
+   "1875"
+  ]
+ },
+ "q1880": {
+  "q": "Which system in an electric car converts kinetic energy back into electricity to recharge the battery when slowing down?",
+  "a": [
+   "Regenerative braking",
+   "Turbocharging",
+   "Fuel injection",
+   "Catalytic conversion"
+  ]
+ },
+ "q1881": {
+  "q": "Which European country leads the world in electric vehicle adoption, with over 95 percent of new passenger cars sold being fully electric?",
+  "a": [
+   "Norway",
+   "Spain",
+   "Poland",
+   "Greece"
+  ]
+ },
+ "q1882": {
+  "q": "What type of propulsion powered the 1898 Egger-Lohner C.2 Phaeton, the first vehicle designed by Ferdinand Porsche?",
+  "a": [
+   "An electric motor",
+   "A diesel engine",
+   "A steam boiler",
+   "A gas turbine"
+  ]
+ },
+ "q1883": {
+  "q": "Which standard unit of energy is used to measure the storage capacity of an electric car's battery pack?",
+  "a": [
+   "Kilowatt-hour",
+   "Newton-meter",
+   "Hertz",
+   "Lumen"
+  ]
+ },
+ "q1884": {
+  "q": "Which two expensive metals are completely absent from lithium iron phosphate (LFP) electric vehicle batteries?",
+  "a": [
+   "Nickel and cobalt",
+   "Iron and phosphorus",
+   "Lithium and carbon",
+   "Copper and aluminum"
+  ]
+ },
+ "q1885": {
+  "q": "Which model of electric sports car was launched into solar orbit aboard a SpaceX Falcon Heavy rocket in February 2018?",
+  "a": [
+   "Tesla Roadster",
+   "Nissan Leaf",
+   "Porsche Taycan",
+   "Rimac Nevera"
+  ]
+ },
+ "q1886": {
+  "q": "Which Japanese automaker launched the Leaf in 2010 as the world's first mass-market all-electric family hatchback?",
+  "a": [
+   "Nissan",
+   "Subaru",
+   "Mazda",
+   "Suzuki"
+  ]
+ },
+ "q1887": {
+  "q": "Which British sports car's aluminum chassis served as the structural basis for the original 2008 Tesla Roadster?",
+  "a": [
+   "Lotus Elise",
+   "Aston Martin DB9",
+   "Jaguar XK8",
+   "Mini Cooper"
+  ]
+ },
+ "q1888": {
+  "q": "What was the primary business of Chinese electric vehicle giant BYD when Wang Chuanfu founded it in Shenzhen in 1995?",
+  "a": [
+   "Manufacturing rechargeable batteries",
+   "Building high-speed trains",
+   "Producing solar panels",
+   "Assembling smartphones"
+  ]
+ },
+ "q1889": {
+  "q": "Which city hosted the inaugural FIA Formula E championship race for all-electric single-seater cars in September 2014?",
+  "a": [
+   "Beijing",
+   "Monaco",
+   "London",
+   "Tokyo"
+  ]
+ },
+ "q1890": {
+  "q": "In which European country is the electric hypercar manufacturer Rimac Automobili, creator of the Nevera, headquartered?",
+  "a": [
+   "Croatia",
+   "Sweden",
+   "Italy",
+   "Belgium"
+  ]
+ },
+ "q1891": {
+  "q": "What does the acronym V2G stand for when describing electric vehicles that can feed stored power back into the electrical network?",
+  "a": [
+   "Vehicle-to-grid",
+   "Volt-to-generator",
+   "Valve-to-gearbox",
+   "Vector-to-ground"
+  ]
+ },
+ "q1892": {
+  "q": "What component replaces the liquid or gel electrolyte found in conventional lithium-ion electric car batteries inside a solid-state battery?",
+  "a": [
+   "A solid electrolyte material",
+   "Compressed hydrogen gas",
+   "Liquid nitrogen coolant",
+   "Distilled water"
+  ]
+ },
+ "q1893": {
+  "q": "Why are modern electric cars legally required in many regions to emit an artificial sound at low speeds?",
+  "a": [
+   "To alert pedestrians and visually impaired people",
+   "To cool down the electric motor",
+   "To discharge static electricity",
+   "To calibrate the navigation GPS"
+  ]
+ },
+ "q1894": {
+  "q": "What type of electrical current do batteries store and ultra-fast EV chargers deliver directly to the battery pack?",
+  "a": [
+   "Direct current",
+   "Alternating current",
+   "Three-phase current",
+   "Eddy current"
+  ]
+ },
+ "q1895": {
+  "q": "How many forward gears does the transmission of almost every modern battery-electric passenger car have?",
+  "a": [
+   "One",
+   "Five",
+   "Six",
+   "Eight"
+  ]
+ },
+ "q1896": {
+  "q": "Which French physicist invented the rechargeable lead-acid battery in 1859, making early electric vehicles possible?",
+  "a": [
+   "Gaston Planté",
+   "André-Marie Ampère",
+   "Charles-Augustin de Coulomb",
+   "Henri Becquerel"
+  ]
+ },
+ "q1897": {
+  "q": "What does the acronym CCS stand for in the widely used European and North American fast-charging connector standard for electric vehicles?",
+  "a": [
+   "Combined Charging System",
+   "Current Control Socket",
+   "Central Cable Station",
+   "Capacitor Cell Supply"
+  ]
+ },
+ "q1898": {
+  "q": "Which American automaker leased the aerodynamic EV1 electric coupe to drivers in California and Arizona from 1996 to 1999?",
+  "a": [
+   "General Motors",
+   "Chrysler",
+   "American Motors",
+   "Studebaker"
+  ]
+ },
+ "q1899": {
+  "q": "Which electronic device in an electric car converts direct current from the battery into alternating current to drive an AC motor?",
+  "a": [
+   "Inverter",
+   "Carburetor",
+   "Alternator",
+   "Distributor"
+  ]
+ },
+ "q1900": {
+  "q": "What was the approximate top speed of the battery-powered Lunar Roving Vehicle driven by Apollo astronauts on the Moon?",
+  "a": [
+   "13 km/h",
+   "65 km/h",
+   "110 km/h",
+   "180 km/h"
+  ]
+ },
+ "q1901": {
+  "q": "What is the informal term for the front storage compartment found in many electric cars where an internal combustion engine would normally sit?",
+  "a": [
+   "Frunk",
+   "Crankcase",
+   "Sump",
+   "Manifold"
+  ]
+ },
+ "q1902": {
+  "q": "Which 1912 invention by Charles Kettering replaced hand-cranking on gasoline cars and contributed to the decline of early electric cars?",
+  "a": [
+   "The electric self-starter",
+   "The windshield wiper",
+   "The pneumatic tire",
+   "The rear-view mirror"
+  ]
+ },
+ "q1903": {
+  "q": "Which efficiency-boosting heating system transfers ambient heat into an electric car cabin using much less battery power than resistive heaters?",
+  "a": [
+   "Heat pump",
+   "Radiator core",
+   "Afterburner",
+   "Glow plug"
+  ]
+ },
+ "q1904": {
+  "q": "In which country was the CHAdeMO DC fast-charging standard for electric vehicles originally developed?",
+  "a": [
+   "Japan",
+   "Germany",
+   "South Korea",
+   "United Kingdom"
+  ]
+ },
+ "q1905": {
+  "q": "Which lightweight alkali metal gives its name to the dominant rechargeable battery technology used in modern electric cars?",
+  "a": [
+   "Lithium",
+   "Sodium",
+   "Potassium",
+   "Cesium"
+  ]
+ },
+ "q1906": {
+  "q": "Which German luxury sports car was the first production electric vehicle to adopt an 800-volt battery system architecture in 2019?",
+  "a": [
+   "Porsche Taycan",
+   "BMW i3",
+   "Volkswagen e-Golf",
+   "Smart Fortwo EQ"
+  ]
+ },
+ "q1907": {
+  "q": "Why do electric motors deliver maximum torque from zero revolutions per minute, unlike internal combustion engines?",
+  "a": [
+   "Electromagnetic force acts immediately without needing engine speed",
+   "They use hydraulic torque converters",
+   "They burn fuel faster at standstill",
+   "Their pistons have shorter strokes"
+  ]
+ },
+ "q1908": {
+  "q": "What does the acronym NACS stand for in the electric vehicle charging connector standard originally developed by Tesla?",
+  "a": [
+   "North American Charging Standard",
+   "National Alternating Current System",
+   "New Automotive Cable Socket",
+   "Neutral Anode Cell Supply"
+  ]
+ },
+ "q1909": {
+  "q": "Where in a purpose-built modern electric car is the heavy traction battery pack typically mounted to lower the center of gravity?",
+  "a": [
+   "Flat beneath the cabin floor",
+   "On top of the roof panel",
+   "Inside the front bumper",
+   "Behind the rear windshield"
+  ]
+ },
+ "q1910": {
+  "q": "Which driving feature in many electric cars lets the driver accelerate and slow to a complete stop using just the accelerator pedal?",
+  "a": [
+   "One-pedal driving",
+   "Launch control",
+   "Cruise creep",
+   "Hill descent assist"
+  ]
+ },
+ "q1911": {
+  "q": "Why does an electric car's driving range noticeably decrease in freezing winter weather?",
+  "a": [
+   "Cold slows battery chemistry and cabin heating uses battery energy",
+   "Electric motors freeze solid below zero",
+   "Tires expand and double in weight",
+   "Cold air increases battery voltage"
+  ]
+ },
+ "q1912": {
+  "q": "What does the abbreviation WLTP stand for in the laboratory test procedure used in Europe to measure electric car range?",
+  "a": [
+   "Worldwide Harmonised Light Vehicles Test Procedure",
+   "Western Lithium Traction Protocol",
+   "Wireless Low-Tension Power",
+   "Wheel Load Torque Performance"
+  ]
+ },
+ "q1913": {
+  "q": "What does the English name of the Chinese electric vehicle manufacturer BYD stand for?",
+  "a": [
+   "Build Your Dreams",
+   "Beyond Your Drive",
+   "Battery Yield Design",
+   "Bright Youth Dynamics"
+  ]
+ },
+ "q1914": {
+  "q": "Which standard 12-volt battery still found in almost all electric cars powers door locks, screens, and safety computers?",
+  "a": [
+   "An auxiliary low-voltage battery",
+   "A hydrogen fuel stack",
+   "A mechanical flywheel",
+   "A solar roof array"
+  ]
+ },
+ "q1915": {
+  "q": "Which standard unit of electrical power is used to rate the maximum charging speed of a fast-charging station?",
+  "a": [
+   "Kilowatt",
+   "Kilovolt-ampere-hour",
+   "Ohm",
+   "Tesla"
+  ]
+ },
+ "q1916": {
+  "q": "Which luxury electric sedan set a Guinness World Record in July 2025 by traveling 1,205 kilometers on a single battery charge?",
+  "a": [
+   "Lucid Air Grand Touring",
+   "Mini Cooper SE",
+   "Fiat 500e",
+   "Renault Zoe"
+  ]
+ },
+ "q1917": {
+  "q": "Why do battery-electric cars not have an exhaust tailpipe?",
+  "a": [
+   "Their electric motors burn no fuel and produce no tailpipe emissions",
+   "Exhaust gases are stored inside the tires",
+   "The exhaust pipe is hidden inside the steering column",
+   "They vent fumes only while plugged into a charger"
+  ]
+ },
+ "q1918": {
+  "q": "Why do electric vehicles wear down their mechanical brake pads much more slowly than comparable gasoline cars?",
+  "a": [
+   "Regenerative braking handles most routine deceleration",
+   "Their brake pads are made of solid diamond",
+   "They cannot brake above 50 km/h",
+   "Airbags slow the car before the brakes engage"
+  ]
+ },
+ "q1919": {
+  "q": "In Formula One history, in which year did the inaugural World Championship season take place?",
+  "a": [
+   "1950",
+   "1946",
+   "1954",
+   "1960"
+  ]
+ },
+ "q1920": {
+  "q": "In the 1950 Formula One World Championship, which driver won the inaugural Drivers' title?",
+  "a": [
+   "Giuseppe Farina",
+   "Juan Manuel Fangio",
+   "Alberto Ascari",
+   "Stirling Moss"
+  ]
+ },
+ "q1921": {
+  "q": "How many Formula One World Drivers' Championship titles did Juan Manuel Fangio win in the 1950s?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "3"
+  ]
+ },
+ "q1922": {
+  "q": "Which circuit hosted the first Formula One World Championship race in May 1950?",
+  "a": [
+   "Silverstone",
+   "Monza",
+   "Spa-Francorchamps",
+   "Monaco"
+  ]
+ },
+ "q1923": {
+  "q": "Which Formula One team introduced ground-effect aerodynamics with the Lotus 78 in 1977?",
+  "a": [
+   "Team Lotus",
+   "Brabham",
+   "Tyrrell",
+   "McLaren"
+  ]
+ },
+ "q1924": {
+  "q": "Which Grand Prix hosted Formula One's first night race under floodlights in 2008?",
+  "a": [
+   "Singapore Grand Prix",
+   "Bahrain Grand Prix",
+   "Abu Dhabi Grand Prix",
+   "Las Vegas Grand Prix"
+  ]
+ },
+ "q1925": {
+  "q": "Which driver won both the Drivers' and Constructors' titles in 2009 with the Brawn GP team?",
+  "a": [
+   "Jenson Button",
+   "Lewis Hamilton",
+   "Sebastian Vettel",
+   "Kimi Raikkonen"
+  ]
+ },
+ "q1926": {
+  "q": "In which Formula One season did the halo cockpit safety device become mandatory?",
+  "a": [
+   "2018",
+   "2016",
+   "2020",
+   "2021"
+  ]
+ },
+ "q1927": {
+  "q": "Which driver won the 1976 Monaco Grand Prix for Ferrari after starting from pole position?",
+  "a": [
+   "Niki Lauda",
+   "James Hunt",
+   "Jody Scheckter",
+   "Clay Regazzoni"
+  ]
+ },
+ "q1928": {
+  "q": "In Formula One history, which driver took pole position for the 1988 Monaco Grand Prix ahead of Alain Prost?",
+  "a": [
+   "Ayrton Senna",
+   "Nigel Mansell",
+   "Gerhard Berger",
+   "Nelson Piquet"
+  ]
+ },
+ "q1929": {
+  "q": "Which Bulgarian-American physicist built the first electronic digital computer at Iowa State College between 1937 and 1942?",
+  "a": [
+   "John Atanasoff",
+   "Assen Jordanoff",
+   "Peter Petroff",
+   "Georgi Nadjakov"
+  ]
+ },
+ "q1930": {
+  "q": "Which graduate student assisted John Atanasoff in building the Atanasoff-Berry Computer at Iowa State College?",
+  "a": [
+   "Clifford Berry",
+   "John Mauchly",
+   "Presper Eckert",
+   "Konrad Zuse"
+  ]
+ },
+ "q1931": {
+  "q": "Which Bulgarian physician discovered the bacterium Lactobacillus bulgaricus in 1905 while studying fermented milk in Geneva?",
+  "a": [
+   "Stamen Grigorov",
+   "Ivan Mitev",
+   "Dimitar Paskov",
+   "Georgi Nadjakov"
+  ]
+ },
+ "q1932": {
+  "q": "Which Bulgarian-born aviation pioneer built Bulgaria's first powered airplane in 1915 and later designed early aircraft airbags?",
+  "a": [
+   "Assen Jordanoff",
+   "Simeon Petrov",
+   "Peter Petroff",
+   "Roumen Antonov"
+  ]
+ },
+ "q1933": {
+  "q": "Which Bulgarian-born engineer helped develop the first digital LED wristwatch, the Pulsar, in the United States?",
+  "a": [
+   "Peter Petroff",
+   "John Atanasoff",
+   "Assen Jordanoff",
+   "Georgi Nadjakov"
+  ]
+ },
+ "q1934": {
+  "q": "Which Bulgarian physicist discovered the photoelectret state of matter in 1937, laying a foundation for modern photocopying?",
+  "a": [
+   "Georgi Nadjakov",
+   "Ivan Stranski",
+   "Stamen Grigorov",
+   "Dimitar Sasselov"
+  ]
+ },
+ "q1935": {
+  "q": "Which Bulgarian pharmacologist developed Nivalin, extracting galantamine from snowdrop bulbs to treat neurological disorders?",
+  "a": [
+   "Dimitar Paskov",
+   "Stamen Grigorov",
+   "Ivan Mitev",
+   "Carl Djerassi"
+  ]
+ },
+ "q1936": {
+  "q": "Which chemist of Bulgarian-Austrian heritage, raised in Sofia and Vienna, co-invented the first oral contraceptive pill?",
+  "a": [
+   "Carl Djerassi",
+   "Dimitar Paskov",
+   "Stamen Grigorov",
+   "Ivan Stranski"
+  ]
+ },
+ "q1937": {
+  "q": "Which Bulgarian-born engineer helped develop the engines for the Apollo Lunar Module Eagle that landed astronauts on the Moon in 1969?",
+  "a": [
+   "John Nochev",
+   "Assen Jordanoff",
+   "Peter Petroff",
+   "Roumen Antonov"
+  ]
+ },
+ "q1938": {
+  "q": "Which Bulgarian software developer co-created the 3D rendering engine V-Ray and won a Scientific and Engineering Academy Award in 2017?",
+  "a": [
+   "Vladimir Koylazov",
+   "George Borshukov",
+   "John Atanasoff",
+   "Blagovest Sendov"
+  ]
+ },
+ "q1939": {
+  "q": "Which Bulgarian visual effects innovator won Technical Academy Awards for image-based rendering and facial capture used in The Matrix sequels?",
+  "a": [
+   "George Borshukov",
+   "Vladimir Koylazov",
+   "Peter Petroff",
+   "Christo Javacheff"
+  ]
+ },
+ "q1940": {
+  "q": "Which Bulgarian pediatric cardiologist discovered the sixth heart sound in the early 1970s?",
+  "a": [
+   "Ivan Mitev",
+   "Stamen Grigorov",
+   "Dimitar Paskov",
+   "Samuel Refetoff"
+  ]
+ },
+ "q1941": {
+  "q": "Which Bulgarian automotive engineer invented a compact, torque-converter-free automatic transmission for small cars?",
+  "a": [
+   "Roumen Antonov",
+   "Assen Jordanoff",
+   "Peter Petroff",
+   "Simeon Petrov"
+  ]
+ },
+ "q1942": {
+  "q": "Which Bulgarian physical chemist founded the molecular-kinetic theory of crystal growth and co-named a thin-film growth mode?",
+  "a": [
+   "Ivan Stranski",
+   "Georgi Nadjakov",
+   "Dimitar Ivanov",
+   "Nikola Obreshkov"
+  ]
+ },
+ "q1943": {
+  "q": "Which Bulgarian military aviator designed the first purpose-built aerial bomb with stabilizing fins and an impact detonator in 1912?",
+  "a": [
+   "Simeon Petrov",
+   "Assen Jordanoff",
+   "Radul Milkov",
+   "Prodan Tarakchiev"
+  ]
+ },
+ "q1944": {
+  "q": "Which Bulgarian cryobiologist led the team that created freeze-dried space food menus for the Interkosmos program in the 1970s?",
+  "a": [
+   "Tsvetan Tsvetkov",
+   "Stamen Grigorov",
+   "Georgi Ivanov",
+   "Ivan Mitev"
+  ]
+ },
+ "q1945": {
+  "q": "Which Bulgarian metallurgists co-invented the counter-pressure casting method used globally to produce high-strength alloy wheels?",
+  "a": [
+   "Angel Balevski and Ivan Dimov",
+   "Ivan Stranski and Rostislav Kaishev",
+   "John Atanasoff and Clifford Berry",
+   "Georgi Nadjakov and Dimitar Paskov"
+  ]
+ },
+ "q1946": {
+  "q": "What name did Bulgarian-American inventor Assen Jordanoff give to his 1950s telephone answering and message-recording device?",
+  "a": [
+   "Jordaphone",
+   "Bulgarophone",
+   "Aviaphone",
+   "Petroffone"
+  ]
+ },
+ "q1947": {
+  "q": "In which Swiss city was Bulgarian doctor Stamen Grigorov studying when he identified Lactobacillus bulgaricus in 1905?",
+  "a": [
+   "Geneva",
+   "Zurich",
+   "Bern",
+   "Basel"
+  ]
+ },
+ "q1948": {
+  "q": "From which spring-blooming flower did Bulgarian pharmacologist Dimitar Paskov isolate galantamine to create the drug Nivalin?",
+  "a": [
+   "Snowdrop",
+   "Crocus",
+   "Daffodil",
+   "Lily of the valley"
+  ]
+ },
+ "q1949": {
+  "q": "Which number system did John Atanasoff use for internal calculations in his pioneering electronic digital computer?",
+  "a": [
+   "Binary",
+   "Decimal",
+   "Octal",
+   "Hexadecimal"
+  ]
+ },
+ "q1950": {
+  "q": "Which Bulgarian-born Harvard astronomer led the team that discovered the distant transiting exoplanet OGLE-TR-56b in 2002?",
+  "a": [
+   "Dimitar Sasselov",
+   "Nikola Bonev",
+   "Georgi Nadjakov",
+   "Ivan Stranski"
+  ]
+ },
+ "q1951": {
+  "q": "Which famous twin-engine airliner of the 1930s did Bulgarian-American engineer Assen Jordanoff help develop at Douglas Aircraft?",
+  "a": [
+   "Douglas DC-3",
+   "Boeing 707",
+   "Lockheed Constellation",
+   "Concorde"
+  ]
+ },
+ "q1952": {
+  "q": "Which early NASA weather satellite series had telemetry components engineered by Bulgarian-born inventor Peter Petroff?",
+  "a": [
+   "Nimbus",
+   "Voyager",
+   "Hubble",
+   "Cassini"
+  ]
+ },
+ "q1953": {
+  "q": "Which Bulgarian psychotherapist developed suggestopedia, an accelerated language-learning method presented to UNESCO in 1978?",
+  "a": [
+   "Georgi Lozanov",
+   "Ivan Mitev",
+   "Dimitar Paskov",
+   "Stamen Grigorov"
+  ]
+ },
+ "q1954": {
+  "q": "Which Bulgarian organic chemist discovered a synthetic reaction involving polyfunctional magnesium enolates known as the Ivanov reaction?",
+  "a": [
+   "Dimitar Ivanov",
+   "Ivan Stranski",
+   "Georgi Nadjakov",
+   "Carl Djerassi"
+  ]
+ },
+ "q1955": {
+  "q": "Which Bulgarian-born endocrinologist discovered the genetic syndrome of resistance to thyroid hormone named after him?",
+  "a": [
+   "Samuel Refetoff",
+   "Ivan Mitev",
+   "Stamen Grigorov",
+   "Dimitar Paskov"
+  ]
+ },
+ "q1956": {
+  "q": "Besides the digital wristwatch, which portable medical device was invented by Bulgarian-born engineer Peter Petroff?",
+  "a": [
+   "Wireless heart monitor",
+   "Artificial pacemaker",
+   "Insulin pump",
+   "Cochlear implant"
+  ]
+ },
+ "q1957": {
+  "q": "In which year did a U.S. federal court rule that the ENIAC patent was derived from John Atanasoff's computer invention?",
+  "a": [
+   "1973",
+   "1955",
+   "1962",
+   "1984"
+  ]
+ },
+ "q1958": {
+  "q": "Which neurodegenerative condition is globally treated today using galantamine, the alkaloid standardized in Nivalin by Dimitar Paskov?",
+  "a": [
+   "Alzheimer's disease",
+   "Parkinson's disease",
+   "Multiple sclerosis",
+   "Huntington's disease"
+  ]
+ },
+ "q1959": {
+  "q": "Over which fortress city did Bulgarian aviators drop Simeon Petrov's newly invented aerial bombs in October 1912?",
+  "a": [
+   "Edirne (Odrin)",
+   "Thessaloniki",
+   "Belgrade",
+   "Bucharest"
+  ]
+ },
+ "q1960": {
+  "q": "In which French physicist's Paris laboratory did Bulgarian physicist Georgi Nadjakov conduct photoelectricity research in 1925–1926?",
+  "a": [
+   "Paul Langevin",
+   "Louis de Broglie",
+   "Henri Becquerel",
+   "Jean Perrin"
+  ]
+ },
+ "q1961": {
+  "q": "Which synthetic progestin compound was co-synthesized by Carl Djerassi in 1951 to create the first oral contraceptive pill?",
+  "a": [
+   "Norethisterone",
+   "Estradiol",
+   "Testosterone",
+   "Cortisone"
+  ]
+ },
+ "q1962": {
+  "q": "Which watch company originally marketed the Pulsar, the first LED digital wristwatch co-developed by Bulgarian engineer Peter Petroff?",
+  "a": [
+   "Hamilton Watch Company",
+   "Rolex",
+   "Omega",
+   "Casio"
+  ]
+ },
+ "q1963": {
+  "q": "Which preservation method did Bulgarian scientist Tsvetan Tsvetkov use to create lightweight space meals in the 1970s?",
+  "a": [
+   "Lyophilization (freeze-drying)",
+   "Canning",
+   "Salting",
+   "Pickling"
+  ]
+ },
+ "q1964": {
+  "q": "Which method did Bulgarian-born astronomer Dimitar Sasselov's team use to detect the exoplanet OGLE-TR-56b in 2002?",
+  "a": [
+   "Transit photometry",
+   "Direct imaging",
+   "Gravitational microlensing",
+   "Pulsar timing"
+  ]
+ },
+ "q1965": {
+  "q": "What was the name of the Apollo 11 lunar module whose ascent and descent engines were co-engineered by Bulgarian-born John Nochev?",
+  "a": [
+   "Eagle",
+   "Columbia",
+   "Intrepid",
+   "Aquarius"
+  ]
+ },
+ "q1966": {
+  "q": "Which paralyzing viral disease was the primary target of Dimitar Paskov's drug Nivalin when he introduced it in the late 1950s?",
+  "a": [
+   "Poliomyelitis (polio)",
+   "Tuberculosis",
+   "Malaria",
+   "Cholera"
+  ]
+ },
+ "q1967": {
+  "q": "Which Bulgarian software company was co-founded by Vladimir Koylazov and Peter Mitev to develop the Oscar-winning V-Ray renderer?",
+  "a": [
+   "Chaos Group",
+   "Pixar",
+   "Autodesk",
+   "Epic Games"
+  ]
+ },
+ "q1968": {
+  "q": "Which actor provided the iconic deep voice of Darth Vader in the original Star Wars trilogy films?",
+  "a": [
+   "James Earl Jones",
+   "David Prowse",
+   "Harrison Ford",
+   "Alec Guinness"
+  ]
+ },
+ "q1969": {
+  "q": "In Sir Arthur Conan Doyle's Sherlock Holmes stories, does the detective ever say the exact phrase „Elementary, my dear Watson“?",
+  "a": [
+   "No, never in the stories",
+   "Yes, in the first novel",
+   "Yes, in the final story",
+   "Only in letters to Watson"
+  ]
+ },
+ "q1970": {
+  "q": "Which profession does archaeologist adventurer Indiana Jones hold when he is not out hunting relics in the film series?",
+  "a": [
+   "College professor",
+   "Museum curator",
+   "Naval officer",
+   "Newspaper reporter"
+  ]
+ },
+ "q1971": {
+  "q": "Along with artist Bob Kane, who is officially credited as co-creator of DC Comics superhero Batman?",
+  "a": [
+   "Bill Finger",
+   "Jack Kirby",
+   "Stan Lee",
+   "Jerry Siegel"
+  ]
+ },
+ "q1972": {
+  "q": "In which comic book issue did Marvel superhero Spider-Man make his first appearance in 1962?",
+  "a": [
+   "Amazing Fantasy #15",
+   "Action Comics #1",
+   "Detective Comics #27",
+   "Fantastic Four #1"
+  ]
+ },
+ "q1973": {
+  "q": "In J. R. R. Tolkien's The Lord of the Rings, which fellow hobbit travels with Frodo Baggins all the way to Mount Doom?",
+  "a": [
+   "Samwise Gamgee",
+   "Peregrin Took",
+   "Meriadoc Brandybuck",
+   "Bilbo Baggins"
+  ]
+ },
+ "q1974": {
+  "q": "In the television series Breaking Bad, what is Walter White's everyday job before he turns to cooking methamphetamine?",
+  "a": [
+   "High school chemistry teacher",
+   "Car wash owner",
+   "Pharmacist",
+   "Chemical engineer"
+  ]
+ },
+ "q1975": {
+  "q": "In Hayao Miyazaki's 1988 animated film My Neighbor Totoro, what kind of creature is Totoro?",
+  "a": [
+   "Forest spirit",
+   "Giant raccoon dog",
+   "Mountain troll",
+   "Flying dragon"
+  ]
+ },
+ "q1976": {
+  "q": "In the 1994 film Forrest Gump, what business does Forrest build using money from his late army friend Bubba?",
+  "a": [
+   "Shrimp boat fleet",
+   "Chocolate factory",
+   "Ping-pong academy",
+   "Cotton plantation"
+  ]
+ },
+ "q1977": {
+  "q": "In Thomas Harris's novels and their film adaptations, what is Dr. Hannibal Lecter's profession before his imprisonment?",
+  "a": [
+   "Forensic psychiatrist",
+   "Neurosurgeon",
+   "Criminal defense lawyer",
+   "Pathologist"
+  ]
+ },
+ "q1978": {
+  "q": "In Disney's 1994 animated film The Lion King, who is the treacherous uncle of young lion cub Simba?",
+  "a": [
+   "Scar",
+   "Mufasa",
+   "Rafiki",
+   "Shenzi"
+  ]
+ },
+ "q1979": {
+  "q": "Which actress plays protagonist Ellen Ripley in the 1979 science fiction horror film Alien?",
+  "a": [
+   "Sigourney Weaver",
+   "Jamie Lee Curtis",
+   "Linda Hamilton",
+   "Carrie Fisher"
+  ]
+ },
+ "q1980": {
+  "q": "In the 1999 science fiction film The Matrix, what is Neo's ordinary birth name before he is freed from the simulation?",
+  "a": [
+   "Thomas Anderson",
+   "John Connor",
+   "Arthur Pendelton",
+   "David Bowman"
+  ]
+ },
+ "q1981": {
+  "q": "Under what name did Nintendo character Mario first appear in the 1981 arcade game Donkey Kong?",
+  "a": [
+   "Jumpman",
+   "Plumber",
+   "Luigi",
+   "Wario"
+  ]
+ },
+ "q1982": {
+  "q": "In the animated sitcom The Simpsons, at which workplace does Homer Simpson work as a safety inspector?",
+  "a": [
+   "Springfield Nuclear Power Plant",
+   "Kwik-E-Mart",
+   "Moe's Tavern",
+   "Springfield Elementary"
+  ]
+ },
+ "q1983": {
+  "q": "In Ian Fleming's novels and the James Bond films, which British car brand is most famously linked to Bond's gadget-filled sports car?",
+  "a": [
+   "Aston Martin",
+   "Jaguar",
+   "Rolls-Royce",
+   "Bentley"
+  ]
+ },
+ "q1984": {
+  "q": "In the 2001 animated film Shrek, what type of creature is Shrek?",
+  "a": [
+   "Ogre",
+   "Goblin",
+   "Orc",
+   "Centaur"
+  ]
+ },
+ "q1985": {
+  "q": "In J. K. Rowling's Harry Potter series, what kind of animal is Harry's pet Hedwig?",
+  "a": [
+   "Snowy owl",
+   "Black cat",
+   "Barn owl",
+   "Peregrine falcon"
+  ]
+ },
+ "q1986": {
+  "q": "In the Rocky film series, in which US city does boxer Rocky Balboa train and run up the museum steps?",
+  "a": [
+   "Philadelphia",
+   "Boston",
+   "Chicago",
+   "Baltimore"
+  ]
+ },
+ "q1987": {
+  "q": "In the animated series SpongeBob SquarePants, what kind of home does SpongeBob live in under the sea?",
+  "a": [
+   "Pineapple",
+   "Coral castle",
+   "Sunken ship",
+   "Giant clam"
+  ]
+ },
+ "q1988": {
+  "q": "In the 1972 film The Godfather, which actor plays Mafia patriarch Vito Corleone?",
+  "a": [
+   "Marlon Brando",
+   "Al Pacino",
+   "Robert De Niro",
+   "James Caan"
+  ]
+ },
+ "q1989": {
+  "q": "In the 1977 film Star Wars, on which desert planet does Luke Skywalker grow up?",
+  "a": [
+   "Tatooine",
+   "Hoth",
+   "Endor",
+   "Dagobah"
+  ]
+ },
+ "q1990": {
+  "q": "In The Addams Family stories and adaptations, who is Wednesday Addams's brother?",
+  "a": [
+   "Pugsley",
+   "Gomez",
+   "Lurch",
+   "Fester"
+  ]
+ },
+ "q1991": {
+  "q": "In the 1984 science fiction film The Terminator, which actor plays the T-800 cyborg assassin?",
+  "a": [
+   "Arnold Schwarzenegger",
+   "Michael Biehn",
+   "Sylvester Stallone",
+   "Kurt Russell"
+  ]
+ },
+ "q1992": {
+  "q": "In Sega's Sonic the Hedgehog series, what is the full birth name of the two-tailed fox sidekick known as Tails?",
+  "a": [
+   "Miles Prower",
+   "Knuckles Echidna",
+   "Shadow Hedgehog",
+   "Silver Prower"
+  ]
+ },
+ "q1993": {
+  "q": "In Marvel's 2008 film Iron Man, which actor plays inventor and superhero Tony Stark?",
+  "a": [
+   "Robert Downey Jr.",
+   "Chris Evans",
+   "Mark Ruffalo",
+   "Chris Hemsworth"
+  ]
+ },
+ "q1994": {
+  "q": "Which voice actor famously voiced Bugs Bunny for decades starting in the Warner Bros. Looney Tunes shorts?",
+  "a": [
+   "Mel Blanc",
+   "Frank Welker",
+   "Billy West",
+   "Daws Butler"
+  ]
+ },
+ "q1995": {
+  "q": "In J. R. R. Tolkien's The Lord of the Rings, what Elvish name do the Elves give to the wizard Gandalf?",
+  "a": [
+   "Mithrandir",
+   "Celeborn",
+   "Eärendil",
+   "Glorfindel"
+  ]
+ },
+ "q1996": {
+  "q": "At which London street address does Arthur Conan Doyle's detective Sherlock Holmes reside?",
+  "a": [
+   "221B Baker Street",
+   "10 Downing Street",
+   "12 Grimmauld Place",
+   "742 Evergreen Terrace"
+  ]
+ },
+ "q1997": {
+  "q": "From which magical bird comes the tail feather inside Harry Potter's holly wand in J. K. Rowling's novels?",
+  "a": [
+   "Fawkes",
+   "Hedwig",
+   "Buckbeak",
+   "Errol"
+  ]
+ },
+ "q1998": {
+  "q": "Which impoverished coal-mining district of Panem is home to Katniss Everdeen in Suzanne Collins's 'The Hunger Games'?",
+  "a": [
+   "District 12",
+   "District 1",
+   "District 4",
+   "District 7"
+  ]
+ },
+ "q1999": {
+  "q": "What was the original birth name of the title millionaire in F. Scott Fitzgerald's novel 'The Great Gatsby'?",
+  "a": [
+   "James Gatz",
+   "Nick Carraway",
+   "Tom Buchanan",
+   "George Wilson"
+  ]
+ },
+ "q2000": {
+  "q": "For how many years is Edmond Dantès imprisoned in the Château d'If in Alexandre Dumas's novel 'The Count of Monte Cristo'?",
+  "a": [
+   "14 years",
+   "7 years",
+   "20 years",
+   "25 years"
+  ]
+ },
+ "q2001": {
+  "q": "What is the nationality of Agatha Christie's famous mustachioed detective Hercule Poirot?",
+  "a": [
+   "Belgian",
+   "French",
+   "Swiss",
+   "Canadian"
+  ]
+ },
+ "q2002": {
+  "q": "What is the name of the gaunt, aging horse ridden by the title knight in Miguel de Cervantes's novel 'Don Quixote'?",
+  "a": [
+   "Rocinante",
+   "Babieca",
+   "Bucephalus",
+   "Shadowfax"
+  ]
+ },
+ "q2003": {
+  "q": "What is the name of the comfortable Hobbit-hole home inherited by Frodo Baggins in J. R. R. Tolkien's 'The Lord of the Rings'?",
+  "a": [
+   "Bag End",
+   "Rivendell",
+   "Bree",
+   "Gondolin"
+  ]
+ },
+ "q2004": {
+  "q": "What is the profession of Jonathan Harker, the English traveler who visits Count Dracula's castle in Bram Stoker's 1897 novel?",
+  "a": [
+   "Solicitor",
+   "Physician",
+   "Journalist",
+   "Archaeologist"
+  ]
+ },
+ "q2005": {
+  "q": "At which American university does Robert Langdon teach religious iconology and symbology in Dan Brown's novel 'The Da Vinci Code'?",
+  "a": [
+   "Harvard University",
+   "Yale University",
+   "Princeton University",
+   "Stanford University"
+  ]
+ },
+ "q2006": {
+  "q": "What is Jean Valjean's iconic first prisoner number at the Bagne of Toulon in Victor Hugo's novel 'Les Misérables'?",
+  "a": [
+   "24601",
+   "19840",
+   "11380",
+   "45102"
+  ]
+ },
+ "q2007": {
+  "q": "What is the name of Mr. Darcy's grand Derbyshire estate visited by Elizabeth Bennet in Jane Austen's 'Pride and Prejudice'?",
+  "a": [
+   "Pemberley",
+   "Longbourn",
+   "Netherfield",
+   "Rosings Park"
+  ]
+ },
+ "q2008": {
+  "q": "What kind of animal is Mr. Nilsson, the pet companion who lives with Pippi Longstocking in Astrid Lindgren's children's books?",
+  "a": [
+   "Monkey",
+   "Horse",
+   "Parrot",
+   "Dog"
+  ]
+ },
+ "q2009": {
+  "q": "Why does Daniel Defoe's shipwrecked hero Robinson Crusoe name his rescued island companion Friday?",
+  "a": [
+   "The day of the week they met",
+   "The name of his former ship",
+   "The month he was stranded",
+   "A saint from his hometown"
+  ]
+ },
+ "q2010": {
+  "q": "From which historic southwestern French region does d'Artagnan travel to Paris in Alexandre Dumas's 'The Three Musketeers'?",
+  "a": [
+   "Gascony",
+   "Normandy",
+   "Brittany",
+   "Provence"
+  ]
+ },
+ "q2011": {
+  "q": "What is the name of the O'Hara family's beloved Georgia cotton plantation in Margaret Mitchell's novel 'Gone with the Wind'?",
+  "a": [
+   "Tara",
+   "Twelve Oaks",
+   "Manderley",
+   "Thornfield"
+  ]
+ },
+ "q2012": {
+  "q": "From which boarding school has teenager Holden Caulfield just been expelled at the start of J. D. Salinger's 'The Catcher in the Rye'?",
+  "a": [
+   "Pencey Prep",
+   "Welton Academy",
+   "Choate School",
+   "Bayside High"
+  ]
+ },
+ "q2013": {
+  "q": "From what material is Captain Ahab's prosthetic leg carved in Herman Melville's novel 'Moby-Dick'?",
+  "a": [
+   "Sperm whale jawbone",
+   "Oak driftwood",
+   "Cast iron",
+   "Elephant tusk"
+  ]
+ },
+ "q2014": {
+  "q": "What is the primary profession of Lisbeth Salander in Stieg Larsson's bestselling novel 'The Girl with the Dragon Tattoo'?",
+  "a": [
+   "Freelance computer hacker",
+   "Forensic pathologist",
+   "Criminal defense lawyer",
+   "Undercover police detective"
+  ]
+ },
+ "q2015": {
+  "q": "On which tiny asteroid does the title hero live in Antoine de Saint-Exupéry's novella 'The Little Prince'?",
+  "a": [
+   "Asteroid B-612",
+   "Asteroid Vesta",
+   "Asteroid Ceres",
+   "Asteroid Eros"
+  ]
+ },
+ "q2016": {
+  "q": "What is the occupation of Santiago, the young Andalusian protagonist in Paulo Coelho's novel 'The Alchemist'?",
+  "a": [
+   "Shepherd",
+   "Blacksmith",
+   "Sailor",
+   "Clockmaker"
+  ]
+ },
+ "q2017": {
+  "q": "In which legendary English forest do Robin Hood and his Merry Men live in traditional ballads and adventure novels?",
+  "a": [
+   "Sherwood Forest",
+   "Fangorn Forest",
+   "New Forest",
+   "Epping Forest"
+  ]
+ },
+ "q2018": {
+  "q": "What is the name of Captain Nemo's advanced electric submarine in Jules Verne's novel 'Twenty Thousand Leagues Under the Seas'?",
+  "a": [
+   "Nautilus",
+   "Pequod",
+   "Hispaniola",
+   "Beagle"
+  ]
+ },
+ "q2019": {
+  "q": "In which town in Maine does the terrifying shape-shifting entity Pennywise hunt children in Stephen King's novel 'It'?",
+  "a": [
+   "Derry",
+   "Castle Rock",
+   "Salem's Lot",
+   "Haven"
+  ]
+ },
+ "q2020": {
+  "q": "What is the former university major of impoverished murderer Rodion Raskolnikov in Fyodor Dostoevsky's novel 'Crime and Punishment'?",
+  "a": [
+   "Law",
+   "Medicine",
+   "Mathematics",
+   "Theology"
+  ]
+ },
+ "q2021": {
+  "q": "Inside which room of the London Ministry of Truth does Winston Smith work in George Orwell's dystopian novel 'Nineteen Eighty-Four'?",
+  "a": [
+   "Records Department",
+   "Room 101",
+   "Fiction Department",
+   "Tele-programmes Department"
+  ]
+ },
+ "q2022": {
+  "q": "In which fictional Alabama town does lawyer Atticus Finch defend Tom Robinson in Harper Lee's novel 'To Kill a Mockingbird'?",
+  "a": [
+   "Maycomb",
+   "Macondo",
+   "Jefferson",
+   "Zenith"
+  ]
+ },
+ "q2023": {
+  "q": "From which yellow substance does A. A. Milne's bear Winnie-the-Pooh constantly try to get more in the Hundred Acre Wood stories?",
+  "a": [
+   "Honey",
+   "Maple syrup",
+   "Marmalade",
+   "Butterscotch"
+  ]
+ },
+ "q2024": {
+  "q": "What is the name of the isolated Colombian town founded by José Arcadio Buendía in Gabriel García Márquez's 'One Hundred Years of Solitude'?",
+  "a": [
+   "Macondo",
+   "Comala",
+   "Santa Teresa",
+   "Yoknapatawpha"
+  ]
+ },
+ "q2025": {
+  "q": "What is the occupation of Gregor Samsa before he wakes up transformed into a giant insect in Franz Kafka's 'The Metamorphosis'?",
+  "a": [
+   "Traveling salesman",
+   "Bank clerk",
+   "Schoolteacher",
+   "Watchmaker"
+  ]
+ },
+ "q2026": {
+  "q": "What is the name of the Siamese cat owned by Holly Golightly in Truman Capote's 1958 novella 'Breakfast at Tiffany's'?",
+  "a": [
+   "Cat",
+   "Tiffany",
+   "Fred",
+   "Paul"
+  ]
+ },
+ "q2027": {
+  "q": "Which antibiotic did Alexander Fleming accidentally discover in 1928 after mold contaminated his petri dishes?",
+  "a": [
+   "Penicillin",
+   "Streptomycin",
+   "Tetracycline",
+   "Amoxicillin"
+  ]
+ },
+ "q2028": {
+  "q": "Which kitchen appliance was invented by Percy Spencer in 1945 after a radar magnetron melted a candy bar in his pocket?",
+  "a": [
+   "Microwave oven",
+   "Toaster",
+   "Electric kettle",
+   "Induction cooktop"
+  ]
+ },
+ "q2029": {
+  "q": "What type of radiation did Wilhelm Röntgen accidentally discover in 1895 while experimenting with cathode-ray tubes?",
+  "a": [
+   "X-rays",
+   "Gamma rays",
+   "Ultraviolet rays",
+   "Infrared rays"
+  ]
+ },
+ "q2030": {
+  "q": "Which office supply was created by Spencer Silver and Art Fry at 3M after trying to develop a super-strong adhesive?",
+  "a": [
+   "Post-it Notes",
+   "Scotch tape",
+   "Stapler",
+   "Paperclip"
+  ]
+ },
+ "q2031": {
+  "q": "Which crispy snack did chef George Crum reportedly invent in 1853 after a customer complained his fried potatoes were too thick?",
+  "a": [
+   "Potato chips",
+   "French fries",
+   "Onion rings",
+   "Hash browns"
+  ]
+ },
+ "q2032": {
+  "q": "Which fastener did Swiss engineer George de Mestral invent in the 1940s after examining burrs stuck to his dog's fur?",
+  "a": [
+   "Velcro",
+   "Zipper",
+   "Snap button",
+   "Safety pin"
+  ]
+ },
+ "q2033": {
+  "q": "Which non-stick fluoropolymer did Roy Plunkett accidentally discover in 1938 while working on refrigerant gases at DuPont?",
+  "a": [
+   "Teflon",
+   "Nylon",
+   "Kevlar",
+   "Neoprene"
+  ]
+ },
+ "q2034": {
+  "q": "Which breakfast cereal was accidentally created in 1894 by John and Will Kellogg after leaving boiled wheat out to go stale?",
+  "a": [
+   "Corn flakes",
+   "Oatmeal",
+   "Muesli",
+   "Granola"
+  ]
+ },
+ "q2035": {
+  "q": "Which medication was originally tested in the 1990s to treat angina before researchers noticed its unexpected side effect?",
+  "a": [
+   "Viagra",
+   "Aspirin",
+   "Ibuprofen",
+   "Insulin"
+  ]
+ },
+ "q2036": {
+  "q": "What did Arno Penzias and Robert Wilson discover in 1964 when a persistent hiss in their radio antenna turned out not to be pigeon droppings?",
+  "a": [
+   "Cosmic microwave background",
+   "Pulsars",
+   "Solar wind",
+   "Black holes"
+  ]
+ },
+ "q2037": {
+  "q": "Which artificial sweetener did Constantin Fahlberg discover in 1879 after forgetting to wash his hands before dinner?",
+  "a": [
+   "Saccharin",
+   "Aspartame",
+   "Sucralose",
+   "Stevia"
+  ]
+ },
+ "q2038": {
+  "q": "Which rubber-hardening process did Charles Goodyear accidentally discover in 1839 after dropping sulfur-treated rubber onto a hot stove?",
+  "a": [
+   "Vulcanization",
+   "Galvanization",
+   "Pasteurization",
+   "Polymerization"
+  ]
+ },
+ "q2039": {
+  "q": "Which classic children's toy was invented in 1943 when naval engineer Richard James knocked a torsion spring off a shelf and watched it walk?",
+  "a": [
+   "Slinky",
+   "Yo-yo",
+   "Frisbee",
+   "Hula hoop"
+  ]
+ },
+ "q2040": {
+  "q": "Which colorful modeling compound was originally invented in the 1930s as a putty to clean soot off wallpaper?",
+  "a": [
+   "Play-Doh",
+   "Plasticine",
+   "Lego",
+   "Silly Putty"
+  ]
+ },
+ "q2041": {
+  "q": "Which medical device did Wilson Greatbatch invent in 1956 after accidentally installing the wrong resistor in a heart-sound recorder?",
+  "a": [
+   "Implantable pacemaker",
+   "Stethoscope",
+   "Defibrillator",
+   "Electrocardiograph"
+  ]
+ },
+ "q2042": {
+  "q": "Which frozen treat did 11-year-old Frank Epperson accidentally invent in 1905 after leaving a cup of soda powder and water outside overnight?",
+  "a": [
+   "Popsicle",
+   "Ice cream cone",
+   "Slushie",
+   "Sorbet"
+  ]
+ },
+ "q2043": {
+  "q": "Which packaging material did Alfred Fielding and Marc Chavannes create in 1957 after failing to sell two sealed shower curtains as textured wallpaper?",
+  "a": [
+   "Bubble wrap",
+   "Styrofoam",
+   "Cardboard box",
+   "Cellophane"
+  ]
+ },
+ "q2044": {
+  "q": "Which chemical element did Hennig Brand discover in 1669 while boiling down buckets of human urine in search of the philosopher's stone?",
+  "a": [
+   "Phosphorus",
+   "Sulfur",
+   "Potassium",
+   "Sodium"
+  ]
+ },
+ "q2045": {
+  "q": "Which physical phenomenon did Henri Becquerel discover in 1896 after cloudy weather forced him to leave uranium salts in a drawer with photographic plates?",
+  "a": [
+   "Radioactivity",
+   "Photoelectric effect",
+   "Superconductivity",
+   "Electromagnetism"
+  ]
+ },
+ "q2046": {
+  "q": "Which famous soft drink did pharmacist John Pemberton create in 1886 while trying to develop a medicinal tonic for headaches and fatigue?",
+  "a": [
+   "Coca-Cola",
+   "Pepsi",
+   "Sprite",
+   "Fanta"
+  ]
+ },
+ "q2047": {
+  "q": "Which ultra-strong adhesive did Harry Coover accidentally discover in 1942 while trying to make clear plastic gun sights?",
+  "a": [
+   "Super Glue",
+   "Epoxy resin",
+   "Wood glue",
+   "Rubber cement"
+  ]
+ },
+ "q2048": {
+  "q": "Which impact-resistant material did French chemist Édouard Bénédictus invent in 1903 after dropping a glass flask coated inside with cellulose nitrate?",
+  "a": [
+   "Laminated safety glass",
+   "Tempered glass",
+   "Fiberglass",
+   "Plexiglass"
+  ]
+ },
+ "q2049": {
+  "q": "Which blood thinner was discovered in the 1920s after cattle on North American farms bled to death from eating moldy sweet clover hay?",
+  "a": [
+   "Warfarin",
+   "Heparin",
+   "Aspirin",
+   "Clopidogrel"
+  ]
+ },
+ "q2050": {
+  "q": "Which hair-loss treatment was originally developed in the 1970s as an oral medication for severe high blood pressure before excess hair growth was noticed?",
+  "a": [
+   "Minoxidil",
+   "Finasteride",
+   "Biotin",
+   "Ketoconazole"
+  ]
+ },
+ "q2051": {
+  "q": "Which first synthetic aniline dye did 18-year-old William Henry Perkin accidentally produce in 1856 while trying to synthesize quinine?",
+  "a": [
+   "Mauveine",
+   "Indigo",
+   "Prussian blue",
+   "Alizarin"
+  ]
+ },
+ "q2052": {
+  "q": "Which corrosion-resistant alloy did Harry Brearley discover in 1913 while trying to prevent erosion in gun barrels using chromium?",
+  "a": [
+   "Stainless steel",
+   "Bronze",
+   "Brass",
+   "Duralumin"
+  ]
+ },
+ "q2053": {
+  "q": "Which organ's endocrine function did Oskar Minkowski and Joseph von Mering discover in 1889 after removing it from a dog and noticing flies swarming its sweet urine?",
+  "a": [
+   "Pancreas",
+   "Thyroid",
+   "Adrenal gland",
+   "Pituitary gland"
+  ]
+ },
+ "q2054": {
+  "q": "Which anesthetic gas did Horace Wells realize could prevent pain in 1844 after watching a friend injure his leg without noticing during a stage demonstration?",
+  "a": [
+   "Nitrous oxide",
+   "Chloroform",
+   "Diethyl ether",
+   "Halothane"
+  ]
+ },
+ "q2055": {
+  "q": "Which ancient collection of texts was accidentally discovered in 1945 near Nag Hammadi by Egyptian brothers digging for fertilizer?",
+  "a": [
+   "Gnostic Gospels",
+   "Dead Sea Scrolls",
+   "Epic of Gilgamesh",
+   "Code of Hammurabi"
+  ]
+ },
+ "q2056": {
+  "q": "Which carbon allotrope did Robert Curl, Harold Kroto, and Richard Smalley accidentally discover in 1985 while simulating red giant star chemistry?",
+  "a": [
+   "Buckminsterfullerene",
+   "Graphene",
+   "Lonsdaleite",
+   "Carbyne"
+  ]
+ },
+ "q2057": {
+  "q": "Which muscle-relaxing neurotoxin did Alan Scott repurpose in the 1970s to treat crossed eyes after originally testing it on monkeys?",
+  "a": [
+   "Botulinum toxin",
+   "Curare",
+   "Tetrodotoxin",
+   "Bungarotoxin"
+  ]
+ },
+ "q2058": {
+  "q": "If 3 cats catch 3 mice in 3 minutes, how many mice do 6 equally fast cats catch in 3 minutes?",
+  "a": [
+   "6",
+   "3",
+   "9",
+   "18"
+  ]
+ },
+ "q2059": {
+  "q": "A farmer has 17 sheep and all but 9 run away; how many remain?",
+  "a": [
+   "9",
+   "8",
+   "17",
+   "26"
+  ]
+ },
+ "q2060": {
+  "q": "In a race you overtake the runner in 2nd place; what place are you in immediately afterward?",
+  "a": [
+   "2",
+   "1",
+   "3",
+   "4"
+  ]
+ },
+ "q2061": {
+  "q": "A clock strikes 3 times in 6 seconds, with equal intervals; how many seconds pass from the first to the last of 6 strikes?",
+  "a": [
+   "15",
+   "12",
+   "18",
+   "30"
+  ]
+ },
+ "q2062": {
+  "q": "How many straight cuts are needed to divide a rope into 6 pieces if each cut is made through only 1 piece?",
+  "a": [
+   "5",
+   "6",
+   "3",
+   "7"
+  ]
+ },
+ "q2063": {
+  "q": "A snail climbs 3 meters each day and slips 2 meters each night; on which day does it first reach the top of a 5-meter wall?",
+  "a": [
+   "3",
+   "5",
+   "4",
+   "2"
+  ]
+ },
+ "q2064": {
+  "q": "A bat and a ball cost 110 coins together, and the bat costs 100 coins more than the ball; how many coins does the ball cost?",
+  "a": [
+   "5",
+   "10",
+   "15",
+   "20"
+  ]
+ },
+ "q2065": {
+  "q": "How many handshakes occur if 5 people each shake hands exactly once with every other person?",
+  "a": [
+   "10",
+   "20",
+   "5",
+   "15"
+  ]
+ },
+ "q2066": {
+  "q": "A pond contains lily pads whose number doubles each day; if the pond is completely covered on day 20, on which day was it half covered?",
+  "a": [
+   "19",
+   "10",
+   "18",
+   "15"
+  ]
+ },
+ "q2067": {
+  "q": "A drawer holds only red and blue socks; what is the minimum number you must take without looking to guarantee 2 socks of the same color?",
+  "a": [
+   "3",
+   "2",
+   "4",
+   "5"
+  ]
+ },
+ "q2068": {
+  "q": "If 5 machines each make 1 toy in 5 minutes, how many minutes do 100 identical machines need to make 100 toys?",
+  "a": [
+   "5",
+   "100",
+   "20",
+   "500"
+  ]
+ },
+ "q2069": {
+  "q": "Two fathers and two sons share 3 apples so that each person gets 1 whole apple; what is the smallest possible number of people?",
+  "a": [
+   "3",
+   "4",
+   "2",
+   "5"
+  ]
+ },
+ "q2070": {
+  "q": "A family has 4 daughters and each daughter has the same 1 brother; how many children are in the family?",
+  "a": [
+   "5",
+   "8",
+   "4",
+   "6"
+  ]
+ },
+ "q2071": {
+  "q": "A cube is painted on all 6 faces and cut into 27 equal smaller cubes; how many small cubes have paint on exactly 3 faces?",
+  "a": [
+   "8",
+   "6",
+   "12",
+   "corners"
+  ]
+ },
+ "q2072": {
+  "q": "A rectangle has a perimeter of 20 centimeters and a width of 4 centimeters; what is its length in centimeters?",
+  "a": [
+   "6",
+   "16",
+   "5",
+   "8"
+  ]
+ },
+ "q2073": {
+  "q": "If 4 people can each paint a wall in 2 hours, how many hours do they need to paint 4 separate walls when each paints one wall?",
+  "a": [
+   "2",
+   "8",
+   "4",
+   "1"
+  ]
+ },
+ "q2074": {
+  "q": "A bag holds 4 red balls and 5 blue balls; how many balls must you take without looking to guarantee at least 1 blue ball?",
+  "a": [
+   "5",
+   "4",
+   "6",
+   "2"
+  ]
+ },
+ "q2075": {
+  "q": "A train has 8 carriages, and you walk from the first to the last; how many connections between carriages do you cross?",
+  "a": [
+   "7",
+   "8",
+   "9",
+   "6"
+  ]
+ },
+ "q2076": {
+  "q": "If the day after tomorrow is Monday, what day was yesterday?",
+  "a": [
+   "Friday",
+   "Saturday",
+   "Sunday",
+   "Thursday"
+  ]
+ },
+ "q2077": {
+  "q": "A person walks 3 kilometers north and then 4 kilometers south along the same straight road; how far are they from their starting point in kilometers?",
+  "a": [
+   "1",
+   "7",
+   "3",
+   "4"
+  ]
+ },
+ "q2078": {
+  "q": "A square sheet is folded in half once and cut once completely along the fold; how many pieces result?",
+  "a": [
+   "2",
+   "3",
+   "4",
+   "1"
+  ]
+ },
+ "q2079": {
+  "q": "At a party everyone wears either a hat or a scarf, and 8 wear hats, 6 wear scarves and 3 wear both; how many people are at the party?",
+  "a": [
+   "11",
+   "14",
+   "17",
+   "9"
+  ]
+ },
+ "q2080": {
+  "q": "If 2 identical candles burn completely in 4 hours each, how many hours do they burn when lit at the same time?",
+  "a": [
+   "4",
+   "8",
+   "2",
+   "6"
+  ]
+ },
+ "q2081": {
+  "q": "A box contains 12 eggs; if you take 3 eggs out, how many eggs do you have?",
+  "a": [
+   "3",
+   "9",
+   "12",
+   "15"
+  ]
+ },
+ "q2082": {
+  "q": "A book and a pen cost 30 coins together, and the book costs twice as much as the pen; how many coins does the pen cost?",
+  "a": [
+   "10",
+   "15",
+   "20",
+   "5"
+  ]
+ },
+ "q2083": {
+  "q": "A father is 36 and his daughter is 12; in how many years will he be twice her age?",
+  "a": [
+   "12",
+   "6",
+   "18",
+   "24"
+  ]
+ },
+ "q2084": {
+  "q": "A person faces north, turns right, then right again, then left; which direction are they facing?",
+  "a": [
+   "East",
+   "West",
+   "North",
+   "South"
+  ]
+ },
+ "q2085": {
+  "q": "A farmer places 1 fence post at each end of a straight 30-meter fence and posts every 5 meters between them; how many posts are needed?",
+  "a": [
+   "7",
+   "6",
+   "5",
+   "8"
+  ]
+ },
+ "q2086": {
+  "q": "A number is doubled and then 6 is added to give 20; what was the original number?",
+  "a": [
+   "7",
+   "13",
+   "10",
+   "8"
+  ]
+ },
+ "q2087": {
+  "q": "A room contains 3 switches, all initially off, each controlling a different lamp visible from the room; how many switch positions must be changed to turn on exactly 2 lamps?",
+  "a": [
+   "2",
+   "1",
+   "3",
+   "4"
   ]
  }
 }

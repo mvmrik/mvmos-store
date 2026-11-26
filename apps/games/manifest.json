@@ -377,7 +377,7 @@
       "name": "The Road to Millions",
       "icon": "💎",
       "category": "Games",
-      "version": "1.2.0",
+      "version": "1.3.0",
       "description": "Answer questions, use your lifelines and decide when to take your winnings. Play on past the million solo, or face 20 questions with friends.",
       "tags": [
         "multiplayer",
@@ -386,7 +386,7 @@
         "games"
       ],
       "min_core_version": "1.16.0",
-      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/roadtomillion-1.2.0.zip",
+      "zip_url": "https://raw.githubusercontent.com/mvmrik/mvmos-store/main/apps/games/roadtomillion-1.3.0.zip",
       "name_i18n": {
         "en": "The Road to Millions",
         "bg": "Пътят към милионите",

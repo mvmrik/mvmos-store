@@ -1513,7 +1513,7 @@ async def _run_cli_chat(
     stream_output = native_compact or output_callback is not None or CHAT_TURN.get() is not None
     model = body.model if body.model is not None else _read_cfg().get("model")
     # A full-access turn is a whole task done in one go, not a single reply.
-    cli_timeout = 1800 if full_access else 120
+    cli_timeout = 3600 if full_access else 120
     try:
         # App isolation only permits an app backend to write inside its own
         # directory. Keep the short-lived CLI workspace there instead of the

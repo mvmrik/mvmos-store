@@ -144,6 +144,39 @@ class PlayerTests(unittest.TestCase):
             self.assertEqual(self.pub('GET','/translate/'+failed).json()['status'],'failed')
             self.assertEqual(len(refunds),1);self.assertEqual(refunds[0][2],3)
 
+    def test_interrupted_translation_continues_and_charges_only_the_rest(self):
+        mid=self.upload('Example.webm')
+        srt=''.join('%d\n00:00:%02d,000 --> 00:00:%02d,500\nLine %d\n\n'%(n,n%60,n%60,n) for n in range(1,91))
+        subtitle=self.admin('POST','/media/'+mid+'/subtitles?language=en',content=srt.encode()).json()['id']
+        spec=importlib.util.spec_from_file_location('test_player_premium_resume',SOURCE/'premium/backend.py')
+        premium=importlib.util.module_from_spec(spec);spec.loader.exec_module(premium)
+        premium._base=lambda:self.mod
+        charges=[];refunds=[]
+        hub=types.SimpleNamespace(credits_available=lambda:True,get_credit_feature_price=lambda *a:2,get_credit_balance=lambda uid:99,
+            charge_credit_feature=lambda *a:charges.append(a),grant_credits=lambda *a:refunds.append(a))
+        premium._hub=lambda:hub
+        class Immediate:
+            def __init__(self,target,args,**kwargs):self.target,self.args=target,args
+            def start(self):self.target(*self.args)
+        calls=[]
+        def answer(prompt):
+            lines=[l for l in prompt.split('\n') if l[:1].isdigit() and '|' in l and '=>' not in l]
+            calls.append(len(lines))
+            if len(calls)==3:raise RuntimeError('network')
+            return '\n'.join(l.split('|')[0]+'| T'+l.split('|')[1] for l in lines)
+        body=dict(source='db:'+subtitle,language='bg')
+        with patch.object(self.mod,'premium',return_value=premium),patch.object(self.mod,'translation_available',return_value=True),patch.object(premium,'_ask',return_value=answer),patch.object(premium.threading,'Thread',Immediate):
+            self.assertEqual(self.pub('POST','/media/'+mid+'/translate/quote',json=body).json()['segments'],3)
+            failed=self.pub('POST','/media/'+mid+'/translate',json=body).json()['id']
+            self.assertEqual(self.pub('GET','/translate/'+failed).json()['status'],'failed')
+            self.assertEqual(len(charges),3);self.assertEqual(refunds[-1][2],2)
+            quote=self.pub('POST','/media/'+mid+'/translate/quote',json=body).json()
+            self.assertEqual((quote['segments'],quote['resumed'],quote['total']),(1,2,2))
+            before=len(calls)
+            job=self.pub('POST','/media/'+mid+'/translate',json=body).json()['id']
+            self.assertEqual(self.pub('GET','/translate/'+job).json()['status'],'done')
+            self.assertEqual(len(charges),4);self.assertEqual(len(calls)-before,1)
+
     def test_simkl_series_seasons_marks_and_watchlist(self):
         self.key='A'*32;self.mod.simkl.resolver=lambda uid:self.key;self.mod.simkl.save_token('a','T'*20,'A'*32)
         sent=[]

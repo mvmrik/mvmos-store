@@ -39,6 +39,7 @@ def _conn():
             PRIMARY KEY (id, lang));
         CREATE TABLE IF NOT EXISTS kv (key TEXT PRIMARY KEY, value TEXT);
         CREATE INDEX IF NOT EXISTS question_cd ON question (c, d);
+        CREATE TABLE IF NOT EXISTS qshown (id TEXT PRIMARY KEY, n INTEGER NOT NULL DEFAULT 0);
     """)
     # custom = 1: a question written on this installation, not shipped with the app.
     # An update never overwrites it; only export() turns it into a shipped one.
@@ -151,6 +152,26 @@ def game_bank():
     try:
         return [{"id": r["id"], "c": r["c"], "d": r["d"], "k": json.loads(r["k"]), "s": json.loads(r["s"]), "dc": json.loads(r["dc"] or "{}")}
                 for r in c.execute("SELECT id,c,d,k,s,dc FROM question WHERE retired=0")]
+    finally:
+        c.close()
+
+
+def shown_counts():
+    """{question id: how many times it was really shown to players}."""
+    c = _conn()
+    try:
+        return {r["id"]: r["n"] for r in c.execute("SELECT id,n FROM qshown")}
+    finally:
+        c.close()
+
+
+def mark_shown(qid):
+    """Counts one real showing. Kept apart from the question rows, so editing or
+    re-importing a question never resets how often it was seen."""
+    c = _conn()
+    try:
+        c.execute("INSERT INTO qshown (id,n) VALUES (?,1) ON CONFLICT(id) DO UPDATE SET n=n+1", (qid,))
+        c.commit()
     finally:
         c.close()
 

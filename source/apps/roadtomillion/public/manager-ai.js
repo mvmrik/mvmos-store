@@ -176,7 +176,7 @@
           '<div style="font-weight:600">1. ' + esc(t('rmm_imp_step1')) + '</div>' +
           '<div style="font-size:.8rem;color:var(--text-dim)">' + esc(t('rmm_imp_step1_hint')) + '</div>' +
           '<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:end">' +
-          field(t('rmm_ai_count'), '<input class="i-n" type="number" min="1" max="50" value="10" style="width:70px">') +
+          field(t('rmm_ai_count'), '<input class="i-n" type="number" min="1" max="50" value="30" style="width:70px">') +
           '<div style="flex:1;min-width:200px">' + field(t('rmm_ai_wishes'), '<input class="i-topic" type="text" placeholder="' + esc(t('rmm_imp_topic_ph')) + '" style="width:100%">') + '</div>' +
           '<button class="s-btn i-copy">📋 ' + esc(t('rmm_imp_copy')) + '</button></div>' +
           '<div class="i-copied" style="font-size:.85rem;color:var(--text-dim);min-height:1.1em"></div>' +
@@ -246,7 +246,7 @@
 
         $('.i-copy').onclick = async () => {
           let r;
-          try { r = await call('/import/template?count=' + (parseInt($('.i-n').value, 10) || 10) + '&topic=' + encodeURIComponent($('.i-topic').value)); } catch (e) { $('.i-copied').textContent = errText(e); return; }
+          try { r = await call('/import/template?count=' + (parseInt($('.i-n').value, 10) || 30) + '&topic=' + encodeURIComponent($('.i-topic').value)); } catch (e) { $('.i-copied').textContent = errText(e); return; }
           const tpl = $('.i-tpl');
           tpl.value = r.text; $('.i-tpl-box').style.display = '';
           let done = false;
