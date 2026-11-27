@@ -124,10 +124,30 @@ def _projects_db():
         conn.execute("ALTER TABLE ai_projects ADD COLUMN instructions_file TEXT NOT NULL DEFAULT ''")
     if "last_used_at" not in cols:
         conn.execute("ALTER TABLE ai_projects ADD COLUMN last_used_at REAL")
+    if "main_name" not in cols:
+        conn.execute("ALTER TABLE ai_projects ADD COLUMN main_name TEXT NOT NULL DEFAULT ''")
+    # Sections: one project, several folders — each with its own description and instructions.
+    conn.execute(
+        "CREATE TABLE IF NOT EXISTS ai_project_sections ("
+        "id TEXT PRIMARY KEY, project_id TEXT NOT NULL, name TEXT NOT NULL, path TEXT NOT NULL DEFAULT '', "
+        "description TEXT NOT NULL DEFAULT '', instructions TEXT NOT NULL DEFAULT '', "
+        "instructions_file TEXT NOT NULL DEFAULT '', is_default INTEGER NOT NULL DEFAULT 0, position INTEGER NOT NULL DEFAULT 0)"
+    )
+    conn.execute("CREATE INDEX IF NOT EXISTS idx_ai_project_sections_project ON ai_project_sections(project_id)")
     return conn
 
 
-_PROJECT_COLUMNS = "id, name, path, instructions, instructions_file, created_at, last_used_at"
+_PROJECT_COLUMNS = "id, name, path, instructions, instructions_file, created_at, last_used_at, main_name"
+
+
+_SECTION_COLUMNS = "id, name, path, description, instructions, instructions_file, is_default"
+
+
+def _sections_of(conn, project_id: str) -> list:
+    rows = conn.execute(
+        f"SELECT {_SECTION_COLUMNS} FROM ai_project_sections WHERE project_id = ? ORDER BY position, rowid", (project_id,)
+    ).fetchall()
+    return [dict(r, is_default=bool(r["is_default"])) for r in rows]
 
 
 def list_projects() -> list:
@@ -135,7 +155,12 @@ def list_projects() -> list:
         rows = conn.execute(
             f"SELECT {_PROJECT_COLUMNS} FROM ai_projects ORDER BY COALESCE(last_used_at,created_at) DESC, name COLLATE NOCASE"
         ).fetchall()
-    return [dict(row) for row in rows]
+        out = []
+        for row in rows:
+            item = dict(row)
+            item["sections"] = _sections_of(conn, item["id"])
+            out.append(item)
+    return out
 
 
 def _get_project(project_id: str):
@@ -145,10 +170,78 @@ def _get_project(project_id: str):
         row = conn.execute(
             f"SELECT {_PROJECT_COLUMNS} FROM ai_projects WHERE id = ?", (project_id,)
         ).fetchone()
-    return dict(row) if row else None
+        if not row:
+            return None
+        project = dict(row)
+        project["sections"] = _sections_of(conn, project_id)
+    return project
 
 
-def create_project(name: str, path: str = "", instructions: str = "", instructions_file: str = "") -> dict:
+def _clean_sections(sections) -> list:
+    """Validate the sections sent by the editor; the list replaces the stored one."""
+    cleaned = []
+    for position, raw in enumerate(sections or []):
+        if not isinstance(raw, dict):
+            raise ValueError("Invalid section")
+        name = str(raw.get("name") or "").strip()
+        if not name:
+            raise ValueError("Section name is required")
+        path = str(raw.get("path") or "").strip()
+        if path:
+            path = os.path.realpath(path)
+            if not os.path.isdir(path):
+                raise ValueError(f"Not a directory: {path}")
+        raw_id = str(raw.get("id") or "")
+        cleaned.append({
+            "id": raw_id if re.fullmatch(r"[0-9a-f]{32}", raw_id) else uuid.uuid4().hex,
+            "name": name[:80],
+            "path": path,
+            "description": str(raw.get("description") or "").strip()[:2000],
+            "instructions": str(raw.get("instructions") or "").strip(),
+            "instructions_file": _project_rules_file(raw.get("instructions_file"), path),
+            "is_default": False,  # the project itself is the main section; no section is "the default"
+            "position": position,
+        })
+    return cleaned
+
+
+def _save_sections(conn, project_id: str, sections: list) -> None:
+    conn.execute("DELETE FROM ai_project_sections WHERE project_id = ?", (project_id,))
+    for x in sections:
+        conn.execute(
+            "INSERT INTO ai_project_sections (id, project_id, name, path, description, instructions, instructions_file, "
+            "is_default, position) VALUES (?,?,?,?,?,?,?,?,?)",
+            (x["id"], project_id, x["name"], x["path"], x["description"], x["instructions"],
+             x["instructions_file"], int(x["is_default"]), x["position"]),
+        )
+
+
+def pick_section(project: dict, section_id: str | None):
+    """The requested section of a project, or None for the main one (the project itself)."""
+    for x in (project or {}).get("sections") or []:
+        if section_id and x["id"] == section_id:
+            return x
+    return None
+
+
+def apply_section(project: dict | None, section_id: str | None = None) -> dict | None:
+    """The project as one chat sees it: the chosen section's folder replaces the project folder
+    (when it has one) and its text is added to the project context."""
+    if not project:
+        return project
+    section = pick_section(project, section_id)
+    if not section:
+        return project
+    merged = dict(project)
+    merged["base_path"] = project.get("path") or ""
+    merged["active_section"] = section
+    if section.get("path"):
+        merged["path"] = section["path"]
+    return merged
+
+
+def create_project(name: str, path: str = "", instructions: str = "", instructions_file: str = "",
+                   sections: list | None = None, main_name: str = "") -> dict:
     """A project's folder is optional — without one it's just a named group of
     chats sharing the same instructions, no file tree / git status / shell cwd."""
     name = (name or "").strip()
@@ -160,14 +253,16 @@ def create_project(name: str, path: str = "", instructions: str = "", instructio
         if not os.path.isdir(path):
             raise ValueError(f"Not a directory: {path}")
     instructions_file = _project_rules_file(instructions_file, path)
+    cleaned = _clean_sections(sections)
     project_id = uuid.uuid4().hex
     used_at = time.time()
     now = int(used_at)
     with _projects_db() as conn:
         conn.execute(
-            "INSERT INTO ai_projects (id, name, path, created_at, instructions, instructions_file, last_used_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
-            (project_id, name, path, now, (instructions or "").strip(), instructions_file, used_at),
+            "INSERT INTO ai_projects (id, name, path, created_at, instructions, instructions_file, last_used_at, main_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            (project_id, name, path, now, (instructions or "").strip(), instructions_file, used_at, (main_name or "").strip()[:80]),
         )
+        _save_sections(conn, project_id, cleaned)
     return _get_project(project_id)
 
 
@@ -189,7 +284,8 @@ def touch_project(project_id: str):
 
 
 def update_project(project_id: str, name: str = None, path: str = None,
-                    instructions: str = None, instructions_file: str = None) -> dict:
+                    instructions: str = None, instructions_file: str = None, sections: list | None = None,
+                    main_name: str | None = None) -> dict:
     """PATCH semantics: a field left as None is untouched; an empty string clears it."""
     project = _get_project(project_id)
     if not project:
@@ -207,34 +303,76 @@ def update_project(project_id: str, name: str = None, path: str = None,
             if not os.path.isdir(path):
                 raise ValueError(f"Not a directory: {path}")
         fields["path"] = path
+    if main_name is not None:
+        fields["main_name"] = main_name.strip()[:80]
     if instructions is not None:
         fields["instructions"] = instructions.strip()
     if instructions_file is not None:
         fields["instructions_file"] = _project_rules_file(instructions_file, fields.get("path", project["path"]))
-    if fields:
+    cleaned = _clean_sections(sections) if sections is not None else None
+    if fields or cleaned is not None:
         with _projects_db() as conn:
-            conn.execute(
-                "UPDATE ai_projects SET " + ", ".join(f"{k} = ?" for k in fields) + " WHERE id = ?",
-                (*fields.values(), project_id),
-            )
+            if fields:
+                conn.execute(
+                    "UPDATE ai_projects SET " + ", ".join(f"{k} = ?" for k in fields) + " WHERE id = ?",
+                    (*fields.values(), project_id),
+                )
+            if cleaned is not None:
+                _save_sections(conn, project_id, cleaned)
     return _get_project(project_id)
 
 
 def delete_project(project_id: str) -> None:
     with _projects_db() as conn:
         conn.execute("DELETE FROM ai_projects WHERE id = ?", (project_id,))
+        conn.execute("DELETE FROM ai_project_sections WHERE project_id = ?", (project_id,))
 
 
-def resolve_project_cwd(project_id: str | None) -> str | None:
-    """Turn a client-sent project_id into a trusted cwd — never trust a raw
+def resolve_project_cwd(project_id: str | None, section_id: str | None = None) -> str | None:
+    """Turn a client-sent project_id (and section id) into a trusted cwd — never trust a raw
     path from the client, only ids the admin already registered server-side."""
-    project = _get_project(project_id)
+    project = apply_section(_get_project(project_id), section_id)
     return project["path"] if project and project.get("path") else None
+
+
+def _read_rules_file(parts: list, label: str, instr_file: str) -> None:
+    instr_file = (instr_file or "").strip()
+    if not instr_file:
+        return
+    try:
+        with open(instr_file, "r", encoding="utf-8", errors="replace") as fh:
+            content = fh.read()
+        parts.append(f"{label} instructions file ({instr_file}):\n{content}")
+    except Exception as exc:
+        parts.append(f"(Could not read {label.lower()} instructions file {instr_file}: {exc})")
+
+
+def _section_notes_path(project_id: str, section_id: str, text: str) -> str:
+    """Write a section's own instructions text to a small file the AI can read on demand
+    (nothing is sent to the model until it opens the file). Returns the path or ''."""
+    try:
+        folder = os.path.join(os.path.dirname(os.path.abspath(_DB_PATH)), "section-notes")
+        os.makedirs(folder, exist_ok=True)
+        safe = re.sub(r"[^A-Za-z0-9_-]", "_", f"{project_id}_{section_id}")
+        path = os.path.join(folder, safe + ".md")
+        old = ""
+        try:
+            with open(path, "r", encoding="utf-8") as fh:
+                old = fh.read()
+        except OSError:
+            pass
+        if old != text:
+            with open(path, "w", encoding="utf-8") as fh:
+                fh.write(text)
+        return path
+    except Exception:
+        return ""
 
 
 def project_context_block(project: dict) -> str:
     """Text describing a project's working directory + custom instructions,
     inserted into the system prompt ahead of anything the admin asked this turn."""
+    active = project.get("active_section")
     if project.get("path"):
         parts = [
             f"You are currently working inside project '{project['name']}' at {project['path']}. "
@@ -243,17 +381,50 @@ def project_context_block(project: dict) -> str:
         ]
     else:
         parts = [f"You are currently assisting within project '{project['name']}' (it has no working directory set)."]
-    instr_file = (project.get("instructions_file") or "").strip()
-    if instr_file:
-        try:
-            with open(instr_file, "r", encoding="utf-8", errors="replace") as fh:
-                content = fh.read()
-            parts.append(f"Project instructions file ({instr_file}):\n{content}")
-        except Exception as exc:
-            parts.append(f"(Could not read project instructions file {instr_file}: {exc})")
+    _read_rules_file(parts, "Project", project.get("instructions_file"))
     instr_text = (project.get("instructions") or "").strip()
     if instr_text:
         parts.append(f"Project-specific instructions from the admin:\n{instr_text}")
+    sections = project.get("sections") or []
+    if sections:
+        main = f"- {(project.get('main_name') or 'Main').strip()} (the main section, the project itself)" + (f": {project['base_path']}" if project.get("base_path") else (f": {project['path']}" if project.get("path") and not active else ""))
+        if not active:
+            main += " [ACTIVE in this chat]"
+        lines = [main]
+        for x in sections:
+            line = f"- {x['name']}"
+            if x.get("path"):
+                line += f": {x['path']}"
+            if x.get("description"):
+                line += f" — {x['description']}"
+            if active and x["id"] == active["id"]:
+                line += " [ACTIVE in this chat]"
+            else:
+                notes = []
+                if (x.get("instructions_file") or "").strip():
+                    notes.append(x["instructions_file"].strip())
+                if (x.get("instructions") or "").strip():
+                    np_ = _section_notes_path(project.get("id") or "", x["id"], x["instructions"].strip() + "\n")
+                    if np_:
+                        notes.append(np_)
+                if notes:
+                    line += " (its own instructions, not loaded: " + "; ".join(notes) + ")"
+            lines.append(line)
+        parts.append(
+            "This project has a main section (the project itself) and further sections, each with its own folder. "
+            "The ACTIVE one is the default place to look and to make changes; use another section's folder only when the user clearly "
+            "asks for it (for example to compare or move something between sections). Before you start working in a section that is not "
+            "the ACTIVE one, first read the instructions files listed for it (if any) and follow them there:\n" + "\n".join(lines)
+        )
+    if active:
+        parts.append(
+            "Your own process may have been started in a different folder of this project. That is only a "
+            "technical detail: work in the ACTIVE section's folder given above and use absolute paths."
+        )
+        label = f"Section '{active['name']}'"
+        _read_rules_file(parts, label, active.get("instructions_file"))
+        if (active.get("instructions") or "").strip():
+            parts.append(f"{label} instructions from the admin:\n{active['instructions'].strip()}")
     return "\n\n".join(parts)
 
 
@@ -302,6 +473,60 @@ def project_git_status(path: str) -> dict:
         return result
     except (OSError, subprocess.TimeoutExpired) as exc:
         return {"is_repo": False, "error": str(exc)}
+
+
+def _git_repo_root(path: str):
+    if not path or not os.path.isdir(path):
+        return None
+    root = os.path.realpath(path)
+    while not os.path.exists(os.path.join(root, ".git")):
+        parent = os.path.dirname(root)
+        if parent == root:
+            return None
+        root = parent
+    return root
+
+
+def _git_run(path: str, repo_root: str, args: list):
+    return subprocess.run(["git", "-c", "safe.directory=" + repo_root, "-C", path] + args,
+                          capture_output=True, text=True, timeout=30,
+                          env={**os.environ, "GIT_OPTIONAL_LOCKS": "0"})
+
+
+def project_git_branches(path: str) -> dict:
+    """Local branches of the repository holding this folder, for the chat's branch picker."""
+    root = _git_repo_root(path)
+    if not root:
+        return {"is_repo": False}
+    try:
+        cur = _git_run(path, root, ["symbolic-ref", "--quiet", "--short", "HEAD"])
+        listing = _git_run(path, root, ["for-each-ref", "--format=%(refname:short)", "--sort=-committerdate", "refs/heads"])
+        if listing.returncode:
+            return {"is_repo": True, "error": listing.stderr.strip()}
+        return {"is_repo": True, "current": cur.stdout.strip(),
+                "branches": [b for b in listing.stdout.splitlines() if b.strip()]}
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"is_repo": False, "error": str(exc)}
+
+
+def project_git_checkout(path: str, branch: str) -> dict:
+    """Switch the folder to an existing local branch the admin picked in the chat. Never creates
+    or deletes anything; git itself refuses when local changes would be overwritten."""
+    info = project_git_branches(path)
+    if not info.get("is_repo") or info.get("error"):
+        return {"error": info.get("error") or "not_a_repo"}
+    if branch not in info.get("branches", []):
+        return {"error": "unknown_branch"}
+    if info.get("current") == branch:
+        return {"ok": True, "branch": branch}
+    root = _git_repo_root(path)
+    try:
+        res = _git_run(path, root, ["checkout", branch, "--"])
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        return {"error": str(exc)}
+    if res.returncode:
+        return {"error": (res.stderr or res.stdout).strip()[:500] or "checkout_failed"}
+    return {"ok": True, "branch": branch}
 
 
 def _resolve_provider(cfg: dict):
@@ -569,6 +794,7 @@ class ChatRequest(BaseModel):
     messages: list
     tools_enabled: bool = True
     project_id: str | None = None
+    section_id: str | None = None
 
 
 @router.post("/chat")
@@ -588,7 +814,7 @@ async def chat(body: ChatRequest, x_pub_token: str = Header(default=None), sessi
 
     exec_enabled = bool(cfg.get("exec_enabled"))
     is_admin = _is_apps_hub_admin(x_pub_token)
-    project = _get_project(body.project_id) if is_admin else None
+    project = apply_section(_get_project(body.project_id), body.section_id) if is_admin else None
     tools = _server_tools(is_admin, exec_enabled) if body.tools_enabled else []
     messages = _trusted_messages(body.messages, _access_prompt(is_admin, exec_enabled, project))
 
@@ -631,6 +857,7 @@ class ExecRequest(BaseModel):
     command: str
     confirmed: bool = False
     project_id: str | None = None
+    section_id: str | None = None
 
 
 @router.post("/exec")
@@ -663,7 +890,7 @@ async def exec_command(body: ExecRequest, x_pub_token: str = Header(default=None
     eu = (session or {}).get("effective_user", "root")
     needs_sudo = os.geteuid() != 0
 
-    project_cwd = resolve_project_cwd(body.project_id)
+    project_cwd = resolve_project_cwd(body.project_id, body.section_id)
     # `runuser -l`/`sudo runuser -l` simulate a fresh login and land in the
     # target user's home regardless of subprocess's own cwd — a plain cwd=
     # override is silently ignored for those two branches, so the only
@@ -703,6 +930,7 @@ class InspectRequest(BaseModel):
     command: str
     reason: str = ""
     project_id: str | None = None
+    section_id: str | None = None
 
 
 @router.post("/inspect")
@@ -723,6 +951,8 @@ class ProjectCreateBody(BaseModel):
     path: str = ""
     instructions: str = ""
     instructions_file: str = ""
+    sections: list | None = None
+    main_name: str = ""
 
 
 class ProjectUpdateBody(BaseModel):
@@ -730,6 +960,8 @@ class ProjectUpdateBody(BaseModel):
     path: str | None = None
     instructions: str | None = None
     instructions_file: str | None = None
+    sections: list | None = None
+    main_name: str | None = None
 
 
 @router.get("/projects")
@@ -744,7 +976,7 @@ async def projects_create(body: ProjectCreateBody, x_pub_token: str = Header(def
     if not _is_apps_hub_admin(x_pub_token):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
-        project = create_project(body.name, body.path, body.instructions, body.instructions_file)
+        project = create_project(body.name, body.path, body.instructions, body.instructions_file, body.sections, body.main_name)
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
     return JSONResponse({"project": project})
@@ -755,7 +987,7 @@ async def projects_update(project_id: str, body: ProjectUpdateBody, x_pub_token:
     if not _is_apps_hub_admin(x_pub_token):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     try:
-        project = update_project(project_id, body.name, body.path, body.instructions, body.instructions_file)
+        project = update_project(project_id, body.name, body.path, body.instructions, body.instructions_file, body.sections, body.main_name)
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
     return JSONResponse({"project": project})
@@ -770,10 +1002,10 @@ async def projects_delete(project_id: str, x_pub_token: str = Header(default=Non
 
 
 @router.get("/projects/{project_id}/git-status")
-async def projects_git_status(project_id: str, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
+async def projects_git_status(project_id: str, section_id: str | None = None, x_pub_token: str = Header(default=None), session=Depends(get_current_session)):
     if not _is_apps_hub_admin(x_pub_token):
         return JSONResponse({"error": "forbidden"}, status_code=403)
-    project = _get_project(project_id)
+    project = apply_section(_get_project(project_id), section_id)
     if not project:
         return JSONResponse({"error": "Project not found"}, status_code=404)
     return JSONResponse(await asyncio.to_thread(project_git_status, project["path"]))
@@ -1537,7 +1769,13 @@ async def _run_cli_chat(
                         os.chown(chat_dir, pw.pw_uid, pw.pw_gid)
                     except Exception:
                         pass
-            effective_dir = project["path"] if project and project.get("path") else (home if full_access and os.path.isdir(home) else (chat_dir or workdir))
+            # A chat keeps the folder its CLI session started in, even when the user later picks another
+            # section; the active section is told to the model in words and used for mvmAI's own commands.
+            fixed_dir = str((cli_resume or {}).get("cwd") or "") if resume_id else ""
+            if fixed_dir and not os.path.isdir(fixed_dir):
+                fixed_dir = ""
+            effective_dir = fixed_dir or (project["path"] if project and project.get("path") else (home if full_access and os.path.isdir(home) else (chat_dir or workdir)))
+            kept_dir = fixed_dir or (project["path"] if project and project.get("path") else "")
             new_session = str(uuid.uuid4()) if persist and not resume_id and pid != "codex-cli" else ""
             extra_env = {}
             policy_path = os.path.join(workdir, "deny-tools.toml")
@@ -1712,6 +1950,7 @@ async def _run_cli_chat(
                 payload["cli_state"] = {
                     "session_id": sid, "user": eu, "policy": policy,
                     "model_used": model_used or str((cli_resume or {}).get("model_used") or ""),
+                    "cwd": kept_dir,
                 }
             return JSONResponse(payload)
 

@@ -57,6 +57,20 @@
   const field = (label, inner) => '<label style="display:flex;flex-direction:column;gap:3px;font-size:.8rem">' + esc(label) + inner + '</label>';
   const tag = txt => '<span style="font-size:.75rem;background:var(--surface2);border-radius:10px;padding:1px 8px">' + esc(txt) + '</span>';
   const warn = txt => '<span style="font-size:.75rem;color:var(--warning, #c80)">⚠ ' + esc(txt) + '</span>';
+  const dupWarn = it => '<span class="dup-link" data-dup="' + esc(it.dup) + '" title="' + esc(t('rmm_dup_open')) + '" style="font-size:.75rem;color:var(--warning, #c80);cursor:pointer;text-decoration:underline">⚠ ' + esc(t('rmm_ai_dup', { id: it.dup })) + '</span>';
+  const dcTags = it => {
+    const e = Object.entries(it.dc || {});
+    if (!e.length) return '';
+    const name = ([c, n]) => t('rm_cc_' + c) + ': ' + t('rmm_level', { n });
+    const more = e.length - 1;
+    return '<span style="font-size:.75rem;background:var(--surface2);border-radius:10px;padding:1px 8px"' + (more ? ' title="' + esc(e.map(name).join('\n')) + '"' : '') + '>🌍 ' + esc(name(e[0])) + (more ? ' ' + esc(t('rmm_dc_more', { n: more })) : '') + '</span>';
+  };
+  const bindDup = (box, mgr) => box.addEventListener('click', ev => {
+    const a = ev.target.closest('.dup-link');
+    if (!a) return;
+    ev.stopPropagation();
+    mgr.editor(a.dataset.dup);
+  }, true);
   const bad = txt => '<span style="font-size:.75rem;color:var(--danger, #d33)">' + esc(txt) + '</span>';
 
   const issueText = (i, langs) => {
@@ -97,6 +111,7 @@
           '<span class="c-status" style="flex:1;font-size:.85rem;color:var(--text-dim);text-align:center"></span>' +
           '<button class="s-btn c-add">' + esc(t('rmm_ai_add')) + '</button></div>';
         const $ = s => body.querySelector(s), out = $('.c-out');
+        bindDup(out, mgr);
         const status = txt => { $('.c-status').textContent = txt || ''; };
         const cards = () => Array.from(out.querySelectorAll('.c-card'));
         const chosen = () => cards().filter(c => c.querySelector('.c-on').checked);
@@ -112,7 +127,7 @@
           div.innerHTML =
             '<div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><label style="display:flex;gap:6px;align-items:center;font-size:.85rem"><input class="c-on" type="checkbox" checked>' + esc(t('rmm_ai_take')) + '</label>' +
             (it.c ? tag(t('rm_cat_' + it.c)) : '') + (it.d ? tag(t('rmm_level', { n: it.d })) : '') +
-            (it.dup ? warn(t('rmm_ai_dup', { id: it.dup })) : '') + '</div>' +
+            (it.dup ? dupWarn(it) : '') + dcTags(it) + '</div>' +
             '<textarea class="c-q" rows="2" style="width:100%;resize:vertical">' + esc(x.q) + '</textarea>' +
             x.a.map((v, i) => '<input class="c-a" type="text" value="' + esc(v) + '" placeholder="' + esc(i === 0 ? '✓ ' + t('rmm_correct') : t('rmm_wrong', { n: i })) + '" style="width:100%">').join('');
           div.querySelector('.c-on').onchange = refresh;
@@ -190,6 +205,7 @@
           '<span class="i-status" style="flex:1;font-size:.85rem;color:var(--text-dim);text-align:center"></span>' +
           '<button class="s-btn i-add">' + esc(t('rmm_ai_add')) + '</button></div>';
         const $ = s => body.querySelector(s), list = $('.i-list');
+        bindDup(list, mgr);
         const status = txt => { $('.i-status').textContent = txt || ''; };
         const addable = it => !!(it.c && it.d && it.texts && it.texts.en && it.verdict !== 'reject');
         const isOn = i => { const c = list.querySelector('[data-i="' + i + '"] .i-on'); return !!(c && c.checked); };
@@ -229,7 +245,7 @@
               (it.c ? tag(t('rm_cat_' + it.c)) : '') + (it.d ? tag(t('rmm_level', { n: it.d })) : '') +
               (miss ? warn(t('rmm_missing_n', { n: miss })) : '') +
               ((!it.k || !it.s) ? warn(t('rmm_issue_chances')) : '') +
-              (it.dup ? warn(t('rmm_ai_dup', { id: it.dup })) : '') +
+              (it.dup ? dupWarn(it) : '') + dcTags(it) +
               probs.map(p => bad(issueText(p))).join(' ') +
               (it.verdict === 'reject' ? bad(t('rmm_ai_rejected')) : it.verdict === 'fixed' ? tag(t('rmm_imp_fixed')) : it.verdict === 'ok' ? tag(t('rmm_imp_checked')) : '') + '</div>' +
               '<div>' + esc(x.q) + '</div>' +

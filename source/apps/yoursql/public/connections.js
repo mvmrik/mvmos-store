@@ -13,7 +13,10 @@ YS.connections = (() => {
   function renderList(container) {
     const list = container.querySelector('#ysql-conn-list');
     if (!list) return;
+    // The database folders belong to the open connection; redrawing the connection rows must not drop them.
+    const folders = [...list.querySelectorAll('.ysql-table-item')];
     list.innerHTML = '';
+    const keepFolders = () => folders.forEach(el => list.appendChild(el));
 
     if (!YS.state.connections.length) {
       list.innerHTML = `<div style="padding:16px;color:var(--text-dim);font-size:.82rem;text-align:center">${_ysqlConnT('ysql_no_connections_yet')}</div>`;
@@ -113,9 +116,16 @@ YS.connections = (() => {
 
     list.appendChild(activeRow);
     list.appendChild(dropdown);
+    keepFolders();
   }
 
+  let _connectSeq = 0;
+
   async function connect(container, c) {
+    const seq = ++_connectSeq;
+    // Another connection starts with an empty tree; the same one keeps its databases
+    // until the fresh list arrives, so a failed refresh does not leave the sidebar empty.
+    if (YS.state.activeConn?.id !== c.id) container.querySelectorAll('.ysql-table-item').forEach(e => e.remove());
     YS.state.activeConn = c;
     YS.state.activeDb = c.database || null;
     YS.state.activeTable = null;
@@ -131,6 +141,7 @@ YS.connections = (() => {
       if (dbSection) dbSection.style.display = 'none';
       let dbs = [];
       try { dbs = await YS.api(`/databases?conn_id=${c.id}`); } catch(e) {}
+      if (seq !== _connectSeq) return;
       await _loadDbsAsFolders(container, c, Array.isArray(dbs) ? dbs : []);
       YS.browse.showWelcome(container);
       return;
@@ -141,7 +152,9 @@ YS.connections = (() => {
     let dbs = [];
     try {
       dbs = await YS.api(`/databases?conn_id=${c.id}`);
+      if (seq !== _connectSeq) return; // another connection was chosen meanwhile
     } catch(e) {
+      if (seq !== _connectSeq) return;
       alert(_ysqlConnT('ysql_cannot_connect', { msg: (e?.message || e) }));
       return;
     }
@@ -150,7 +163,69 @@ YS.connections = (() => {
     YS.browse.showWelcome(container);
   }
 
+  // The tables of one database folder. Rebuilt in place, so the other folders stay as they are.
+  async function fillTables(container, c, db, tablesWrap) {
+    let tables = [];
+    try { tables = await YS.api(`/tables?conn_id=${c.id}&database=${encodeURIComponent(db)}`); } catch(e) {}
+    tablesWrap.dataset.loaded = '1';
+    tablesWrap.innerHTML = '';
+    (Array.isArray(tables) ? tables : []).forEach(t => {
+      const active = YS.state.activeDb === db && YS.state.activeTable === t;
+      const row = document.createElement('div');
+      row.className = 'ys-table-item';
+      row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 10px 5px 28px;cursor:pointer;font-size:.82rem'
+        + (active ? ';background:var(--accent);color:var(--on-accent,#fff)' : '');
+      const icon = document.createElement('span');
+      icon.textContent = '▤';
+      if (!active) icon.style.color = 'var(--text-dim)';
+      const label = document.createElement('span');
+      label.textContent = t;
+      row.append(icon, label);
+      row.dataset.table = t;
+      row.dataset.db = db;
+      row.addEventListener('click', () => {
+        YS.state.activeDb = db;
+        YS.state.activeTable = t;
+        const bc = container.querySelector('#ysql-breadcrumb');
+        if (bc) bc.textContent = c.name + ' › ' + db + ' › ' + t;
+        const sidebar = container.querySelector('.as-sidebar');
+        if (sidebar && sidebar.classList.contains('mobile-open')) {
+          sidebar.classList.remove('mobile-open');
+          container.querySelector('.as-sidebar-overlay')?.remove();
+        }
+        if (YS.updateTopToolbar) YS.updateTopToolbar(container);
+        if (YS.tabs) YS.tabs.open('browse', db, t);
+        else YS.browse.show(container);
+      });
+      tablesWrap.appendChild(row);
+    });
+  }
+
+  // After an import, a new table and so on: refresh the open database in the tree
+  // without touching the other databases or which of them are expanded.
+  async function refreshActive(container, dbName) {
+    const c = YS.state.activeConn, db = dbName || YS.state.activeDb;
+    if (!c || c.builtin || !db) return;
+    const list = container.querySelector('#ysql-conn-list');
+    const find = () => [...list.querySelectorAll('[data-db-tables]')].find(el => el.dataset.dbTables === db);
+    let wrap = find();
+    if (!wrap) {
+      let dbs = [];
+      try { dbs = await YS.api(`/databases?conn_id=${c.id}`); } catch(e) {}
+      await _loadDbsAsFolders(container, c, Array.isArray(dbs) ? dbs : []);
+      wrap = find();
+    }
+    if (!wrap) return;
+    const header = wrap.previousElementSibling;
+    wrap.style.display = 'block';
+    header?.querySelector('.ysql-folder-arrow')?.style.setProperty('transform', 'rotate(90deg)');
+    await fillTables(container, c, db, wrap);
+  }
+
   async function _loadDbsAsFolders(container, c, dbs) {
+    // Folders that were open stay open after the list is rebuilt (new database, refresh).
+    const wasOpen = [...container.querySelectorAll('[data-db-tables]')]
+      .filter(el => el.style.display !== 'none').map(el => el.dataset.dbTables);
     container.querySelectorAll('.ysql-table-item').forEach(e => e.remove());
     if (!dbs.length) return;
     const list = container.querySelector('#ysql-conn-list');
@@ -160,10 +235,12 @@ YS.connections = (() => {
       header.className = 'ysql-table-item';
       header.style.cssText = 'padding:6px 10px;font-size:.78rem;font-weight:500;color:var(--text-dim);border-bottom:1px solid var(--border);background:var(--surface);cursor:pointer;display:flex;align-items:center;gap:5px;user-select:none';
       header.innerHTML = `<span class="ysql-folder-arrow" style="font-size:.65rem;transition:transform .15s">▶</span><span>📂 ${db}</span>`;
+      header.dataset.dbFolder = db;
       list.appendChild(header);
 
       const tablesWrap = document.createElement('div');
       tablesWrap.className = 'ysql-table-item';
+      tablesWrap.dataset.dbTables = db;
       tablesWrap.style.display = 'none';
       list.appendChild(tablesWrap);
 
@@ -185,35 +262,16 @@ YS.connections = (() => {
         YS.state.activeTable = null;
         if (YS.updateTopToolbar) YS.updateTopToolbar(container);
         if (tablesWrap.dataset.loaded) return;
-        tablesWrap.dataset.loaded = '1';
-        let tables = [];
-        try { tables = await YS.api(`/tables?conn_id=${c.id}&database=${encodeURIComponent(db)}`); } catch(e) {}
-
-        tablesWrap.innerHTML = '';
-        (Array.isArray(tables) ? tables : []).forEach(t => {
-          const row = document.createElement('div');
-          row.className = 'ys-table-item';
-          row.style.cssText = 'display:flex;align-items:center;gap:6px;padding:5px 10px 5px 28px;cursor:pointer;font-size:.82rem';
-          row.innerHTML = `<span style="color:var(--text-dim)">▤</span><span>${t}</span>`;
-          row.dataset.table = t;
-          row.dataset.db = db;
-          row.addEventListener('click', () => {
-            YS.state.activeDb = db;
-            YS.state.activeTable = t;
-            const bc = container.querySelector('#ysql-breadcrumb');
-            if (bc) bc.textContent = c.name + ' › ' + db + ' › ' + t;
-            const sidebar = container.querySelector('.as-sidebar');
-            if (sidebar && sidebar.classList.contains('mobile-open')) {
-              sidebar.classList.remove('mobile-open');
-              container.querySelector('.as-sidebar-overlay')?.remove();
-            }
-            if (YS.updateTopToolbar) YS.updateTopToolbar(container);
-            if (YS.tabs) YS.tabs.open('browse', db, t);
-            else YS.browse.show(container);
-          });
-          tablesWrap.appendChild(row);
-        });
+        await fillTables(container, c, db, tablesWrap);
       });
+    }
+
+    for (const db of wasOpen) {
+      const wrap = [...list.querySelectorAll('[data-db-tables]')].find(el => el.dataset.dbTables === db);
+      if (!wrap) continue;
+      wrap.style.display = 'block';
+      wrap.previousElementSibling?.querySelector('.ysql-folder-arrow')?.style.setProperty('transform', 'rotate(90deg)');
+      await fillTables(container, c, db, wrap);
     }
   }
 
@@ -347,7 +405,11 @@ YS.connections = (() => {
     });
   }
 
-  function openDialog(container, existing = null) {
+  async function openDialog(container, existing = null) {
+    const sshList = await YS.api('/ssh-connections').catch(() => []);
+    const sshOptions = (Array.isArray(sshList) ? sshList : []).map(s =>
+      `<option value="${s.id}"${s.id === existing?.ssh_id ? ' selected' : ''}>${String(s.name).replace(/&/g, '&amp;').replace(/</g, '&lt;')}</option>`
+    ).join('');
     const dbType = existing?.db_type || 'mysql';
     const dbTypeOptions = YS.dbtype.DB_TYPES.map(t =>
       `<option value="${t.id}"${t.id === dbType ? ' selected' : ''}>${t.label}</option>`
@@ -359,6 +421,9 @@ YS.connections = (() => {
         <input class="s-input" id="yc-name" placeholder="${_ysqlConnT('ysql_name_ph')}" value="${existing?.name || ''}">
         <select class="s-input" id="yc-dbtype">${dbTypeOptions}</select>
         <div id="yc-driver-status" style="display:none;font-size:.8rem;padding:6px 8px;border-radius:4px;align-items:center;gap:8px"></div>
+        ${sshOptions ? `<label style="font-size:.8rem;color:var(--text-dim)">${_ysqlConnT('ysql_ssh_label')}
+          <select class="s-input" id="yc-ssh" style="margin-top:4px"><option value="">${_ysqlConnT('ysql_ssh_none')}</option>${sshOptions}</select></label>
+          <div style="font-size:.75rem;color:var(--text-dim)">${_ysqlConnT('ysql_ssh_hint')}</div>` : ''}
         <div style="display:grid;grid-template-columns:1fr auto;gap:6px">
           <input class="s-input" id="yc-host" placeholder="${_ysqlConnT('ysql_host_ph')}" value="${existing?.host || 'localhost'}">
           <input class="s-input" id="yc-port" placeholder="${_ysqlConnT('ysql_port_ph')}" value="${existing?.port || YS.dbtype.defaultPort(dbType)}" style="width:70px">
@@ -407,6 +472,7 @@ YS.connections = (() => {
         user: modal.querySelector('#yc-user').value.trim(),
         password: modal.querySelector('#yc-pass').value,
         database: modal.querySelector('#yc-db').value.trim(),
+        ssh_id: modal.querySelector('#yc-ssh')?.value || '',
       };
       if (!body.name || !body.host || !body.user) {
         const err = modal.querySelector('#yc-error');
@@ -460,5 +526,5 @@ YS.connections = (() => {
     });
   }
 
-  return { load, renderList, connect, openDialog };
+  return { load, renderList, connect, openDialog, refreshActive };
 })();

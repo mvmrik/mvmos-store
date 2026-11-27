@@ -148,7 +148,7 @@
 .rm-ans .lt { flex: none; width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; font-weight: 800; background: var(--rm-gold); color: #2a1c00; }
 .rm-ans .tx { flex: 1; }
 
-.rm-ans.sel { border-color: var(--rm-gold); background: var(--rm-panel2); box-shadow: 0 0 16px rgba(255, 200, 74, .35); }
+.rm-ans.sel { border-color: var(--rm-gold); background: #6b4817; box-shadow: 0 0 16px rgba(255, 200, 74, .35); }
 .rm-ans:disabled { cursor: default; }
 .rm-ans.gone { opacity: .12; pointer-events: none; }
 .rm-ans.right { background: #14583a; border-color: var(--rm-green); animation: rm-flash .9s ease 2; }
@@ -301,6 +301,7 @@
 .rm-jk:not(:disabled):hover .rm-jk-mark, .rm-jk.open .rm-jk-mark { border-color: #fff0ba; box-shadow: 0 0 20px #e9be6b88; }
 .rm-jk.used, .rm-jk.half.used { background: transparent; opacity: .48; text-decoration: none; }
 .rm-jk.used .rm-jk-mark { filter: grayscale(1); }
+.rm-jk.used.again { cursor: pointer; }
 .rm-tray { justify-content: center; background: #111d3b; border: 1px solid #7291bd; }
 .rm-row { justify-content: center; }
 .rm-btn.plain { border-color: #7896c1; }
@@ -362,4 +363,114 @@
   .rm-ladder.open .rm-steps { display: grid; grid-template-rows: repeat(10, auto); grid-auto-flow: column; gap: 3px 10px; }
   .rm-ladder.open .rm-legend { display: flex; flex-direction: column; gap: 6px; border-top: 1px solid var(--rm-line); padding: 10px 4px 2px; font-size: .8rem; line-height: 1.4; color: var(--rm-soft); }
   .rm-legend strong, .rm-legend b { color: var(--rm-text); }
+}
+
+/* The question sits at the bottom, right above the answers. A long question
+   takes its room from the empty space above it and grows upward. */
+.rm-stage { justify-content: flex-start; overflow-y: auto; }
+.rm-game { flex: 1 0 auto; min-height: 100%; margin: 0 auto; }
+.rm-qcard { margin-top: auto; flex: 0 0 auto; }
+.rm-answers, .rm-advice, .rm-actions { flex: 0 0 auto; }
+@media (max-width: 860px) { .rm-answers { margin-top: 0; } }
+
+/* Take-the-money button: a gold outlined pill instead of a plain grey box. */
+.rm-btn.rm-quit {
+  min-width: 240px; padding: 12px 26px; border-radius: 999px; align-self: center;
+  background: linear-gradient(180deg, #3a2c0d, #2a1f08); color: #ffe3a1; border: 2px solid #e9be6b;
+  box-shadow: 0 0 14px #e9be6b40, inset 0 1px #ffffff26; letter-spacing: .02em;
+}
+.rm-btn.rm-quit::before { content: '💰'; margin-right: 8px; }
+.rm-btn.rm-quit:not(:disabled):hover { background: linear-gradient(180deg, #4d3a10, #35260a); filter: none; }
+.rm-btn.rm-quit:disabled { box-shadow: none; }
+.rm-btn.rm-quit.arm { background: linear-gradient(180deg, #ff8d7f, var(--rm-coral)); color: #2a0600; border-color: #ffd0c9; }
+
+/* Phone: more air between the question, the answers and the lifelines, a
+   larger question and the money button lower and full width. */
+@media (max-width: 860px) {
+  .rm-qcard { margin-bottom: 8px; }
+  .rm-q { font-size: 1.3rem; line-height: 1.38; }
+  .rm-answers { gap: 9px; margin-bottom: 14px; }
+  .rm-actions { gap: 12px; }
+  .rm-row { margin-top: 10px; width: 100%; }
+  .rm-row .rm-btn.rm-quit { width: 100%; min-width: 0; padding: 13px 18px; font-size: 1rem; }
+}
+
+/* Current and safe sum beside the category: only numbers, red = at risk, green = safe. */
+.rm-sums { display: inline-flex; gap: 6px; flex: none; }
+.rm-sums[hidden] { display: none; }
+.rm-sums b { padding: 5px 12px; border-radius: 999px; font-size: .85rem; font-weight: 800; font-variant-numeric: tabular-nums; border: 1px solid; }
+.rm-sums .risk { background: #4a1713; color: #ffb4aa; border-color: #ff7b6d; }
+.rm-sums .safe { background: #0f3d29; color: #8ff0bd; border-color: #4fd994; }
+@media (max-width: 860px) { .rm-top { flex-wrap: wrap; } .rm-sums b { padding: 4px 10px; font-size: .8rem; } }
+
+/* A question for a safe sum: the whole stage turns golden. */
+.rm-wrap { transition: background-color .6s; }
+.rm-wrap.safeq {
+  background:
+    radial-gradient(ellipse at 50% 15%, #9a6c1c 0, transparent 52%),
+    radial-gradient(ellipse at 50% 100%, #6e4a12 0, transparent 60%), #2a1c07;
+  box-shadow: inset 0 0 90px #3a2606, inset 0 0 0 2px #e9be6b66;
+}
+.rm-wrap.safeq .rm-qcard { border-color: #ffdf9d; background: linear-gradient(145deg, #6b4817, #2c1d08 70%); box-shadow: 0 0 0 5px #3a280a, 0 18px 40px #02061699, 0 0 28px #e9be6b55, inset 0 1px #ffffff40; }
+.rm-advice[hidden] { display: none; }
+
+/* Between two questions: the old question and answers slide away. */
+@keyframes rm-leave { to { opacity: 0; transform: translateY(-14px) scale(.97); } }
+.rm-wrap .leave { animation: rm-leave .3s ease both; }
+.rm-stage.swap { pointer-events: none; }
+
+/* Lifelines never push the screen: their choices and answers float over the
+   question, anchored to its lower edge. */
+.rm-qwrap { position: relative; flex: 0 0 auto; margin-top: auto; }
+.rm-qwrap .rm-qcard { margin-top: 0; }
+.rm-float { position: absolute; left: 0; right: 0; bottom: 0; z-index: 4; display: flex; flex-direction: column; gap: 8px; pointer-events: none; }
+.rm-float > * { pointer-events: auto; }
+.rm-bubble { cursor: pointer; }
+.rm-float .rm-tray { background: #0d1a38f2; border: 1px solid #9bb8df; border-radius: 20px; padding: 12px; box-shadow: 0 12px 34px #000000b0, 0 0 0 4px #15233f; backdrop-filter: blur(4px); }
+.rm-float .rm-bubble { background: #0d2f3ef5; box-shadow: 0 12px 34px #000000b0; border-radius: 20px; animation: rm-in .35s ease both; transition: opacity .45s, transform .45s; }
+.rm-float .rm-bubble.out { opacity: 0; transform: translateY(-12px) scale(.96); }
+.rm-tray-t { text-align: center; font-weight: 700; }
+
+/* Compass: while choosing, the answers sway and invite a tap. */
+@keyframes rm-seek { 0%, 100% { transform: translate(0, 0); } 20% { transform: translate(.6px, -.5px); } 40% { transform: translate(-.5px, .6px); } 60% { transform: translate(.5px, .4px); } 80% { transform: translate(-.6px, -.4px); } }
+.rm-answers.seek .rm-ans:not(.gone):not(:disabled) { animation: rm-seek .45s ease-in-out infinite; border-color: #ffdf9d; }
+.rm-answers.seek .rm-ans:nth-child(2) { animation-delay: .15s; }
+.rm-answers.seek .rm-ans:nth-child(3) { animation-delay: .3s; }
+.rm-answers.seek .rm-ans:nth-child(4) { animation-delay: .45s; }
+
+/* A wrong compass answer pops away and the others stay. */
+@keyframes rm-poof { 40% { transform: scale(1.04); filter: brightness(1.6); } to { opacity: 0; transform: scale(.55) rotate(-5deg); filter: blur(5px); } }
+.rm-wrap .rm-ans.poof { animation: rm-poof .45s ease forwards; pointer-events: none; }
+@media (prefers-reduced-motion: reduce) { .rm-answers.seek .rm-ans { animation: none !important; } }
+.rm-float { display: block; }
+.rm-float > * { width: 100%; }
+
+/* 50%: the two wrong answers shake, glow and then dissolve one after another. */
+@keyframes rm-poof-slow {
+  0% { opacity: 1; transform: none; filter: none; }
+  25% { transform: translateX(-6px) rotate(-1deg); border-color: #ff968b; filter: brightness(1.3); }
+  45% { transform: translateX(6px) rotate(1deg); border-color: #ff968b; box-shadow: 0 0 22px #ff968b88; }
+  100% { opacity: 0; transform: scale(.6) translateY(10px) rotate(-5deg); filter: blur(6px); }
+}
+.rm-wrap .rm-ans.poof.slow { animation: rm-poof-slow .85s ease both; }
+
+/* The choice of a specialist or a country is compact: three tiles in a row,
+   icon above the name, so it always fits above the answers. */
+.rm-float .rm-tray { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 10px; max-height: 60vh; overflow-y: auto; }
+.rm-float .rm-tray-t { grid-column: 1 / -1; width: auto; font-size: .9rem; }
+.rm-float .rm-face { flex-direction: column; justify-content: flex-start; gap: 4px; padding: 10px 6px; min-width: 0; text-align: center; line-height: 1.2; font-size: .9rem; }
+.rm-float .rm-face i { font-size: 1.8rem; }
+.rm-float .rm-face span { overflow-wrap: anywhere; hyphens: auto; }
+@media (max-width: 480px) { .rm-float .rm-face { font-size: .8rem; padding: 8px 4px; } .rm-float .rm-face i { font-size: 1.6rem; } }
+
+/* Removed answers (50% and a wrong compass guess) are gone completely; their
+   place stays empty so the others do not jump. */
+.rm-wrap .rm-ans.gone { opacity: 0; visibility: hidden; }
+
+/* Desktop has room: the lifeline choices and answers sit in the free space
+   under the question number, not over the question. */
+@media (min-width: 861px) {
+  .rm-game { position: relative; }
+  .rm-qwrap { position: static; }
+  .rm-float { bottom: auto; top: 58px; }
 }

@@ -93,11 +93,13 @@ def _app_conn():
             created_at INTEGER DEFAULT (strftime('%s','now'))
         )
     """)
-    try:
-        conn.execute("ALTER TABLE connections ADD COLUMN db_type TEXT NOT NULL DEFAULT 'mysql'")
-        conn.commit()
-    except sqlite3.OperationalError:
-        pass
+    for ddl in ("ALTER TABLE connections ADD COLUMN db_type TEXT NOT NULL DEFAULT 'mysql'",
+                "ALTER TABLE connections ADD COLUMN ssh_id TEXT NOT NULL DEFAULT ''"):
+        try:
+            conn.execute(ddl)
+            conn.commit()
+        except sqlite3.OperationalError:
+            pass
     conn.commit()
     return conn
 
@@ -237,6 +239,12 @@ def _get_conn_by_id(user: str, conn_id: str) -> dict:
 def _get_conn_config(user: str, conn_id: str) -> dict:
     c = _get_conn_by_id(user, conn_id)
     c["user"] = c.get("db_user", c.get("user", ""))
+    if c.get("ssh_id"):
+        # The database is reached through an mvmOS SSH connection: the host and port are
+        # as seen from that server, and a local port of the tunnel replaces them here.
+        ssh = sys.modules["backend.ssh_connections"]
+        c["port"] = ssh.tunnel(c["ssh_id"], user, c["host"], int(c["port"]))
+        c["host"] = "127.0.0.1"
     return c
 
 
@@ -309,6 +317,16 @@ class ConnectionBody(BaseModel):
     user: str
     password: str
     database: str = ""
+    ssh_id: str = ""
+
+
+@router.get("/ssh-connections")
+def ssh_connections_list(session=Depends(get_current_session)):
+    """The user's mvmOS SSH connections that a database link can go through."""
+    with sys.modules["backend.db"].get_conn() as c:
+        rows = c.execute("SELECT id, name FROM ssh_connections WHERE owner=? ORDER BY name",
+                         (session["effective_user"],)).fetchall()
+    return JSONResponse([{"id": r["id"], "name": r["name"]} for r in rows])
 
 
 @router.post("/connections")
@@ -317,6 +335,10 @@ def save_connection(body: ConnectionBody, session=Depends(get_current_session)):
     user = session["effective_user"]
     conn_id = body.id or str(uuid.uuid4())[:8]
     password = body.password
+    if body.ssh_id:
+        with sys.modules["backend.db"].get_conn() as c:
+            if not c.execute("SELECT 1 FROM ssh_connections WHERE id=? AND owner=?", (body.ssh_id, user)).fetchone():
+                raise HTTPException(400, "SSH connection not found")
     if not password and body.id:
         try:
             existing = _get_conn_by_id(user, conn_id)
@@ -325,9 +347,9 @@ def save_connection(body: ConnectionBody, session=Depends(get_current_session)):
             pass
     with _app_conn() as conn:
         conn.execute("""
-            INSERT OR REPLACE INTO connections (id, user, name, db_type, host, port, db_user, password, database)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """, (conn_id, user, body.name, body.db_type, body.host, body.port, body.user, password, body.database))
+            INSERT OR REPLACE INTO connections (id, user, name, db_type, host, port, db_user, password, database, ssh_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """, (conn_id, user, body.name, body.db_type, body.host, body.port, body.user, password, body.database, body.ssh_id))
     return {"ok": True, "id": conn_id}
 
 

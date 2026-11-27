@@ -31,7 +31,7 @@ mvmOS.registerApp({
 
 function _ysqlInit(container) {
   const BASE = '/apps/yoursql/';
-  const MODULES = ['state.js', 'ui.js', 'dbtype.js', 'connections.js', 'sidebar.js', 'browse.js', 'filters.js', 'row-edit.js', 'structure.js', 'create-table.js', 'manage-tables.js', 'query.js', 'tabs.js'];
+  const MODULES = ['i18n.js', 'state.js', 'ui.js', 'dbtype.js', 'connections.js', 'sidebar.js', 'browse.js', 'filters.js', 'row-edit.js', 'structure.js', 'create-table.js', 'manage-tables.js', 'query.js', 'tabs.js'];
 
   MODULES.reduce(function(p, mod) {
     return p.then(function() {
@@ -199,7 +199,7 @@ function _ysqlRenderApp(container) {
                 YS.sidebar.setDbSpinner(container, database, false);
                 if (job.status === 'done') {
                   YS.toast(t('ysql_imported_n_statements', { n: job.affected }), 'success');
-                  YS.sidebar.loadTables(container);
+                  YS.sidebar.loadTables(container, database);
                 } else {
                   YS.toast(t('ysql_import_failed', { msg: job.detail || t('ysql_import_failed_unknown') }), 'error');
                 }

@@ -94,6 +94,8 @@ def _ensure_tables():
             conn.execute("ALTER TABLE pub_messages ADD COLUMN created_at INTEGER")
         if "duration_ms" not in message_cols:
             conn.execute("ALTER TABLE pub_messages ADD COLUMN duration_ms INTEGER")
+        if "place" not in message_cols:
+            conn.execute("ALTER TABLE pub_messages ADD COLUMN place TEXT")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_messages_session ON pub_messages(session_id)")
         conn.execute("CREATE INDEX IF NOT EXISTS idx_pub_sessions_user ON pub_sessions(user_id)")
         # additive migration — not declared via db.json since pub_sessions isn't
@@ -103,6 +105,10 @@ def _ensure_tables():
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN kind TEXT NOT NULL DEFAULT 'chat'")
         if "project_id" not in cols:
             conn.execute("ALTER TABLE pub_sessions ADD COLUMN project_id TEXT")
+        if "section_id" not in cols:
+            conn.execute("ALTER TABLE pub_sessions ADD COLUMN section_id TEXT")
+        if "branch" not in cols:
+            conn.execute("ALTER TABLE pub_sessions ADD COLUMN branch TEXT")
         # The provider and model a chat started with, which it keeps whatever
         # the settings say later, and the state of its CLI session (JSON).
         for column in ("provider", "model", "cli_state"):
@@ -334,6 +340,24 @@ async def _stop_archive_loop():
             pass
 
 
+def apply_section_of(desk, project_id, section_id):
+    """A project as one chat sees it, with the section's folder and text applied."""
+    return desk.apply_section(desk._get_project(project_id), section_id)
+
+
+def _place_of(desk, project):
+    """Where the AI works in this turn: the section's name and the git branch of its folder."""
+    section = project.get("active_section")
+    branch = ""
+    if project.get("path"):
+        try:
+            git = desk.project_git_status(project["path"])
+            branch = (git.get("branch") or "") if git.get("is_repo") else ""
+        except Exception:
+            branch = ""
+    return {"s": section["name"] if section else (project.get("main_name") or ""), "b": branch}
+
+
 def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=None, new_id=None,
                   record_activity=False):
     """Snapshot this send()'s full message list (client-maintained, always
@@ -361,24 +385,27 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
             conn.execute(
                 "UPDATE pub_sessions SET updated_at=?, last_used_at=?, provider=COALESCE(provider, ?), "
                 "model=CASE WHEN provider IS NULL THEN ? ELSE model END, cli_state=COALESCE(?, cli_state), "
+                "section_id=COALESCE(?, section_id), "
                 "last_message_at=CASE WHEN ? THEN ? ELSE last_message_at END, "
                 "last_sent_at=CASE WHEN ? THEN ? ELSE last_sent_at END WHERE id=?",
-                (now, used_at, meta.get("provider"), meta.get("model"), meta.get("cli_state"),
+                (now, used_at, meta.get("provider"), meta.get("model"), meta.get("cli_state"), meta.get("section_id"),
                  record_activity, now, record_activity, used_at, session_id),
             )
         else:
             session_id = new_id or uuid.uuid4().hex
             conn.execute(
-                "INSERT INTO pub_sessions (id, user_id, title, project_id, created_at, updated_at, provider, model, "
-                "cli_state, title_kind, last_used_at, last_message_at, last_sent_at) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                (session_id, user_id, _make_title(messages), project_id, now, now,
-                 meta.get("provider"), meta.get("model"), meta.get("cli_state"), "initial", used_at, now, used_at),
+                "INSERT INTO pub_sessions (id, user_id, title, project_id, section_id, created_at, updated_at, provider, model, "
+                "cli_state, title_kind, last_used_at, last_message_at, last_sent_at, branch) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                (session_id, user_id, _make_title(messages), project_id, meta.get("section_id"), now, now,
+                 meta.get("provider"), meta.get("model"), meta.get("cli_state"), "initial", used_at, now, used_at,
+                 meta.get("branch") or ""),
             )
         previous = conn.execute(
-            "SELECT seq, role, content, created_at, duration_ms FROM pub_messages WHERE session_id=?", (session_id,)
+            "SELECT seq, role, content, created_at, duration_ms, place FROM pub_messages WHERE session_id=?", (session_id,)
         ).fetchall()
         previous_times = {(r["seq"], r["role"], r["content"]): r["created_at"] for r in previous}
         previous_durations = {(r["seq"], r["role"], r["content"]): r["duration_ms"] for r in previous}
+        previous_places = {(r["seq"], r["role"], r["content"]): r["place"] for r in previous}
         conn.execute("DELETE FROM pub_messages WHERE session_id=?", (session_id,))
         full = list(messages) + ([reply] if reply else [])
         _record_session_files(conn, user_id, session_id, full)
@@ -395,12 +422,16 @@ def _persist_turn(user_id, session_id, messages, reply, project_id=None, meta=No
                 duration_ms = previous_durations.get((i, m.get("role"), m.get("content")))
             if m.get("role") != "assistant":
                 duration_ms = None
+            place = m.get("place")
+            place = (json.dumps({"s": str(place.get("s") or "")[:80], "b": str(place.get("b") or "")[:120]})
+                     if isinstance(place, dict) and m.get("role") == "assistant"
+                     else previous_places.get((i, m.get("role"), m.get("content"))))
             conn.execute(
-                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at, duration_ms) "
-                "VALUES (?,?,?,?,?,?,?,?)",
+                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at, duration_ms, place) "
+                "VALUES (?,?,?,?,?,?,?,?,?)",
                 (
                     session_id, m.get("role"), m.get("content"), m.get("tool_call_id"),
-                    json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i, created_at, duration_ms,
+                    json.dumps(m["tool_calls"]) if m.get("tool_calls") else None, i, created_at, duration_ms, place,
                 ),
             )
     return session_id
@@ -1321,7 +1352,7 @@ async def list_sessions(x_pub_token: str = Header(default=None)):
     with _sdb() as conn:
         _archive_stale(conn, me["id"])
         rows = conn.execute(
-            "SELECT id, title, title_kind, project_id, updated_at, archived_at, pinned_at, provider, model, cli_state "
+            "SELECT id, title, title_kind, project_id, section_id, branch, updated_at, archived_at, pinned_at, provider, model, cli_state "
             "FROM pub_sessions WHERE user_id=? AND kind='chat' ORDER BY "
             "CASE WHEN pinned_at IS NOT NULL AND archived_at IS NULL THEN 0 ELSE 1 END, "
             "COALESCE(last_sent_at, created_at) DESC, rowid DESC",
@@ -1330,7 +1361,8 @@ async def list_sessions(x_pub_token: str = Header(default=None)):
     desk = _desktop() if me.get("is_admin") else None
     out = []
     for r in rows:
-        item = {k: r[k] for k in ("id", "title", "project_id", "updated_at", "archived_at", "pinned_at")}
+        item = {k: r[k] for k in ("id", "title", "project_id", "section_id", "updated_at", "archived_at", "pinned_at")}
+        item["branch"] = r["branch"] or ""
         item["title_pending"] = r["title_kind"] == "pending"
         # Which AI and model a chat is pinned to is shown to the administrator only.
         if desk is not None:
@@ -1358,7 +1390,7 @@ async def get_session_messages(
         if not owned:
             return JSONResponse({"error": "not_found"}, status_code=404)
         rows = conn.execute(
-            "SELECT role, content, tool_call_id, tool_calls, created_at, duration_ms FROM pub_messages WHERE session_id=? ORDER BY seq",
+            "SELECT role, content, tool_call_id, tool_calls, created_at, duration_ms, place FROM pub_messages WHERE session_id=? ORDER BY seq",
             (sid,),
         ).fetchall()
     if me.get("is_admin") and owned["archived_at"] is None and owned["project_id"]:
@@ -1378,6 +1410,11 @@ async def get_session_messages(
         m = {"role": r["role"], "content": _safe_download_content(me["id"], r["content"]) if r["role"] == "assistant" else r["content"], "created_at": r["created_at"]}
         if r["role"] == "assistant" and r["duration_ms"] is not None:
             m["duration_ms"] = r["duration_ms"]
+        if r["role"] == "assistant" and r["place"] and me.get("is_admin"):
+            try:
+                m["place"] = json.loads(r["place"])
+            except ValueError:
+                pass
         if r["role"] == "model_switch":
             answer_label = switch_details(r["content"]).get("to") or answer_label
         elif r["role"] == "assistant" and me.get("is_admin"):
@@ -1448,7 +1485,7 @@ async def switch_session_model(sid: str, body: SwitchModelRequest, x_pub_token: 
             (sid,),
         ).fetchone()
     if not body.messages or len(body.messages) > 500 or any(
-        not isinstance(m, dict) or m.get("role") not in ("summary", "user", "assistant", "tool", "model_switch")
+        not isinstance(m, dict) or m.get("role") not in ("summary", "user", "assistant", "tool", "model_switch", "section_switch")
         for m in body.messages
     ):
         return JSONResponse({"error": "invalid_history"}, status_code=400)
@@ -1473,6 +1510,57 @@ async def switch_session_model(sid: str, body: SwitchModelRequest, x_pub_token: 
                          "marker": marker})
 
 
+class SectionSwitchBody(BaseModel):
+    section_id: str = ""
+    from_id: str = ""
+    by: str = "user"
+    # A visit only leaves a note in the history (the AI worked in another section); the chat's own section stays.
+    visit: bool = False
+
+
+@router.post("/sessions/{sid}/section")
+async def switch_session_section(sid: str, body: SectionSwitchBody, x_pub_token: str = Header(default=None)):
+    """Records a change of the chat's active section: the new section is kept for the chat and a system note
+    is added to its history. Purely visual for the person; nothing is sent to the AI."""
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    with _sdb() as conn:
+        row = conn.execute(
+            "SELECT project_id, archived_at FROM pub_sessions WHERE id=? AND user_id=? AND kind='chat'", (sid, me["id"])
+        ).fetchone()
+    if not row or not row["project_id"]:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    if row["archived_at"] is not None:
+        return JSONResponse({"error": "archived"}, status_code=409)
+    project = desk._get_project(row["project_id"])
+    if not project:
+        return JSONResponse({"error": "not_found"}, status_code=404)
+    sections = {x["id"]: x for x in project.get("sections") or []}
+    if body.section_id and body.section_id not in sections:
+        return JSONResponse({"error": "invalid_section"}, status_code=400)
+
+    def describe(section_id):
+        x = sections.get(section_id)
+        return {"id": section_id if x else "", "name": x["name"] if x else (project.get("main_name") or ""), "path": (x or {}).get("path") or project.get("path") or ""}
+    if body.from_id != body.section_id:
+        marker = {"role": "section_switch", "created_at": int(time.time()),
+                  "content": json.dumps({"from": describe(body.from_id), "to": describe(body.section_id),
+                                         "by": body.by if body.by in ("ai", "back") else "user"})}
+    else:
+        marker = None
+    with _sdb() as conn:
+        if not body.visit:
+            conn.execute("UPDATE pub_sessions SET section_id=? WHERE id=? AND user_id=?", (body.section_id, sid, me["id"]))
+        if marker:
+            seq = conn.execute("SELECT COALESCE(MAX(seq), -1) + 1 FROM pub_messages WHERE session_id=?", (sid,)).fetchone()[0]
+            conn.execute(
+                "INSERT INTO pub_messages (session_id, role, content, tool_call_id, tool_calls, seq, created_at) VALUES (?,?,?,?,?,?,?)",
+                (sid, marker["role"], marker["content"], None, None, seq, marker["created_at"]),
+            )
+    return JSONResponse({"ok": True, "marker": marker})
+
+
 @router.post("/sessions/{sid}/archive")
 async def archive_session(sid: str, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
@@ -1491,6 +1579,29 @@ async def archive_session(sid: str, x_pub_token: str = Header(default=None)):
         if cur.rowcount == 0:
             return JSONResponse({"error": "not_found_or_archived"}, status_code=404)
     return JSONResponse({"ok": True})
+
+
+class SessionBranchBody(BaseModel):
+    branch: str = ""
+
+
+@router.post("/sessions/{sid}/branch")
+async def set_session_branch(sid: str, body: SessionBranchBody, x_pub_token: str = Header(default=None)):
+    """Change or remove (empty) the branch a chat belongs to. Admin-only, like projects."""
+    me = _resolve(x_pub_token)
+    if not me or not me.get("is_admin"):
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    branch = (body.branch or "").strip()
+    if len(branch) > 250:
+        return JSONResponse({"error": "invalid_branch"}, status_code=400)
+    with _sdb() as conn:
+        cur = conn.execute(
+            "UPDATE pub_sessions SET branch=? WHERE id=? AND user_id=? AND kind='chat' AND archived_at IS NULL",
+            (branch, sid, me["id"]),
+        )
+        if cur.rowcount == 0:
+            return JSONResponse({"error": "not_found"}, status_code=404)
+    return JSONResponse({"ok": True, "branch": branch})
 
 
 @router.post("/sessions/{sid}/pin")
@@ -1601,6 +1712,7 @@ class ChatRequest(BaseModel):
     elapsed_ms: int = Field(default=0, ge=0, le=86400000)
     session_id: str | None = None
     project_id: str | None = None
+    section_id: str | None = None
     project_model: dict | None = None
     # Used only for the client-side history-compaction summary request: skips
     # tools, credit charging, and session persistence — it's not a real turn
@@ -1796,7 +1908,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
         with _sdb() as conn:
             _archive_stale(conn, me["id"])
             saved = conn.execute(
-                "SELECT id, project_id, provider, model, cli_state, archived_at, kind FROM pub_sessions WHERE id=? AND user_id=?",
+                "SELECT id, project_id, section_id, provider, model, cli_state, archived_at, kind FROM pub_sessions WHERE id=? AND user_id=?",
                 (body.session_id, me["id"]),
             ).fetchone()
             if saved:
@@ -1829,7 +1941,12 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                    "tool_calls": json.loads(last["tool_calls"]) if last["tool_calls"] else None} if last else {})
         if not body.compact_last or _msg_fingerprint(latest) != _msg_fingerprint(body.compact_last):
             return JSONResponse({"error": "stale_compaction"}, status_code=409)
-    project = desk._get_project(project_id) if is_admin and project_id else None
+    # A chat keeps the section it used last; the editor may switch it on any turn.
+    # An empty id means the main section; no id keeps what the chat used last.
+    section_id = body.section_id if body.section_id is not None else (saved["section_id"] if saved else None)
+    project = apply_section_of(desk, project_id, section_id or None) if is_admin and project_id else None
+    section_id = ((project or {}).get("active_section") or {}).get("id") or ""
+    place = await asyncio.to_thread(_place_of, desk, project) if project else None
 
     price = 0
     if not body.no_persist and hub and hub.credits_available():
@@ -1876,7 +1993,11 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
     # settings say later; an older chat is pinned by its next answer.
     if saved and saved["provider"]:
         cfg = {**cfg, "provider": saved["provider"], "model": saved["model"] or ""}
-    pin = {"provider": cfg.get("provider") or "", "model": cfg.get("model") or ""}
+    pin = {"provider": cfg.get("provider") or "", "model": cfg.get("model") or "", "section_id": section_id}
+    if not saved and is_admin and isinstance(body.project_model, dict):
+        new_branch = body.project_model.get("branch")
+        if isinstance(new_branch, str) and 0 < len(new_branch) <= 250:
+            pin["branch"] = new_branch
     if not body.no_persist and not agent_context and _image_allowed(
             me, desk._read_cfg(), _native_images(me, cfg, exec_prefix)):
         tools = tools + [_IMAGE_TOOL]
@@ -1939,6 +2060,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                 cli_resume=({
                     "chat_id": chat_id, "session_id": state.get("session_id") if resuming else None,
                     "user": state.get("user"), "policy": state.get("policy"), "model_used": state.get("model_used"),
+                    "cwd": state.get("cwd"),
                 } if chat_id else None),
             )
             data = json.loads(r.body)
@@ -1983,7 +2105,7 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
                 else:
                     from backend.apps.mvmai.compaction import compact_codex
                     full_access = is_admin and exec_enabled and bool(cfg.get(f"{exec_prefix}exec_auto"))
-                    cwd = (project.get("path") if project else None) or (
+                    cwd = state.get("cwd") or (project.get("path") if project else None) or (
                         runtime[1] if full_access else os.path.join(desk._CHATS_DIR, saved["id"]))
                     await asyncio.to_thread(compact_codex, desk, runtime, state["session_id"], cwd, cfg.get("model") or "")
             except Exception:
@@ -2033,6 +2155,8 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
             cli_state["last"] = _msg_fingerprint(msg)
             cli_state["at"] = int(time.time())
         msg["duration_ms"] = body.elapsed_ms + int((time.monotonic() - request_started) * 1000)
+        if place:
+            msg["place"] = place
         sid = None if body.no_persist else _persist_turn(
             me["id"], body.session_id, body.messages, msg, project_id,
             meta={**pin, "cli_state": json.dumps(cli_state) if cli_state else None}, new_id=chat_id)
@@ -2102,6 +2226,8 @@ async def _chat_unlocked(body: ChatRequest, x_pub_token, x_mvmai_surface, os_ses
             return JSONResponse({"error": "insufficient_credits", "price": price}, status_code=402)
 
     msg["duration_ms"] = body.elapsed_ms + int((time.monotonic() - request_started) * 1000)
+    if place:
+        msg["place"] = place
     sid = None if body.no_persist else _persist_turn(
         me["id"], body.session_id, body.messages, msg, project_id, meta=pin, new_id=chat_id)
     if not body.no_persist and sid is None:
@@ -2261,6 +2387,7 @@ class ExecRequest(BaseModel):
     command: str
     confirmed: bool = False
     project_id: str | None = None
+    section_id: str | None = None
 
 
 @router.post("/exec")
@@ -2279,7 +2406,7 @@ async def exec_command(
 
     if x_mvmai_surface == "desktop" and os_session:
         return await desk.exec_command(
-            desk.ExecRequest(command=body.command, confirmed=body.confirmed, project_id=body.project_id),
+            desk.ExecRequest(command=body.command, confirmed=body.confirmed, project_id=body.project_id, section_id=body.section_id),
             x_pub_token=x_pub_token,
             session=os_session,
         )
@@ -2307,7 +2434,7 @@ async def exec_command(
     # this endpoint is already admin-only, so it runs as the server owner
     # (uvicorn's own user, root), the same reach the desktop terminal has.
     # Plain bash (no runuser involved here), so cwd= is honored directly.
-    cwd = desk.resolve_project_cwd(body.project_id)
+    cwd = desk.resolve_project_cwd(body.project_id, body.section_id)
     try:
         proc = await asyncio.to_thread(
             subprocess.run,
@@ -2329,6 +2456,7 @@ class InspectRequest(BaseModel):
     command: str
     reason: str = ""
     project_id: str | None = None
+    section_id: str | None = None
 
 
 @router.post("/inspect")
@@ -2340,7 +2468,7 @@ async def inspect_server(body: InspectRequest, x_pub_token: str = Header(default
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
     try:
-        return JSONResponse({"result": desk._run_readonly_command(body.command, desk.resolve_project_cwd(body.project_id))})
+        return JSONResponse({"result": desk._run_readonly_command(body.command, desk.resolve_project_cwd(body.project_id, body.section_id))})
     except Exception as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
 
@@ -2353,6 +2481,8 @@ class PubProjectCreateBody(BaseModel):
     path: str = ""
     instructions: str = ""
     instructions_file: str = ""
+    sections: list | None = None
+    main_name: str = ""
 
 
 class PubProjectUpdateBody(BaseModel):
@@ -2360,6 +2490,8 @@ class PubProjectUpdateBody(BaseModel):
     path: str | None = None
     instructions: str | None = None
     instructions_file: str | None = None
+    sections: list | None = None
+    main_name: str | None = None
 
 
 @router.get("/projects")
@@ -2382,7 +2514,7 @@ async def pub_projects_create(body: PubProjectCreateBody, x_pub_token: str = Hea
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
     try:
-        project = desk.create_project(body.name, body.path, body.instructions, body.instructions_file)
+        project = desk.create_project(body.name, body.path, body.instructions, body.instructions_file, body.sections, body.main_name)
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
     return JSONResponse({"project": project})
@@ -2408,7 +2540,7 @@ async def pub_projects_update(project_id: str, body: PubProjectUpdateBody, x_pub
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
     try:
-        project = desk.update_project(project_id, body.name, body.path, body.instructions, body.instructions_file)
+        project = desk.update_project(project_id, body.name, body.path, body.instructions, body.instructions_file, body.sections, body.main_name)
     except ValueError as exc:
         return JSONResponse({"error": str(exc)}, status_code=400)
     return JSONResponse({"project": project})
@@ -2427,17 +2559,71 @@ async def pub_projects_delete(project_id: str, x_pub_token: str = Header(default
 
 
 @router.get("/projects/{project_id}/git-status")
-async def pub_projects_git_status(project_id: str, stats: bool = False, since: float | None = None, x_pub_token: str = Header(default=None)):
+async def pub_projects_git_status(project_id: str, stats: bool = False, since: float | None = None, section_id: str | None = None, x_pub_token: str = Header(default=None)):
     me = _resolve(x_pub_token)
     if not me or not me.get("is_admin"):
         return JSONResponse({"error": "forbidden"}, status_code=403)
     desk = _desktop()
     if desk is None:
         return JSONResponse({"error": "mvmAI is not available"}, status_code=500)
-    project = desk._get_project(project_id)
+    project = apply_section_of(desk, project_id, section_id)
     if not project:
         return JSONResponse({"error": "Project not found"}, status_code=404)
     return JSONResponse(await asyncio.to_thread(_project_git_changes, desk, project, since) if stats else desk.project_git_status(project["path"]))
+
+
+@router.get("/projects/{project_id}/branches")
+async def pub_project_branches(project_id: str, section_id: str | None = None, x_pub_token: str = Header(default=None)):
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    project = apply_section_of(desk, project_id, section_id)
+    if not project:
+        return JSONResponse({"error": "Project not found"}, status_code=404)
+    return JSONResponse(await asyncio.to_thread(desk.project_git_branches, project.get("path") or ""))
+
+
+class BranchCheckoutBody(BaseModel):
+    branch: str
+    section_id: str | None = None
+
+
+@router.post("/projects/{project_id}/checkout")
+async def pub_project_checkout(project_id: str, body: BranchCheckoutBody, x_pub_token: str = Header(default=None)):
+    """Switches the project folder to a branch the admin picked in the chat. Only an existing local
+    branch is accepted, and git refuses by itself when local changes would be lost."""
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    project = apply_section_of(desk, project_id, body.section_id)
+    if not project or not project.get("path"):
+        return JSONResponse({"error": "Project not found"}, status_code=404)
+    result = await asyncio.to_thread(desk.project_git_checkout, project["path"], (body.branch or "").strip())
+    return JSONResponse(result, status_code=400 if result.get("error") else 200)
+
+
+class BranchSettingsBody(BaseModel):
+    mode: str
+
+
+@router.get("/branch-settings")
+async def get_branch_settings(x_pub_token: str = Header(default=None)):
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    mode = desk._read_cfg().get("branch_mode")
+    return JSONResponse({"mode": mode if mode in ("ask", "auto", "none") else "ask"})
+
+
+@router.post("/branch-settings")
+async def set_branch_settings(body: BranchSettingsBody, x_pub_token: str = Header(default=None)):
+    me, desk = _resolve(x_pub_token), _desktop()
+    if not me or not me.get("is_admin") or desk is None:
+        return JSONResponse({"error": "forbidden"}, status_code=403)
+    if body.mode not in ("ask", "auto", "none"):
+        return JSONResponse({"error": "invalid_mode"}, status_code=400)
+    desk._write_cfg("branch_mode", body.mode)
+    return JSONResponse({"ok": True})
 
 
 def _project_git_changes(desk, project, since=None):
@@ -2556,11 +2742,11 @@ def _project_file_diff(desk, project, file_path):
 
 
 @router.get("/projects/{project_id}/git-diff")
-async def pub_project_git_diff(project_id: str, path: str, x_pub_token: str = Header(default=None)):
+async def pub_project_git_diff(project_id: str, path: str, section_id: str | None = None, x_pub_token: str = Header(default=None)):
     me, desk = _resolve(x_pub_token), _desktop()
     if not me or not me.get("is_admin") or desk is None:
         return JSONResponse({"error": "forbidden"}, status_code=403)
-    project = desk._get_project(project_id)
+    project = apply_section_of(desk, project_id, section_id)
     if not project:
         return JSONResponse({"error": "not_found"}, status_code=404)
     try:

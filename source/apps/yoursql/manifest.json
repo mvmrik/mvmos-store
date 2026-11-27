@@ -8,8 +8,8 @@
     "sql",
     "developer"
   ],
-  "version": "2.2.5",
+  "version": "2.3.0",
   "description": "MySQL, MariaDB, PostgreSQL, CockroachDB, Google Cloud SQL and Greenplum database manager — browse databases, edit data, run queries, import and export.",
   "entry": "main.js",
-  "min_core_version": "1.17.0"
+  "min_core_version": "1.31.0"
 }

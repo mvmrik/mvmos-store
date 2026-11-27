@@ -18781,5 +18781,4478 @@
    "3",
    "4"
   ]
+ },
+ "q2088": {
+  "q": "Qual líder soviético ganhou um prêmio Grammy em 2004 por narrar um álbum infantil falado?",
+  "a": [
+   "Mikhail Gorbachev",
+   "Nikita Khrushchev",
+   "Leonid Brejnev",
+   "Boris Iéltsin"
+  ]
+ },
+ "q2089": {
+  "q": "Qual primeiro-ministro britânico ganhou o Prêmio Nobel de Literatura em 1953?",
+  "a": [
+   "Winston Churchill",
+   "Clement Attlee",
+   "Anthony Eden",
+   "Harold Macmillan"
+  ]
+ },
+ "q2090": {
+  "q": "Qual ex-jogador de futebol vencedor da Bola de Ouro foi presidente da Libéria de 2018 a 2024?",
+  "a": [
+   "George Weah",
+   "Didier Drogba",
+   "Samuel Eto'o",
+   "Roger Milla"
+  ]
+ },
+ "q2091": {
+  "q": "Em qual área científica a ex-chanceler alemã Angela Merkel obteve seu doutorado em 1986?",
+  "a": [
+   "Química quântica",
+   "Física nuclear",
+   "Biologia molecular",
+   "Geologia orgânica"
+  ]
+ },
+ "q2092": {
+  "q": "Qual presidente dos EUA entrou para o Hall da Fama da Luta Livre após perder apenas uma de cerca de 300 lutas na juventude?",
+  "a": [
+   "Abraham Lincoln",
+   "Theodore Roosevelt",
+   "Andrew Jackson",
+   "Ulysses S. Grant"
+  ]
+ },
+ "q2093": {
+  "q": "Qual pianista de concerto e compositor mundialmente famoso foi primeiro-ministro da Polônia em 1919?",
+  "a": [
+   "Ignacy Jan Paderewski",
+   "Frédéric Chopin",
+   "Karol Szymanowski",
+   "Arthur Rubinstein"
+  ]
+ },
+ "q2094": {
+  "q": "Qual era a principal profissão literária de Václav Havel antes de se tornar presidente da Tchecoslováquia em 1989?",
+  "a": [
+   "Dramaturgo",
+   "Romancista de ficção científica",
+   "Poeta épico",
+   "Jornalista esportivo"
+  ]
+ },
+ "q2095": {
+  "q": "Qual presidente dos EUA ganhou o Prêmio Nobel da Paz de 1906 por mediar o fim da Guerra Russo-Japonesa?",
+  "a": [
+   "Theodore Roosevelt",
+   "Woodrow Wilson",
+   "William Howard Taft",
+   "William McKinley"
+  ]
+ },
+ "q2096": {
+  "q": "Segundo historiadores da Roma Antiga, o que o jovem Júlio César exigiu quando piratas cilícios fixaram seu resgate em 20 talentos de prata?",
+  "a": [
+   "Que aumentassem para 50 talentos",
+   "Que o libertassem de graça",
+   "Que lhe pagassem 20 talentos",
+   "Que o trocassem por um navio"
+  ]
+ },
+ "q2097": {
+  "q": "Em qual ilha do Mediterrâneo nasceu o imperador francês Napoleão Bonaparte em 1769?",
+  "a": [
+   "Córsega",
+   "Sardenha",
+   "Sicília",
+   "Elba"
+  ]
+ },
+ "q2098": {
+  "q": "Em qual país atual nasceu o líder soviético Josef Stalin em 1878?",
+  "a": [
+   "Geórgia",
+   "Rússia",
+   "Ucrânia",
+   "Armênia"
+  ]
+ },
+ "q2099": {
+  "q": "Qual presidente dos EUA registrou um relato oficial em 1973 após observar um objeto voador não identificado na Geórgia em 1969?",
+  "a": [
+   "Jimmy Carter",
+   "Gerald Ford",
+   "Richard Nixon",
+   "Ronald Reagan"
+  ]
+ },
+ "q2100": {
+  "q": "Qual era o prenome de nascimento do líder da independência indiana Mahatma Gandhi?",
+  "a": [
+   "Mohandas",
+   "Jawaharlal",
+   "Subhas",
+   "Rabindranath"
+  ]
+ },
+ "q2101": {
+  "q": "Qual presidente sul-africano fez uma participação especial no final do filme biográfico 'Malcolm X', de Spike Lee, em 1992?",
+  "a": [
+   "Nelson Mandela",
+   "Thabo Mbeki",
+   "F. W. de Klerk",
+   "Desmond Tutu"
+  ]
+ },
+ "q2102": {
+  "q": "Qual líder norte-coreano sequestrou o cineasta sul-coreano Shin Sang-ok em 1978 para produzir filmes de monstros como 'Pulgasari'?",
+  "a": [
+   "Kim Jong Il",
+   "Kim Il Sung",
+   "Kim Jong Un",
+   "Pak Hon-yong"
+  ]
+ },
+ "q2103": {
+  "q": "Qual imperador europeu foi forçado a recuar para sua carruagem após ser cercado por centenas de coelhos mansos durante uma caçada em 1807?",
+  "a": [
+   "Napoleão Bonaparte",
+   "Francisco José I",
+   "Guilherme II",
+   "Alexandre I"
+  ]
+ },
+ "q2104": {
+  "q": "Qual primeiro-ministro australiano estabeleceu um recorde mundial em Oxford em 1954 ao beber cerca de 1,4 litro de cerveja em 11 segundos?",
+  "a": [
+   "Bob Hawke",
+   "Gough Whitlam",
+   "Malcolm Fraser",
+   "Paul Keating"
+  ]
+ },
+ "q2105": {
+  "q": "Qual escritor tcheco, famoso por popularizar a palavra 'robô', publicou uma obra em vários volumes com conversas com o presidente Tomáš Garrigue Masaryk?",
+  "a": [
+   "Karel Čapek",
+   "Jaroslav Hašek",
+   "Milan Kundera",
+   "Bohumil Hrabal"
+  ]
+ },
+ "q2106": {
+  "q": "Qual primeiro-ministro britânico cumpriu dois mandatos não consecutivos em 1940–1945 e 1951–1955?",
+  "a": [
+   "Winston Churchill",
+   "Harold Wilson",
+   "Stanley Baldwin",
+   "Ramsay MacDonald"
+  ]
+ },
+ "q2107": {
+  "q": "Qual presidente dos EUA foi o único eleito para quatro mandatos consecutivos?",
+  "a": [
+   "Franklin D. Roosevelt",
+   "George Washington",
+   "Woodrow Wilson",
+   "Dwight D. Eisenhower"
+  ]
+ },
+ "q2108": {
+  "q": "Durante a Segunda Guerra Mundial, em qual ramo do Exército Britânico a futura rainha Elizabeth II treinou como motorista e mecânica?",
+  "a": [
+   "Serviço Territorial Auxiliar",
+   "Marinha Real",
+   "Força Aérea Real",
+   "Serviço Naval Real Feminino"
+  ]
+ },
+ "q2109": {
+  "q": "Por qual apelido a primeira-ministra britânica Margaret Thatcher ficou amplamente conhecida durante seu mandato de 1979 a 1990?",
+  "a": [
+   "A Dama de Ferro",
+   "A Donzela de Orleans",
+   "A Rainha dos Escoceses",
+   "A Raposa Prateada"
+  ]
+ },
+ "q2110": {
+  "q": "A bordo de qual tipo de veículo Lyndon B. Johnson prestou o juramento presidencial dos EUA em 22 de novembro de 1963?",
+  "a": [
+   "Um avião",
+   "Um navio de guerra",
+   "Um trem blindado",
+   "Um submarino"
+  ]
+ },
+ "q2111": {
+  "q": "Qual ministro das Relações Exteriores soviético cunhou o termo bem-humorado 'Doutrina Sinatra' em 1989 para descrever a liberdade dos países do Pacto de Varsóvia seguirem seu próprio caminho?",
+  "a": [
+   "Eduard Shevardnadze",
+   "Andrei Gromyko",
+   "Vyacheslav Molotov",
+   "Maxim Litvinov"
+  ]
+ },
+ "q2112": {
+  "q": "Em qual cidade do Império Russo nasceu a primeira-ministra israelense Golda Meir em 1898?",
+  "a": [
+   "Kiev",
+   "Odessa",
+   "Minsk",
+   "Vilnius"
+  ]
+ },
+ "q2113": {
+  "q": "Quem se tornou o primeiro presidente dos EUA a renunciar ao cargo em agosto de 1974?",
+  "a": [
+   "Richard Nixon",
+   "Gerald Ford",
+   "Lyndon B. Johnson",
+   "Jimmy Carter"
+  ]
+ },
+ "q2114": {
+  "q": "Qual era o nome de nascimento do governante mongol Gengis Khan antes de ser proclamado governante universal em 1206?",
+  "a": [
+   "Temüjin",
+   "Kublai",
+   "Ogedei",
+   "Chagatai"
+  ]
+ },
+ "q2115": {
+  "q": "Qual presidente haitiano recebeu o apelido de 'Papa Doc' por ter trabalhado como médico antes de entrar na política?",
+  "a": [
+   "François Duvalier",
+   "Jean-Claude Duvalier",
+   "Jean-Bertrand Aristide",
+   "Henri Christophe"
+  ]
+ },
+ "q2116": {
+  "q": "Qual químico e líder sionista tornou-se o primeiro presidente de Israel em 1949?",
+  "a": [
+   "Chaim Weizmann",
+   "David Ben-Gurion",
+   "Levi Eshkol",
+   "Moshe Sharett"
+  ]
+ },
+ "q2117": {
+  "q": "Qual primeiro-ministro canadense ganhou o Prêmio Nobel da Paz de 1957 por seu papel na resolução da Crise de Suez?",
+  "a": [
+   "Lester B. Pearson",
+   "Pierre Trudeau",
+   "John Diefenbaker",
+   "Mackenzie King"
+  ]
+ },
+ "q2118": {
+  "q": "Qual primeiro-ministro britânico do pós-guerra liderou o governo trabalhista que criou o Serviço Nacional de Saúde em 1948?",
+  "a": [
+   "Clement Attlee",
+   "Harold Macmillan",
+   "Anthony Eden",
+   "Neville Chamberlain"
+  ]
+ },
+ "q2119": {
+  "q": "Qual vulcão ativo destruiu a cidade romana de Pompeia em 79 d.C.?",
+  "a": [
+   "Monte Vesúvio",
+   "Monte Etna",
+   "Stromboli",
+   "Monte Olimpo"
+  ]
+ },
+ "q2120": {
+  "q": "Como é chamada a rocha derretida enquanto ainda está abaixo da superfície da Terra?",
+  "a": [
+   "Magma",
+   "Lava",
+   "Pedra-pomes",
+   "Basalto"
+  ]
+ },
+ "q2121": {
+  "q": "Qual zona em forma de ferradura ao redor do Oceano Pacífico contém cerca de 75% dos vulcões ativos do mundo?",
+  "a": [
+   "Círculo de Fogo do Pacífico",
+   "Fossa das Marianas",
+   "Dorsal Mesoatlântica",
+   "Grande Vale do Rift"
+  ]
+ },
+ "q2122": {
+  "q": "Qual estratovulcão na ilha de Honshu é a montanha mais alta do Japão?",
+  "a": [
+   "Monte Fuji",
+   "Monte Ontake",
+   "Monte Aso",
+   "Monte Sakurajima"
+  ]
+ },
+ "q2123": {
+  "q": "Qual é o nome do gigantesco vulcão-escudo em Marte que é o maior vulcão conhecido do Sistema Solar?",
+  "a": [
+   "Monte Olimpo",
+   "Tharsis Montes",
+   "Elysium Mons",
+   "Arsia Mons"
+  ]
+ },
+ "q2124": {
+  "q": "Qual rocha vulcânica porosa formada pelo resfriamento rápido de lava espumosa é leve o suficiente para flutuar na água?",
+  "a": [
+   "Pedra-pomes",
+   "Obsidiana",
+   "Basalto",
+   "Granito"
+  ]
+ },
+ "q2125": {
+  "q": "A erupção de qual vulcão indonésio em 1883 produziu um dos sons mais altos já registrados na história moderna?",
+  "a": [
+   "Krakatoa",
+   "Monte Tambora",
+   "Monte Merapi",
+   "Monte Agung"
+  ]
+ },
+ "q2126": {
+  "q": "Qual vulcão-escudo na ilha do Havaí é o maior vulcão ativo da Terra em volume e área?",
+  "a": [
+   "Mauna Loa",
+   "Kilauea",
+   "Mauna Kea",
+   "Hualalai"
+  ]
+ },
+ "q2127": {
+  "q": "Qual vulcão islandês interrompeu o tráfego aéreo europeu por dias ao entrar em erupção em abril de 2010?",
+  "a": [
+   "Eyjafjallajökull",
+   "Hekla",
+   "Katla",
+   "Grímsvötn"
+  ]
+ },
+ "q2128": {
+  "q": "Como é chamada a grande depressão em forma de caldeirão formada após o esvaziamento de uma câmara magmática em uma erupção?",
+  "a": [
+   "Caldeira",
+   "Fumarola",
+   "Soleira",
+   "Dique"
+  ]
+ },
+ "q2129": {
+  "q": "Qual estratovulcão no estado de Washington sofreu uma catastrófica erupção lateral em maio de 1980?",
+  "a": [
+   "Monte Santa Helena",
+   "Monte Rainier",
+   "Monte Hood",
+   "Monte Shasta"
+  ]
+ },
+ "q2130": {
+  "q": "A erupção massiva de qual vulcão indonésio em 1815 causou a anomalia climática global de 1816 conhecida como o Ano Sem Verão?",
+  "a": [
+   "Monte Tambora",
+   "Krakatoa",
+   "Monte Pinatubo",
+   "Monte Toba"
+  ]
+ },
+ "q2131": {
+  "q": "Qual vulcão siciliano é o vulcão ativo mais alto da Europa?",
+  "a": [
+   "Monte Etna",
+   "Monte Vesúvio",
+   "Stromboli",
+   "Vulcano"
+  ]
+ },
+ "q2132": {
+  "q": "Como é chamada a corrente rápida e destrutiva de gás quente e matéria vulcânica que desce um vulcão durante uma erupção explosiva?",
+  "a": [
+   "Fluxo piroclástico",
+   "Lahar",
+   "Tefra",
+   "Onda basáltica"
+  ]
+ },
+ "q2133": {
+  "q": "Qual pequena ilha vulcânica no mar Tirreno está em erupção quase contínua há mais de 2.000 anos e é apelidada de Farol do Mediterrâneo?",
+  "a": [
+   "Stromboli",
+   "Panarea",
+   "Lipari",
+   "Ísquia"
+  ]
+ },
+ "q2134": {
+  "q": "Qual é o termo geológico de origem indonésia para um fluxo destrutivo de lama ou detritos composto de cinzas vulcânicas e água?",
+  "a": [
+   "Lahar",
+   "Tufo",
+   "Escória",
+   "Pahoehoe"
+  ]
+ },
+ "q2135": {
+  "q": "O cume de qual estratovulcão inativo no Equador é o ponto mais distante do centro da Terra devido à protuberância equatorial?",
+  "a": [
+   "Chimborazo",
+   "Cotopaxi",
+   "Cayambe",
+   "Antisana"
+  ]
+ },
+ "q2136": {
+  "q": "Qual escala, que vai de 0 a 8, mede a explosividade relativa das erupções vulcânicas com base principalmente no volume ejetado e na altura da pluma?",
+  "a": [
+   "Índice de Explosividade Vulcânica",
+   "Escala Richter",
+   "Escala de Mercalli",
+   "Escala de Beaufort"
+  ]
+ },
+ "q2137": {
+  "q": "Qual montanha na fronteira entre a Argentina e o Chile é o vulcão mais alto do mundo acima do nível do mar com 6.893 metros?",
+  "a": [
+   "Ojos del Salado",
+   "Llullaillaco",
+   "Cotopaxi",
+   "Pico de Orizaba"
+  ]
+ },
+ "q2138": {
+  "q": "Qual termo havaiano descreve fluxos de lava basáltica lisos, ondulados ou em forma de corda?",
+  "a": [
+   "Pahoehoe",
+   "Aa",
+   "Tefra",
+   "Ignimbrito"
+  ]
+ },
+ "q2139": {
+  "q": "Qual vulcão na República Democrática do Congo é famoso por conter um dos maiores lagos de lava persistentes do mundo?",
+  "a": [
+   "Monte Nyiragongo",
+   "Monte Camarões",
+   "Monte Kilimanjaro",
+   "Erta Ale"
+  ]
+ },
+ "q2140": {
+  "q": "Qual lua de Júpiter é o corpo geológicamente mais ativo do Sistema Solar, com centenas de vulcões ativos?",
+  "a": [
+   "Io",
+   "Europa",
+   "Ganimedes",
+   "Calisto"
+  ]
+ },
+ "q2141": {
+  "q": "Qual vulcão na ilha caribenha da Martinica destruiu a cidade de Saint-Pierre em maio de 1902, matando quase 30.000 pessoas?",
+  "a": [
+   "Monte Pelée",
+   "La Soufrière",
+   "Soufrière Hills",
+   "Kick 'em Jenny"
+  ]
+ },
+ "q2142": {
+  "q": "Como são chamados os finos fios de vidro vulcânico formados quando o vento estica lava basáltica derretida no ar, batizados em homenagem a uma divindade havaiana?",
+  "a": [
+   "Cabelos de Pele",
+   "Lágrimas de Pele",
+   "Lágrimas de apache",
+   "Cabelo de anjo"
+  ]
+ },
+ "q2143": {
+  "q": "Qual vulcão submarino localizado cerca de 30 quilômetros a sudeste da ilha do Havaí é o vulcão mais novo da cadeia de montes submarinos Havaí-Imperador?",
+  "a": [
+   "Kamaʻehuakanaloa",
+   "Hualalai",
+   "Kohala",
+   "Haleakala"
+  ]
+ },
+ "q2144": {
+  "q": "Qual ilha vulcânica na costa sul da Islândia emergiu do Oceano Atlântico em novembro de 1963 e tornou-se Patrimônio Mundial da UNESCO para pesquisa ecológica?",
+  "a": [
+   "Surtsey",
+   "Heimaey",
+   "Grímsey",
+   "Viðey"
+  ]
+ },
+ "q2145": {
+  "q": "Que tipo de erupção vulcânica, batizada em homenagem a um historiador romano, caracteriza-se por altas colunas de gás e cinzas que atingem a estratosfera?",
+  "a": [
+   "Erupção pliniana",
+   "Erupção estromboliana",
+   "Erupção havaiana",
+   "Erupção surtseyana"
+  ]
+ },
+ "q2146": {
+  "q": "Qual maciço vulcânico submerso no noroeste do Oceano Pacífico, a leste do Japão, foi identificado em 2013 como um dos maiores vulcões individuais da Terra?",
+  "a": [
+   "Maciço Tamu",
+   "Elevação de Shatsky",
+   "Platô Ontong Java",
+   "Platô Kerguelen"
+  ]
+ },
+ "q2147": {
+  "q": "Qual erupção fissural islandesa em 1783-1784 liberou nuvens massivas de ácido fluorídrico e dióxido de enxofre, causando fome na Islândia e quebra de safras na Europa?",
+  "a": [
+   "Laki",
+   "Eldgjá",
+   "Askja",
+   "Krafla"
+  ]
+ },
+ "q2148": {
+  "q": "Qual vulcão extinto em Santa Helena no Oceano Atlântico Sul é o único habitat conhecido da tesourinha-gigante criticamente ameaçada Labidura herculeana?",
+  "a": [
+   "Monte Acteão",
+   "Pico de Diana",
+   "High Knoll",
+   "Colina Flagstaff"
+  ]
+ },
+ "q2149": {
+  "q": "Qual raça de cachorro é famosa pela pelagem branca coberta de manchas pretas ou marrons?",
+  "a": [
+   "Dálmata",
+   "Beagle",
+   "Poodle",
+   "Boxer"
+  ]
+ },
+ "q2150": {
+  "q": "Qual raça de cachorro pequena, criada originalmente na Alemanha para caçar texugos, tem corpo alongado e pernas muito curtas?",
+  "a": [
+   "Dachshund",
+   "Chihuahua",
+   "Pug",
+   "Spitz-alemão-anão"
+  ]
+ },
+ "q2151": {
+  "q": "Qual raça de cão de resgate dos Alpes suíços e italianos foi historicamente treinada por monges no hospício do Grande São Bernardo?",
+  "a": [
+   "São-bernardo",
+   "Husky siberiano",
+   "Rottweiler",
+   "Dobermann"
+  ]
+ },
+ "q2152": {
+  "q": "Qual menor raça de cachorro reconhecida do mundo recebeu o nome de um estado do norte do México?",
+  "a": [
+   "Chihuahua",
+   "Pequinês",
+   "Maltês",
+   "Shih Tzu"
+  ]
+ },
+ "q2153": {
+  "q": "Qual antiga raça de cachorro originária do norte da China se distingue pela língua preto-azulada e pela juba semelhante à de um leão?",
+  "a": [
+   "Chow-chow",
+   "Samoieda",
+   "Akita",
+   "Shar-pei"
+  ]
+ },
+ "q2154": {
+  "q": "Qual esguia raça de galgo é o cachorro mais rápido do mundo, capaz de atingir velocidades acima de 70 km/h?",
+  "a": [
+   "Greyhound",
+   "Border collie",
+   "Golden retriever",
+   "Labrador retriever"
+  ]
+ },
+ "q2155": {
+  "q": "Qual raça de cachorro japonesa do tipo spitz ficou mundialmente famosa por meio de Hachiko, o cão fiel que esperava na estação de Shibuya?",
+  "a": [
+   "Akita",
+   "Shiba inu",
+   "Spaniel japonês",
+   "Tosa"
+  ]
+ },
+ "q2156": {
+  "q": "Qual raça de cão pastor originária da fronteira anglo-escocesa é amplamente classificada como a mais inteligente em testes de obediência canina?",
+  "a": [
+   "Border collie",
+   "Welsh corgi",
+   "Pastor-de-shetland",
+   "Old english sheepdog"
+  ]
+ },
+ "q2157": {
+  "q": "Qual raça de cão pastor de pernas curtas do País de Gales foi notoriamente a favorita da rainha Elizabeth II durante todo o seu reinado?",
+  "a": [
+   "Welsh corgi pembroke",
+   "Cairn terrier",
+   "West highland white terrier",
+   "Basset hound"
+  ]
+ },
+ "q2158": {
+  "q": "Qual raça de cão de caça da África Central é famosa por não latir como outros cães, emitindo em vez disso um som semelhante a um iodelei?",
+  "a": [
+   "Basenji",
+   "Rhodesian ridgeback",
+   "Saluki",
+   "Galgo afegão"
+  ]
+ },
+ "q2159": {
+  "q": "Qual pesada raça canadense de cão de resgate aquático tem patas palmadas e recebeu o nome da província mais oriental do Canadá?",
+  "a": [
+   "Terra-nova",
+   "Labrador retriever",
+   "Retriever da Nova Escócia",
+   "Retriever da baía de Chesapeake"
+  ]
+ },
+ "q2160": {
+  "q": "Qual raça gigante de cachorro da Irlanda, criada historicamente para caçar lobos, é em média a mais alta de todas as raças reconhecidas?",
+  "a": [
+   "Lébrel irlandês",
+   "Dogue alemão",
+   "Deerhound escocês",
+   "Borzoi"
+  ]
+ },
+ "q2161": {
+  "q": "Qual raça branca de cão de trenó ártico recebeu o nome dos povos indígenas samoiedos da Sibéria?",
+  "a": [
+   "Samoieda",
+   "Malamute-do-alasca",
+   "Husky siberiano",
+   "Cão esquimó americano"
+  ]
+ },
+ "q2162": {
+  "q": "Qual raça de sabujo africano é imediatamente reconhecível por uma faixa de pelo ao longo da coluna que cresce na direção oposta?",
+  "a": [
+   "Rhodesian ridgeback",
+   "Cão do faraó",
+   "Podengo ibicenco",
+   "Azawakh"
+  ]
+ },
+ "q2163": {
+  "q": "Qual esguia raça de cão de guarda foi desenvolvida por volta de 1890 na Turíngia, Alemanha, por um cobrador de impostos chamado Karl Friedrich Louis Dobermann?",
+  "a": [
+   "Dobermann",
+   "Rottweiler",
+   "Boxer",
+   "Weimaraner"
+  ]
+ },
+ "q2164": {
+  "q": "Qual raça húngara de cão guardião de rebanhos é famosa pela pesada pelagem branca encordoada, semelhante a dreadlocks?",
+  "a": [
+   "Komondor",
+   "Kuvasz",
+   "Vizsla",
+   "Mudi"
+  ]
+ },
+ "q2165": {
+  "q": "Qual antiga raça de cachorro sem pelos do México recebeu o nome do deus asteca Xolotl?",
+  "a": [
+   "Xoloitzcuintle",
+   "Pelado-peruano",
+   "Cristado chinês",
+   "Terrier americano sem pelo"
+  ]
+ },
+ "q2166": {
+  "q": "Qual raça pequena e sem cauda de cão de aponte é originária da Bretanha, na França, e costuma ser agrupada com setters e spaniels?",
+  "a": [
+   "Epagneul breton",
+   "Vizsla",
+   "Springer spaniel inglês",
+   "Braco alemão de pelo curto"
+  ]
+ },
+ "q2167": {
+  "q": "Qual raça alta e esguia de galgo do Oriente Médio está entre as mais antigas domesticadas e era preferida pelos nômades beduínos para caçar gazelas?",
+  "a": [
+   "Saluki",
+   "Whippet",
+   "Galgo italiano",
+   "Sloughi"
+  ]
+ },
+ "q2168": {
+  "q": "Qual raça tradicional búlgara de cão guardião de rebanhos recebeu o nome dos pastores nômades karakachans dos Bálcãs?",
+  "a": [
+   "Cão karakachan",
+   "Šarplaninac",
+   "Tornjak",
+   "Pastor-do-cáucaso"
+  ]
+ },
+ "q2169": {
+  "q": "Qual raça norueguesa de cão caçador de papagaios-do-mar é singularmente conhecida por ter seis dedos em cada pata e conseguir dobrar a cabeça para trás até tocar a coluna?",
+  "a": [
+   "Lundehund norueguês",
+   "Elkhound norueguês",
+   "Spitz finlandês",
+   "Vallhund sueco"
+  ]
+ },
+ "q2170": {
+  "q": "Qual rara raça turca de cão de caça se distingue pelo nariz partido, apresentando um profundo sulco vertical que divide as narinas?",
+  "a": [
+   "Çatalburun",
+   "Pastor-de-kangal",
+   "Akbash",
+   "Pastor-da-anatólia"
+  ]
+ },
+ "q2171": {
+  "q": "Qual galgo castanho caçador de coelhos é o cão nacional de Malta, onde é conhecido localmente como Kelb tal-Fenek?",
+  "a": [
+   "Cão do faraó",
+   "Cirneco do Etna",
+   "Podengo canário",
+   "Podengo português"
+  ]
+ },
+ "q2172": {
+  "q": "Qual rara raça de cão guardião de rebanhos é originária da Serra da Estrela, em Portugal?",
+  "a": [
+   "Cão da Serra da Estrela",
+   "Cão de Castro Laboreiro",
+   "Rafeiro do Alentejo",
+   "Cão Fila de São Miguel"
+  ]
+ },
+ "q2173": {
+  "q": "Qual antiga raça de galgo desenvolvida pelos nômades tuaregues do Saara recebeu o nome de um vale que abrange o Mali e o Níger?",
+  "a": [
+   "Azawakh",
+   "Sloughi",
+   "Saluki",
+   "Taigan"
+  ]
+ },
+ "q2174": {
+  "q": "Qual raça de cachorro do tipo spitz de pelagem espessa dos Países Baixos era historicamente mantida em barcaças de canais e é apelidada de Holandês Sorridente?",
+  "a": [
+   "Keeshond",
+   "Schipperke",
+   "Pastor-holandês",
+   "Stabyhoun"
+  ]
+ },
+ "q2175": {
+  "q": "Qual rara raça de sabujo originária das montanhas da Croácia é uma das mais antigas raças de caça nativas dos Bálcãs?",
+  "a": [
+   "Sabujo da Ístria de pelo curto",
+   "Sabujo de Posavac",
+   "Dálmata",
+   "Tornjak"
+  ]
+ },
+ "q2176": {
+  "q": "Qual rara e antiga raça de cachorro nativa da Tailândia é caracterizada por uma crista de pelos ao longo do dorso que cresce na direção oposta ao restante da pelagem?",
+  "a": [
+   "Ridgeback tailandês",
+   "Cão Bangkaew tailandês",
+   "Ridgeback de Phu Quoc",
+   "Kintamani"
+  ]
+ },
+ "q2177": {
+  "q": "Qual rara raça de cão d'água do norte dos Países Baixos era historicamente usada por pescadores para recuperar peixes que caíam das redes?",
+  "a": [
+   "Wetterhoun",
+   "Stabyhoun",
+   "Perdigueiro de Drente",
+   "Kooikerhondje"
+  ]
+ },
+ "q2178": {
+  "q": "Qual rara raça de cão pastor originária da região da Serra da Arrábida, em Portugal, também é conhecida como cão pastor português?",
+  "a": [
+   "Cão da Serra de Aires",
+   "Cão de Castro Laboreiro",
+   "Rafeiro do Alentejo",
+   "Perdigueiro português"
+  ]
+ },
+ "q2179": {
+  "q": "Qual raça de sabujo branco com manchas alaranjadas originária da região de Franche-Comté, na França, recebeu um nome que remete ao brilho de sua pelagem?",
+  "a": [
+   "Porcelaine",
+   "Petit basset griffon vendéen",
+   "Billy",
+   "Poitevin"
+  ]
+ },
+ "q2180": {
+  "q": "Qual rara raça de cão boiadeiro originária da região de Appenzell, na Suíça, faz parte das quatro raças de boiadeiros suíços e carrega a cauda enrolada sobre o dorso?",
+  "a": [
+   "Boiadeiro de Appenzell",
+   "Boiadeiro de Entlebuch",
+   "Boiadeiro bernês",
+   "Grande boiadeiro suíço"
+  ]
+ },
+ "q2181": {
+  "q": "Qual rara raça de sabujo originária das montanhas do Jura ao longo da fronteira franco-suíça é uma das quatro variedades do sabujo suíço?",
+  "a": [
+   "Sabujo do Jura",
+   "Sabujo de Berna",
+   "Sabujo de Lucerna",
+   "Sabujo de Schwyz"
+  ]
+ },
+ "q2182": {
+  "q": "Qual rara raça de cão d'água originária da sub-região da Romanha, na Itália, é famosa pelo olfato apurado usado para caçar trufas?",
+  "a": [
+   "Lagotto romagnolo",
+   "Spinone italiano",
+   "Braco italiano",
+   "Pastor-bergamasco"
+  ]
+ },
+ "q2183": {
+  "q": "Qual governante protobúlgaro fundou o Primeiro Império Búlgaro ao sul do Danúbio em 681?",
+  "a": [
+   "Cã Asparuh",
+   "Cã Krum",
+   "Cã Kubrat",
+   "Cã Tervel"
+  ]
+ },
+ "q2184": {
+  "q": "Qual cidade serviu como a primeira capital do Primeiro Império Búlgaro de 681 a 893?",
+  "a": [
+   "Pliska",
+   "Preslav",
+   "Tarnovo",
+   "Ohrid"
+  ]
+ },
+ "q2185": {
+  "q": "Quem foi o fundador e governante da confederação tribal conhecida como Antiga Grande Bulgária no século VII?",
+  "a": [
+   "Cã Kubrat",
+   "Cã Asparuh",
+   "Cã Omurtag",
+   "Cã Kardam"
+  ]
+ },
+ "q2186": {
+  "q": "Qual divindade celeste suprema era adorada pelos protobúlgaros pagãos antes de sua cristianização?",
+  "a": [
+   "Tangra",
+   "Perun",
+   "Veles",
+   "Zalmoxis"
+  ]
+ },
+ "q2187": {
+  "q": "Qual relevo rupestre altomedieval no nordeste da Bulgária retrata um cavaleiro perfurando um leão com uma lança?",
+  "a": [
+   "Cavaleiro de Madara",
+   "Cavaleiro de Pirin",
+   "Guerreiro de Rila",
+   "Lanceiro de Pliska"
+  ]
+ },
+ "q2188": {
+  "q": "Qual governante búlgaro do século IX promulgou as primeiras leis escritas da Bulgária e derrotou o imperador bizantino Nicéforo I em 811?",
+  "a": [
+   "Cã Krum",
+   "Knyaz Boris I",
+   "Cã Malamir",
+   "Cã Presian"
+  ]
+ },
+ "q2189": {
+  "q": "Qual governante búlgaro ajudou o imperador bizantino Justiniano II a recuperar seu trono em 705 e auxiliou Constantinopla contra os árabes em 717–718?",
+  "a": [
+   "Cã Tervel",
+   "Cã Sevar",
+   "Cã Kormisosh",
+   "Cã Telerig"
+  ]
+ },
+ "q2190": {
+  "q": "Qual governante búlgaro do século IX assinou a Paz de Trinta Anos com Bizâncio em 815 e é conhecido por suas extensas construções em Pliska?",
+  "a": [
+   "Cã Omurtag",
+   "Cã Vinekh",
+   "Cã Sabin",
+   "Cã Pagan"
+  ]
+ },
+ "q2191": {
+  "q": "Em qual área pantanosa fortificada perto do delta do Danúbio o cã búlgaro Asparuh, fundador do Estado búlgaro, derrotou o imperador bizantino Constantino IV em 680?",
+  "a": [
+   "Ongal",
+   "Passo de Varbitsa",
+   "Anquíalo",
+   "Marcelas"
+  ]
+ },
+ "q2192": {
+  "q": "Na famosa lenda búlgara, que objeto o moribundo cã Kubrat, governante da Antiga Grande Bulgária, usou para ensinar a seus filhos a força da união?",
+  "a": [
+   "Um feixe de varas",
+   "Uma aljava de flechas",
+   "Um feixe de trigo",
+   "Uma corrente de ferro"
+  ]
+ },
+ "q2193": {
+  "q": "De qual clã real dos primeiros búlgaros descendiam governantes como Kubrat, Asparuh e Tervel?",
+  "a": [
+   "Dulo",
+   "Vokil",
+   "Ugain",
+   "Ermiar"
+  ]
+ },
+ "q2194": {
+  "q": "Qual filho do cã Kubrat liderou um grupo de protobúlgaros para o norte para fundar a Bulgária do Volga?",
+  "a": [
+   "Kotrag",
+   "Batbayan",
+   "Kuber",
+   "Alcek"
+  ]
+ },
+ "q2195": {
+  "q": "Qual filho do cã Kubrat levou seus seguidores protobúlgaros para o sul da Itália e se estabeleceu no Ducado de Benevento?",
+  "a": [
+   "Alcek",
+   "Kotrag",
+   "Batbayan",
+   "Asparuh"
+  ]
+ },
+ "q2196": {
+  "q": "Qual filho do cã Kubrat liderou um grupo de protobúlgaros para a Macedônia e se estabeleceu perto de Bitola no final do século VII?",
+  "a": [
+   "Kuber",
+   "Batbayan",
+   "Kotrag",
+   "Alcek"
+  ]
+ },
+ "q2197": {
+  "q": "Quem foi o filho mais velho do cã Kubrat que permaneceu nas terras ancestrais da Antiga Grande Bulgária e se submeteu aos cazares?",
+  "a": [
+   "Batbayan",
+   "Asparuh",
+   "Kotrag",
+   "Kuber"
+  ]
+ },
+ "q2198": {
+  "q": "Qual título era ostentado pelo segundo em comando e comandante-chefe militar no Primeiro Império Búlgaro?",
+  "a": [
+   "Kavkhan",
+   "Ichirgu-boil",
+   "Tarkan",
+   "Bagatur"
+  ]
+ },
+ "q2199": {
+  "q": "Qual título era ostentado pelo terceiro dignitário mais alto no Primeiro Império Búlgaro, que comandava a guarnição da capital?",
+  "a": [
+   "Ichirgu-boil",
+   "Kavkhan",
+   "Zera-tarkan",
+   "Kolobar"
+  ]
+ },
+ "q2200": {
+  "q": "A cauda de qual animal era tradicionalmente usada pelos primeiros búlgaros como estandarte militar e símbolo de poder?",
+  "a": [
+   "Rabo de cavalo",
+   "Rabo de lobo",
+   "Rabo de raposa",
+   "Rabo de bisão"
+  ]
+ },
+ "q2201": {
+  "q": "Quantos anos compunham um ciclo completo no antigo sistema de calendário protobúlgaro?",
+  "a": [
+   "12 anos",
+   "7 anos",
+   "10 anos",
+   "19 anos"
+  ]
+ },
+ "q2202": {
+  "q": "Qual é o nome da curta crônica medieval que contém a genealogia e os anos de reinado dos primeiros governantes búlgaros?",
+  "a": [
+   "Nominalia dos Cãs Búlgaros",
+   "Crônica de Pliska",
+   "Anais de Madara",
+   "Livro dos Dulo"
+  ]
+ },
+ "q2203": {
+  "q": "Qual era o nome do sacerdote pagão e figura xamânica entre os primeiros búlgaros que realizava adivinhações antes da batalha?",
+  "a": [
+   "Kolobar",
+   "Bagain",
+   "Boil",
+   "Tarkan"
+  ]
+ },
+ "q2204": {
+  "q": "Perto de qual atual localidade ucraniana foi descoberto em 1912 o rico tesouro funerário do século VII ligado ao cã Kubrat, governante da Antiga Grande Bulgária?",
+  "a": [
+   "Mala Pereshchepina",
+   "Trypillia",
+   "Berestechko",
+   "Baturyn"
+  ]
+ },
+ "q2205": {
+  "q": "Qual cã búlgaro do século VIII pôs fim a uma grave crise política na Bulgária e restaurou a estabilidade por volta de 768–777?",
+  "a": [
+   "Cã Telerig",
+   "Cã Sabin",
+   "Cã Umor",
+   "Cã Toktu"
+  ]
+ },
+ "q2206": {
+  "q": "Qual cã búlgaro do século VIII derrotou o imperador bizantino Constantino VI na Batalha de Marcelas em 792?",
+  "a": [
+   "Cã Kardam",
+   "Cã Kormisosh",
+   "Cã Vinekh",
+   "Cã Telets"
+  ]
+ },
+ "q2207": {
+  "q": "Quem foi o último governante protobúlgaro do clã Dulo antes da ascensão do clã Vokil em meados do século VIII?",
+  "a": [
+   "Cã Sevar",
+   "Cã Tervel",
+   "Cã Kormisosh",
+   "Cã Asparuh"
+  ]
+ },
+ "q2208": {
+  "q": "Segundo as crônicas bizantinas, o que o cã búlgaro Krum mandou fazer com o crânio do imperador Nicéforo I após a Batalha do Passo de Varbitsa em 811?",
+  "a": [
+   "Uma taça revestida de prata",
+   "Um elmo de batalha",
+   "Um tambor cerimonial",
+   "Uma coroa real"
+  ]
+ },
+ "q2209": {
+  "q": "Em que idioma foram escritas a maioria das inscrições oficiais em pedra preservadas dos cãs protobúlgaros pagãos?",
+  "a": [
+   "Grego",
+   "Latim",
+   "Antigo eslavo eclesiástico",
+   "Árabe"
+  ]
+ },
+ "q2210": {
+  "q": "Que termo coletivo era usado para designar os aristocratas e a alta nobreza no Primeiro Império Búlgaro?",
+  "a": [
+   "Boiles",
+   "Smerds",
+   "Druzhina",
+   "Voivodas"
+  ]
+ },
+ "q2211": {
+  "q": "Que termo designava a aristocracia militar de escalão inferior entre os primeiros búlgaros, subordinada aos boiles?",
+  "a": [
+   "Bagaínes",
+   "Kavkhans",
+   "Kolobares",
+   "Knyazes"
+  ]
+ },
+ "q2212": {
+  "q": "Qual governante búlgaro do século IX reprimiu uma revolta pagã de 52 famílias de boiles após adotar o cristianismo em 864?",
+  "a": [
+   "Boris I",
+   "Simeão I",
+   "Presian I",
+   "Omurtag"
+  ]
+ },
+ "q2213": {
+  "q": "Em qual inscrição do século IX o cã Omurtag afirma que mesmo que um homem viva bem, ele morre e outro nasce?",
+  "a": [
+   "Inscrição de Tarnovo",
+   "Inscrição de Madara",
+   "Inscrição de Chatalar",
+   "Inscrição de Preslav"
+  ]
+ },
+ "q2214": {
+  "q": "Qual título era usado pelos primeiros monarcas protobúlgaros nas inscrições oficiais em pedra antes da adoção do título Knyaz em 864?",
+  "a": [
+   "Kanasubigi",
+   "Basileus",
+   "Veliki Knyaz",
+   "Déspota"
+  ]
+ },
+ "q2215": {
+  "q": "Qual título foi concedido ao cã búlgaro Tervel pelo imperador bizantino Justiniano II em 705, tornando-o o primeiro governante estrangeiro a recebê-lo?",
+  "a": [
+   "César",
+   "Augusto",
+   "Patrício",
+   "Sebastocrator"
+  ]
+ },
+ "q2216": {
+  "q": "Como era chamada a tradicional habitação circular portátil de feltro usada pelos primeiros búlgaros nômades antes de se estabelecerem em fortalezas de pedra?",
+  "a": [
+   "Iurte",
+   "Tipi",
+   "Iglu",
+   "Wigwam"
+  ]
+ },
+ "q2217": {
+  "q": "Qual elemento hipotético semelhante ao fogo acreditava-se no século XVIII ser liberado durante a combustão?",
+  "a": [
+   "Flogisto",
+   "Calórico",
+   "Éter",
+   "Ectoplasma"
+  ]
+ },
+ "q2218": {
+  "q": "Qual famosa farsa paleoantropológica de 1912 na Inglaterra combinou um crânio humano com a mandíbula de um orangotango?",
+  "a": [
+   "Homem de Piltdown",
+   "Homem de Java",
+   "Homem de Pequim",
+   "Homem de Nebraska"
+  ]
+ },
+ "q2219": {
+  "q": "Qual planeta hipotético entre Mercúrio e o Sol foi proposto em 1859 para explicar as irregularidades orbitais de Mercúrio?",
+  "a": [
+   "Vulcano",
+   "Nibiru",
+   "Faetonte",
+   "Theia"
+  ]
+ },
+ "q2220": {
+  "q": "Qual forma ilusória de radiação o físico francês Prosper-René Blondlot afirmou ter descoberto em 1903?",
+  "a": [
+   "Raios N",
+   "Raios T",
+   "Raios Z",
+   "Raios delta"
+  ]
+ },
+ "q2221": {
+  "q": "Qual meio invisível os físicos do século XIX postularam como portador das ondas de luz antes da relatividade restrita de Einstein?",
+  "a": [
+   "Éter luminífero",
+   "Matéria escura",
+   "Flogisto",
+   "Espuma quântica"
+  ]
+ },
+ "q2222": {
+  "q": "Qual controversa reação nuclear à temperatura ambiente Martin Fleischmann e Stanley Pons afirmaram ter alcançado em 1989?",
+  "a": [
+   "Fusão a frio",
+   "Fusão catalisada por múons",
+   "Fusão de bolhas",
+   "Fusão piroelétrica"
+  ]
+ },
+ "q2223": {
+  "q": "Qual teoria médica refutada do século XIX sustentava que doenças como a cólera eram causadas por ar fétido venenoso?",
+  "a": [
+   "Teoria miasmática",
+   "Teoria humoral",
+   "Teoria microbiana",
+   "Geração espontânea"
+  ]
+ },
+ "q2224": {
+  "q": "Qual forma anômala de água polimerizada relatada por cientistas soviéticos na década de 1960 revelou-se água comum contaminada?",
+  "a": [
+   "Poliágua",
+   "Água pesada",
+   "Água hexagonal",
+   "Água deuterada"
+  ]
+ },
+ "q2225": {
+  "q": "Qual observação equivocada de Giovanni Schiaparelli no século XIX levou muitos a acreditar que Marte tinha redes de irrigação artificiais?",
+  "a": [
+   "Canais marcianos",
+   "Pirâmides marcianas",
+   "Oceanos marcianos",
+   "Crateras marcianas"
+  ]
+ },
+ "q2226": {
+  "q": "Qual pseudociência desacreditada do século XIX afirmava medir traços de personalidade apalpando saliências no crânio?",
+  "a": [
+   "Frenologia",
+   "Fisiognomia",
+   "Grafologia",
+   "Quiromancia"
+  ]
+ },
+ "q2227": {
+  "q": "Qual fluido hipotético acreditava-se no século XVIII fluir dos corpos mais quentes para os mais frios durante a transferência de calor?",
+  "a": [
+   "Calórico",
+   "Flogisto",
+   "Éter",
+   "Ectoplasma"
+  ]
+ },
+ "q2228": {
+  "q": "Qual minúsculo humano em miniatura totalmente formado os primeiros microscopistas acreditavam existir dentro de cada espermatozoide?",
+  "a": [
+   "Homúnculo",
+   "Golem",
+   "Quimera",
+   "Zigoto"
+  ]
+ },
+ "q2229": {
+  "q": "De qual bactéria tolerante ao arsênio pesquisadores financiados pela NASA afirmaram em 2010 que podia substituir o fósforo por arsênio em seu DNA?",
+  "a": [
+   "GFAJ-1",
+   "Escherichia coli",
+   "Thermus aquaticus",
+   "Deinococcus radiodurans"
+  ]
+ },
+ "q2230": {
+  "q": "Qual dente fóssil de 1922 em Nebraska foi brevemente aclamado como o primeiro símio antropoide da América do Norte antes de ser identificado como de um pecari?",
+  "a": [
+   "Homem de Nebraska",
+   "Homem de Piltdown",
+   "Criança de Taung",
+   "Homem de Heidelberg"
+  ]
+ },
+ "q2231": {
+  "q": "Qual teoria biológica refutada sustentava que organismos vivos surgem regularmente de matéria inanimada como carne em decomposição?",
+  "a": [
+   "Geração espontânea",
+   "Panspermia",
+   "Endossimbiose",
+   "Equilíbrio pontuado"
+  ]
+ },
+ "q2232": {
+  "q": "Qual suposto novo tipo de célula-tronco pluripotente anunciado na Nature em 2014 por Haruko Obokata foi retratado após falha na replicação?",
+  "a": [
+   "Células STAP",
+   "Células iPS",
+   "Células HeLa",
+   "Células T"
+  ]
+ },
+ "q2233": {
+  "q": "Qual experimento do CERN de 2011 foi atribuído a um cabo de fibra óptica solto após parecer mostrar partículas mais rápidas que a luz?",
+  "a": [
+   "OPERA",
+   "ATLAS",
+   "ALICE",
+   "LHCb"
+  ]
+ },
+ "q2234": {
+  "q": "Qual hipotético continente submerso no oceano Índico foi proposto em 1864 para explicar fósseis de lêmures em Madagascar e na Índia?",
+  "a": [
+   "Lemúria",
+   "Atlântida",
+   "Mu",
+   "Zelândia"
+  ]
+ },
+ "q2235": {
+  "q": "Qual falsificação paleontológica de 1999 na China combinou falsamente o corpo de uma ave com a cauda de um dinossauro dromeossaurídeo?",
+  "a": [
+   "Archaeoraptor",
+   "Archaeopteryx",
+   "Microraptor",
+   "Velociraptor"
+  ]
+ },
+ "q2236": {
+  "q": "Qual teoria geológica obsoleta do século XIX explicava as cadeias de montanhas como rugas formadas quando a Terra esfriou e encolheu como uma maçã seca?",
+  "a": [
+   "Teoria da contração terrestre",
+   "Tectônica de placas",
+   "Deriva continental",
+   "Expansão do fundo oceânico"
+  ]
+ },
+ "q2237": {
+  "q": "Qual reivindicação astronômica equivocada de 1991 em torno do pulsar PSR B1829-10 foi retratada após pesquisadores esquecerem a órbita elíptica da Terra?",
+  "a": [
+   "Primeiro exoplaneta",
+   "Primeiro buraco negro",
+   "Primeiro quasar",
+   "Primeira estrela de nêutrons"
+  ]
+ },
+ "q2238": {
+  "q": "Qual anúncio do telescópio BICEP2 em 2014 sobre o universo primordial descobriu-se mais tarde ter sido causado por poeira interestelar da Via Láctea?",
+  "a": [
+   "Ondas gravitacionais primordiais",
+   "Radiação cósmica de fundo",
+   "Aceleração da energia escura",
+   "Radiação Hawking"
+  ]
+ },
+ "q2239": {
+  "q": "Qual número equivocado de cromossomos humanos de 1921 permaneceu nos livros até Joe Hin Tjio provar em 1956 que o número real é 46?",
+  "a": [
+   "48",
+   "44",
+   "42",
+   "50"
+  ]
+ },
+ "q2240": {
+  "q": "Qual suposto novo elemento no mineral gadolinita foi reivindicado por Carl Mosander em 1841 antes de se provar ser uma mistura?",
+  "a": [
+   "Didímio",
+   "Corônio",
+   "Nebúlio",
+   "Alabamina"
+  ]
+ },
+ "q2241": {
+  "q": "Qual elemento químico hipotético William Huggins propôs em 1864 para explicar misteriosas linhas de emissão verdes em nebulosas planetárias?",
+  "a": [
+   "Nebúlio",
+   "Corônio",
+   "Hélio",
+   "Vulcânio"
+  ]
+ },
+ "q2242": {
+  "q": "Qual ilha fantasma no Mar de Coral apareceu em mapas e no Google Earth até uma expedição australiana provar em 2012 que só havia oceano aberto ali?",
+  "a": [
+   "Ilha Sandy",
+   "Bermeja",
+   "Hy-Brasil",
+   "Thule"
+  ]
+ },
+ "q2243": {
+  "q": "Qual suposta propriedade da água afirmada pelo imunologista francês Jacques Benveniste em 1988 retinha atividade biológica após diluição extrema?",
+  "a": [
+   "Memória da água",
+   "Poliágua",
+   "Água pesada",
+   "Água estruturada"
+  ]
+ },
+ "q2244": {
+  "q": "De qual grande dinossauro acreditou-se por muito tempo ter um segundo cérebro no quadril devido a uma cavidade alargada no canal espinhal?",
+  "a": [
+   "Estegossauro",
+   "Tiranossauro",
+   "Triceratops",
+   "Velociraptor"
+  ]
+ },
+ "q2245": {
+  "q": "Qual diagrama equivocado de 1901 do médico alemão David Hänig gerou o mito de que diferentes regiões da língua sentem apenas sabores específicos?",
+  "a": [
+   "Mapa da língua",
+   "Mapa do homúnculo",
+   "Mapa frenológico",
+   "Dermátomos"
+  ]
+ },
+ "q2246": {
+  "q": "Qual dinossauro saurópode gigante descoberto em 1879 foi declarado gênero inválido em 1903 antes de ser reintegrado como distinto do Apatosaurus em 2015?",
+  "a": [
+   "Brontossauro",
+   "Diplodoco",
+   "Braquiossauro",
+   "Alossauro"
+  ]
+ },
+ "q2247": {
+  "q": "Qual suposto organismo primordial de águas profundas nomeado por Thomas Henry Huxley em 1868 revelou-se um precipitado químico de álcool e água do mar?",
+  "a": [
+   "Bathybius haeckelii",
+   "Pikaia gracilens",
+   "Anomalocaris",
+   "Hallucigenia"
+  ]
+ },
+ "q2248": {
+  "q": "Em que estação a maioria das aves migratórias do Hemisfério Norte voa para o sul?",
+  "a": [
+   "Outono",
+   "Primavera",
+   "Verão",
+   "Inverno"
+  ]
+ },
+ "q2249": {
+  "q": "Qual espécie de ave faz a migração anual mais longa do Ártico até a Antártida e volta?",
+  "a": [
+   "Andorinha-do-mar-ártica",
+   "Albatroz-errante",
+   "Andorinha-das-chaminés",
+   "Pinguim-imperador"
+  ]
+ },
+ "q2250": {
+  "q": "Por que grandes aves migratórias como os gansos costumam voar em formação de V?",
+  "a": [
+   "Para economizar energia usando correntes de ar",
+   "Para assustar predadores aéreos",
+   "Para bloquear a luz solar direta nos olhos",
+   "Para manter contato físico constante"
+  ]
+ },
+ "q2251": {
+  "q": "Qual campo planetário invisível muitas aves migratórias percebem para navegar por longas distâncias?",
+  "a": [
+   "O campo magnético da Terra",
+   "Anomalias gravitacionais da Terra",
+   "Cinturões de radiação atmosférica",
+   "Correntes elétricas oceânicas"
+  ]
+ },
+ "q2252": {
+  "q": "Qual é o termo científico para a inquietação intensa que aves migratórias engaioladas exibem na época da migração?",
+  "a": [
+   "Zugunruhe",
+   "Torpor",
+   "Estivação",
+   "Ecdise"
+  ]
+ },
+ "q2253": {
+  "q": "Qual ave limícola detém o recorde de voo sem escalas e sem alimentação por mais de 13.000 km do Alasca à Tasmânia?",
+  "a": [
+   "Fuselo",
+   "Seixoeira",
+   "Vira-pedras",
+   "Maçarico-branco"
+  ]
+ },
+ "q2254": {
+  "q": "Qual grande ave migratória branca e preta é famosa na Europa por construir enormes ninhos de gravetos em telhados e chaminés?",
+  "a": [
+   "Cegonha-branca",
+   "Cisne-mudo",
+   "Garça-real",
+   "Corvo-marinho"
+  ]
+ },
+ "q2255": {
+  "q": "Qual espécie de ganso migratório voa sobre o Himalaia a altitudes superiores a 8.000 metros?",
+  "a": [
+   "Ganso-de-cabeça-listrada",
+   "Ganso-do-canadá",
+   "Ganso-bravo",
+   "Ganso-das-neves"
+  ]
+ },
+ "q2256": {
+  "q": "Qual estreito marítimo entre a Espanha e o Marrocos é um importante ponto de passagem para aves migratórias planadoras?",
+  "a": [
+   "Estreito de Gibraltar",
+   "Estreito de Messina",
+   "Estreito de Dover",
+   "Bósforo"
+  ]
+ },
+ "q2257": {
+  "q": "Como é chamado o rápido ganho de peso e acúmulo de gordura nas aves logo antes da migração?",
+  "a": [
+   "Hiperfagia",
+   "Hibernação",
+   "Muda",
+   "Parasitismo de ninhada"
+  ]
+ },
+ "q2258": {
+  "q": "Qual proteína fotossensível na retina das aves migratórias acredita-se permitir a magnetorrecepção quântica?",
+  "a": [
+   "Criptocromo",
+   "Rodopsina",
+   "Melanina",
+   "Hemoglobina"
+  ]
+ },
+ "q2259": {
+  "q": "Qual filósofo da Grécia Antiga propôs erroneamente que as andorinhas hibernavam debaixo d'água na lama durante o inverno?",
+  "a": [
+   "Aristóteles",
+   "Platão",
+   "Heródoto",
+   "Hipócrates"
+  ]
+ },
+ "q2260": {
+  "q": "Em 1822, uma cegonha-branca abatida na Alemanha provou a migração para a África porque tinha o quê cravado no pescoço?",
+  "a": [
+   "Uma lança africana",
+   "Uma moeda de ouro romana",
+   "Um selo de faraó",
+   "Um rolo de papiro egípcio"
+  ]
+ },
+ "q2261": {
+  "q": "Quais colunas ascendentes de ar quente grandes aves migratórias como águias e cegonhas usam para ganhar altitude sem bater as asas?",
+  "a": [
+   "Termais",
+   "Correntes de jato",
+   "Ventos alísios",
+   "Ventos catabáticos"
+  ]
+ },
+ "q2262": {
+  "q": "Qual ave insetívora passa quase toda a vida fora da reprodução no ar, chegando a dormir e acasalar em voo durante a migração?",
+  "a": [
+   "Andorinhão-preto",
+   "Falcão-peregrino",
+   "Pisco-de-peito-ruivo",
+   "Coruja-das-torres"
+  ]
+ },
+ "q2263": {
+  "q": "Como muitas aves canoras migratórias dormem durante voos sem escalas de vários dias sobre os oceanos?",
+  "a": [
+   "Descansando um hemisfério cerebral de cada vez",
+   "Flutuando nas ondas do mar à noite",
+   "Planando com os dois olhos fechados",
+   "Agarrando-se às costas de aves maiores"
+  ]
+ },
+ "q2264": {
+  "q": "Por que muitas pequenas aves canoras migram à noite em vez de durante o dia?",
+  "a": [
+   "Para evitar predadores diurnos e voar no ar mais fresco",
+   "Porque suas asas não sustentam o voo no ar quente",
+   "Para se alimentar de morcegos noturnos",
+   "Porque a luz da lua fornece vitamina D"
+  ]
+ },
+ "q2265": {
+  "q": "Qual é o método ornitológico tradicional de prender uma pequena anilha metálica numerada na perna de uma ave para rastrear sua migração?",
+  "a": [
+   "Anilhamento de aves",
+   "Peias de falcoaria",
+   "Amputação da ponta da asa",
+   "Tatuagem"
+  ]
+ },
+ "q2266": {
+  "q": "Qual importante rota europeia de aves migratórias passa pela costa oeste do Mar Negro através da Bulgária?",
+  "a": [
+   "Via Pontica",
+   "Via Egnatia",
+   "Via Ápia",
+   "Via Francígena"
+  ]
+ },
+ "q2267": {
+  "q": "Qual minúscula espécie de beija-flor migra mais de 800 km sem escalas através do Golfo do México?",
+  "a": [
+   "Beija-flor-de-garganta-rubi",
+   "Beija-flor-abelha",
+   "Beija-flor-bico-de-espada",
+   "Beija-flor-gigante"
+  ]
+ },
+ "q2268": {
+  "q": "Como são chamadas as aves que sobem e descem encostas de montanhas entre o verão e o inverno em vez de voar norte-sul?",
+  "a": [
+   "Migrantes altitudinais",
+   "Errantes pelágicos",
+   "Nômades irruptivos",
+   "Aves sedentárias"
+  ]
+ },
+ "q2269": {
+  "q": "Qual grande ave de rapina planadora migra anualmente da Europa para a África Subsaariana quase exclusivamente planando em termais?",
+  "a": [
+   "Águia-pomarina",
+   "Coruja-das-neves",
+   "Guarda-rios-comum",
+   "Papagaio-do-mar"
+  ]
+ },
+ "q2270": {
+  "q": "Qual região do céu noturno as aves migratórias noturnas do Hemisfério Norte usam como centro de rotação para navegação celestial?",
+  "a": [
+   "As estrelas ao redor da Estrela Polar",
+   "A Nebulosa de Órion",
+   "O núcleo da Via Láctea",
+   "O Cruzeiro do Sul"
+  ]
+ },
+ "q2271": {
+  "q": "Qual ave migratória da Europa é famosa por colocar seus ovos nos ninhos de outras espécies de aves?",
+  "a": [
+   "Cuco-canoro",
+   "Pintassilgo",
+   "Andorinha-das-chaminés",
+   "Chapim-real"
+  ]
+ },
+ "q2272": {
+  "q": "Qual é o termo científico para a forte tendência das aves migratórias de retornar exatamente ao mesmo local de reprodução todos os anos?",
+  "a": [
+   "Filopatria",
+   "Alopatria",
+   "Simpatria",
+   "Poliandria"
+  ]
+ },
+ "q2273": {
+  "q": "Quais órgãos internos aves migratórias de longa distância como os fuselos encolhem temporariamente antes do voo para economizar peso e energia?",
+  "a": [
+   "Órgãos digestivos",
+   "Coração e pulmões",
+   "Cérebro e olhos",
+   "Rins e baço"
+  ]
+ },
+ "q2274": {
+  "q": "Qual grande ave pernalta cor-de-rosa migra entre o sul da Europa e a África e obtém sua cor dos pigmentos carotenoides de sua dieta?",
+  "a": [
+   "Flamingo-comum",
+   "Colhereiro-americano",
+   "Guará",
+   "Ganso-de-bico-curto"
+  ]
+ },
+ "q2275": {
+  "q": "Qual vale fluvial da América do Norte dá nome ao corredor central de migração de aves que vai do Canadá ao Golfo do México?",
+  "a": [
+   "Rio Mississippi",
+   "Rio Colorado",
+   "Rio Hudson",
+   "Rio Columbia"
+  ]
+ },
+ "q2276": {
+  "q": "Como é chamado o fenômeno ornitológico em que aves aparecem muito longe de sua rota migratória normal devido a tempestades ou erros de navegação?",
+  "a": [
+   "Vagância",
+   "Ecolocalização",
+   "Brumação",
+   "Partenogênese"
+  ]
+ },
+ "q2277": {
+  "q": "Qual ave marinha voa anualmente em laços em forma de oito por todo o Oceano Pacífico, percorrendo até 64.000 km?",
+  "a": [
+   "Bobo-escuro",
+   "Fragata-comum",
+   "Atobá-de-pés-azuis",
+   "Pelicano-pardo"
+  ]
+ },
+ "q2278": {
+  "q": "Qual tecnologia permite aos meteorologistas rastrear enormes bandos de aves migratórias noturnas nos mapas meteorológicos?",
+  "a": [
+   "Radar meteorológico Doppler",
+   "Sismógrafos",
+   "Boias de sonar",
+   "Contadores Geiger"
+  ]
+ },
+ "q2279": {
+  "q": "Qual grande ave pernalta norte-americana é famosa por ter aprendido sua rota migratória com pilotos humanos em ultraleves?",
+  "a": [
+   "Grou-americano",
+   "Águia-de-cabeça-branca",
+   "Peru-selvagem",
+   "Condor-da-califórnia"
+  ]
+ },
+ "q2280": {
+  "q": "Por que as luzes brilhantes das cidades representam uma grande ameaça para as aves migratórias noturnas?",
+  "a": [
+   "Desorientam as aves e causam colisões com edifícios",
+   "Cegam permanentemente um dos olhos das aves",
+   "Atraem bandos de águias predadoras à noite",
+   "Derretem a camada cerosa das penas de voo"
+  ]
+ },
+ "q2281": {
+  "q": "Qual ave limícola migratória sofre graves declínios populacionais devido à exploração excessiva de ovos de caranguejo-ferradura na Baía de Delaware?",
+  "a": [
+   "Seixoeira",
+   "Pato-real",
+   "Ganso-do-canadá",
+   "Cisne-mudo"
+  ]
+ },
+ "q2282": {
+  "q": "Qual professor dinamarquês foi pioneiro no anilhamento científico moderno de aves em 1899 usando anilhas de alumínio numeradas em estorninhos?",
+  "a": [
+   "Hans Christian Cornelius Mortensen",
+   "Niels Bohr",
+   "Tycho Brahe",
+   "Ole Rømer"
+  ]
+ },
+ "q2283": {
+  "q": "Qual mar de marés que banha China, Coreia do Norte e Coreia do Sul serve como parada crítica de alimentação na rota migratória Ásia Oriental-Australásia?",
+  "a": [
+   "Mar Amarelo",
+   "Mar Vermelho",
+   "Mar Báltico",
+   "Mar Adriático"
+  ]
+ },
+ "q2284": {
+  "q": "Qual é o termo ornitológico para as aves que não migram e permanecem na mesma área durante todo o ano?",
+  "a": [
+   "Aves residentes",
+   "Aves pelágicas",
+   "Aves ratitas",
+   "Aves passeriformes"
+  ]
+ },
+ "q2285": {
+  "q": "Qual ave de rapina migratória atravessa o Oceano Índico da Índia até o sul da África durante sua migração anual?",
+  "a": [
+   "Falcão-de-amur",
+   "Falcão-gerifalte",
+   "Quiriquiri",
+   "Falcão-da-nova-zelândia"
+  ]
+ },
+ "q2286": {
+  "q": "Em qual cidade alemã foi assinada em 1979 a Convenção da ONU sobre a Conservação das Espécies Migratórias de Animais Silvestres?",
+  "a": [
+   "Bonn",
+   "Munique",
+   "Hamburgo",
+   "Dresden"
+  ]
+ },
+ "q2287": {
+  "q": "Qual grande felino é o animal terrestre mais rápido da Terra?",
+  "a": [
+   "Guepardo",
+   "Leão",
+   "Tigre",
+   "Leopardo"
+  ]
+ },
+ "q2288": {
+  "q": "Qual é a maior espécie de felino selvagem do mundo?",
+  "a": [
+   "Tigre",
+   "Leão",
+   "Jaguar",
+   "Puma"
+  ]
+ },
+ "q2289": {
+  "q": "Qual grande felino é nativo das Américas e possui a mordida mais forte em relação ao seu tamanho?",
+  "a": [
+   "Onça-pintada",
+   "Leopardo",
+   "Guepardo",
+   "Leopardo-das-neves"
+  ]
+ },
+ "q2290": {
+  "q": "Qual espécie de grande felino é a única que vive em grandes grupos sociais chamados alcateias ou bandos?",
+  "a": [
+   "Leão",
+   "Tigre",
+   "Guepardo",
+   "Jaguar"
+  ]
+ },
+ "q2291": {
+  "q": "Qual grande felino da Ásia Central é conhecido por sua pelagem cinza-esfumaçada espessa e incapacidade de rugir?",
+  "a": [
+   "Leopardo-das-neves",
+   "Pantera-nebulosa",
+   "Leopardo-de-amur",
+   "Lince-euroasiático"
+  ]
+ },
+ "q2292": {
+  "q": "Qual é o termo usado para um leopardo ou onça-pintada de cor escura devido ao excesso de pigmento preto?",
+  "a": [
+   "Pantera-negra",
+   "Tigre-branco",
+   "Guepardo-rei",
+   "Tigre-maltês"
+  ]
+ },
+ "q2293": {
+  "q": "Qual grande felino é o único membro da família Felidae sem garras totalmente retráteis?",
+  "a": [
+   "Guepardo",
+   "Leão",
+   "Jaguar",
+   "Puma"
+  ]
+ },
+ "q2294": {
+  "q": "Qual grande felino nativo das Américas também é conhecido como leão-da-montanha ou suçuarana?",
+  "a": [
+   "Puma",
+   "Jaguatirica",
+   "Jaguarundi",
+   "Gato-maracajá"
+  ]
+ },
+ "q2295": {
+  "q": "Qual é o nome do filhote híbrido de um leão macho com uma tigresa?",
+  "a": [
+   "Ligre",
+   "Tigreão",
+   "Leopon",
+   "Jaglion"
+  ]
+ },
+ "q2296": {
+  "q": "Qual subespécie de tigre é nativa do Extremo Oriente russo e está entre os maiores felinos da Terra?",
+  "a": [
+   "Tigre-siberiano",
+   "Tigre-de-bengala",
+   "Tigre-de-sumatra",
+   "Tigre-malaio"
+  ]
+ },
+ "q2297": {
+  "q": "Qual gênero inclui o leão, o tigre, a onça-pintada, o leopardo e o leopardo-das-neves?",
+  "a": [
+   "Panthera",
+   "Felis",
+   "Acinonyx",
+   "Lynx"
+  ]
+ },
+ "q2298": {
+  "q": "Qual grande felino africano costuma arrastar suas presas para o alto das árvores para protegê-las de necrófagos?",
+  "a": [
+   "Leopardo",
+   "Leão",
+   "Guepardo",
+   "Serval"
+  ]
+ },
+ "q2299": {
+  "q": "Qual grande felino possui os caninos mais longos em proporção ao tamanho do crânio entre todos os felinos vivos?",
+  "a": [
+   "Pantera-nebulosa",
+   "Leopardo-das-neves",
+   "Jaguar",
+   "Tigre"
+  ]
+ },
+ "q2300": {
+  "q": "Quais marcas faciais distintas ajudam os guepardos a reduzir o brilho do sol durante a caça?",
+  "a": [
+   "Marcas pretas de lágrima",
+   "Manchas brancas nas sobrancelhas",
+   "Tufos dourados nas bochechas",
+   "Listras vermelhas no nariz"
+  ]
+ },
+ "q2301": {
+  "q": "Em qual parque nacional indiano vive a única população selvagem remanescente de leões-asiáticos?",
+  "a": [
+   "Parque Nacional Floresta de Gir",
+   "Parque Nacional Jim Corbett",
+   "Parque Nacional Kaziranga",
+   "Parque Nacional Ranthambore"
+  ]
+ },
+ "q2302": {
+  "q": "Ao contrário da maioria dos felinos, qual grande gato listrado gosta de nadar e se refrescar em rios e lagos?",
+  "a": [
+   "Tigre",
+   "Leão",
+   "Guepardo",
+   "Caracal"
+  ]
+ },
+ "q2303": {
+  "q": "Como distinguir visualmente as rosetas de uma onça-pintada das de um leopardo?",
+  "a": [
+   "As da onça têm pintas dentro",
+   "As da onça são quadradas",
+   "As do leopardo são azuis",
+   "As do leopardo formam listras"
+  ]
+ },
+ "q2304": {
+  "q": "Qual característica única da pele de um tigre permanece visível mesmo se todo o seu pelo for raspado?",
+  "a": [
+   "Suas listras são pigmentadas na pele",
+   "Sua pele é laranja brilhante",
+   "Sua pele é coberta de escamas",
+   "Sua pele fica completamente branca"
+  ]
+ },
+ "q2305": {
+  "q": "Qual adaptação anatômica na garganta permite que leões, tigres, onças-pintadas e leopardos rujam?",
+  "a": [
+   "Um osso hioide parcialmente ossificado",
+   "Um conjunto duplo de cordas vocais",
+   "Uma cartilagem tireoide aumentada",
+   "Uma cavidade nasal ressonante"
+  ]
+ },
+ "q2306": {
+  "q": "Qual grande felino detém o recorde mundial do Guinness como o maior felino vivo ao pesar mais de 400 kg?",
+  "a": [
+   "Ligre",
+   "Tigre-siberiano",
+   "Leão-do-atlas",
+   "Tigreão"
+  ]
+ },
+ "q2307": {
+  "q": "Qual parte do corpo do leopardo-das-neves é quase tão longa quanto seu tronco e o ajuda a se equilibrar nos penhascos?",
+  "a": [
+   "Sua cauda",
+   "Suas patas traseiras",
+   "Seu pescoço",
+   "Seus bigodes"
+  ]
+ },
+ "q2308": {
+  "q": "Qual vocalização um guepardo consegue produzir que os membros do gênero Panthera não conseguem?",
+  "a": [
+   "Ronronar ao inspirar e expirar",
+   "Rugir alto",
+   "Uivar como um lobo",
+   "Cantar como uma baleia"
+  ]
+ },
+ "q2309": {
+  "q": "Qual é a principal função biológica da juba espessa de um leão macho?",
+  "a": [
+   "Proteger o pescoço e indicar saúde",
+   "Camuflar-se na grama alta",
+   "Armazenar gordura para o inverno",
+   "Filtrar poeira em tempestades"
+  ]
+ },
+ "q2310": {
+  "q": "Qual grande felino detém o recorde mundial do Guinness para o salto vertical mais alto parado, com mais de 4 metros?",
+  "a": [
+   "Puma",
+   "Guepardo",
+   "Leopardo-das-neves",
+   "Tigre"
+  ]
+ },
+ "q2311": {
+  "q": "Por que os tigres-brancos não são considerados uma espécie ou subespécie separada de tigre?",
+  "a": [
+   "Sua cor é uma mutação genética recessiva",
+   "São tingidos para zoológicos",
+   "São híbridos com leopardos-das-neves",
+   "Seu pelo desbota na luz do sol"
+  ]
+ },
+ "q2312": {
+  "q": "Ao contrário da maioria dos grandes felinos que sufocam pela garganta, como a onça-pintada costuma matar presas grandes?",
+  "a": [
+   "Perfurando o crânio entre as orelhas",
+   "Afogando-as em rios profundos",
+   "Esmagando o tórax com as patas",
+   "Quebrando o osso da cauda"
+  ]
+ },
+ "q2313": {
+  "q": "Qual gênero pré-histórico de tigres-dentes-de-sabre é mais conhecido pelos milhares de fósseis de La Brea?",
+  "a": [
+   "Smilodon",
+   "Machairodus",
+   "Homotherium",
+   "Megantereon"
+  ]
+ },
+ "q2314": {
+  "q": "Qual é o nome científico da espécie do leopardo-das-neves após sua reclassificação no gênero Panthera?",
+  "a": [
+   "Panthera uncia",
+   "Panthera pardus",
+   "Panthera onca",
+   "Panthera tigris"
+  ]
+ },
+ "q2315": {
+  "q": "Qual espécie de pantera-nebulosa nativa de Bornéu e Sumatra foi reconhecida como espécie separada em 2006?",
+  "a": [
+   "Pantera-nebulosa-de-sonda",
+   "Pantera-nebulosa-de-formosa",
+   "Pantera-nebulosa-indochinesa",
+   "Pantera-nebulosa-do-himalaia"
+  ]
+ },
+ "q2316": {
+  "q": "Como os biólogos costumam chamar as duas manchas brancas distintas na parte de trás das orelhas de um tigre?",
+  "a": [
+   "Manchas ocelares",
+   "Manchas lunares",
+   "Marcas estelares",
+   "Discos solares"
+  ]
+ },
+ "q2317": {
+  "q": "Qual padrão genético raro na pelagem dos guepardos faz suas pintas se fundirem em longas listras escuras nas costas?",
+  "a": [
+   "Guepardo-rei",
+   "Guepardo-maltês",
+   "Guepardo-lanoso",
+   "Guepardo-fantasma"
+  ]
+ },
+ "q2318": {
+  "q": "Em qual ilha do oceano Índico vivia o dodô, uma ave que não voava?",
+  "a": [
+   "Maurício",
+   "Madagascár",
+   "Seicheles",
+   "Sri Lanka"
+  ]
+ },
+ "q2319": {
+  "q": "Que tipo de animal era o extinto tilacino, nativo da Tasmânia?",
+  "a": [
+   "Marsupial carnívoro",
+   "Roedor herbívoro",
+   "Mamífero marinho",
+   "Ave que não voa"
+  ]
+ },
+ "q2320": {
+  "q": "Com qual animal vivo o mamute-lanoso era mais estreitamente aparentado?",
+  "a": [
+   "Elefante-asiático",
+   "Elefante-da-floresta",
+   "Rinoceronte-branco",
+   "Hipopótamo"
+  ]
+ },
+ "q2321": {
+  "q": "Qual ave gigante que não voava da Nova Zelândia foi caçada até a extinção pelos maoris?",
+  "a": [
+   "Moa",
+   "Casuar",
+   "Ave-elefante",
+   "Ave-do-terror"
+  ]
+ },
+ "q2322": {
+  "q": "Qual ave norte-americana somava bilhões de indivíduos antes de ser extinta em 1914?",
+  "a": [
+   "Pombo-passageiro",
+   "Periquito-da-carolina",
+   "Arau-gigante",
+   "Pica-pau-bico-de-marfim"
+  ]
+ },
+ "q2323": {
+  "q": "Qual predador extinto da Era do Gelo é famoso por seus longos dentes caninos superiores?",
+  "a": [
+   "Smilodon",
+   "Lobo-terrível",
+   "Urso-das-cavernas",
+   "Urso-de-face-curta"
+  ]
+ },
+ "q2324": {
+  "q": "Qual grande mamífero marinho herbívoro foi descoberto no mar de Bering em 1741 e caçado até a extinção em 27 anos?",
+  "a": [
+   "Vaca-marinha-de-steller",
+   "Foca-monge-do-caribe",
+   "Golfinho-de-rio-chinês",
+   "Vaquita"
+  ]
+ },
+ "q2325": {
+  "q": "Qual subespécie extinta de zebra-da-planície tinha listras apenas na metade dianteira do corpo?",
+  "a": [
+   "Quagga",
+   "Tarpã",
+   "Leão-do-cabo",
+   "Antílope-azul"
+  ]
+ },
+ "q2326": {
+  "q": "Qual tubarão pré-histórico gigante tinha dentes que mediam mais de 15 centímetros de comprimento?",
+  "a": [
+   "Megalodonte",
+   "Helicoprion",
+   "Dunkleosteus",
+   "Leedsichthys"
+  ]
+ },
+ "q2327": {
+  "q": "Qual ave marinha extinta que não voava do Atlântico Norte deu origem ao nome pinguim?",
+  "a": [
+   "Arau-gigante",
+   "Corvo-marinho-de-óculos",
+   "Pato-do-labrador",
+   "Pato-de-cabeça-rosa"
+  ]
+ },
+ "q2328": {
+  "q": "Qual preguiça-gigante terrestre extinta da América do Sul podia atingir até 6 metros de comprimento?",
+  "a": [
+   "Megatério",
+   "Gliptodonte",
+   "Toxodonte",
+   "Macrauquênia"
+  ]
+ },
+ "q2329": {
+  "q": "Qual mamífero pré-histórico fortemente encouraçado, parente dos tatus modernos, tinha uma carapaça do tamanho de um carro?",
+  "a": [
+   "Gliptodonte",
+   "Doedicurus",
+   "Megatério",
+   "Chalicotherium"
+  ]
+ },
+ "q2330": {
+  "q": "Qual espécie extinta de bovino selvagem foi o ancestral do gado doméstico moderno?",
+  "a": [
+   "Auroque",
+   "Bisão-europeu",
+   "Bisão-da-estepe",
+   "Gauro"
+  ]
+ },
+ "q2331": {
+  "q": "Qual cervo gigante extinto da Eurásia tinha galhadas que mediam até 3,65 metros de envergadura?",
+  "a": [
+   "Alce-gigante",
+   "Alce-cervo",
+   "Eucladoceros",
+   "Sivatherium"
+  ]
+ },
+ "q2332": {
+  "q": "Qual ave extinta que não voava de Madagascar punha ovos com volume de cerca de 11 litros?",
+  "a": [
+   "Ave-elefante",
+   "Moa",
+   "Dodô",
+   "Ave-do-terror"
+  ]
+ },
+ "q2333": {
+  "q": "Qual grupo de artrópodes marinhos extintos tinha corpos segmentados e olhos compostos feitos de calcita?",
+  "a": [
+   "Trilobitas",
+   "Amonites",
+   "Euriptéridos",
+   "Belemnites"
+  ]
+ },
+ "q2334": {
+  "q": "Qual mamífero pré-histórico extinto é considerado o maior mamífero terrestre que já existiu, pesando até 20 toneladas?",
+  "a": [
+   "Paraceratherium",
+   "Deinotherium",
+   "Mastodonte",
+   "Elasmotherium"
+  ]
+ },
+ "q2335": {
+  "q": "Qual peixe encouraçado do Devoniano tinha placas ósseas em vez de dentes e uma força de mordida comparável à dos crocodilos modernos?",
+  "a": [
+   "Dunkleosteus",
+   "Celacanto",
+   "Tiktaalik",
+   "Acanthostega"
+  ]
+ },
+ "q2336": {
+  "q": "Qual cobra pré-histórica extinta descoberta na Colômbia podia crescer mais de 12 metros de comprimento?",
+  "a": [
+   "Titanoboa",
+   "Gigantophis",
+   "Madtsoia",
+   "Wonambi"
+  ]
+ },
+ "q2337": {
+  "q": "Qual predador marinho extinto do Cambriano tinha cinco olhos e uma longa probóscide flexível?",
+  "a": [
+   "Opabinia",
+   "Anomalocaris",
+   "Hallucigenia",
+   "Wiwaxia"
+  ]
+ },
+ "q2338": {
+  "q": "Qual ave norte-americana extinta era o único papagaio nativo do leste dos Estados Unidos?",
+  "a": [
+   "Periquito-da-carolina",
+   "Pombo-passageiro",
+   "Pica-pau-bico-de-marfim",
+   "Galinha-da-charneca"
+  ]
+ },
+ "q2339": {
+  "q": "Qual pinguim gigante pré-histórico extinto da Nova Zelândia media quase 1,8 metro de altura?",
+  "a": [
+   "Kumimanu",
+   "Palaeeudyptes",
+   "Anthropornis",
+   "Icadyptes"
+  ]
+ },
+ "q2340": {
+  "q": "Qual rinoceronte extinto do Pleistoceno tinha um enorme chifre único na testa e vivia na Eurásia?",
+  "a": [
+   "Elasmotherium",
+   "Rinoceronte-lanudo",
+   "Stephanorhinus",
+   "Teleoceras"
+  ]
+ },
+ "q2341": {
+  "q": "Qual mamífero pré-histórico extinto tinha tromba e presas curvadas para baixo que cresciam de sua mandíbula inferior?",
+  "a": [
+   "Deinotherium",
+   "Mastodonte",
+   "Gomphotherium",
+   "Platybelodon"
+  ]
+ },
+ "q2342": {
+  "q": "Qual espécie extinta de cavalo selvagem percorria as estepes da Eurásia até o final do século XIX?",
+  "a": [
+   "Tarpã",
+   "Quagga",
+   "Cavalo-de-przewalski",
+   "Onagro"
+  ]
+ },
+ "q2343": {
+  "q": "Qual grupo extinto de aves predadoras que não voavam dominou a América do Sul durante a Era Cenozoica?",
+  "a": [
+   "Forusracídeos",
+   "Gastornitídeos",
+   "Dromornitídeos",
+   "Epiornitídeos"
+  ]
+ },
+ "q2344": {
+  "q": "Qual mamífero pré-histórico extinto tinha patas com garras em vez de cascos, apesar de ser parente de cavalos e rinocerontes?",
+  "a": [
+   "Chalicotherium",
+   "Brontotherium",
+   "Uintatherium",
+   "Arsinoitherium"
+  ]
+ },
+ "q2345": {
+  "q": "Qual inseto pré-histórico gigante semelhante a uma libélula do período Carbonífero tinha uma envergadura de até 70 centímetros?",
+  "a": [
+   "Meganeura",
+   "Arthropleura",
+   "Pulmonoscorpius",
+   "Jaekelopterus"
+  ]
+ },
+ "q2346": {
+  "q": "Qual parente pré-histórico extinto das centopeias do período Carbonífero podia crescer mais de 2,5 metros de comprimento?",
+  "a": [
+   "Arthropleura",
+   "Meganeura",
+   "Eurypterus",
+   "Anomalocaris"
+  ]
+ },
+ "q2347": {
+  "q": "Qual tubarão pré-histórico extinto tinha uma espiral de dentes na mandíbula inferior semelhante a uma serra circular?",
+  "a": [
+   "Helicoprion",
+   "Stethacanthus",
+   "Hybodus",
+   "Cladoselache"
+  ]
+ },
+ "q2348": {
+  "q": "Qual águia gigante extinta da Nova Zelândia foi a maior águia conhecida e caçava a ave moa?",
+  "a": [
+   "Águia-de-haast",
+   "Pelagornis",
+   "Argentavis",
+   "Teratornis"
+  ]
+ },
+ "q2349": {
+  "q": "Qual espécie de hominídeo é conhecida como „homem hábil“ por suas ferramentas de pedra iniciais?",
+  "a": [
+   "Homo habilis",
+   "Australopithecus afarensis",
+   "Homo erectus",
+   "Paranthropus boisei"
+  ]
+ },
+ "q2350": {
+  "q": "Qual é o nome do famoso esqueleto fóssil de Australopithecus afarensis de 3,2 milhões de anos encontrado na Etiópia em 1974?",
+  "a": [
+   "Lucy",
+   "Criança de Taung",
+   "Garoto de Turkana",
+   "Homem de Pequim"
+  ]
+ },
+ "q2351": {
+  "q": "Qual espécie antiga de hominídeo foi a primeira a migrar da África para a Eurásia em larga escala?",
+  "a": [
+   "Homo erectus",
+   "Australopithecus anamensis",
+   "Sahelanthropus tchadensis",
+   "Ardipithecus ramidus"
+  ]
+ },
+ "q2352": {
+  "q": "Qual linhagem antiga de hominídeo foi identificada principalmente por DNA extraído de um osso de dedo na caverna de Denisova?",
+  "a": [
+   "Denisovanos",
+   "Homo floresiensis",
+   "Homo naledi",
+   "Australopithecus sediba"
+  ]
+ },
+ "q2353": {
+  "q": "Qual espécie extinta de hominídeo da ilha indonésia de Flores é apelidada de „hobbit“ por seu pequeno porte físico?",
+  "a": [
+   "Homo floresiensis",
+   "Homo luzonensis",
+   "Homo heidelbergensis",
+   "Homo antecessor"
+  ]
+ },
+ "q2354": {
+  "q": "Qual crânio de hominídeo do Mioceno superior encontrado no Chade em 2001 é apelidado de „Toumaï“?",
+  "a": [
+   "Sahelanthropus tchadensis",
+   "Orrorin tugenensis",
+   "Australopithecus garhi",
+   "Kenyanthropus platyops"
+  ]
+ },
+ "q2355": {
+  "q": "Qual gênero de hominídeos antigos inclui „Lucy“ e viveu na África há cerca de 4 a 2 milhões de anos?",
+  "a": [
+   "Australopithecus",
+   "Homo",
+   "Pan",
+   "Gorilla"
+  ]
+ },
+ "q2356": {
+  "q": "Qual gênero robusto de australopitecíneo tinha crista sagital proeminente e dentes fortes para plantas duras?",
+  "a": [
+   "Paranthropus",
+   "Homo",
+   "Dryopithecus",
+   "Sivapithecus"
+  ]
+ },
+ "q2357": {
+  "q": "Qual parente humano extinto viveu na Europa e na Ásia Ocidental até cerca de 40.000 anos atrás?",
+  "a": [
+   "Neandertal",
+   "Australopithecus",
+   "Homo habilis",
+   "Ramapithecus"
+  ]
+ },
+ "q2358": {
+  "q": "Qual paleoantropólogo descobriu na África do Sul em 1924 o crânio da „Criança de Taung“?",
+  "a": [
+   "Raymond Dart",
+   "Louis Leakey",
+   "Donald Johanson",
+   "Eugene Dubois"
+  ]
+ },
+ "q2359": {
+  "q": "Qual indústria lítica antiga antecede o Acheulense e leva o nome de um desfiladeiro na Tanzânia?",
+  "a": [
+   "Olduvaiense",
+   "Musteriense",
+   "Aurignacense",
+   "Magdalenense"
+  ]
+ },
+ "q2360": {
+  "q": "Qual esqueleto fóssil de Homo erectus encontrado perto do lago Turkana em 1984 é conhecido como „Garoto de Turkana“?",
+  "a": [
+   "KNM-WT 15000",
+   "OH 5",
+   "AL 288-1",
+   "LH 4"
+  ]
+ },
+ "q2361": {
+  "q": "Qual ferramenta de pedra caracteriza a indústria acheulense usada pelo Homo erectus?",
+  "a": [
+   "Machado de mão",
+   "Microlito",
+   "Arpão",
+   "Pederneira"
+  ]
+ },
+ "q2362": {
+  "q": "Qual espécie de hominídeo foi descrita em 2015 a partir de fósiles no sistema de cavernas Rising Star, na África do Sul?",
+  "a": [
+   "Homo naledi",
+   "Homo georgicus",
+   "Homo rudolfensis",
+   "Australopithecus africanus"
+  ]
+ },
+ "q2363": {
+  "q": "Qual espécie antiga de hominídeo da Etiópia data de cerca de 4,4 milhões de anos e é conhecida pelo fóssil „Ardi“?",
+  "a": [
+   "Ardipithecus ramidus",
+   "Australopithecus sediba",
+   "Homo ergaster",
+   "Paranthropus aethiopicus"
+  ]
+ },
+ "q2364": {
+  "q": "Qual espécie antiga de hominídeo foi identificada em 2019 a partir de pequenos fósiles de pé e dentes na caverna Callao, nas Filipinas?",
+  "a": [
+   "Homo luzonensis",
+   "Homo floresiensis",
+   "Homo erectus",
+   "Australopithecus bahrelghazali"
+  ]
+ },
+ "q2365": {
+  "q": "Qual sítio paleoantropológico no Vale do Rift, na Tanzânia, forneceu famosos fósseis de hominídeos estudados por Mary e Louis Leakey?",
+  "a": [
+   "Desfiladeiro de Olduvai",
+   "Laetoli",
+   "Sterkfontein",
+   "Swartkrans"
+  ]
+ },
+ "q2366": {
+  "q": "Qual sítio na Tanzânia é famoso por pegadas de hominídeos de 3,66 milhões de anos preservadas em cinzas vulcânicas?",
+  "a": [
+   "Laetoli",
+   "Hadar",
+   "Kromdraai",
+   "Zhoukoudian"
+  ]
+ },
+ "q2367": {
+  "q": "Qual família de grandes primatas inclui humanos, chimpanzés, bonobos, gorilas e orangotangos?",
+  "a": [
+   "Hominidae",
+   "Hylobatidae",
+   "Cercopithecidae",
+   "Lemuridae"
+  ]
+ },
+ "q2368": {
+  "q": "Qual espécie extinta de hominídeo da África do Sul foi descrita em 2010 a partir de fósseis de Malapa?",
+  "a": [
+   "Australopithecus sediba",
+   "Australopithecus anamensis",
+   "Homo habilis",
+   "Paranthropus robustus"
+  ]
+ },
+ "q2369": {
+  "q": "Qual anatomista encontrou fósseis antigos de Homo erectus em Java na década de 1890 e os chamou de „Pithecanthropus erectus“?",
+  "a": [
+   "Eugene Dubois",
+   "Robert Broom",
+   "Richard Leakey",
+   "Carl Linnaeus"
+  ]
+ },
+ "q2370": {
+  "q": "Qual espécie antiga de hominídeo do Quênia foi nomeada Australopithecus anamensis em 1995 por Meave Leakey e colegas?",
+  "a": [
+   "Australopithecus anamensis",
+   "Australopithecus garhi",
+   "Homo habilis",
+   "Paranthropus boisei"
+  ]
+ },
+ "q2371": {
+  "q": "Qual característica do quadril distingue hominídeos bípedes como Australopithecus de primatas quadrúpedes?",
+  "a": [
+   "Pelve curta e larga",
+   "Cauda longa e estreita",
+   "Pé traseiro preênsil",
+   "Clavícula fundida"
+  ]
+ },
+ "q2372": {
+  "q": "Qual espécie extinta de hominídeo é conhecida por fósseis de Dmanisi, na Geórgia, com cerca de 1,8 milhão de anos?",
+  "a": [
+   "Homo erectus",
+   "Homo sapiens",
+   "Paranthropus robustus",
+   "Ardipithecus kadabba"
+  ]
+ },
+ "q2373": {
+  "q": "Qual espécie antiga de hominídeo do Quênia foi descoberta em 2000 nas colinas de Tugen e chamada de „homem do milênio“?",
+  "a": [
+   "Orrorin tugenensis",
+   "Sahelanthropus tchadensis",
+   "Australopithecus garhi",
+   "Homo rudolfensis"
+  ]
+ },
+ "q2374": {
+  "q": "Qual espécie extinta de hominídeo recebeu o nome do vale de Neander, na Alemanha, onde foram achados seus primeiros fósseis reconhecidos?",
+  "a": [
+   "Homo neanderthalensis",
+   "Homo heidelbergensis",
+   "Homo antecessor",
+   "Homo habilis"
+  ]
+ },
+ "q2375": {
+  "q": "Qual paleoantropólogo liderou a expedição em Hadar, Etiópia, em 1974 que descobriu o esqueleto de „Lucy“?",
+  "a": [
+   "Donald Johanson",
+   "Bernard Wood",
+   "Ian Tattersall",
+   "Chris Stringer"
+  ]
+ },
+ "q2376": {
+  "q": "Qual espécie de hominídeo do Pleistoceno médio leva o nome de uma cidade universitária alemã onde acharam uma mandíbula em 1907?",
+  "a": [
+   "Homo heidelbergensis",
+   "Homo sapiens",
+   "Homo erectus",
+   "Homo habilis"
+  ]
+ },
+ "q2377": {
+  "q": "Qual espécie extinta de hominídeo foi nomeada em 1999 por fósseis do Awash Médio, na Etiópia, com termo afar para „surpresa“?",
+  "a": [
+   "Australopithecus garhi",
+   "Australopithecus afarensis",
+   "Paranthropus aethiopicus",
+   "Homo ergaster"
+  ]
+ },
+ "q2378": {
+  "q": "Qual espécie viva de primata compartilha a maior proporção de seu DNA nuclear com os humanos?",
+  "a": [
+   "Bonobo",
+   "Orangotango",
+   "Gibão",
+   "Babuíno"
+  ]
+ },
+ "q2379": {
+  "q": "Qual sítio de hominídeos no Berço da Humanidade, na África do Sul, é famoso por cavernas calcárias e pelo crânio „Mrs. Ples“?",
+  "a": [
+   "Sterkfontein",
+   "Desfiladeiro de Olduvai",
+   "Hadar",
+   "Dmanisi"
+  ]
+ },
+ "q2380": {
+  "q": "Qual descoberta paleoantropológica de 1959 no desfiladeiro de Olduvai foi chamada originalmente de Zinjanthropus boisei?",
+  "a": [
+   "Paranthropus boisei",
+   "Homo habilis",
+   "Australopithecus africanus",
+   "Homo erectus"
+  ]
+ },
+ "q2381": {
+  "q": "Qual característica da base do crânio deslocou-se para a frente em hominídeos antigos para equilibrar a cabeça ereta?",
+  "a": [
+   "Posição do forame magno",
+   "Prega da terceira pálpebra",
+   "Sulco de barbatanas",
+   "Pedículo de chifre"
+  ]
+ },
+ "q2382": {
+  "q": "Qual geneticista liderou a equipe que sequenciou o genoma neandertal e ganhou o Nobel de Medicina de 2022?",
+  "a": [
+   "Svante Pääbo",
+   "Craig Venter",
+   "Jennifer Doudna",
+   "George Church"
+  ]
+ },
+ "q2383": {
+  "q": "Qual sítio em caverna na África do Sul forneceu fósseis antigos de Homo como o crânio StW 53 e „Little Foot“?",
+  "a": [
+   "Sterkfontein",
+   "Taung",
+   "Makapansgat",
+   "Gladysvale"
+  ]
+ },
+ "q2384": {
+  "q": "Qual gênero antigo de hominídeos inclui Paranthropus aethiopicus, Paranthropus boisei e Paranthropus robustus?",
+  "a": [
+   "Paranthropus",
+   "Homo",
+   "Australopithecus",
+   "Ardipithecus"
+  ]
+ },
+ "q2385": {
+  "q": "Qual mudança evolutiva em hominídeos antigos reduziu os caninos e voltou a mastigação para a trituração?",
+  "a": [
+   "Arcada dentária parabólica",
+   "Filtragem por barbatanas",
+   "Presas venenosas",
+   "Estômago ruminante"
+  ]
+ },
+ "q2386": {
+  "q": "Qual espécie de hominídeo do Pleistoceno médio de Gran Dolina, em Atapuerca, Espanha, foi nomeada em 1997?",
+  "a": [
+   "Homo antecessor",
+   "Homo heidelbergensis",
+   "Homo sapiens",
+   "Homo erectus"
+  ]
+ },
+ "q2387": {
+  "q": "Qual termo descreve o cruzamento entre hominídeos arcaicos como neandertais e humanos modernos iniciais?",
+  "a": [
+   "Miscigenação",
+   "Especiação",
+   "Alopatria",
+   "Extinção"
+  ]
+ },
+ "q2388": {
+  "q": "Qual grande sítio de hominídeos na região de Afar, na Etiópia, forneceu „Lucy“ e vários restos de Australopithecus afarensis?",
+  "a": [
+   "Hadar",
+   "Taung",
+   "Swartkrans",
+   "Zhoukoudian"
+  ]
+ },
+ "q2389": {
+  "q": "Qual espécie antiga de hominídeo às vezes designa fósseis africanos de Homo erectus de cerca de 1,8 a 1,4 milhão de anos?",
+  "a": [
+   "Homo ergaster",
+   "Australopithecus sediba",
+   "Paranthropus boisei",
+   "Sahelanthropus tchadensis"
+  ]
+ },
+ "q2390": {
+  "q": "Qual molécula carrega as instruções genéticas na quase totalidade dos seres vivos?",
+  "a": [
+   "DNA",
+   "RNA",
+   "ATP",
+   "Glicose"
+  ]
+ },
+ "q2391": {
+  "q": "Qual naturalista do século XIX propôs a teoria da evolução por seleção natural em A Origem das Espécies?",
+  "a": [
+   "Charles Darwin",
+   "Gregor Mendel",
+   "Louis Pasteur",
+   "Carlos Lineu"
+  ]
+ },
+ "q2392": {
+  "q": "Qual é o formato padrão de uma molécula de DNA típica nas células vivas?",
+  "a": [
+   "Dupla hélice",
+   "Cadeia simples reta",
+   "Espiral tripla",
+   "Anel plano"
+  ]
+ },
+ "q2393": {
+  "q": "No pareamento padrão de bases do DNA, qual base nitrogenada se liga à adenina?",
+  "a": [
+   "Timina",
+   "Citosina",
+   "Guanina",
+   "Uracila"
+  ]
+ },
+ "q2394": {
+  "q": "Qual monge austríaco estabeleceu as leis básicas da herança por meio de experimentos com ervilhas no século XIX?",
+  "a": [
+   "Gregor Mendel",
+   "Charles Darwin",
+   "Hugo de Vries",
+   "Thomas Hunt Morgan"
+  ]
+ },
+ "q2395": {
+  "q": "Qual arquipélago no oceano Pacífico inspirou as observações de Charles Darwin sobre os bicos dos tentilhões e a evolução?",
+  "a": [
+   "Ilhas Galápagos",
+   "Açores",
+   "Ilhas Canárias",
+   "Ilhas Havaianas"
+  ]
+ },
+ "q2396": {
+  "q": "Na biologia evolutiva, qual termo descreve uma mudança permanente na sequência de nucleotídeos do DNA?",
+  "a": [
+   "Mutação",
+   "Transcrição",
+   "Tradução",
+   "Replicação"
+  ]
+ },
+ "q2397": {
+  "q": "Na biologia evolutiva, qual termo descreve estruturas em diferentes espécies que compartilham uma origem evolutiva comum?",
+  "a": [
+   "Estruturas homólogas",
+   "Estruturas análogas",
+   "Órgãos vestigiais",
+   "Características convergentes"
+  ]
+ },
+ "q2398": {
+  "q": "Na biologia celular, qual organela das células animais contém seu próprio DNA circular herdado principalmente da mãe?",
+  "a": [
+   "Mitocôndria",
+   "Ribossomo",
+   "Complexo de Golgi",
+   "Lisossomo"
+  ]
+ },
+ "q2399": {
+  "q": "Na genética, qual processo sintetiza uma fita de RNA complementar a partir de um molde de DNA?",
+  "a": [
+   "Transcrição",
+   "Tradução",
+   "Permutação",
+   "Mitose"
+  ]
+ },
+ "q2400": {
+  "q": "Na genética, qual termo designa uma sequência de três nucleotídeos no RNA mensageiro que especifica um aminoácido ou sinal de parada?",
+  "a": [
+   "Códon",
+   "Íntron",
+   "Promotor",
+   "Telômero"
+  ]
+ },
+ "q2401": {
+  "q": "Na biologia evolutiva, qual termo descreve a formação de espécies novas e distintas ao longo do tempo?",
+  "a": [
+   "Especiação",
+   "Adaptação",
+   "Hibridização",
+   "Domesticação"
+  ]
+ },
+ "q2402": {
+  "q": "Na biologia evolutiva, qual termo descreve a evolução independente de características semelhantes em linhagens não aparentadas?",
+  "a": [
+   "Evolução convergente",
+   "Evolução divergente",
+   "Deriva genética",
+   "Fluxo gênico"
+  ]
+ },
+ "q2403": {
+  "q": "Na genética de populações, qual termo descreve flutuações aleatórias nas frequências alélicas de uma geração para outra?",
+  "a": [
+   "Deriva genética",
+   "Seleção natural",
+   "Seleção artificial",
+   "Meiose"
+  ]
+ },
+ "q2404": {
+  "q": "Qual enzima desenrola a dupla hélice de DNA à frente da forquilha de replicação?",
+  "a": [
+   "Helicase",
+   "Ligase",
+   "Amilase",
+   "Catalase"
+  ]
+ },
+ "q2405": {
+  "q": "Qual enzima une os fragmentos de Okazaki na fita atrasada durante a replicação do DNA?",
+  "a": [
+   "DNA ligase",
+   "DNA polimerase",
+   "Primase",
+   "Topoisomerase"
+  ]
+ },
+ "q2406": {
+  "q": "Na genética, qual termo nomeia as sequências repetitivas protetoras nas extremidades dos cromossomos lineares?",
+  "a": [
+   "Telômeros",
+   "Centrômeros",
+   "Plasmídeos",
+   "Operons"
+  ]
+ },
+ "q2407": {
+  "q": "Na biologia molecular, qual termo nomeia segmentos de DNA não codificantes removidos do pré-mRNA durante o splicing?",
+  "a": [
+   "Íntrons",
+   "Éxons",
+   "Ribozimas",
+   "Anticódons"
+  ]
+ },
+ "q2408": {
+  "q": "Na biologia evolutiva, qual termo descreve a diversificação rápida de uma linhagem em muitas formas adaptadas a diferentes nichos?",
+  "a": [
+   "Radiação adaptativa",
+   "Gargalo genético",
+   "Efeito fundador",
+   "Deriva alopátrica"
+  ]
+ },
+ "q2409": {
+  "q": "Na genética de populações, qual termo nomeia uma redução acentuada do tamanho populacional que reduz a diversidade genética?",
+  "a": [
+   "Gargalo populacional",
+   "Equilíbrio de Hardy-Weinberg",
+   "Pleiotropia",
+   "Epistasia"
+  ]
+ },
+ "q2410": {
+  "q": "Na genética, qual termo descreve um único gene influenciando dois ou mais traços fenotípicos aparentemente sem relação?",
+  "a": [
+   "Pleiotropia",
+   "Codominância",
+   "Epigenética",
+   "Translocação"
+  ]
+ },
+ "q2411": {
+  "q": "Na genética, qual termo nomeia a substituição de uma base nucleotídica que transforma um códon em códon de parada?",
+  "a": [
+   "Mutação sem sentido",
+   "Mutação de sentido trocado",
+   "Mutação silenciosa",
+   "Mutação por deslocamento"
+  ]
+ },
+ "q2412": {
+  "q": "Na biologia evolutiva, qual termo descreve a especiação que ocorre na mesma área geográfica?",
+  "a": [
+   "Especiação simpátrica",
+   "Especiação alopátrica",
+   "Especiação peripátrica",
+   "Especiação parapátrica"
+  ]
+ },
+ "q2413": {
+  "q": "Na genética, qual termo nomeia a transferência de material genético fora da herança entre pais e filhos?",
+  "a": [
+   "Transferência horizontal de genes",
+   "Transferência vertical de genes",
+   "Recombinação genética",
+   "Direção meiótica"
+  ]
+ },
+ "q2414": {
+  "q": "Na biologia evolutiva, qual termo descreve o acúmulo gradual de mutações neutras ao longo do tempo?",
+  "a": [
+   "Teoria neutra da evolução",
+   "Equilíbrio pontuado",
+   "Saltacionismo",
+   "Ortogenese"
+  ]
+ },
+ "q2415": {
+  "q": "Na biologia evolutiva, qual termo nomeia longos períodos de estabilidade interrompidos por breves surtos de mudança?",
+  "a": [
+   "Equilíbrio pontuado",
+   "Gradualismo filético",
+   "Assimilação genética",
+   "Coevolução"
+  ]
+ },
+ "q2416": {
+  "q": "Na genética, qual termo nomeia um segmento de DNA que pode mudar de posição dentro de um genoma?",
+  "a": [
+   "Transposon",
+   "Centrômero",
+   "Cinetocoro",
+   "Telomerase"
+  ]
+ },
+ "q2417": {
+  "q": "Na genética, qual termo descreve a interação entre alelos em loci diferentes em que um mascara o efeito de outro?",
+  "a": [
+   "Epistasia",
+   "Pleiotropia",
+   "Penetrância",
+   "Expressividade"
+  ]
+ },
+ "q2418": {
+  "q": "Na biologia evolutiva do desenvolvimento, qual termo nomeia mudanças no tempo ou ritmo de eventos do desenvolvimento?",
+  "a": [
+   "Heterocronia",
+   "Heterotopia",
+   "Alometria",
+   "Pedormorfose"
+  ]
+ },
+ "q2419": {
+  "q": "Qual fotografia de difração de raios X do DNA de 1952 feita no King's College London revelou sua estrutura helicoidal?",
+  "a": [
+   "Foto 51",
+   "Foto 19",
+   "Foto 84",
+   "Foto 33"
+  ]
+ },
+ "q2420": {
+  "q": "Qual ligação química liga nucleotídeos adjacentes ao longo de uma fita simples de DNA?",
+  "a": [
+   "Ligação fosfodiéster",
+   "Ligação peptídica",
+   "Ligação glicosídica",
+   "Ligação iônica"
+  ]
+ },
+ "q2421": {
+  "q": "Na genética, qual termo nomeia uma versão alternativa de um gene em um dado loco cromossômico?",
+  "a": [
+   "Alelo",
+   "Cariótipo",
+   "Fenótipo",
+   "Zigoto"
+  ]
+ },
+ "q2422": {
+  "q": "Na biologia, qual termo descreve os traços observáveis de um organismo resultantes do genótipo e do ambiente?",
+  "a": [
+   "Fenótipo",
+   "Genótipo",
+   "Genoma",
+   "Haplótipo"
+  ]
+ },
+ "q2423": {
+  "q": "Na biologia evolutiva, qual termo nomeia um traço que perdeu grande parte ou toda a sua função ancestral?",
+  "a": [
+   "Característica vestigial",
+   "Característica adaptativa",
+   "Característica derivada",
+   "Característica pleiotrópica"
+  ]
+ },
+ "q2424": {
+  "q": "Na biologia evolutiva, qual termo descreve um pequeno grupo formando uma nova população com menor variação?",
+  "a": [
+   "Efeito fundador",
+   "Deriva genética",
+   "Fluxo gênico",
+   "Seleção estabilizadora"
+  ]
+ },
+ "q2425": {
+  "q": "Na biologia evolutiva, qual tipo de seleção natural favorece variantes intermediárias e estreita a distribuição?",
+  "a": [
+   "Seleção estabilizadora",
+   "Seleção direcional",
+   "Seleção disruptiva",
+   "Seleção balanceadora"
+  ]
+ },
+ "q2426": {
+  "q": "Na biologia evolutiva, qual tipo de seleção natural favorece extremos em ambos os lados em vez de intermediários?",
+  "a": [
+   "Seleção disruptiva",
+   "Seleção estabilizadora",
+   "Seleção direcional",
+   "Seleção sexual"
+  ]
+ },
+ "q2427": {
+  "q": "Na genética, qual termo nomeia a posição física de um gene ou sequência de DNA em um cromossomo?",
+  "a": [
+   "Loco",
+   "Genótipo",
+   "Códon",
+   "Plasmídeo"
+  ]
+ },
+ "q2428": {
+  "q": "Na biologia molecular, qual termo nomeia uma pequena molécula circular de DNA bacteriano que se replica à parte?",
+  "a": [
+   "Plasmídeo",
+   "Cosmídeo",
+   "Fagemídeo",
+   "Centrossomo"
+  ]
+ },
+ "q2429": {
+  "q": "Na genética, qual termo nomeia um conjunto de alelos em um mesmo cromossomo que costumam ser herdados juntos?",
+  "a": [
+   "Haplótipo",
+   "Cariótipo",
+   "Idiograma",
+   "Replicon"
+  ]
+ },
+ "q2430": {
+  "q": "Na biologia evolutiva, qual termo nomeia um traço surgido para uma função e depois reaproveitado para outra?",
+  "a": [
+   "Exaptação",
+   "Adaptação",
+   "Homologia",
+   "Convergência"
+  ]
+ },
+ "q2431": {
+  "q": "Qual molécula de açúcar forma o esqueleto de um nucleotídeo de DNA junto com um grupo fosfato e base?",
+  "a": [
+   "Desoxirribose",
+   "Ribose",
+   "Frutose",
+   "Lactose"
+  ]
+ },
+ "q2432": {
+  "q": "No pareamento padrão de bases do DNA, quantas ligações de hidrogênio se formam entre citosina e guanina?",
+  "a": [
+   "3",
+   "2",
+   "1",
+   "4"
+  ]
+ },
+ "q2433": {
+  "q": "Na genética, qual termo nomeia o conjunto completo de material genético de um organismo?",
+  "a": [
+   "Genoma",
+   "Proteoma",
+   "Metaboloma",
+   "Transcriptoma"
+  ]
+ },
+ "q2434": {
+  "q": "Na genética, qual termo descreve um indivíduo com dois alelos idênticos em um dado loco?",
+  "a": [
+   "Homozigoto",
+   "Heterozigoto",
+   "Hemizigoto",
+   "Poliploide"
+  ]
+ },
+ "q2435": {
+  "q": "Na genética, qual termo nomeia a troca de segmentos entre cromossomos homólogos na meiose?",
+  "a": [
+   "Permutação",
+   "Conversão gênica",
+   "Não disjunção",
+   "Metilação do DNA"
+  ]
+ },
+ "q2436": {
+  "q": "Na biologia evolutiva, qual termo nomeia a passagem de alelos entre populações por migração ou cruzamento?",
+  "a": [
+   "Fluxo gênico",
+   "Deriva genética",
+   "Carga genética",
+   "Depressão endogâmica"
+  ]
+ },
+ "q2437": {
+  "q": "Qual cantor americano do século XX ficou amplamente conhecido como o Rei do Rock and Roll?",
+  "a": [
+   "Elvis Presley",
+   "Frank Sinatra",
+   "Nat King Cole",
+   "Bing Crosby"
+  ]
+ },
+ "q2438": {
+  "q": "Qual cantor de rock britânico liderou a banda Queen até sua morte em 1991?",
+  "a": [
+   "Freddie Mercury",
+   "David Bowie",
+   "George Michael",
+   "John Lennon"
+  ]
+ },
+ "q2439": {
+  "q": "Qual cantor e compositor jamaicano popularizou o reggae no mundo todo com canções como No Woman, No Cry?",
+  "a": [
+   "Bob Marley",
+   "Peter Tosh",
+   "Jimmy Cliff",
+   "Desmond Dekker"
+  ]
+ },
+ "q2440": {
+  "q": "Qual tenor lírico italiano formou Os Três Tenores ao lado de Plácido Domingo e José Carreras?",
+  "a": [
+   "Luciano Pavarotti",
+   "Enrico Caruso",
+   "Andrea Bocelli",
+   "Mario Lanza"
+  ]
+ },
+ "q2441": {
+  "q": "Qual cantora francesa de cabaré tornou-se um ícone internacional com canções como La Vie en rose?",
+  "a": [
+   "Édith Piaf",
+   "Dalida",
+   "Mireille Mathieu",
+   "Françoise Hardy"
+  ]
+ },
+ "q2442": {
+  "q": "Qual cantora americana ganhou 18 prêmios Grammy e foi celebrada como a Rainha do Soul?",
+  "a": [
+   "Aretha Franklin",
+   "Tina Turner",
+   "Diana Ross",
+   "Ella Fitzgerald"
+  ]
+ },
+ "q2443": {
+  "q": "Qual cantora americana gravou em 1992 a famosa versão de I Will Always Love You, composta por Dolly Parton?",
+  "a": [
+   "Whitney Houston",
+   "Celine Dion",
+   "Mariah Carey",
+   "Toni Braxton"
+  ]
+ },
+ "q2444": {
+  "q": "Qual cantor americano, apelidado de Ol' Blue Eyes, ganhou um Oscar pelo filme A Um Passo da Eternidade, de 1953?",
+  "a": [
+   "Frank Sinatra",
+   "Dean Martin",
+   "Tony Bennett",
+   "Perry Como"
+  ]
+ },
+ "q2445": {
+  "q": "Qual cantor country americano, conhecido como o Homem de Preto, gravou álbuns ao vivo nas prisões de Folsom e San Quentin?",
+  "a": [
+   "Johnny Cash",
+   "Willie Nelson",
+   "Waylon Jennings",
+   "Hank Williams"
+  ]
+ },
+ "q2446": {
+  "q": "Em que cidade nasceu a soprano de ópera Maria Callas, filha de pais gregos, em 1923?",
+  "a": [
+   "Nova York",
+   "Atenas",
+   "Milão",
+   "Paris"
+  ]
+ },
+ "q2447": {
+  "q": "Qual cantor e pianista americano cego foi pioneiro da soul music nos anos 1950 com sucessos como What'd I Say?",
+  "a": [
+   "Ray Charles",
+   "Stevie Wonder",
+   "Sam Cooke",
+   "Otis Redding"
+  ]
+ },
+ "q2448": {
+  "q": "Qual era o nome de nascimento do vocalista do Queen, Freddie Mercury, antes de alterar legalmente seu sobrenome?",
+  "a": [
+   "Farrokh Bulsara",
+   "Farhad Bhutto",
+   "Feroze Bomanji",
+   "Farid Bharucha"
+  ]
+ },
+ "q2449": {
+  "q": "Qual cantora de jazz americana, apelidada de Lady Day, ficou famosa por interpretar a canção Strange Fruit?",
+  "a": [
+   "Billie Holiday",
+   "Sarah Vaughan",
+   "Bessie Smith",
+   "Dinah Washington"
+  ]
+ },
+ "q2450": {
+  "q": "Qual tenor lírico italiano do início do século XX esteve entre os primeiros cantores clássicos a alcançar fama mundial por meio de discos de gramofone?",
+  "a": [
+   "Enrico Caruso",
+   "Beniamino Gigli",
+   "Tito Schipa",
+   "Franco Corelli"
+  ]
+ },
+ "q2451": {
+  "q": "Qual baixo lírico búlgaro do século XX ganhou renome internacional por interpretar o papel-título em Boris Godunov, de Mussorgsky?",
+  "a": [
+   "Boris Christoff",
+   "Dimiter Uzunov",
+   "Kaludi Kaludov",
+   "Fiódor Chaliapin"
+  ]
+ },
+ "q2452": {
+  "q": "Qual era o nome de nascimento do cantor castrato italiano do século XVIII Farinelli?",
+  "a": [
+   "Carlo Broschi",
+   "Gaetano Majorano",
+   "Francesco Bernardi",
+   "Domenico Annibali"
+  ]
+ },
+ "q2453": {
+  "q": "Qual cantor pop búlgaro compôs e cantou o clássico patriótico de 1970 Moya strana, moya Bulgaria?",
+  "a": [
+   "Emil Dimitrov",
+   "Georgi Minchev",
+   "Biser Kirov",
+   "Boris Godjunov"
+  ]
+ },
+ "q2454": {
+  "q": "Qual cantora do século XX ficou mundialmente famosa como a Rainha do Fado, gênero musical tradicional português?",
+  "a": [
+   "Amália Rodrigues",
+   "Cesária Évora",
+   "Mercedes Sosa",
+   "Chavela Vargas"
+  ]
+ },
+ "q2455": {
+  "q": "Qual era o nome de nascimento da cantora e pianista americana Nina Simone antes de adotar seu nome artístico nos anos 1950?",
+  "a": [
+   "Eunice Kathleen Waymon",
+   "Eleanora Fagan",
+   "Ruth Lee Jones",
+   "Chloe Anthony Wofford"
+  ]
+ },
+ "q2456": {
+  "q": "Qual era a nacionalidade do cantor e compositor francófono do século XX Jacques Brel, criador de Ne me quitte pas?",
+  "a": [
+   "Belga",
+   "Francesa",
+   "Suíça",
+   "Canadense"
+  ]
+ },
+ "q2457": {
+  "q": "Qual país foi a terra natal da cantora do século XX Umm Kulthum, celebrada no mundo árabe como a Estrela do Oriente?",
+  "a": [
+   "Egito",
+   "Líbano",
+   "Síria",
+   "Marrocos"
+  ]
+ },
+ "q2458": {
+  "q": "Qual cantora japonesa do século XX, chamada de Rainha da era Shōwa, foi a primeira mulher a receber postumamente o Prêmio de Honra do Povo do Japão em 1989?",
+  "a": [
+   "Hibari Misora",
+   "Kyu Sakamoto",
+   "Chiyoko Shimakura",
+   "Teresa Teng"
+  ]
+ },
+ "q2459": {
+  "q": "Em que cidade francesa nasceu, em 1890, o cantor de tango Carlos Gardel, ícone da música argentina?",
+  "a": [
+   "Toulouse",
+   "Marselha",
+   "Bordéus",
+   "Lyon"
+  ]
+ },
+ "q2460": {
+  "q": "Em que cidade russa às margens do rio Volga nasceu, em 1873, o célebre baixo lírico Fiódor Chaliapin?",
+  "a": [
+   "Cazã",
+   "Samara",
+   "Saratov",
+   "Níjni Novgorod"
+  ]
+ },
+ "q2461": {
+  "q": "Qual cantor americano de folk-rock ganhou prêmios Grammy em cinco décadas consecutivas, dos anos 1960 aos anos 2000?",
+  "a": [
+   "Paul Simon",
+   "Bob Dylan",
+   "Joan Baez",
+   "Pete Seeger"
+  ]
+ },
+ "q2462": {
+  "q": "Para qual rei espanhol o castrato italiano Farinelli cantou todas as noites durante quase dez anos, a partir de 1737, para aliviar sua melancolia?",
+  "a": [
+   "Filipe V",
+   "Carlos III",
+   "Fernando VI",
+   "Carlos IV"
+  ]
+ },
+ "q2463": {
+  "q": "Qual tenor lírico francês do século XIX é reconhecido como o primeiro a cantar um dó agudo de peito em vez de falsete, em 1837?",
+  "a": [
+   "Gilbert Duprez",
+   "Adolphe Nourrit",
+   "Jean de Reszke",
+   "Giovanni Battista Rubini"
+  ]
+ },
+ "q2464": {
+  "q": "Sob qual pseudônimo a soprano Maria Callas, aos 11 anos, cantou Un bel dì, de Madama Butterfly, em uma transmissão de rádio em Nova York em 1935?",
+  "a": [
+   "Nina Foresti",
+   "Elena Kalogeropoulou",
+   "Sofia Meneghini",
+   "Clara Serafin"
+  ]
+ },
+ "q2465": {
+  "q": "Em qual ópera ocorreu a última apresentação pública do tenor italiano Enrico Caruso no Metropolitan Opera em 24 de dezembro de 1920?",
+  "a": [
+   "La Juive",
+   "Pagliacci",
+   "Aida",
+   "Tosca"
+  ]
+ },
+ "q2466": {
+  "q": "Qual cofundador dos Beatles escreveu e cantou o hino pacifista solo de 1971 Imagine?",
+  "a": [
+   "John Lennon",
+   "Paul McCartney",
+   "George Harrison",
+   "Ringo Starr"
+  ]
+ },
+ "q2467": {
+  "q": "Qual cantor pop americano lançou Thriller em 1982, tornando-o o álbum mais vendido de todos os tempos?",
+  "a": [
+   "Michael Jackson",
+   "Prince",
+   "Stevie Wonder",
+   "Lionel Richie"
+  ]
+ },
+ "q2468": {
+  "q": "Qual cantor de rock britânico criou o alter ego fictício de glam rock Ziggy Stardust em 1972?",
+  "a": [
+   "David Bowie",
+   "Elton John",
+   "Marc Bolan",
+   "Rod Stewart"
+  ]
+ },
+ "q2469": {
+  "q": "Qual cantor americano de funk e soul ficou amplamente conhecido como o Padrinho do Soul?",
+  "a": [
+   "James Brown",
+   "Marvin Gaye",
+   "Barry White",
+   "Isaac Hayes"
+  ]
+ },
+ "q2470": {
+  "q": "Qual trompetista e cantor de jazz americano gravou o clássico What a Wonderful World em 1967?",
+  "a": [
+   "Louis Armstrong",
+   "Nat King Cole",
+   "Miles Davis",
+   "Chet Baker"
+  ]
+ },
+ "q2471": {
+  "q": "Qual vocalista de jazz americana ganhou o apelido de Primeira-Dama da Canção e venceu 13 prêmios Grammy?",
+  "a": [
+   "Ella Fitzgerald",
+   "Billie Holiday",
+   "Nina Simone",
+   "Carmen McRae"
+  ]
+ },
+ "q2472": {
+  "q": "Qual banda a cantora americana Janis Joplin liderou antes de se tornar um ícone solo do rock e do blues no final dos anos 1960?",
+  "a": [
+   "Big Brother and the Holding Company",
+   "Jefferson Airplane",
+   "The Mamas and the Papas",
+   "Creedence Clearwater Revival"
+  ]
+ },
+ "q2473": {
+  "q": "Qual cantor americano de soul gravou (Sittin' On) The Dock of the Bay poucos dias antes de morrer em um acidente de avião em 1967?",
+  "a": [
+   "Otis Redding",
+   "Sam Cooke",
+   "Wilson Pickett",
+   "Solomon Burke"
+  ]
+ },
+ "q2474": {
+  "q": "Qual cantor americano de pop-rock, conhecido por sua extensão vocal de três oitavas e óculos escuros, gravou Oh, Pretty Woman em 1964?",
+  "a": [
+   "Roy Orbison",
+   "Buddy Holly",
+   "Gene Vincent",
+   "Eddie Cochran"
+  ]
+ },
+ "q2475": {
+  "q": "Qual criatura da mitologia grega tem o tronco de humano e a parte inferior do corpo de cavalo?",
+  "a": [
+   "Centauro",
+   "Minotauro",
+   "Sátiro",
+   "Grifo"
+  ]
+ },
+ "q2476": {
+  "q": "Qual ave mítica das lendas egípcias e gregas renasce das próprias cinzas?",
+  "a": [
+   "Fênix",
+   "Roca",
+   "Harpia",
+   "Sereia"
+  ]
+ },
+ "q2477": {
+  "q": "Qual criatura da mitologia grega tinha cabeça de touro e corpo de homem?",
+  "a": [
+   "Minotauro",
+   "Centauro",
+   "Ciclope",
+   "Quimera"
+  ]
+ },
+ "q2478": {
+  "q": "Quantas cabeças tem tradicionalmente Cérbero, o cão guardião do submundo na mitologia grega?",
+  "a": [
+   "3",
+   "2",
+   "5",
+   "7"
+  ]
+ },
+ "q2479": {
+  "q": "Qual gigante de um olho só prende Odisseu e seus companheiros em uma caverna na Odisseia de Homero?",
+  "a": [
+   "Polifemo",
+   "Tifão",
+   "Argos",
+   "Anteu"
+  ]
+ },
+ "q2480": {
+  "q": "Qual criatura mítica tem cabeça de humano e corpo de leão nas tradições egípcia e grega?",
+  "a": [
+   "Esfinge",
+   "Manticora",
+   "Grifo",
+   "Basilisco"
+  ]
+ },
+ "q2481": {
+  "q": "Qual criatura lendária tem corpo, cauda e patas traseiras de leão, e cabeça e asas de águia?",
+  "a": [
+   "Grifo",
+   "Hipogrifo",
+   "Serpe",
+   "Cocatriz"
+  ]
+ },
+ "q2482": {
+  "q": "Qual monstro marinho gigante do folclore escandinavo é famoso por arrastar navios inteiros para o fundo do mar?",
+  "a": [
+   "Kraken",
+   "Leviatã",
+   "Cila",
+   "Caríbdis"
+  ]
+ },
+ "q2483": {
+  "q": "Qual monstro cuspidor de fogo da mitologia grega tinha cabeça de leão, corpo de cabra e cauda de serpente?",
+  "a": [
+   "Quimera",
+   "Manticora",
+   "Ortro",
+   "Górgona"
+  ]
+ },
+ "q2484": {
+  "q": "Sobre que tipo de pernas fica a cabana da bruxa Baba Yaga no folclore eslavo?",
+  "a": [
+   "Pernas de galinha",
+   "Cascos de cabra",
+   "Patas de urso",
+   "Raízes de árvore"
+  ]
+ },
+ "q2485": {
+  "q": "Quantas pernas tem Sleipnir, o corcel mítico do deus Odin na mitologia nórdica?",
+  "a": [
+   "8",
+   "4",
+   "6",
+   "12"
+  ]
+ },
+ "q2486": {
+  "q": "No folclore japonês, qual é o nome do espírito aquático com casco semelhante ao de tartaruga e uma cavidade com água no topo da cabeça?",
+  "a": [
+   "Kappa",
+   "Tengu",
+   "Kitsune",
+   "Oni"
+  ]
+ },
+ "q2487": {
+  "q": "Qual criatura dos bestiários medievais europeus nasce, segundo a lenda, de um ovo de galo chocado por um sapo ou serpente?",
+  "a": [
+   "Basilisco",
+   "Manticora",
+   "Serpe",
+   "Salamandra"
+  ]
+ },
+ "q2488": {
+  "q": "No folclore eslavo meridional, como são chamados os espíritos femininos da natureza que dançam nas clareiras e punem os mortais que os interrompem?",
+  "a": [
+   "Samodivas",
+   "Kikimoras",
+   "Banshees",
+   "Náiades"
+  ]
+ },
+ "q2489": {
+  "q": "No folclore irlandês, qual espírito feminino é conhecido por anunciar com seus lamentos uma morte na família?",
+  "a": [
+   "Banshee",
+   "Selkie",
+   "Kelpie",
+   "Pooka"
+  ]
+ },
+ "q2490": {
+  "q": "Qual espírito aquático metamorfo do folclore escocês costuma aparecer como um cavalo perto de lagos e rios?",
+  "a": [
+   "Kelpie",
+   "Banshee",
+   "Brownie",
+   "Spriggan"
+  ]
+ },
+ "q2491": {
+  "q": "Qual criatura mítica do folclore escocês e das ilhas Órcades vive como foca no mar, mas tira sua pele para se tornar humana em terra?",
+  "a": [
+   "Selkie",
+   "Kelpie",
+   "Nixie",
+   "Ondina"
+  ]
+ },
+ "q2492": {
+  "q": "No folclore judaico, como é chamado o ser antropomórfico moldado em barro ou argila que ganha vida?",
+  "a": [
+   "Golem",
+   "Dibuk",
+   "Djinn",
+   "Ifrit"
+  ]
+ },
+ "q2493": {
+  "q": "Qual criatura mítica com cascos da mitologia chinesa diz-se aparecer com a chegada de um sábio ou governante ilustre?",
+  "a": [
+   "Qilin",
+   "Bixie",
+   "Taotie",
+   "Pixiu"
+  ]
+ },
+ "q2494": {
+  "q": "No folclore japonês, qual ser sobrenatural das montanhas é tradicionalmente retratado com nariz comprido e asas?",
+  "a": [
+   "Tengu",
+   "Kappa",
+   "Tanuki",
+   "Yuki-onna"
+  ]
+ },
+ "q2495": {
+  "q": "Quantos olhos possuía o gigante guardião Argos Panoptes na mitologia grega?",
+  "a": [
+   "100",
+   "3",
+   "12",
+   "50"
+  ]
+ },
+ "q2496": {
+  "q": "Qual criatura lendária de origem persa tem rosto humano, corpo de leão e uma cauda com espinhos venenosos?",
+  "a": [
+   "Manticora",
+   "Simurgue",
+   "Roca",
+   "Grifo"
+  ]
+ },
+ "q2497": {
+  "q": "Na mitologia nórdica, qual é o nome do lobo colossal destinado a matar Odin durante o Ragnarök?",
+  "a": [
+   "Fenrir",
+   "Garm",
+   "Sköll",
+   "Hati"
+  ]
+ },
+ "q2498": {
+  "q": "No folclore norte-americano, qual é o nome da criatura alada com cascos que supostamente habita a floresta de Pine Barrens, em Nova Jersey?",
+  "a": [
+   "Demônio de Jersey",
+   "Homem-Mariposa",
+   "Wendigo",
+   "Chupacabra"
+  ]
+ },
+ "q2499": {
+  "q": "No folclore eslavo, qual é o nome do espírito guardião da floresta que desorienta os viajantes e muda de tamanho conforme as árvores?",
+  "a": [
+   "Leshy",
+   "Vodyanoy",
+   "Domovoy",
+   "Bannik"
+  ]
+ },
+ "q2500": {
+  "q": "Na mitologia mesopotâmica, qual é o nome do touro ou leão alado com cabeça humana que guardava os portões dos palácios?",
+  "a": [
+   "Lamassu",
+   "Pazuzu",
+   "Humbaba",
+   "Anzu"
+  ]
+ },
+ "q2501": {
+  "q": "Na mitologia nórdica, qual é o nome da Serpente do Mundo que circunda Midgard e morde a própria cauda?",
+  "a": [
+   "Jörmungandr",
+   "Níðhöggr",
+   "Fafnir",
+   "Ouroboros"
+  ]
+ },
+ "q2502": {
+  "q": "No folclore búlgaro, como são chamados os três espíritos femininos do destino que visitam um recém-nascido na terceira noite para prever sua sorte?",
+  "a": [
+   "Orisnitsi",
+   "Samodivas",
+   "Rusalkas",
+   "Vilas"
+  ]
+ },
+ "q2503": {
+  "q": "Qual criatura mítica, híbrida entre cavalo e águia, foi inventada por Ludovico Ariosto no poema Orlando Furioso?",
+  "a": [
+   "Hipogrifo",
+   "Pégaso",
+   "Grifo",
+   "Períton"
+  ]
+ },
+ "q2504": {
+  "q": "Qual criatura mítica, descrita por Jorge Luis Borges com corpo de cervo e cabeça e asas de ave, projeta a sombra de um homem?",
+  "a": [
+   "Períton",
+   "Bonnacon",
+   "Catoblepas",
+   "Anfisbena"
+  ]
+ },
+ "q2505": {
+  "q": "Quais dois irmãos criaram o alfabeto glagolítico no século IX para traduzir textos litúrgicos para os povos eslavos?",
+  "a": [
+   "Cirilo e Metódio",
+   "Bóris e Gleb",
+   "Venceslau e Boleslau",
+   "Miesco e Casimiro"
+  ]
+ },
+ "q2506": {
+  "q": "Na história eslava medieval, qual ramo dos eslavos inclui poloneses, tchecos e eslovacos?",
+  "a": [
+   "Eslavos ocidentais",
+   "Eslavos meridionais",
+   "Eslavos orientais",
+   "Eslavos bálticos"
+  ]
+ },
+ "q2507": {
+  "q": "Na história eslava medieval, qual ramo dos eslavos inclui búlgaros, sérvios, croatas e eslovenos?",
+  "a": [
+   "Eslavos meridionais",
+   "Eslavos ocidentais",
+   "Eslavos orientais",
+   "Eslavos nórdicos"
+  ]
+ },
+ "q2508": {
+  "q": "Na história eslava medieval, qual ramo dos eslavos inclui russos, ucranianos e bielorrussos?",
+  "a": [
+   "Eslavos orientais",
+   "Eslavos ocidentais",
+   "Eslavos meridionais",
+   "Eslavos das estepes"
+  ]
+ },
+ "q2509": {
+  "q": "Qual historiador bizantino do século VI escreveu sobre os primeiros eslavos em sua obra De Bello Gothico?",
+  "a": [
+   "Procópio",
+   "Heródoto",
+   "Estrabão",
+   "Plínio, o Velho"
+  ]
+ },
+ "q2510": {
+  "q": "Qual manual militar bizantino do fim do século VI e início do VII descreve a guerra e os assentamentos eslavos?",
+  "a": [
+   "Estratégico de Maurício",
+   "Tática de Leão",
+   "De Administrando Imperio",
+   "Cronografia de Pselo"
+  ]
+ },
+ "q2511": {
+  "q": "Qual crônica eslava oriental do século XII relata a história inicial por meio do relato sobre Rúrik e os varegues?",
+  "a": [
+   "Crônica de Nestor",
+   "Crônica da Galícia-Volínia",
+   "Primeira Crônica de Novgorod",
+   "Crônica de Nicon"
+  ]
+ },
+ "q2512": {
+  "q": "Qual união tribal eslava na Europa central do século VII foi liderada pelo mercador franco Samo?",
+  "a": [
+   "Império de Samo",
+   "Grande Morávia",
+   "Principado de Nitra",
+   "Marca Sórvia"
+  ]
+ },
+ "q2513": {
+  "q": "Qual Estado eslavo da Europa central do século IX convidou Cirilo e Metódio e adotou a liturgia eslava eclesiástica antiga?",
+  "a": [
+   "Grande Morávia",
+   "Primeiro Império Búlgaro",
+   "Rússia de Kiev",
+   "Ducado da Boêmia"
+  ]
+ },
+ "q2514": {
+  "q": "Em qual império eslavo medieval Preslav e Ocrida se tornaram grandes centros da cultura escrita e do livro eslava?",
+  "a": [
+   "Primeiro Império Búlgaro",
+   "Rússia de Kiev",
+   "Grande Morávia",
+   "Reino da Polônia"
+  ]
+ },
+ "q2515": {
+  "q": "Qual festa tradicional eslava celebra a transição do inverno para a primavera e costuma incluir queimar ou afogar um boneco do inverno?",
+  "a": [
+   "Máslenitsa",
+   "Noite de Kupala",
+   "Koliada",
+   "Rádunitsa"
+  ]
+ },
+ "q2516": {
+  "q": "Qual celebração tradicional eslava do solstício de verão inclui fogueiras, pular chamas e soltar coroas de flores na água?",
+  "a": [
+   "Ivã Kupala",
+   "Máslenitsa",
+   "Koliada",
+   "Semik"
+  ]
+ },
+ "q2517": {
+  "q": "No folclore eslavo, qual criatura é tradicionalmente vista como um espírito do lar que vive dentro de casa?",
+  "a": [
+   "Domovoi",
+   "Leshy",
+   "Rusalka",
+   "Vodyanoy"
+  ]
+ },
+ "q2518": {
+  "q": "No folclore eslavo, qual espírito da natureza guarda as florestas e pode desorientar viajantes na mata?",
+  "a": [
+   "Leshy",
+   "Domovoi",
+   "Vodyanoy",
+   "Kikimora"
+  ]
+ },
+ "q2519": {
+  "q": "No folclore eslavo, qual espírito das águas habita rios, lagos ou lagoas e domina as criaturas aquáticas?",
+  "a": [
+   "Vodyanoy",
+   "Leshy",
+   "Domovoi",
+   "Poludnitsa"
+  ]
+ },
+ "q2520": {
+  "q": "No folclore eslavo, qual figura aparece nos campos de cereais ao meio-dia e testa ou prejudica quem trabalha sob o calor?",
+  "a": [
+   "Poludnitsa",
+   "Domovoi",
+   "Leshy",
+   "Bannik"
+  ]
+ },
+ "q2521": {
+  "q": "Qual governante do Ducado da Boêmia no século X é venerado como santo e padroeiro das terras tchecas?",
+  "a": [
+   "Venceslau I",
+   "Boleslau I",
+   "Miesco I",
+   "Bretislau I"
+  ]
+ },
+ "q2522": {
+  "q": "A qual governante polonês da dinastia Piast do século X se atribui a unificação das terras polonesas e a adoção do cristianismo em 966?",
+  "a": [
+   "Miesco I",
+   "Boleslau I",
+   "Casimiro I",
+   "Ladislau I"
+  ]
+ },
+ "q2523": {
+  "q": "Qual governante da Rússia de Kiev adotou o cristianismo oriental por volta de 988, impulsionando a cristianização das terras eslavas orientais?",
+  "a": [
+   "Vladimiro, o Grande",
+   "Oleg de Novgorod",
+   "Igor de Kiev",
+   "Jaroslav, o Sábio"
+  ]
+ },
+ "q2524": {
+  "q": "Qual governante do Primeiro Império Búlgaro apoiou as escolas literárias de Preslav e Ocrida para expandir a escrita eslava eclesiástica antiga?",
+  "a": [
+   "Simeão I",
+   "Cã Asparukh",
+   "Cã Tervel",
+   "Caloian"
+  ]
+ },
+ "q2525": {
+  "q": "Qual governante eslavo dos Bálcãs centrais no século XII fundou a dinastia sérvia dos Nemanjić?",
+  "a": [
+   "Estêvão Nemanja",
+   "Estêvão Dušan",
+   "Lázaro Hrebeljanović",
+   "Milutin"
+  ]
+ },
+ "q2526": {
+  "q": "Qual governante eslavo dos Bálcãs foi coroado imperador dos sérvios e gregos em 1346?",
+  "a": [
+   "Estêvão Dušan",
+   "Estêvão Nemanja",
+   "Tvrtko I",
+   "Vukašin Mrnjavčević"
+  ]
+ },
+ "q2527": {
+  "q": "Qual governante eslavo foi coroado rei da Bósnia em 1377 e ampliou seu domínio até o litoral adriático?",
+  "a": [
+   "Tvrtko I",
+   "Estêvão Dušan",
+   "Lázaro Hrebeljanović",
+   "Estêvão Tomašević"
+  ]
+ },
+ "q2528": {
+  "q": "Qual batalha medieval de 1410 colocou forças aliadas polaco-lituanas e eslavas contra a Ordem Teutônica?",
+  "a": [
+   "Batalha de Grunwald",
+   "Batalha de Mohács",
+   "Batalha de Varna",
+   "Batalha de Kosovo"
+  ]
+ },
+ "q2529": {
+  "q": "Qual reformador religioso e erudito tcheco do século XV foi queimado na fogueira em Constança em 1415?",
+  "a": [
+   "Jan Hus",
+   "Petr Chelčický",
+   "Jan Žižka",
+   "Jorge de Poděbrady"
+  ]
+ },
+ "q2530": {
+  "q": "Nas tradições eslavas, qual é o nome dos ovos de Páscoa decorados com técnica de reserva de cera?",
+  "a": [
+   "Pysanky",
+   "Kolyada",
+   "Kupala",
+   "Babka"
+  ]
+ },
+ "q2531": {
+  "q": "Qual dança folclórica eslava tradicional é uma roda ou fila dançada nos Bálcãs e na Europa central?",
+  "a": [
+   "Kolo",
+   "Mazurca",
+   "Polonesa",
+   "Krakowiak"
+  ]
+ },
+ "q2532": {
+  "q": "Qual dança folclórica polonesa em compasso ternário com acento no segundo ou terceiro tempo inspirou obras de Fryderyk Chopin?",
+  "a": [
+   "Mazurca",
+   "Kolo",
+   "Hopak",
+   "Kujawiak"
+  ]
+ },
+ "q2533": {
+  "q": "Qual poema épico eslavo oriental antigo relata a campanha do príncipe Igor contra os polovtsianos e alerta contra a discórdia?",
+  "a": [
+   "O Conto da Campanha de Igor",
+   "Zadonshchina",
+   "Canção do Príncipe Igor",
+   "Sermão sobre a Lei e a Graça"
+  ]
+ },
+ "q2534": {
+  "q": "Qual república eslava medieval em torno de uma cidade comercial no rio Volkhov era governada por uma assembleia chamada veche?",
+  "a": [
+   "República de Novgorod",
+   "Principado de Polotsk",
+   "Grão-Ducado de Tver",
+   "Principado de Riazã"
+  ]
+ },
+ "q2535": {
+  "q": "Qual povo eslavo ocidental habitou partes do leste da Alemanha e da Lusácia mantendo língua e identidade eslavas próprias?",
+  "a": [
+   "Sórvios",
+   "Frísios",
+   "Bávaros",
+   "Saxões"
+  ]
+ },
+ "q2536": {
+  "q": "Qual príncipe eslavo da Baixa Panônia no século IX concedeu terras e apoio a Cirilo e Metódio em Blatnohrad?",
+  "a": [
+   "Pribina",
+   "Svatopluk I",
+   "Rastislav",
+   "Mojmir I"
+  ]
+ },
+ "q2537": {
+  "q": "Qual governante da Grande Morávia pediu missionários a Constantinopla em 862, dando início à missão de Cirilo e Metódio?",
+  "a": [
+   "Rastislav",
+   "Pribina",
+   "Svatopluk I",
+   "Bořivoj I"
+  ]
+ },
+ "q2538": {
+  "q": "Qual discípulo de Cirilo e Metódio no século IX impulsionou a escola de Ocrida e se liga à criação do alfabeto cirílico?",
+  "a": [
+   "Clemente de Ocrida",
+   "Naum de Preslav",
+   "Angelário",
+   "Gorazd"
+  ]
+ },
+ "q2539": {
+  "q": "Qual corrente política e cultural buscou a união e uma identidade comum entre os povos eslavos?",
+  "a": [
+   "Paneslavismo",
+   "Liga Hanseática",
+   "Panturquismo",
+   "Austromarxismo"
+  ]
+ },
+ "q2540": {
+  "q": "Qual Estado europeu do século XX uniu vários povos eslavos meridionais antes de se dissolver no início dos anos 1990?",
+  "a": [
+   "Iugoslávia",
+   "Tchecoslováquia",
+   "Grão-Ducado da Lituânia",
+   "República das Duas Nações"
+  ]
+ },
+ "q2541": {
+  "q": "Qual Estado da Europa central criado em 1918 uniu tchecos e eslovacos antes de se dividir pacificamente em 1993?",
+  "a": [
+   "Tchecoslováquia",
+   "Iugoslávia",
+   "Reino da Galícia",
+   "Ducados da Silésia"
+  ]
+ },
+ "q2542": {
+  "q": "Qual união de 1569 fundiu o Reino da Polônia e o Grão-Ducado da Lituânia em um Estado com grande população eslava?",
+  "a": [
+   "União de Lublin",
+   "União de Krewo",
+   "Tratado de Pereiáslav",
+   "Tratado de Brest"
+  ]
+ },
+ "q2543": {
+  "q": "Qual acordo de 1654 entre os cossacos de Zaporígia de Bohdan Khmelnytsky e o Czarado Russo redefiniu a política eslava oriental?",
+  "a": [
+   "Tratado de Pereiáslav",
+   "Tratado de Andrusovo",
+   "Tratado de Hadiach",
+   "Paz Eterna"
+  ]
+ },
+ "q2544": {
+  "q": "Nas tradições eslavas, qual é o nome de um pão ou bolo doce trançado tradicionalmente assado em feriados e Páscoa?",
+  "a": [
+   "Babka",
+   "Pysanka",
+   "Kolyada",
+   "Vatrushka"
+  ]
+ },
+ "q2545": {
+  "q": "Qual príncipe eslavo medieval de Novgorod derrotou as forças suecas no rio Neva em 1240 e recebeu seu famoso epíteto?",
+  "a": [
+   "Alexandre Nevski",
+   "Dmitri Donskói",
+   "Ivan Kalita",
+   "Vsévolod Grande Ninho"
+  ]
+ },
+ "q2546": {
+  "q": "Qual batalha de 1380 perto do rio Don opôs as forças do príncipe de Moscou a Mamai da Horda Dourada?",
+  "a": [
+   "Batalha de Kulikovo",
+   "Batalha do Neva",
+   "Batalha do Lago Peipus",
+   "Batalha das Águas Azuis"
+  ]
+ },
+ "q2547": {
+  "q": "Nas tradições eslavas, qual é o nome dos cantos e costumes de inverno ligados ao solstício de inverno e ao Natal?",
+  "a": [
+   "Kolyada",
+   "Máslenitsa",
+   "Kupala",
+   "Rádunitsa"
+  ]
+ },
+ "q2548": {
+  "q": "Nos costumes populares eslavos, qual é o nome do dia primaveril de memória dos falecidos nos túmulos?",
+  "a": [
+   "Rádunitsa",
+   "Kolyada",
+   "Kupala",
+   "Máslenitsa"
+  ]
+ },
+ "q2549": {
+  "q": "Qual santo e eremita eslavo medieval fundou o mosteiro de Rila no século X?",
+  "a": [
+   "João de Rila",
+   "Simeão I",
+   "Pedro I",
+   "Samuel"
+  ]
+ },
+ "q2550": {
+  "q": "Qual governante do Primeiro Império Búlgaro assinou paz com Bizâncio em 927 e foi reconhecido como czar?",
+  "a": [
+   "Pedro I",
+   "Simeão I",
+   "Bóris I",
+   "Caloian"
+  ]
+ },
+ "q2551": {
+  "q": "Qual governante dos Bálcãs do século XIV governou a partir de Vidin e foi o último da dinastia Shishman?",
+  "a": [
+   "Ivã Sratsimir",
+   "Ivã Alexandre",
+   "Ivã Shishman",
+   "Miguel Asen IV"
+  ]
+ },
+ "q2552": {
+  "q": "Qual governante da Rússia de Kiev impulsionou o código legal conhecido como Russkaya Pravda?",
+  "a": [
+   "Jaroslav, o Sábio",
+   "Vladimiro Monômaco",
+   "Jaroslav II",
+   "Mstislav, o Grande"
+  ]
+ },
+ "q2553": {
+  "q": "Quem escreveu a série de livros de fantasia na qual a série de televisão Game of Thrones é baseada?",
+  "a": [
+   "George R. R. Martin",
+   "J. R. R. Tolkien",
+   "Andrzej Sapkowski",
+   "Robert Jordan"
+  ]
+ },
+ "q2554": {
+  "q": "Qual rede de televisão americana exibiu originalmente a série de fantasia Game of Thrones?",
+  "a": [
+   "HBO",
+   "AMC",
+   "Showtime",
+   "Starz"
+  ]
+ },
+ "q2555": {
+  "q": "Quantas temporadas da série de televisão Game of Thrones foram lançadas ao todo?",
+  "a": [
+   "8",
+   "6",
+   "7",
+   "9"
+  ]
+ },
+ "q2556": {
+  "q": "Qual é o lema da Casa Stark na série Game of Thrones?",
+  "a": [
+   "O inverno está chegando",
+   "Ouça-me rugir",
+   "Fogo e sangue",
+   "Nossa é a fúria"
+  ]
+ },
+ "q2557": {
+  "q": "Qual ator interpretou Tyrion Lannister na série de televisão Game of Thrones?",
+  "a": [
+   "Peter Dinklage",
+   "Nikolaj Coster-Waldau",
+   "Sean Bean",
+   "Kit Harington"
+  ]
+ },
+ "q2558": {
+  "q": "Qual atriz interpretou Daenerys Targaryen na série de televisão Game of Thrones?",
+  "a": [
+   "Emilia Clarke",
+   "Sophie Turner",
+   "Lena Headey",
+   "Maisie Williams"
+  ]
+ },
+ "q2559": {
+  "q": "Qual ator interpretou Jon Snow na série de televisão Game of Thrones?",
+  "a": [
+   "Kit Harington",
+   "Richard Madden",
+   "Alfie Allen",
+   "Iwan Rheon"
+  ]
+ },
+ "q2560": {
+  "q": "Qual é o nome do continente fictício onde ocorre a maior parte dos eventos de Game of Thrones?",
+  "a": [
+   "Westeros",
+   "Essos",
+   "Sothoryos",
+   "Ulthos"
+  ]
+ },
+ "q2561": {
+  "q": "Quantos dragões nascem dos ovos de Daenerys Targaryen na primeira temporada de Game of Thrones?",
+  "a": [
+   "3",
+   "2",
+   "4",
+   "5"
+  ]
+ },
+ "q2562": {
+  "q": "Qual é o nome da capital dos Sete Reinos na série Game of Thrones?",
+  "a": [
+   "Porto Real",
+   "Winterfell",
+   "Pedra do Dragão",
+   "Jardim de Cima"
+  ]
+ },
+ "q2563": {
+  "q": "Em que ano estreou a primeira temporada da série de televisão Game of Thrones?",
+  "a": [
+   "2011",
+   "2009",
+   "2013",
+   "2015"
+  ]
+ },
+ "q2564": {
+  "q": "Em que ano foi exibido o episódio final da série de televisão Game of Thrones?",
+  "a": [
+   "2019",
+   "2017",
+   "2018",
+   "2020"
+  ]
+ },
+ "q2565": {
+  "q": "Qual cidade costeira croata serviu como principal locação de filmagem para Porto Real em Game of Thrones?",
+  "a": [
+   "Dubrovnik",
+   "Split",
+   "Zadar",
+   "Pula"
+  ]
+ },
+ "q2566": {
+  "q": "Qual é o nome da imensa fortificação de gelo que guarda a fronteira norte dos Sete Reinos em Game of Thrones?",
+  "a": [
+   "A Muralha",
+   "O Tridente",
+   "O Ninho da Águia",
+   "A Cidadela"
+  ]
+ },
+ "q2567": {
+  "q": "Qual animal serve como símbolo da Casa Stark na série Game of Thrones?",
+  "a": [
+   "Lobo gigante",
+   "Leão",
+   "Veado",
+   "Kraken"
+  ]
+ },
+ "q2568": {
+  "q": "Qual metal raro e excepcionalmente afiado é usado para forjar lâminas capazes de matar Caminhantes Brancos em Game of Thrones?",
+  "a": [
+   "Aço valiriano",
+   "Mithril",
+   "Adamantium",
+   "Oricalco"
+  ]
+ },
+ "q2569": {
+  "q": "Qual personagem é coroado governante dos Seis Reinos no episódio final de Game of Thrones?",
+  "a": [
+   "Bran Stark",
+   "Jon Snow",
+   "Tyrion Lannister",
+   "Sansa Stark"
+  ]
+ },
+ "q2570": {
+  "q": "Quem compôs a música tema de abertura da série de televisão Game of Thrones?",
+  "a": [
+   "Ramin Djawadi",
+   "Hans Zimmer",
+   "Howard Shore",
+   "Bear McCreary"
+  ]
+ },
+ "q2571": {
+  "q": "Qual é o nome da espada fina empunhada por Arya Stark na série Game of Thrones?",
+  "a": [
+   "Agulha",
+   "Garralonga",
+   "Gelo",
+   "Cumpridora de Promessas"
+  ]
+ },
+ "q2572": {
+  "q": "Qual dos três dragões de Daenerys Targaryen é o maior e recebeu o nome de seu falecido marido?",
+  "a": [
+   "Drogon",
+   "Rhaegal",
+   "Viserion",
+   "Balerion"
+  ]
+ },
+ "q2573": {
+  "q": "Quem mata o Rei da Noite durante a Batalha de Winterfell na oitava temporada de Game of Thrones?",
+  "a": [
+   "Arya Stark",
+   "Jon Snow",
+   "Daenerys Targaryen",
+   "Theon Greyjoy"
+  ]
+ },
+ "q2574": {
+  "q": "Qual substância líquida verde e inflamável destrói a frota de Stannis Baratheon na Batalha da Água Negra em Game of Thrones?",
+  "a": [
+   "Fogovivo",
+   "Fogo de dragão",
+   "Fogo grego",
+   "Beladona"
+  ]
+ },
+ "q2575": {
+  "q": "Qual título é dado ao principal conselheiro do monarca dos Sete Reinos em Game of Thrones?",
+  "a": [
+   "Mão do Rei",
+   "Mestre da Moeda",
+   "Senhor Comandante",
+   "Grande Meistre"
+  ]
+ },
+ "q2576": {
+  "q": "Quem é revelado como o pai biológico de Jon Snow na série de televisão Game of Thrones?",
+  "a": [
+   "Rhaegar Targaryen",
+   "Eddard Stark",
+   "Robert Baratheon",
+   "Aerys Targaryen"
+  ]
+ },
+ "q2577": {
+  "q": "Quem foram os dois showrunners e cocriadores da série de televisão Game of Thrones?",
+  "a": [
+   "David Benioff e D. B. Weiss",
+   "Vince Gilligan e Peter Gould",
+   "Damon Lindelof e Carlton Cuse",
+   "Jonathan Nolan e Lisa Joy"
+  ]
+ },
+ "q2578": {
+  "q": "Qual é o nome da guilda secreta de assassinos que mudam de rosto em Bravos e que treina Arya Stark em Game of Thrones?",
+  "a": [
+   "Homens sem Rosto",
+   "Segundos Filhos",
+   "Companhia Dourada",
+   "Imaculados"
+  ]
+ },
+ "q2579": {
+  "q": "Qual personagem é envenenado em seu próprio banquete de casamento na quarta temporada de Game of Thrones, evento conhecido como Casamento Roxo?",
+  "a": [
+   "Joffrey Baratheon",
+   "Robb Stark",
+   "Ramsay Bolton",
+   "Tommen Baratheon"
+  ]
+ },
+ "q2580": {
+  "q": "Qual linguista criou os idiomas artificiais dothraki e valiriano para a série de televisão Game of Thrones?",
+  "a": [
+   "David J. Peterson",
+   "Marc Okrand",
+   "Paul Frommer",
+   "L. L. Zamenhof"
+  ]
+ },
+ "q2581": {
+  "q": "Quantos episódios foram exibidos ao todo ao longo das oito temporadas da série de televisão Game of Thrones?",
+  "a": [
+   "73",
+   "67",
+   "80",
+   "60"
+  ]
+ },
+ "q2582": {
+  "q": "Qual é o título do primeiro episódio da série de televisão Game of Thrones?",
+  "a": [
+   "O Inverno Está Chegando",
+   "A Estrada do Rei",
+   "Fogo e Sangue",
+   "Valar Morghulis"
+  ]
+ },
+ "q2583": {
+  "q": "Qual ator venceu quatro prêmios Primetime Emmy por sua atuação na série de televisão Game of Thrones?",
+  "a": [
+   "Peter Dinklage",
+   "Nikolaj Coster-Waldau",
+   "Alfie Allen",
+   "Charles Dance"
+  ]
+ },
+ "q2584": {
+  "q": "Qual é o título do episódio final da série de televisão Game of Thrones?",
+  "a": [
+   "O Trono de Ferro",
+   "Os Sinos",
+   "O Dragão e o Lobo",
+   "Os Ventos do Inverno"
+  ]
  }
 }

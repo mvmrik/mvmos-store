@@ -136,14 +136,24 @@ def specialist_advice(p, opts, correct):
 
 
 def country_poll(p, opts, correct):
-    """A hundred people are asked. Each one who knows votes right; the others
-    guess among what is left."""
+    """A hundred people are asked. How many of them know varies from question to
+    question (the crowd can be better or worse than its average), those who do
+    not know guess, and their guesses are not spread evenly: some answers are
+    more tempting than others and one wrong answer may be a popular
+    misconception. So a wrong answer can lead when few people know."""
+    p_eff = max(0.0, min(100.0, random.gauss(p, 18)))
+    weight = {o: (random.uniform(0.4, 1.0) if o == correct else random.random() ** 2.5 + 0.03) for o in opts}
+    wrong = [o for o in opts if o != correct]
+    if wrong and random.random() < 0.6:
+        weight[random.choice(wrong)] *= 5
+    keys = list(opts)
+    ws = [weight[o] for o in keys]
     votes = {o: 0 for o in opts}
     for _ in range(100):
-        if random.randint(1, 100) <= p:
+        if random.random() * 100 < p_eff:
             votes[correct] += 1
         else:
-            votes[random.choice(opts)] += 1
+            votes[random.choices(keys, ws)[0]] += 1
     return votes
 
 

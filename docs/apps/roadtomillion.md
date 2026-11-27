@@ -1,6 +1,6 @@
 # The Road to Millions
 
-The Road to Millions 1.2.0 is a quiz game for Game Hub. Twenty questions grow harder from the first to the last, which is worth 1,000,000. Play alone, or share the same questions with up to six players.
+The Road to Millions is a quiz game for Game Hub. Twenty questions grow harder from the first to the last, which is worth 1,000,000. Play alone, or share the same questions with up to six players.
 
 ## Open the game
 
@@ -44,3 +44,9 @@ The bundled question bank is expanded in all nine languages. In multiplayer, que
 ## Question bank in 1.2.0
 
 The bundled bank grows with many more questions in all nine languages, and the difficulty of several geography questions was corrected so each question sits at the right step of the ladder.
+
+## Smoother play and a larger bank in 1.4.0
+
+Between two questions only the question and the answers change, so the screen no longer redraws. The safe and the risked sums are shown beside the category, and a question that leads to a safe sum has a golden stage. A very long question gets slightly smaller text instead of a scrolling screen, and the specialists and countries you chose are remembered in the browser for the next game.
+
+The country poll is more lifelike: how many people know the answer varies from question to question, and a popular wrong answer can lead when few know. The bundled bank grows by almost 500 questions in all nine languages. In the question manager, a question that looks like a duplicate links to the existing one, and a suggested question shows which countries know it best.

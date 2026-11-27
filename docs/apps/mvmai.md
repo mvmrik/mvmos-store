@@ -168,3 +168,9 @@ An app that asks mvmAI a question through the App API can pass its own id and st
 ## Project questions in 0.25.0
 
 Questions from a project agent appear in a dedicated Questions tab with unread indicators and their own conversations. Discuss lets the owner ask for an explanation while the agent is restricted to reading and searching. Answer and continue resolves the question and lets the agent resume the work. Questions can also be marked as read or closed. When the agent asks the owner a question or finishes a discussion reply, it waits for the owner instead of repeatedly continuing on its own.
+
+## Sections and chat branches in 0.26.0
+
+A project can have several sections, such as Dev, Test and Production. The project itself is the main section, and a new chat starts there; the main section can be given a name of its own. Each added section has its own folder, description and instructions, and removing a section never touches its folder. An administrator can switch the section in any chat, and the AI is told which section the chat is in. When the AI works in another section, or returns to yours, the conversation shows a short note about it.
+
+Every chat in a Git project remembers the branch it was started on, and the conversation list and the bar above the message box show it. A chat's branch can be changed or removed from its menu, with a search over the project's branches. When you open a chat of another branch than the one the folder is on, mvmAI asks whether to switch the folder or stay; in the chat menu an administrator can choose to ask, to switch automatically, or to do nothing. These features are shown only to administrators.

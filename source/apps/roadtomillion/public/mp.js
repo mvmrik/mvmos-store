@@ -106,7 +106,7 @@
     _root = root; _ready = false;
     root.innerHTML =
       '<div class="rm-wrap">' +
-        '<div class="rm-top"><span class="rm-cat" hidden></span><div class="rm-players"></div><div class="rm-tools">' +
+        '<div class="rm-top"><span class="rm-cat" hidden></span><span class="rm-sums" hidden></span><div class="rm-players"></div><div class="rm-tools">' +
           '<button class="rm-snd" data-snd title="' + _esc(_t('rm_sound')) + '"></button></div></div>' +
         '<div class="rm-body">' +
           '<aside class="rm-ladder"></aside>' +
@@ -117,7 +117,7 @@
         '</div><div class="rm-toasts"></div>' +
       '</div>';
     el = {
-      wrap: root.querySelector('.rm-wrap'), players: root.querySelector('.rm-players'), cat: root.querySelector('.rm-cat'),
+      wrap: root.querySelector('.rm-wrap'), players: root.querySelector('.rm-players'), cat: root.querySelector('.rm-cat'), sums: root.querySelector('.rm-sums'),
       ladder: root.querySelector('.rm-ladder'), strip: root.querySelector('.rm-strip'),
       stage: root.querySelector('.rm-stage'), toasts: root.querySelector('.rm-toasts'), over: null,
     };
@@ -243,7 +243,10 @@
   // ── Choices before the first question ──────────────────────────────────────
   function showPick() {
     const proList = Object.keys(PRO_ICON), ccs = _sm.countries.filter(k => k !== LANG_COUNTRY[lang()]);
-    S.pickSpecs = []; S.pickCountries = [];
+    // The choices of the last game are kept in this browser, so the player can
+    // start again with the same helpers or change any of them.
+    const saved = (k, valid) => { try { return (JSON.parse(store.get(k, '[]')) || []).filter(x => valid.indexOf(x) >= 0).slice(0, 3); } catch (_) { return []; } };
+    S.pickSpecs = saved('rm_pick_specs', proList); S.pickCountries = saved('rm_pick_countries', ccs);
     el.stage.innerHTML =
       '<div class="rm-pick"><h2>' + _esc(_t('rm_pick_title')) + '</h2><p>' + _esc(_t('rm_pick_hint')) + '</p>' +
       '<h3>' + _esc(_t('rm_pick_specs', { n: 3 })) + ' <b data-c="s">0/3</b></h3><div class="rm-grid" data-g="s"></div>' +
@@ -268,8 +271,13 @@
     };
     proList.forEach(k => mk(gs, k, '<i>' + PRO_ICON[k] + '</i><span>' + _esc(_t('rm_pro_' + k)) + '</span>', S.pickSpecs, 3));
     ccs.forEach(k => mk(gc, k, '<i>' + flag(k) + '</i><span>' + _esc(_t('rm_cc_' + k)) + '</span>', S.pickCountries, 3));
+    gs.querySelectorAll('.rm-opt').forEach((b, i) => b.classList.toggle('on', S.pickSpecs.indexOf(proList[i]) >= 0));
+    gc.querySelectorAll('.rm-opt').forEach((b, i) => b.classList.toggle('on', S.pickCountries.indexOf(ccs[i]) >= 0));
+    upd();
     go.onclick = () => {
       go.disabled = true;
+      store.set('rm_pick_specs', JSON.stringify(S.pickSpecs));
+      store.set('rm_pick_countries', JSON.stringify(S.pickCountries));
       mp.send({ type: 'rm_pick', lang: lang(), specs: S.pickSpecs, countries: S.pickCountries });
       el.stage.innerHTML = '<div class="rm-wait">' + _esc(_t('rm_pick_wait')) + '</div>';
     };
@@ -280,7 +288,7 @@
     S.phase = 'question'; S.q = q; S.n = q.n; S.sel = null; S.done = false; S.reveal = null;
     S.tray = null; S.compassPending = false; S.quitArm = false;
     if (!resume) { S.removed = new Set(); S.log = []; S.advice = {}; }
-    S.advice = {};
+    S.advice = {}; S.adv = null;
     S.text = q.text || null;      // the server sends it in this player's language
     _qdur = q.time || 0;
     if (!resume) _deadline = _qdur ? performance.now() + _qdur * 1000 : 0;
@@ -292,10 +300,61 @@
       if (!resume) pl.ready = false;
     });
     paintLadder(); paintPlayers();
-    paintStage(true);
+    if (!resume && el.stage.querySelector('.rm-game')) swapQuestion(); else paintStage(true);
   }
 
   const canAct = () => S && S.phase === 'question' && !S.done && S.players[meId()] && S.players[meId()].status === 'playing';
+
+  // Category, held/safe sums and the golden stage of a safe-sum question.
+  function paintHead(q) {
+    const cat = q.cat || 'everyday';
+    el.cat.hidden = false;
+    el.cat.textContent = (CAT_ICON[cat] || '❓') + ' ' + _t('rm_cat_' + cat);
+    // What is held now (lost on a wrong answer, red) and what is safe (green).
+    const held = amountFor(q.n - 1), safeAmt = amountFor(Math.floor((q.n - 1) / S.safe) * S.safe);
+    el.sums.innerHTML = '<b class="risk">' + _esc(fmt(held)) + '</b><b class="safe">' + _esc(fmt(safeAmt)) + '</b>';
+    el.sums.hidden = false;
+    // A question that leads to a safe sum gets a golden stage.
+    el.wrap.classList.toggle('safeq', q.n % S.safe === 0);
+  }
+
+  // Between two questions only the question and the answers change: the old
+  // ones slide away, the texts are replaced in place and the new ones arrive.
+  function swapQuestion() {
+    const gen = _gen, old = el.stage.querySelector('.rm-game');
+    if (!old) { paintStage(true); return; }
+    el.stage.classList.add('swap');
+    old.querySelectorAll('.rm-qcard, .rm-ans, .rm-float').forEach((n, i) => { n.classList.add('leave'); n.style.animationDelay = (n.classList.contains('rm-ans') ? (+n.dataset.pos || 0) * 40 : 0) + 'ms'; });
+    later(() => {
+      if (gen !== _gen || !S || !S.q || S.phase === 'pick') return;
+      const g = el.stage.querySelector('.rm-game');
+      if (!g) { paintStage(true); return; }
+      const q = S.q, t = S.text;
+      const lvl = g.querySelector('.rm-meta .lvl');
+      if (lvl) lvl.innerHTML = _esc(_t('rm_question_n', { n: q.n, total: S.ladderStart + S.ladder.length })) + ' · <b>' + fmt(amountFor(q.n)) + '</b>';
+      const card = g.querySelector('.rm-qcard');
+      card.className = 'rm-qcard pop'; card.style.animationDelay = '';
+      g.querySelector('.rm-q').textContent = t ? t.q : _t('rm_missing');
+      g.querySelectorAll('.rm-ans').forEach((b, pos) => {
+        b.className = 'rm-ans in'; b.style.animationDelay = (pos * 90) + 'ms'; b.disabled = !canAct();
+        b.querySelector('.tx').textContent = t ? t.a[q.perm[pos]] : '';
+      });
+      const ov = g.querySelector('.rm-float');
+      ov.className = 'rm-float'; ov.style.animationDelay = ''; ov.innerHTML = '';
+      paintHead(q); paintActions(); paintClock(); fitQuestion();
+      el.stage.classList.remove('swap');
+    }, 320);
+  }
+
+  // A very long question gets a slightly smaller text instead of a scrolling screen.
+  function fitQuestion() {
+    const q = el.stage && el.stage.querySelector('.rm-q');
+    if (!q) return;
+    q.style.fontSize = '';
+    let size = parseFloat(getComputedStyle(q).fontSize);
+    while (size > 14 && el.stage.scrollHeight > el.stage.clientHeight + 1) { size -= 1; q.style.fontSize = size + 'px'; }
+  }
+  window.addEventListener('resize', () => { if (el && el.stage) fitQuestion(); });
 
   function paintStage(animate) {
     if (!S || !el.stage) return;
@@ -306,7 +365,7 @@
     let h = '<div class="rm-game">' +
       '<div class="rm-meta"><span class="lvl">' + _esc(_t('rm_question_n', { n: q.n, total: S.ladderStart + S.ladder.length })) + ' · <b>' + fmt(amountFor(q.n)) + '</b></span></div>' +
       (S.time ? '<div class="rm-bar"><i></i></div>' : '') +
-      '<div class="rm-qcard' + (animate ? ' pop' : '') + '"><div class="rm-q">' + _esc(t ? t.q : _t('rm_missing')) + '</div></div>' +
+      '<div class="rm-qwrap"><div class="rm-qcard' + (animate ? ' pop' : '') + '"><div class="rm-q">' + _esc(t ? t.q : _t('rm_missing')) + '</div></div><div class="rm-float"></div></div>' +
       '<div class="rm-answers">';
     for (let pos = 0; pos < 4; pos++) {
       const idx = q.perm[pos];
@@ -320,15 +379,14 @@
         '<span class="lt">' + LETTERS[pos] + '</span><span class="tx">' + (gone ? '' : _esc(t ? t.a[idx] : '')) + '</span>' +
         '<span class="vt"></span></button>';
     }
-    h += '</div><div class="rm-advice"></div><div class="rm-actions"></div></div>';
+    h += '</div><div class="rm-actions"></div></div>';
     el.stage.innerHTML = h;
-    el.cat.hidden = false;
-    el.cat.textContent = (CAT_ICON[cat] || '❓') + ' ' + _t('rm_cat_' + cat);
+    paintHead(q);
     el.stage.querySelectorAll('.rm-ans').forEach(b => { b.onclick = () => selectAnswer(+b.dataset.pos); });
     paintActions();
-    (S.log || []).forEach(r => paintAdvice(r));
     if (S.reveal) paintVotes();
     paintClock();
+    fitQuestion();
   }
 
   function selectAnswer(pos) {
@@ -339,7 +397,7 @@
       mp.send({ type: 'rm_joker', kind: 'compass', pos });
       return;
     }
-    S.sel = pos; S.done = true; sfx.pick();
+    S.sel = pos; S.selAt = performance.now(); S.done = true; sfx.pick();
     mp.send({ type: 'rm_answer', pos: pos });
     paintStage();
   }
@@ -358,20 +416,47 @@
     defs.forEach(d => {
       const b = document.createElement('button');
       b.type = 'button'; b.className = 'rm-jk' + (d[0] === 'fifty' ? ' half' : '') + (S.used.has(d[0]) ? ' used' : '') + (jokersLocked && !S.used.has(d[0]) ? ' unavailable' : '') + (S.tray === d[0] ? ' open' : '');
-      b.disabled = jokersLocked || S.used.has(d[0]);
+      // A used forecast lifeline stays tappable: it shows the same answer again.
+      const again = (d[0] === 'specialist' || d[0] === 'country') && S.used.has(d[0]) && !jokersLocked && !!lastAdvice(d[0]);
+      if (again) b.classList.add('again');
+      b.disabled = jokersLocked || (S.used.has(d[0]) && !again);
       b.innerHTML = '<span class="rm-jk-mark" aria-hidden="true">' + d[1] + '</span><span class="rm-jk-label">' + _esc(d[2]) + '</span>'; 
       b.onclick = () => {
         if (S.compassPending) return;
+        if (again) { S.adv = lastAdvice(d[0]); S.tray = null; paintStage(); later(() => dismissAdvice(S.adv), 6000); return; }
         if (d[0] === 'fifty') { mp.send({ type: 'rm_joker', kind: 'fifty' }); return; }
-        S.tray = S.tray === d[0] ? null : d[0]; paintStage();
+        S.tray = S.tray === d[0] ? null : d[0]; S.adv = null; paintStage();
       };
       jk.appendChild(b);
     });
     host.appendChild(jk);
-    if (S.tray === 'compass') {
-      const hint = document.createElement('div');
-      hint.className = 'rm-note'; hint.textContent = _t('rm_compass_pick'); host.appendChild(hint);
-    } else if (S.tray) {
+    paintOver();
+    const row = document.createElement('div');
+    row.className = 'rm-row';
+    const gain = amountFor(S.q.n - 1);
+    {
+      const q = document.createElement('button');
+      q.className = 'rm-btn plain rm-quit' + (S.quitArm ? ' arm' : '');
+      q.disabled = inactive || gain <= 0;
+      q.textContent = S.quitArm ? _t('rm_quit_sure', { amount: fmt(gain) }) : _t('rm_quit', { amount: fmt(gain) });
+      q.onclick = () => {
+        if (!S.quitArm) { S.quitArm = true; paintActions(); later(() => { S.quitArm = false; if (canAct()) paintActions(); }, 3000); return; }
+        mp.send({ type: 'rm_quit' }); S.done = true; sfx.quit(); paintStage();
+      };
+      row.appendChild(q);
+    }
+    if (row.children.length) host.appendChild(row);
+  }
+
+  // The choice of a specialist/country and their answers appear over the
+  // question, so nothing below it moves. The compass makes the answers move.
+  function paintOver() {
+    const host = el.stage.querySelector('.rm-float');
+    if (!host) return;
+    host.innerHTML = '';
+    const ans = el.stage.querySelector('.rm-answers');
+    if (ans) ans.classList.toggle('seek', S.tray === 'compass');
+    if (S.tray && S.tray !== 'compass') {
       const tr = document.createElement('div');
       tr.className = 'rm-tray';
       const list = S.tray === 'specialist' ? S.specs : S.countries;
@@ -384,41 +469,64 @@
         tr.appendChild(b);
       });
       host.appendChild(tr);
-    }
-    const row = document.createElement('div');
-    row.className = 'rm-row';
-    const gain = amountFor(S.q.n - 1);
-    {
-      const q = document.createElement('button');
-      q.className = 'rm-btn plain' + (S.quitArm ? ' arm' : '');
-      q.disabled = inactive || gain <= 0;
-      q.textContent = S.quitArm ? _t('rm_quit_sure', { amount: fmt(gain) }) : _t('rm_quit', { amount: fmt(gain) });
-      q.onclick = () => {
-        if (!S.quitArm) { S.quitArm = true; paintActions(); later(() => { S.quitArm = false; if (canAct()) paintActions(); }, 3000); return; }
-        mp.send({ type: 'rm_quit' }); S.done = true; sfx.quit(); paintStage();
-      };
-      row.appendChild(q);
-    }
-    if (row.children.length) host.appendChild(row);
+    } else if (S.adv) paintAdvice(S.adv);
   }
 
   // ── Lifeline results ───────────────────────────────────────────────────────
   function applyJoker(r, silent) {
     if (r.n !== S.n) return;
     S.used.add(r.kind);
-    if (r.kind === 'fifty') r.removed.forEach(p => S.removed.add(p));
-    else {
-      if (r.kind === 'compass') {
-        if (!r.correct) S.removed.add(r.pos);
-        S.compassPending = false; S.tray = null;
-      }
-      if (S.log.indexOf(r) < 0) S.log.push(r);
+    if (r.kind === 'fifty') {
+      r.removed.forEach(p => S.removed.add(p));
+      if (silent) return;
+      sfx.joker();
+      // The two wrong answers pop away one after the other, then the screen settles.
+      const btns = r.removed.map(p => el.stage.querySelector('.rm-ans[data-pos="' + p + '"]')).filter(Boolean);
+      paintActions();
+      if (!btns.length) { paintStage(); return; }
+      S.fiftyBusy = true;
+      btns.forEach((b, i) => { b.disabled = true; b.style.animationDelay = (i * 380) + 'ms'; b.classList.add('poof', 'slow'); });
+      later(() => { S.fiftyBusy = false; paintStage(); }, 380 * (btns.length - 1) + 900);
+      return;
     }
-    if (!silent) { sfx.joker(); paintStage(); }
+    if (S.log.indexOf(r) < 0) S.log.push(r);
+    if (silent) return;
+    if (r.kind === 'compass') {
+      S.compassPending = false; S.tray = null;
+      if (r.correct) {
+        // The compass pointed at the right answer: it is marked and counts as the answer.
+        S.sel = r.pos; S.selAt = performance.now(); S.done = true; sfx.pick();
+        mp.send({ type: 'rm_answer', pos: r.pos });
+        paintStage();
+      } else {
+        S.removed.add(r.pos); sfx.joker();
+        const b = el.stage.querySelector('.rm-ans[data-pos="' + r.pos + '"]');
+        paintActions();
+        if (b) { b.classList.add('poof'); later(() => paintStage(), 480); } else paintStage();
+      }
+      return;
+    }
+    // A forecast shows over the question for six seconds (or until tapped) and fades away.
+    sfx.joker();
+    S.adv = r; S.tray = null;
+    const mine = r;
+    paintStage();
+    later(() => dismissAdvice(mine), 6000);
+  }
+  // Fades the forecast away; called after 6 seconds or at once when it is tapped.
+  function dismissAdvice(mine) {
+    if (S.adv !== mine) return;
+    const bub = el.stage.querySelector('.rm-float .rm-bubble');
+    if (bub) bub.classList.add('out');
+    later(() => { if (S.adv === mine) { S.adv = null; const h = el.stage.querySelector('.rm-float'); if (h && !S.tray) h.innerHTML = ''; } }, 450);
+  }
+  function lastAdvice(kind) {
+    for (let i = S.log.length - 1; i >= 0; i--) if (S.log[i].kind === kind && S.log[i].n === S.n) return S.log[i];
+    return null;
   }
   function paintAdvice(r) {
     if (r.kind === 'fifty') return;
-    const host = el.stage.querySelector('.rm-advice');
+    const host = el.stage.querySelector('.rm-float');
     if (!host) return;
     const d = document.createElement('div');
     d.className = 'rm-bubble';
@@ -436,13 +544,20 @@
       }
       d.innerHTML = '<i>' + flag(r.who) + '</i><div><b>' + _esc(_t('rm_poll_title', { c: _t('rm_cc_' + r.who) })) + '</b>' + bars + '</div>';
     }
+    d.onclick = () => dismissAdvice(r);
     host.appendChild(d);
   }
   function paintVotes() {}
 
   // ── The reveal ─────────────────────────────────────────────────────────────
   function showReveal(m, silent) {
+    // A chosen answer stays yellow for a second before the verdict, for suspense.
+    if (!silent && S.sel != null && S.selAt) {
+      const wait = 1000 - (performance.now() - S.selAt);
+      if (wait > 0) { S.selAt = 0; later(() => showReveal(m, silent), wait); return; }
+    }
     S.reveal = m; S.phase = 'reveal'; S.done = true;
+    S.adv = null; S.tray = null;
     m.rows.forEach(r => {
       const p = S.players[r.pid];
       if (!p) return;
@@ -552,7 +667,7 @@
         paintPlayers(); break;
       case 'rm_used': {
         const st = S.players[msg.pid];
-        if (st && st.jokers.indexOf(msg.kind) < 0) st.jokers.push(msg.kind);
+        if (st && !msg.free && st.jokers.indexOf(msg.kind) < 0) st.jokers.push(msg.kind);
         if (msg.pid !== meId()) toast(_t('rm_ev_joker', { name: playerOf(msg.pid).display_name, joker: _t('rm_j_' + msg.kind) }), 'joker');
         break;
       }
